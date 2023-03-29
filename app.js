@@ -7,8 +7,13 @@ const port = process.env.PORT;
 const app = express();
 
 app.use(express.static("./public"));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+// ---------------------------------------------------
+// Routes
+import { file_route } from "./server/route/file_route.js";
+app.use(file_route);
 
 // ---------------------------------------------------
 // Simple check
