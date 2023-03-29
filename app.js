@@ -1,13 +1,12 @@
-const express = require("express");
-const dotenv = require("dotenv");
-
-const app = express();
+import express from "express";
+import dotenv from "dotenv";
 
 dotenv.config();
 const port = process.env.PORT;
 
-app.use(express.static("./public"));
+const app = express();
 
+app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
