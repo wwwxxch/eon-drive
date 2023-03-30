@@ -16,7 +16,8 @@
     "@aws-sdk/s3-request-presigner": "^3.301.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "express-fileupload": "^1.4.0"
+    "express-fileupload": "^1.4.0",
+    "mysql2": "^3.2.0"
   },
   "devDependencies": {
     "eslint": "^8.36.0",

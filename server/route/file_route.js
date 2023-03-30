@@ -19,6 +19,10 @@ import {
   getCompleteUrl,
   getPartUrl
 } from "../util/s3.js";
+
+import {
+  saveFileInfo
+} from "../model/db_file.js";
 // ========================================
 // AWS SDK
 import { 
@@ -36,23 +40,53 @@ const config = {
 
 const client = new S3Client(config);
 // ------------------------------------------------------------------------------------
-router.post("/single-upload", wrapAsync(async(req, res) => {
+router.post("/single-upload",async(req, res) => {
   console.log(req.body);
+  // const { filename, filesize, filetype, filerelpath } = req.body;
 
   if (!req.body.filename) {
     return res.status(400).json({ msg: "No file" });
   }
 
-  const singleUrl = await getSingleSignedUrl(S3_BUCKET_NAME, req.body.filename, 3600);
-  return res.status(200).json({ singleUrl });
-}));
+  if (req.body.filerelpath) {
+    req.body.filename = req.body.filerelpath;
+  }
 
-router.get("/multi-upload", wrapAsync(async(req, res) => {
-  const { filename, count } = req.query;
+  const info = [
+    (req.body.filerelpath.match(/\//g)||[]).length,
+    req.body.filename,
+    req.body.filesize,
+    req.body.filetype
+  ];
+
+  const singleUrl = await getSingleSignedUrl(S3_BUCKET_NAME, req.body.filename, 3600);
+  const saveFile = await saveFileInfo(info);
+
+  return res.status(200).json({ singleUrl });
+});
+
+router.post("/multi-upload", wrapAsync(async(req, res) => {
+  console.log(req.body);
+  const { count } = req.body;
   
+  if (!req.body.filename) {
+    return res.status(400).json({ msg: "No file" });
+  }
+
+  if (req.body.filerelpath) {
+    req.body.filename = req.body.filerelpath;
+  }
+
+  const info = [
+    (req.body.filerelpath.match(/\//g)||[]).length,
+    req.body.filename,
+    req.body.filesize,
+    req.body.filetype
+  ];
+
   const cmdCreate = new CreateMultipartUploadCommand({
     Bucket: S3_BUCKET_NAME,
-    Key: filename
+    Key: req.body.filename
   });
 
   const createMultiUpload = await client.send(cmdCreate);
@@ -64,12 +98,24 @@ router.get("/multi-upload", wrapAsync(async(req, res) => {
       .map(item => getPartUrl(S3_BUCKET_NAME, Key, UploadId, item, 3600))
   );
 
+  const saveFile = await saveFileInfo(info);  
+
   return res.json({
-    partUrlsArr: partUrls,
+    partUrls: partUrls,
     completeUrl: completeUrl,
   });
   
 }));
+
+router.get("/list", async(req, res) => {
+  const level = req.query.level === undefined ? 0 : Number(req.query.level);
+  if (!Number.isInteger(level) || level < 0) {
+    return res.status(400).json({ msg: "Invalid Level" });
+  }
+
+  
+  
+});
 
 // router.post("/upload", async(req, res) => {
 
