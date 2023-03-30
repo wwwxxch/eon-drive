@@ -1,4 +1,10 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { 
+  S3Client, 
+  PutObjectCommand,
+  CreateMultipartUploadCommand,
+  CompleteMultipartUploadCommand,
+  UploadPartCommand 
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import dotenv from "dotenv";
@@ -20,7 +26,8 @@ const config = {
 
 const client = new S3Client(config);
 
-async function getSignedFileUrl(fileName, bucket, expiresIn) {
+// Single File
+async function getSingleSignedUrl(bucket, fileName, expiresIn) {
 	const command = new PutObjectCommand({
 		Bucket: bucket,
 		Key: fileName,
@@ -29,4 +36,31 @@ async function getSignedFileUrl(fileName, bucket, expiresIn) {
 	return await getSignedUrl(client, command, { expiresIn });
 }
 
-export default getSignedFileUrl;
+// Multi Files
+
+// get the pre-signed URL for completing a multipart upload
+async function getCompleteUrl(bucket, fileName, uploadId, expiresIn) {
+  const command = new CompleteMultipartUploadCommand({
+    Bucket: bucket,
+    Key: fileName,
+    UploadId: uploadId
+  });
+  return await getSignedUrl(client, command, { expiresIn });
+}
+
+// get the pre-signed URL for a single part upload
+async function getPartUrl(bucket, fileName, uploadId, partNumber, expiresIn) {
+  const command = new UploadPartCommand({
+    Bucket: bucket,
+    Key: fileName,
+    UploadId: uploadId,
+    PartNumber: partNumber
+  });
+  return await getSignedUrl(client, command, { expiresIn });
+}
+
+export { 
+  getSingleSignedUrl,
+  getCompleteUrl,
+  getPartUrl
+};
