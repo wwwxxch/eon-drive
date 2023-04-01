@@ -1,4 +1,4 @@
-const uploadOneFileToS3 = async (file) => {
+const uploadOneFileToS3 = async(file) => {
   console.log("uploadOneFileToS3: ", file);
   try {
     // get signed url from server
@@ -11,21 +11,26 @@ const uploadOneFileToS3 = async (file) => {
         filetype: file.type,
         filerelpath: file.webkitRelativePath 
       })
-    });
-    // console.log("getURL: ", getURL);    
-    const { singleUrl } = await getURL.json();
+    });  
     
-    // put file to s3
-    if (getURL.status === 200) {
-      const putFile = await fetch(singleUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "multipart/form-data" },
-        body: file
-      });
-      // console.log("putFile: ", putFile);
-      return true;
+    if (getURL.status !== 200) {
+      return false;
     }
-  } catch(e){
+
+    // put file to s3
+    const { singleUrl } = await getURL.json();
+    const putFile = await fetch(singleUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "multipart/form-data" },
+      body: file
+    });
+    
+    if (putFile.status !== 200) {
+      return false;
+    }
+
+    return true;
+  } catch(e) {
     console.error("uploadOneFileToS3: ", e);
     return false;
   }
@@ -44,49 +49,55 @@ const multipartToS3 = async(file, chunkArray) => {
         filerelpath: file.webkitRelativePath 
       })
     });
-    if (createMultipart.status === 200) {
-      // create multipart
-      const multipartInfo = await createMultipart.json();
-      const { completeUrl, partUrls } = multipartInfo;
-      const etagArray = Array(chunkArray.length);
-      const putRequests = [];
-      
-      // multipart upload
-      for (let i = 0; i < partUrls.length; i++) {
-        const uploadMultipart = fetch(partUrls[i], {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/octet-stream"
-          },
-          body: chunkArray[i]
-        }).then(res => {
-          etagArray[i] = res.headers.get("etag").replace(/"/g,"");
-        });
-        putRequests.push(uploadMultipart);
-      }
 
-      // complete multipart
-      Promise.all(putRequests).then(async() => {
-        const xmlBody = `
-            <CompleteMultipartUpload>
-              ${etagArray.map((item, i) => {
-                return `
-                  <Part>
-                    <PartNumber>${i + 1}</PartNumber>
-                    <ETag>${item}</ETag>
-                  </Part>
-                `;
-              }).join("")}
-            </CompleteMultipartUpload>
-          `;
-
-        fetch(completeUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/xml" },
-          body: xmlBody
-        });
-      });
+    if (createMultipart.status !== 200) {
+      return false;
     }
+    
+    // create multipart
+    const multipartInfo = await createMultipart.json();
+    const { completeUrl, partUrls } = multipartInfo;
+    const etagArray = Array(chunkArray.length);
+    const putRequests = [];
+    
+    // multipart upload
+    for (let i = 0; i < partUrls.length; i++) {
+      const uploadMultipart = fetch(partUrls[i], {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/octet-stream"
+        },
+        body: chunkArray[i]
+      }).then(res => {
+        etagArray[i] = res.headers.get("etag").replace(/"/g,"");
+      }).catch(err => {
+        console.error(err);
+      });
+      putRequests.push(uploadMultipart);
+    }
+
+    // complete multipart
+    Promise.all(putRequests).then(async() => {
+      const xmlBody = `
+          <CompleteMultipartUpload>
+            ${etagArray.map((item, i) => {
+              return `
+                <Part>
+                  <PartNumber>${i + 1}</PartNumber>
+                  <ETag>${item}</ETag>
+                </Part>
+              `;
+            }).join("")}
+          </CompleteMultipartUpload>
+        `;
+
+      fetch(completeUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/xml" },
+        body: xmlBody
+      });
+    }); 
+
   } catch(e) {
     console.error("multipartToS3: ", e);
     return false;
