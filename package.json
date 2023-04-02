@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --node-env=production --config webpack.config.js",
     "dev": "nodemon"
   },
   "keywords": [],
@@ -17,10 +18,20 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-fileupload": "^1.4.0",
-    "mysql2": "^3.2.0"
+    "mysql2": "^3.2.0",
+    "path": "^0.12.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "url": "^0.11.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.21.4",
+    "@babel/preset-react": "^7.18.6",
+    "babel-loader": "^9.1.2",
     "eslint": "^8.36.0",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "webpack": "^5.77.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.2"
   }
 }
