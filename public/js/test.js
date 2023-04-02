@@ -1,4 +1,8 @@
-import { uploadOneFileToS3, multipartToS3 } from "./api.js";
+import { 
+  uploadOneFileToS3, 
+  multipartToS3,
+  getFileList
+} from "./api.js";
 
 async function splitFileIntoChunks(file, chunk_size) {
 	const CHUNK_SIZE = chunk_size * 1024 * 1024; // MB
@@ -81,25 +85,16 @@ $("#form-folder").on("submit", async function (e) {
 
 // ==========================================================================
 // User Interface
-const fileList = $("#file-list");
-
 function showList(obj) {
+  const fileList = $("#file-list");
 	obj.data.forEach((item) => {
+    const tickboxValue = item.type === "folder" ? item.name + "/" : item.name;
 		const div = $("<div>");
-		let tickbox;
-		if (item.type === "folder") {
-			tickbox = $("<input>").attr({
-				type: "checkbox",
-				name: "list-checkbox",
-				value: item.name + "/",
-			});
-		} else {
-			tickbox = $("<input>").attr({
-				type: "checkbox",
-				name: "list-checkbox",
-				value: item.name,
-			});
-		}
+    const tickbox = $("<input>").attr({
+        type: "checkbox",
+        name: "list-checkbox",
+        value: tickboxValue,
+      });
 		const span = $("<span>");
 
 		tickbox.change(function () {
@@ -125,13 +120,8 @@ function showList(obj) {
 }
 
 // HOME PAGE
-const getList = await fetch("/v2/list", {
-	method: "POST",
-	headers: { "Content-Type": "application/json" },
-	body: JSON.stringify({ path: "" }),
-});
-const getListData = await getList.json();
-showList(getListData);
+const homeList = await getFileList("");
+showList(homeList);
 
 // click folder --> show lists under that folder
 $("#file-list").on("click", ".folder", async function () {
@@ -141,18 +131,14 @@ $("#file-list").on("click", ".folder", async function () {
 
 	// clear file list and get file list under new dir
 	$("#file-list").empty();
-	const getList = await fetch("/v2/list", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ path: newPath }),
-	});
-	const getListData = await getList.json();
-	showList(getListData);
+  const newList = await getFileList(newPath);
+	showList(newList);
 
 	// update current path
 	$("#current-path").text(newPath);
 });
 
+// ==========================================================================
 // delete
 $("#delete-button").click(async function () {
 	const selected = $("input[name='list-checkbox']:checked");
@@ -180,12 +166,21 @@ $("#delete-button").click(async function () {
 	const deleteResultData = await deleteResult.json();
   console.log(deleteResultData);
 
-	// const getList = await fetch("/list");
-	// const getListData = await getList.json();
-	// $("#file-list").empty();
-	// showList(getListData);
-	selected.prop("checked", false);
+  const deleteMetadata = await fetch("/delete-metadata", {
+	  method: "POST",
+	  headers: {
+	    "Content-Type": "application/json"
+	  },
+	  body: JSON.stringify({ delList: fileToDelete })
+	});
+  const deleteMetadataRes = await deleteMetadata.json();
+  console.log(deleteMetadataRes);
+  
+  $("#file-list").empty();
+  const newList = await getFileList($("#current-path").text());
+	showList(newList);
 
+	selected.prop("checked", false);
 	$("#delete-button").hide();
 });
 

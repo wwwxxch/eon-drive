@@ -12,6 +12,13 @@ import {
   deleteObject,
   listObjectsUnderFolder
 } from "../util/s3_delete.js";
+
+import {
+  getDirId,
+  deleteWholeFolder,
+  getFileId,
+  deleteById
+} from "../model/db_file.js";
 // ------------------------------------------------------------------------------------
 
 // For Testing
@@ -39,6 +46,46 @@ router.post("/delete", async(req, res) => {
   }
 
   return res.json({ msg: "/delete" });
+});
+
+router.post("/delete-metadata", async(req, res) => {
+  console.log("/delete-metadata: ", req.body);
+  const { delList } = req.body; // req.body = { "delList": ["folder/", "file.ext"] }
+  for (let i = 0; i < delList.length; i++) {
+    const type = delList[i].endsWith("/") ? "folder" : "file";
+    
+    const parts = delList[i].split("/");
+    const split = parts.filter(item => item !== "");
+    console.log("split: ", split);
+
+    const iterNum = type === "folder" ? split.length : split.length - 1;
+    let parentId = 0;
+    for (let j = 0; j < iterNum; j++) {
+      const chkDir = await getDirId(parentId, split[j]);
+      console.log("chkDir: ", chkDir);
+      if (chkDir.length === 0) {
+        parentId = null;
+        break;
+      }
+      parentId = chkDir[0].id;
+    }
+
+    if (type === "folder") {
+      console.log(parentId);
+      if (parentId) {
+        await deleteWholeFolder(parentId);
+      }
+    } else {
+      console.log(parentId, split[split.length-1]);
+      const [fileId] = await getFileId(parentId, split[split.length-1]);
+      console.log(fileId);
+      if (fileId) {
+        await deleteById(fileId.id);
+      }
+    }
+  }
+
+  return res.json({ msg: "/delete-metadata" });
 });
 
 export { router as file_delete };
