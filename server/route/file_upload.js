@@ -18,12 +18,11 @@ import {
   getSingleSignedUrl,
   getCompleteUrl,
   getPartUrl
-} from "../util/s3.js";
+} from "../util/s3_upload.js";
 
 import {
   saveMetadata,
-  getDirId,
-  getFileList
+  getDirId
 } from "../model/db_file.js";
 // ========================================
 // AWS SDK
@@ -42,7 +41,7 @@ const config = {
 
 const client = new S3Client(config);
 // ------------------------------------------------------------------------------------
-router.post("/metadata", async(req, res) => {
+router.post("/upload-metadata", async(req, res) => {
   console.log(req.body);
   const { filename, filesize, filerelpath } = req.body;
 
@@ -53,7 +52,8 @@ router.post("/metadata", async(req, res) => {
   let parentId = 0;
   if (parts.length > 0) {
     for (let i = 0; i < parts.length; i++) {
-      const chkDir = await getDirId(parts[i]);
+      console.log(parts[i]);
+      const chkDir = await getDirId(parentId, parts[i]);
       if (chkDir.length === 0) {
         const toDBFolder = await saveMetadata(parentId, parts[i], "folder", null);
         parentId = toDBFolder.insertId; 
@@ -120,28 +120,5 @@ router.post("/multi-upload", wrapAsync(async(req, res) => {
   
 }));
 
-router.get("/list", async(req, res) => {
-  const dirId = req.query.dirId === undefined ? 0 : Number(req.query.dirId);
-  if (!Number.isInteger(dirId) || dirId < 0) {
-    return res.status(400).json({ msg: "Wrong query parameter" });
-  }
 
-  const list = await getFileList(dirId);
-  console.log(list);
-  
-  return res.json({ data: list });
-});
-
-// router.post("/upload", async(req, res) => {
-
-// });
-
-// router.get("/download", async(req, res) => {
-
-// });
-
-// router.delete("/delete", async(req, res) => {
-
-// });
-
-export { router as file_route };
+export { router as file_upload };

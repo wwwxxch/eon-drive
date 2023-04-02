@@ -12,8 +12,15 @@ app.use(express.json());
 
 // ---------------------------------------------------
 // Routes
-import { file_route } from "./server/route/file_route.js";
-app.use(file_route);
+import { file_upload } from "./server/route/file_upload.js";
+import { file_list } from "./server/route/file_list.js";
+import { file_delete } from "./server/route/file_delete.js";
+import { file_create } from "./server/route/file_create.js";
+
+app.use(file_upload);
+app.use(file_list);
+app.use(file_delete);
+app.use(file_create);
 
 // ---------------------------------------------------
 // Simple check
