@@ -3,3 +3,7 @@ node_modules
 .eslintrc.json
 
 .env
+
+# for check
+db_schema.sql
+dropbox_req.json
