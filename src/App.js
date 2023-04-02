@@ -1,9 +1,10 @@
 import React from "react";
+import FileList from "./pages/FileList/FileList.js";
 
 const App = () => {
   return (
     <>
-      <h1>EON Drive</h1>
+      <FileList />
     </>
   );
 };

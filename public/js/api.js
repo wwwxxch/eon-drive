@@ -8,8 +8,18 @@ const getFileList = async (path) => {
   return getListData;
 };
 
-const uploadOneFileToS3 = async (file) => {
+const uploadOneFileToS3 = async (path, file) => {
 	console.log("uploadOneFileToS3: ", file);
+  console.log("path: ", path);
+  
+  let relPath = path !== "Home" ? 
+    path.split("/").slice(1).join("/") 
+    : "";
+  relPath = file.webkitRelativePath ? 
+    relPath + "/" + file.webkitRelativePath 
+    : relPath = relPath + "/" + file.name;
+
+  console.log(relPath);
 	try {
 		// get signed url from server
 		const getURL = await fetch("/single-upload", {
@@ -19,7 +29,7 @@ const uploadOneFileToS3 = async (file) => {
 				filename: file.name,
 				filesize: file.size,
 				filetype: file.type,
-				filerelpath: file.webkitRelativePath,
+				filerelpath: relPath,
 			}),
 		});
 
@@ -46,7 +56,16 @@ const uploadOneFileToS3 = async (file) => {
 	}
 };
 
-const multipartToS3 = async (file, chunkArray) => {
+const multipartToS3 = async (path, file, chunkArray) => {
+  let relPath = path !== "Home" ? 
+    path.split("/").slice(1).join("/") 
+    : "";
+  relPath = file.webkitRelativePath ? 
+    relPath + "/" + file.webkitRelativePath 
+    : relPath = relPath + "/" + file.name;
+
+  console.log(relPath);
+
 	try {
 		const createMultipart = await fetch("/multi-upload", {
 			method: "POST",
@@ -56,7 +75,7 @@ const multipartToS3 = async (file, chunkArray) => {
 				filename: file.name,
 				filesize: file.size,
 				filetype: file.type,
-				filerelpath: file.webkitRelativePath,
+				filerelpath: relPath,
 			}),
 		});
 
@@ -117,8 +136,40 @@ const multipartToS3 = async (file, chunkArray) => {
 	}
 };
 
+const uploadMetadata = async(path, file) => {
+  console.log("path: ", path);
+  
+  let relPath = path !== "Home" ? 
+    path.split("/").slice(1).join("/") 
+    : "";
+  relPath = file.webkitRelativePath ? 
+    relPath + "/" + file.webkitRelativePath 
+    : relPath = relPath + "/" + file.name;
+
+  console.log(relPath);
+  try {
+    const metadataToServer = await fetch("/upload-metadata", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				filename: file.name,
+				filesize: file.size,
+				filerelpath: relPath,
+			}),
+		});
+    if (metadataToServer.status !== 200) {
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error("uploadMetadata: ", e);
+    return false;
+  }
+};
+
 export { 
   uploadOneFileToS3, 
   multipartToS3,
+  uploadMetadata,
   getFileList
 };

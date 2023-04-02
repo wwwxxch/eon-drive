@@ -1,53 +1,30 @@
 import { 
   uploadOneFileToS3, 
   multipartToS3,
+  uploadMetadata,
   getFileList
 } from "./api.js";
 
-async function splitFileIntoChunks(file, chunk_size) {
-	const CHUNK_SIZE = chunk_size * 1024 * 1024; // MB
-	const chunks = [];
-
-	let start = 0;
-	let end = CHUNK_SIZE;
-	while (start < file.size) {
-		const chunk = file.slice(start, end);
-		chunks.push(chunk);
-		start = end;
-		end = start + CHUNK_SIZE;
-	}
-
-	return chunks;
-}
+import { splitFileIntoChunks } from "./util.js";
 
 const chunk_unit = 5 * 1024 * 1024;
 
-// upload entire file to S3 & upload multipart to S3
-$("#form-upload").on("submit", async function (e) {
+// upload file
+$("#form-file").on("submit", async function (e) {
 	e.preventDefault();
+  const currentPath = $("#current-path").text();
 	const fileList = $("#file-input")[0].files;
-	console.log(fileList);
 
 	for (let element of fileList) {
-		console.log(element);
 		if (element.size < chunk_unit) {
-			await uploadOneFileToS3(element);
+			await uploadOneFileToS3(currentPath, element);
 		} else {
 			const chunks = await splitFileIntoChunks(element, 5);
-			await multipartToS3(element, chunks);
+			await multipartToS3(currentPath, element, chunks);
 		}
 
-		const fileMetadata = await fetch("/upload-metadata", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				filename: element.name,
-				filesize: element.size,
-				filerelpath: element.webkitRelativePath,
-			}),
-		});
-		const fileMetadataRes = await fileMetadata.json();
-		console.log(fileMetadataRes);
+		const isUploaded = await uploadMetadata(currentPath, element);
+		console.log(isUploaded);
 	}
 
 	$("#file-input").val("");
@@ -56,30 +33,20 @@ $("#form-upload").on("submit", async function (e) {
 // upload folder
 $("#form-folder").on("submit", async function (e) {
 	e.preventDefault();
+  const currentPath = $("#current-path").text();
 	const fileList = $("#folder-input")[0].files;
-	console.log($("#folder-input"));
-	console.log(fileList);
 
 	for (let element of fileList) {
-		console.log(element);
 		if (element.size < chunk_unit) {
-			await uploadOneFileToS3(element);
+			await uploadOneFileToS3(currentPath, element);
 		} else {
 			const chunks = await splitFileIntoChunks(element, 5);
-			await multipartToS3(element, chunks);
+			await multipartToS3(currentPath, element, chunks);
 		}
-		const fileMetadata = await fetch("/upload-metadata", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				filename: element.name,
-				filesize: element.size,
-				filerelpath: element.webkitRelativePath,
-			}),
-		});
-		const fileMetadataRes = await fileMetadata.json();
-		console.log(fileMetadataRes);
+		const isUploaded = await uploadMetadata(currentPath, element);
+		console.log(isUploaded);
 	}
+
 	$("#folder-input").val("");
 });
 
@@ -136,21 +103,23 @@ $("#file-list").on("click", ".folder", async function () {
 
 	// update current path
 	$("#current-path").text(newPath);
+
+  $("#file-input").val("");
+  $("#folder-input").val("");
 });
 
 // ==========================================================================
 // delete
 $("#delete-button").click(async function () {
 	const selected = $("input[name='list-checkbox']:checked");
-	console.log("selected: ", selected.toArray());
 	const fileToDelete = selected
 		.toArray()
 		.map((tickbox) => {
-      if ($("#current-path").text() === "") {
+      if ($("#current-path").text() === "Home") {
         return tickbox.value;
       }
       else {
-        let parentPath = $("#current-path").text().replace(/^\//,"");
+        let parentPath = $("#current-path").text().replace(/^Home\//,"");
         return `${parentPath}/${tickbox.value}`;
       }
     });
