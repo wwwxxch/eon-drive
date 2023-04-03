@@ -12,14 +12,16 @@ const uploadOneFileToS3 = async (path, file) => {
 	console.log("uploadOneFileToS3: ", file);
   console.log("path: ", path);
   
-  let relPath = path !== "Home" ? 
-    path.split("/").slice(1).join("/") 
-    : "";
-  relPath = file.webkitRelativePath ? 
-    relPath + "/" + file.webkitRelativePath 
-    : relPath = relPath + "/" + file.name;
-
-  console.log(relPath);
+  let relPath = "";
+  if (path !== "Home") {
+    relPath = path.split("/").slice(1).join("/");
+    if (file.webkitRelativePath) {
+      relPath = relPath + "/" + file.webkitRelativePath;
+    } else {
+      relPath = relPath + "/" + file.name;
+    }
+  }
+  console.log("relPath: ", relPath);
 	try {
 		// get signed url from server
 		const getURL = await fetch("/single-upload", {
@@ -57,14 +59,16 @@ const uploadOneFileToS3 = async (path, file) => {
 };
 
 const multipartToS3 = async (path, file, chunkArray) => {
-  let relPath = path !== "Home" ? 
-    path.split("/").slice(1).join("/") 
-    : "";
-  relPath = file.webkitRelativePath ? 
-    relPath + "/" + file.webkitRelativePath 
-    : relPath = relPath + "/" + file.name;
-
-  console.log(relPath);
+  let relPath = "";
+  if (path !== "Home") {
+    relPath = path.split("/").slice(1).join("/");
+    if (file.webkitRelativePath) {
+      relPath = relPath + "/" + file.webkitRelativePath;
+    } else {
+      relPath = relPath + "/" + file.name;
+    }
+  }
+  console.log("relPath: ", relPath);
 
 	try {
 		const createMultipart = await fetch("/multi-upload", {
@@ -137,16 +141,16 @@ const multipartToS3 = async (path, file, chunkArray) => {
 };
 
 const uploadMetadata = async(path, file) => {
-  console.log("path: ", path);
-  
-  let relPath = path !== "Home" ? 
-    path.split("/").slice(1).join("/") 
-    : "";
-  relPath = file.webkitRelativePath ? 
-    relPath + "/" + file.webkitRelativePath 
-    : relPath = relPath + "/" + file.name;
-
-  console.log(relPath);
+  let relPath = "";
+  if (path !== "Home") {
+    relPath = path.split("/").slice(1).join("/");
+    if (file.webkitRelativePath) {
+      relPath = relPath + "/" + file.webkitRelativePath;
+    } else {
+      relPath = relPath + "/" + file.name;
+    }
+  }
+  console.log("relPath: ", relPath);
   try {
     const metadataToServer = await fetch("/upload-metadata", {
 			method: "POST",

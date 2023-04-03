@@ -68,8 +68,10 @@ function showList(obj) {
 			const selected = $("input[name='list-checkbox']:checked");
 			if (selected.length > 0) {
 				$("#delete-button").show();
+        $("#download-button").show();
 			} else {
 				$("#delete-button").hide();
+        $("#download-button").hide();
 			}
 		});
 
@@ -151,6 +153,38 @@ $("#delete-button").click(async function () {
 
 	selected.prop("checked", false);
 	$("#delete-button").hide();
+  $("#download-button").hide();
+});
+
+// download
+$("#download-button").click(async function () {
+	const selected = $("input[name='list-checkbox']:checked");
+	const fileToDownload = selected
+		.toArray()
+		.map((tickbox) => {
+      if ($("#current-path").text() === "Home") {
+        return tickbox.value;
+      }
+      else {
+        let parentPath = $("#current-path").text().replace(/^Home\//,"");
+        return `${parentPath}/${tickbox.value}`;
+      }
+    });
+	console.log(fileToDownload);
+
+	const downloadResult = await fetch("/download", {
+	  method: "POST",
+	  headers: {
+	    "Content-Type": "application/json"
+	  },
+	  body: JSON.stringify({ downloadList: fileToDownload })
+	});
+	const downloadResultData = await downloadResult.json();
+  console.log(downloadResultData);
+
+	selected.prop("checked", false);
+  $("#delete-button").hide();
+	$("#download-button").hide();
 });
 
 // ==========================
