@@ -1,10 +1,16 @@
 import express from "express";
 import dotenv from "dotenv";
+import http from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 const port = process.env.PORT;
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+app.set("socketio", io);
 
 app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
@@ -52,6 +58,6 @@ app.use((err, req, res, next) => {
 });
 
 // ---------------------------------------------------
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}...`);
 });
