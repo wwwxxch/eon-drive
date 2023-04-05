@@ -22,7 +22,9 @@ import {
 
 import {
   saveMetadata,
-  getDirId
+  updMetadata,
+  getDirId,
+  getFileId
 } from "../model/db_file.js";
 // ========================================
 // AWS SDK
@@ -62,11 +64,21 @@ router.post("/upload-metadata", async(req, res) => {
       } 
     }
   }
-  const toDBFile = await saveMetadata(parentId, filename, "file", filesize);
-  console.log(toDBFile);
-  if (toDBFile.serverStatus !== 2) {
-    return res.status(500).json({ msg: "Something Wrong" });
+  const chkFileId = await getFileId(parentId, filename);
+  if (chkFileId.length === 0) {
+    const toDBFile = await saveMetadata(parentId, filename, "file", filesize);
+    console.log(toDBFile);
+    if (toDBFile.affectedRows !== 1) {
+      return res.status(500).json({ msg: "Something Wrong" });
+    }
+  } else {
+    const updDBFile = await updMetadata(parentId, filename, "file", filesize);
+    console.log(updDBFile);
+    if (updDBFile.affectedRows !== 1) {
+      return res.status(500).json({ msg: "Something Wrong" });
+    }
   }
+  
   return res.json({ msg: "metadata save to DB" });
 });
 

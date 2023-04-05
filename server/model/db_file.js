@@ -15,6 +15,13 @@ const saveMetadata = async(parentId, name, type, size) => {
   return row;
 };
 
+const updMetadata = async(parentId, name, type, size) => {
+  const [row] = await pool.query(`
+    UPDATE file SET size = ? WHERE parent_id = ? AND name = ? AND type = 'file'
+  `, [size, parentId, name, type]);
+  return row;
+};
+
 const getFileList = async(parentId) => {
   const [row] = await pool.query(`
     SELECT id, name, type, size, updated_at FROM file WHERE parent_id = ?
@@ -76,6 +83,7 @@ const deleteById = async(id) => {
 export {
   getDirId,
   saveMetadata,
+  updMetadata,
   getFileList,
   deleteWholeFolder,
   getFileId,
