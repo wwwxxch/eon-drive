@@ -1,8 +1,13 @@
 const getFileList = async (path) => {
-	const getList = await fetch("/v2/list", {
+  let parentPath = "";
+  if (path !== "Home") {
+    parentPath = path.split("/").slice(1).join("/");
+  }
+
+	const getList = await fetch("/show-list", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ path: path }),
+		body: JSON.stringify({ path: parentPath }),
 	});
 	const getListData = await getList.json();
   return getListData;
@@ -88,6 +93,7 @@ const multipartToS3 = async (path, file, chunkArray) => {
 
 		// create multipart
 		const multipartInfo = await createMultipart.json();
+    console.log(multipartInfo);
 		const { completeUrl, partUrls } = multipartInfo;
 		const etagArray = Array(chunkArray.length);
 		const putRequests = [];
@@ -143,18 +149,23 @@ const multipartToS3 = async (path, file, chunkArray) => {
 };
 
 const uploadMetadata = async(path, file) => {
-  let relPath = "";
+  
+  let parentPath = "";
+  let wholePath = "";
+
   if (path !== "Home") {
-    relPath = path.split("/").slice(1).join("/");
+    parentPath = path.split("/").slice(1).join("/");
   }
 
   if (file.webkitRelativePath) {
-    relPath = ((relPath === "" ? "" : relPath + "/") + file.webkitRelativePath).trim();
+    wholePath = ((parentPath === "" ? "" : parentPath + "/") + file.webkitRelativePath).trim();
   } else {
-    relPath = ((relPath === "" ? "" : relPath + "/") + file.name).trim();
+    wholePath = ((parentPath === "" ? "" : parentPath + "/") + file.name).trim();
   }
   
-  console.log("relPath: ", relPath);
+  console.log("parentPath: ", parentPath);
+  console.log("wholePath: ", wholePath);
+
   try {
     const metadataToServer = await fetch("/upload-metadata", {
 			method: "POST",
@@ -162,13 +173,11 @@ const uploadMetadata = async(path, file) => {
 			body: JSON.stringify({
 				filename: file.name,
 				filesize: file.size,
-				filerelpath: relPath,
+				filerelpath: wholePath,
+        parentPath: parentPath
 			}),
 		});
-    // if (metadataToServer.status !== 200) {
-    //   return false;
-    // }
-    // return true;
+
     return { status: metadataToServer.status };
 
   } catch (e) {

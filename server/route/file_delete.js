@@ -19,6 +19,10 @@ import {
   getFileId,
   deleteById
 } from "../model/db_file.js";
+
+import {
+  getFileListByPath
+} from "../util/util.js";
 // ------------------------------------------------------------------------------------
 
 // For Testing
@@ -50,7 +54,7 @@ router.post("/delete", async(req, res) => {
 
 router.post("/delete-metadata", async(req, res) => {
   console.log("/delete-metadata: ", req.body);
-  const { delList } = req.body; // req.body = { "delList": ["folder/", "file.ext"] }
+  const { delList, parentPath } = req.body; // req.body = { "delList": ["folder/", "file.ext"] }
   for (let i = 0; i < delList.length; i++) {
     const type = delList[i].endsWith("/") ? "folder" : "file";
     
@@ -84,7 +88,14 @@ router.post("/delete-metadata", async(req, res) => {
       }
     }
   }
-
+  // emit new file list
+  const io = req.app.get("socketio");
+  const refresh = await getFileListByPath(parentPath);
+  // console.log("refresh: ", refresh);
+  io.emit("listupd", {
+    parentPath: parentPath,
+    list: refresh
+  }); 
   return res.json({ msg: "/delete-metadata" });
 });
 

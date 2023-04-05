@@ -11,7 +11,8 @@ const {
 } = process.env;
 
 import {
-  wrapAsync
+  wrapAsync,
+  getFileListByPath
 } from "../util/util.js";
 
 import { 
@@ -44,12 +45,12 @@ const config = {
 const client = new S3Client(config);
 // ------------------------------------------------------------------------------------
 router.post("/upload-metadata", async(req, res) => {
-  console.log(req.body);
-  const { filename, filesize, filerelpath } = req.body;
+  console.log("/upload-metadata: ", req.body);
+  const { filename, filesize, filerelpath, parentPath } = req.body;
 
   // Parse the filerelpath to get the parent directory name and the file name
   const parts = filerelpath.split("/");
-  const filenameOnly = parts.pop();
+  const filenameOnly = parts.pop(); // only leave folders in parts array
 
   let parentId = 0;
   if (parts.length > 0) {
@@ -64,7 +65,11 @@ router.post("/upload-metadata", async(req, res) => {
       } 
     }
   }
+
+  // check if this file id is existed
   const chkFileId = await getFileId(parentId, filename);
+  
+  // Add new record or Update current record
   if (chkFileId.length === 0) {
     const toDBFile = await saveMetadata(parentId, filename, "file", filesize);
     console.log(toDBFile);
@@ -79,41 +84,47 @@ router.post("/upload-metadata", async(req, res) => {
     }
   }
   
-  return res.json({ msg: "metadata save to DB" });
+  // emit new file list
+  const io = req.app.get("socketio");
+  const refresh = await getFileListByPath(parentPath);
+  // console.log("refresh: ", refresh);
+  io.emit("listupd", {
+    parentPath: parentPath,
+    list: refresh
+  }); 
+  return res.json({ msg: "saved" });
 });
 
+// =====/single-upload
 router.post("/single-upload",async(req, res) => {
   console.log(req.body);
   // const { filename, filesize, filetype, filerelpath } = req.body;
 
   if (!req.body.filename) {
-    return res.status(400).json({ msg: "No file" });
+    return res.status(400).json({ msg: "error" });
   }
 
-  if (req.body.filerelpath) {
-    req.body.filename = req.body.filerelpath;
-  }
+  const fileName = req.body.filerelpath ? req.body.filerelpath : req.body.filename;
 
-  const singleUrl = await getSingleSignedUrl(S3_BUCKET_NAME, req.body.filename, 3600);
+  const singleUrl = await getSingleSignedUrl(S3_BUCKET_NAME, fileName, 3600);
 
   return res.status(200).json({ singleUrl });
 });
 
-router.post("/multi-upload", wrapAsync(async(req, res) => {
+// =====/multi-upload
+router.post("/multi-upload", async(req, res) => {
   console.log(req.body);
   const { count } = req.body;
   
   if (!req.body.filename) {
-    return res.status(400).json({ msg: "No file" });
+    return res.status(400).json({ msg: "error" });
   }
 
-  if (req.body.filerelpath) {
-    req.body.filename = req.body.filerelpath;
-  }
+  const fileName = req.body.filerelpath ? req.body.filerelpath : req.body.filename;
 
   const cmdCreate = new CreateMultipartUploadCommand({
     Bucket: S3_BUCKET_NAME,
-    Key: req.body.filename
+    Key: fileName
   });
 
   const createMultiUpload = await client.send(cmdCreate);
@@ -130,7 +141,7 @@ router.post("/multi-upload", wrapAsync(async(req, res) => {
     completeUrl: completeUrl,
   });
   
-}));
+});
 
 
 export { router as file_upload };

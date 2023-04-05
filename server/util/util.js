@@ -59,8 +59,25 @@ const deleteLocal = async (path) => {
   }
 }
 
+const getFileListByPath = async (path) => {
+  let parentId = 0;
+  if (path !== "") {
+    const folders = path.split("/");
+    for (let i = 0; i < folders.length; i++) {
+      const chkDir = await getDirId(parentId, folders[i]);
+      if (chkDir.length === 0) {
+        return { data: null };
+      }
+      parentId = chkDir[0].id;
+    }
+  }
+  const list = await getFileList(parentId);
+  return { data: list };
+}
+
 export {
   wrapAsync,
   getWholeChilds,
-  deleteLocal
+  deleteLocal,
+  getFileListByPath
 };

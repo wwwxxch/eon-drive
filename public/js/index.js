@@ -31,9 +31,9 @@ $("#form-file").on("submit", async function (e) {
 	}
 
 	$("#file-input").val("");
-  $("#file-list").empty();
-  const newList = await getFileList($("#current-path").text());
-	showList(newList);
+  // $("#file-list").empty();
+  // const newList = await getFileList($("#current-path").text());
+	// showList(newList);
 });
 
 // upload folder
@@ -58,9 +58,9 @@ $("#form-folder").on("submit", async function (e) {
 	}
 
 	$("#folder-input").val("");
-  $("#file-list").empty();
-  const newList = await getFileList($("#current-path").text());
-	showList(newList);
+  // $("#file-list").empty();
+  // const newList = await getFileList($("#current-path").text());
+	// showList(newList);
 });
 
 // ==========================================================================
@@ -89,7 +89,7 @@ function showList(obj) {
 		});
 
 		if (item.type !== "folder") {
-			span.text(`${item.name} (${item.size} bytes)`);
+			span.text(`${item.name} (${item.size} bytes) ${new Date(item.updated_at).toLocaleString()}`);
 			span.addClass("file").attr("data-file-id", item.id);
 		} else {
 			span.text(item.name);
@@ -102,12 +102,11 @@ function showList(obj) {
 }
 
 // HOME PAGE
-const homeList = await getFileList("");
+const homeList = await getFileList("Home");
 showList(homeList);
 
 // click folder --> show lists under that folder
 $("#file-list").on("click", ".folder", async function () {
-	// const dirId = $(this).data("folder-id");
 	const dirName = $(this).text();
 	const newPath = `${$("#current-path").text()}/${dirName}`;
 
@@ -123,9 +122,28 @@ $("#file-list").on("click", ".folder", async function () {
   $("#folder-input").val("");
 });
 
+// socket.io
+const socket = io();
+socket.on("listupd", (data) => {
+  console.log("socket.on listupd: ", data);
+  let currentPath = "";
+  if ($("#current-path").text() !== "Home") {
+    currentPath = $("#current-path").text().split("/").slice(1).join("/");
+  }
+  if (currentPath === data.parentPath) {
+    $("#file-list").empty();
+    showList(data.list);
+  }
+});
+
 // ==========================================================================
 // delete
 $("#delete-button").click(async function () {
+  let currentPath = "";
+  if ($("#current-path").text() !== "Home") {
+    currentPath = $("#current-path").text().split("/").slice(1).join("/");
+  }
+
 	const selected = $("input[name='list-checkbox']:checked");
 	const fileToDelete = selected
 		.toArray()
@@ -155,14 +173,17 @@ $("#delete-button").click(async function () {
 	  headers: {
 	    "Content-Type": "application/json"
 	  },
-	  body: JSON.stringify({ delList: fileToDelete })
+	  body: JSON.stringify({ 
+      delList: fileToDelete,
+      parentPath: currentPath
+    })
 	});
   const deleteMetadataRes = await deleteMetadata.json();
   console.log(deleteMetadataRes);
   
-  $("#file-list").empty();
-  const newList = await getFileList($("#current-path").text());
-	showList(newList);
+  // $("#file-list").empty();
+  // const newList = await getFileList($("#current-path").text());
+	// showList(newList);
 
 	selected.prop("checked", false);
 	$("#delete-button").hide();

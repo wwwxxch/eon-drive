@@ -11,37 +11,28 @@ import {
 } from "../model/db_file.js";
 
 // ------------------------------------------------------------------------------------
-router.get("/v1/list", async(req, res) => {
-  const dirId = req.query.dirId === undefined ? 0 : Number(req.query.dirId);
-  if (!Number.isInteger(dirId) || dirId < 0) {
-    return res.status(400).json({ msg: "Wrong query parameter" });
-  }
-
-  const list = await getFileList(dirId);
-  console.log(list);
-  
-  return res.json({ data: list });
-});
-
-router.post("/v2/list", async(req, res) => {
+router.post("/show-list", async(req, res) => {
   console.log(req.body); 
-  // req.body = { "path": "/a/ooo/xxx" }
-  // req.body = { "path": "/" }
-
-  const folders = req.body.path.split("/");
-  console.log("folders: ", folders);
+  // req.body = { "path": "test2/test2inside/folder_20230405" }
+  // req.body = { "path": "" }
   
-  // get the correct parentId
   let parentId = 0; // start from 0
-  for (let i = 0; i < folders.length; i++) {
-    const chkDir = await getDirId(parentId, folders[i]);
-    // console.log(folders[i]);
-    // console.log(chkDir);
-    parentId = chkDir.length === 0 ? 0 : chkDir[0].id;
+  if (req.body.path !== "") {
+    const folders = req.body.path.split("/");
+    console.log("folders: ", folders);
+    
+    // get the correct parentId
+    for (let i = 0; i < folders.length; i++) {
+      const chkDir = await getDirId(parentId, folders[i]);
+      // console.log(folders[i]);
+      // console.log(chkDir);
+      if (chkDir.length === 0) {
+        return res.status(400).json({ msg: "error" });
+      }
+      parentId = chkDir[0].id;
+    }
   }
-
   const list = await getFileList(parentId);
-  
   return res.json({ data: list });
 });
 
