@@ -65,68 +65,6 @@ async function getPartUrl(bucket, fileName, uploadId, partNumber, expiresIn) {
 }
 
 // upload large file
-const largeUpload_notused = async (bucket, fileName, localPath, fileSize) => {
-    // Create Multipart Upload Command
-		const cmdCreateMultipartUpload = new CreateMultipartUploadCommand({
-			Bucket: bucket,
-			Key: fileName,
-		});
-		const multipartUpload = await client.send(cmdCreateMultipartUpload);
-    
-    // Upload Part
-		let uploadId = multipartUpload.UploadId;
-  try {
-		const uploadPromises = [];
-		const partCount = Math.ceil(fileSize / (5 * 1024 * 1024));
-		for (let i = 0; i < partCount; i++) {
-			const start = i * (5 * 1024 * 1024);
-			const end = Math.min(start + 5 * 1024 * 1024, fileSize);
-			const cmdUploadPart = new UploadPartCommand({
-				Bucket: bucket,
-				Key: fileName,
-				UploadId: uploadId,
-				Body: fs.createReadStream(localPath, { start, end }),
-				ContentLength: end - start,
-				PartNumber: i + 1,
-			});
-			uploadPromises.push(
-				client.send(cmdUploadPart).then((data) => {
-					console.log("Part", i + 1, "uploaded");
-					return data;
-				})
-			);
-		}
-
-    // Complete Multipart
-		const uploadResults = await Promise.all(uploadPromises);
-		const cmdCompleteMultipart = new CompleteMultipartUploadCommand({
-			Bucket: bucket,
-			Key: fileName,
-			UploadId: uploadId,
-			MultipartUpload: {
-				Parts: uploadResults.map(({ ETag }, i) => ({
-					ETag: ETag,
-					PartNumber: i + 1,
-				})),
-			},
-		});
-		return await client.send(cmdCompleteMultipart);
-	} catch (e) {
-		console.error("largeUpload: ", e);
-
-    // Abort Multipart
-		if (uploadId) {
-			const abortCommand = new AbortMultipartUploadCommand({
-				Bucket: bucket,
-				Key: fileName,
-				UploadId: uploadId,
-			});
-			const abort = await client.send(abortCommand);
-      console.log("abort: ", abort);
-		}
-	}
-};
-
 const largeUpload = async (bucket, fileName, localPath, fileSize) => {
 	// Create Multipart Upload Command
 	const cmdCreateMultipartUpload = new CreateMultipartUploadCommand({
@@ -159,7 +97,7 @@ const largeUpload = async (bucket, fileName, localPath, fileSize) => {
 			);
 		}
 
-		// Complete Multipart
+		// Complete Multipart - Using presigned URL send the request manually
 		const completeUrl = await getCompleteUrl(bucket, fileName, uploadId, 3600);
 		const uploadResults = await Promise.all(uploadPromises);
 		const xmlBody = `
