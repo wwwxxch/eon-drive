@@ -5,9 +5,9 @@ import {
   getFileList
 } from "./api.js";
 
-import { splitFileIntoChunks } from "./util.js";
+import { splitFileIntoChunks } from "./utils.js";
 
-const chunk_unit = 5 * 1024 * 1024;
+const chunkSize = 5 * 1024 * 1024;
 
 // upload file
 $("#form-file").on("submit", async function (e) {
@@ -16,13 +16,13 @@ $("#form-file").on("submit", async function (e) {
 	const fileList = $("#file-input")[0].files;
 
 	for (let element of fileList) {
-		if (element.size < chunk_unit) {
+		if (element.size < chunkSize) {
 			const isUpload = await uploadOneFileToS3(currentPath, element);
       console.log("isUpload: ", isUpload);
       const uploadMeta = await uploadMetadata(currentPath, element);
       console.log("uploadMeta: ", uploadMeta);
 		} else {
-			const chunks = await splitFileIntoChunks(element, 5);
+			const chunks = await splitFileIntoChunks(element, chunkSize);
 			const isUpload = await multipartToS3(currentPath, element, chunks);
       console.log("isUpload: ", isUpload);
       const uploadMeta = await uploadMetadata(currentPath, element);
@@ -43,13 +43,13 @@ $("#form-folder").on("submit", async function (e) {
 	const fileList = $("#folder-input")[0].files;
 
 	for (let element of fileList) {
-		if (element.size < chunk_unit) {
+		if (element.size < chunkSize) {
       const isUpload = await uploadOneFileToS3(currentPath, element);
       console.log("isUpload: ", isUpload);
       const uploadMeta = await uploadMetadata(currentPath, element);
       console.log("uploadMeta: ", uploadMeta);
 		} else {
-      const chunks = await splitFileIntoChunks(element, 5);
+      const chunks = await splitFileIntoChunks(element, chunkSize);
 			const isUpload = await multipartToS3(currentPath, element, chunks);
       console.log("isUpload: ", isUpload);
       const uploadMeta = await uploadMetadata(currentPath, element);
