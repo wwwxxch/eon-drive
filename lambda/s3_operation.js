@@ -1,17 +1,17 @@
-import {
+const {
 	S3Client,
 	GetObjectCommand,
 	PutObjectCommand,
-  CreateMultipartUploadCommand,
+	CreateMultipartUploadCommand,
 	CompleteMultipartUploadCommand,
 	UploadPartCommand,
 	AbortMultipartUploadCommand
-} from "@aws-sdk/client-s3";
+} = require("@aws-sdk/client-s3");
 
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
-import archiver from "archiver";
-import fs from "fs";
+const archiver = require("archiver");
+const fs = require("fs");
 
 const client = new S3Client({ region: "ap-southeast-1" });
 
@@ -118,7 +118,7 @@ async function getObjSave(bucket, fileArray) {
 
 			tempName[i] = fileArray[i].split("/").join("_");
 			console.log(tempName[i]);
-			S3Objects[i] = fs.createWriteStream(`./${tempName[i]}`);
+			S3Objects[i] = fs.createWriteStream(`/tmp/${tempName[i]}`);
 			writePromises.push(
 				new Promise((resolve, reject) => {
 					response.Body.pipe(S3Objects[i])
@@ -146,7 +146,7 @@ async function getObjSave(bucket, fileArray) {
 async function zipFiles(fileArray, parentName) {
 	try {
 		const archive = archiver("zip", { zlib: { level: 9 } });
-		const output = fs.createWriteStream(`./${parentName}.zip`);
+		const output = fs.createWriteStream(`/tmp/${parentName}.zip`);
 		archive.on("error", (err) => {
 			throw err;
 		});
@@ -155,7 +155,7 @@ async function zipFiles(fileArray, parentName) {
 		for (let i = 0; i < fileArray.length; i++) {
 			const promise = new Promise((resolve) => {
 				const stream = fs.createReadStream(
-					`./${fileArray[i].split("/").join("_")}`
+					`/tmp/${fileArray[i].split("/").join("_")}`
 				);
 				stream.on("close", () => {
 					console.log(`File ${fileArray[i]} appended to archive`);
@@ -182,12 +182,12 @@ async function zipFiles(fileArray, parentName) {
 
 // send zip file to S3
 const zipToS3 = async (bucket, parentName) => {
-	const fileSize = fs.statSync(`./${parentName}.zip`).size;
+	const fileSize = fs.statSync(`/tmp/${parentName}.zip`).size;
 	console.log("fileSize: ", fileSize);
   // zip size < 5 MB
 	if (fileSize < 5 * 1024 * 1024) {
 		const putcommand = new PutObjectCommand({
-			Body: fs.createReadStream(`./${parentName}.zip`),
+			Body: fs.createReadStream(`/tmp/${parentName}.zip`),
 			Bucket: bucket,
 			Key: `zipfile/${parentName}.zip`,
 		});
@@ -198,7 +198,7 @@ const zipToS3 = async (bucket, parentName) => {
 		const largeUploadRes = await largeUpload(
 			bucket,
 			`zipfile/${parentName}.zip`,
-			`./${parentName}.zip`,
+			`/tmp/${parentName}.zip`,
       fileSize
 		);
 		console.log("largeUploadRes: ", largeUploadRes);
@@ -213,4 +213,4 @@ const zipToS3 = async (bucket, parentName) => {
 };
 
 
-export { getObjSave, zipFiles, zipToS3 };
+module.exports = { getObjSave, zipFiles, zipToS3 };

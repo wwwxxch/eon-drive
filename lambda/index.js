@@ -1,14 +1,14 @@
-import {
+const {
   getObjSave,
   zipFiles,
   zipToS3
-} from "./s3_operation.js";
+} = require("./s3_operation.js");
 
-import { deleteLocal } from "./fs_operation.js";
+const { deleteLocal } = require("./fs_operation.js");
 
 const S3_BUCKET_NAME = "eondrive";
 
-export async function handler(event) {
+exports.handler = async (event) => {
   try {
     console.log("event: ", event);
 		const finalList = event.finalList;
@@ -29,7 +29,6 @@ export async function handler(event) {
     const deleteZip = await deleteLocal(`/tmp/${parentName}.zip`);
     console.log(deleteZip);
 		return { downloadUrl: getZipUrl };
-
   } catch (e) {
     console.error("lambda zipfiles: ", e);
     return { err: "something wrong" };
