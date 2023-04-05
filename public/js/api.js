@@ -9,18 +9,18 @@ const getFileList = async (path) => {
 };
 
 const uploadOneFileToS3 = async (path, file) => {
-	console.log("uploadOneFileToS3: ", file);
-  console.log("path: ", path);
-  
+  console.log("path: ", path);  
   let relPath = "";
   if (path !== "Home") {
     relPath = path.split("/").slice(1).join("/");
-    if (file.webkitRelativePath) {
-      relPath = relPath + "/" + file.webkitRelativePath;
-    } else {
-      relPath = relPath + "/" + file.name;
-    }
   }
+
+  if (file.webkitRelativePath) {
+    relPath = ((relPath === "" ? "" : relPath + "/") + file.webkitRelativePath).trim();
+  } else {
+    relPath = ((relPath === "" ? "" : relPath + "/") + file.name).trim();
+  }
+
   console.log("relPath: ", relPath);
 	try {
 		// get signed url from server
@@ -36,7 +36,7 @@ const uploadOneFileToS3 = async (path, file) => {
 		});
 
 		if (getURL.status !== 200) {
-			return false;
+			return { status: getURL.status };
 		}
 
 		// put file to s3
@@ -47,27 +47,26 @@ const uploadOneFileToS3 = async (path, file) => {
 			body: file,
 		});
 
-		if (putFile.status !== 200) {
-			return false;
-		}
-
-		return true;
+		return { status: putFile.status };
 	} catch (e) {
 		console.error("uploadOneFileToS3: ", e);
-		return false;
+		return { error: e };
 	}
 };
 
 const multipartToS3 = async (path, file, chunkArray) => {
+  console.log("path: ", path);
   let relPath = "";
   if (path !== "Home") {
     relPath = path.split("/").slice(1).join("/");
-    if (file.webkitRelativePath) {
-      relPath = relPath + "/" + file.webkitRelativePath;
-    } else {
-      relPath = relPath + "/" + file.name;
-    }
   }
+
+  if (file.webkitRelativePath) {
+    relPath = ((relPath === "" ? "" : relPath + "/") + file.webkitRelativePath).trim();
+  } else {
+    relPath = ((relPath === "" ? "" : relPath + "/") + file.name).trim();
+  }
+
   console.log("relPath: ", relPath);
 
 	try {
@@ -84,7 +83,7 @@ const multipartToS3 = async (path, file, chunkArray) => {
 		});
 
 		if (createMultipart.status !== 200) {
-			return false;
+			return { status: createMultipart.status };
 		}
 
 		// create multipart
@@ -107,12 +106,13 @@ const multipartToS3 = async (path, file, chunkArray) => {
 				})
 				.catch((err) => {
 					console.error(err);
+          return { status: err };
 				});
 			putRequests.push(uploadMultipart);
 		}
 
 		// complete multipart
-		Promise.all(putRequests).then(async () => {
+		return Promise.all(putRequests).then(async () => {
 			const xmlBody = `
           <CompleteMultipartUpload>
             ${etagArray
@@ -128,15 +128,17 @@ const multipartToS3 = async (path, file, chunkArray) => {
           </CompleteMultipartUpload>
         `;
 
-			fetch(completeUrl, {
+			const multipartUpload = await fetch(completeUrl, {
 				method: "POST",
 				headers: { "Content-Type": "application/xml" },
 				body: xmlBody,
 			});
+
+      return { status: multipartUpload.status }
 		});
 	} catch (e) {
 		console.error("multipartToS3: ", e);
-		return false;
+		return { status: e };
 	}
 };
 
@@ -144,12 +146,14 @@ const uploadMetadata = async(path, file) => {
   let relPath = "";
   if (path !== "Home") {
     relPath = path.split("/").slice(1).join("/");
-    if (file.webkitRelativePath) {
-      relPath = relPath + "/" + file.webkitRelativePath;
-    } else {
-      relPath = relPath + "/" + file.name;
-    }
   }
+
+  if (file.webkitRelativePath) {
+    relPath = ((relPath === "" ? "" : relPath + "/") + file.webkitRelativePath).trim();
+  } else {
+    relPath = ((relPath === "" ? "" : relPath + "/") + file.name).trim();
+  }
+  
   console.log("relPath: ", relPath);
   try {
     const metadataToServer = await fetch("/upload-metadata", {
@@ -161,13 +165,15 @@ const uploadMetadata = async(path, file) => {
 				filerelpath: relPath,
 			}),
 		});
-    if (metadataToServer.status !== 200) {
-      return false;
-    }
-    return true;
+    // if (metadataToServer.status !== 200) {
+    //   return false;
+    // }
+    // return true;
+    return { status: metadataToServer.status };
+
   } catch (e) {
     console.error("uploadMetadata: ", e);
-    return false;
+    return { status: e };
   }
 };
 

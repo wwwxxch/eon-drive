@@ -17,17 +17,23 @@ $("#form-file").on("submit", async function (e) {
 
 	for (let element of fileList) {
 		if (element.size < chunk_unit) {
-			await uploadOneFileToS3(currentPath, element);
+			const isUpload = await uploadOneFileToS3(currentPath, element);
+      console.log("isUpload: ", isUpload);
+      const uploadMeta = await uploadMetadata(currentPath, element);
+      console.log("uploadMeta: ", uploadMeta);
 		} else {
 			const chunks = await splitFileIntoChunks(element, 5);
-			await multipartToS3(currentPath, element, chunks);
+			const isUpload = await multipartToS3(currentPath, element, chunks);
+      console.log("isUpload: ", isUpload);
+      const uploadMeta = await uploadMetadata(currentPath, element);
+      console.log("uploadMeta: ", uploadMeta);
 		}
-
-		const isUploaded = await uploadMetadata(currentPath, element);
-		console.log(isUploaded);
 	}
 
 	$("#file-input").val("");
+  $("#file-list").empty();
+  const newList = await getFileList($("#current-path").text());
+	showList(newList);
 });
 
 // upload folder
@@ -38,16 +44,23 @@ $("#form-folder").on("submit", async function (e) {
 
 	for (let element of fileList) {
 		if (element.size < chunk_unit) {
-			await uploadOneFileToS3(currentPath, element);
+      const isUpload = await uploadOneFileToS3(currentPath, element);
+      console.log("isUpload: ", isUpload);
+      const uploadMeta = await uploadMetadata(currentPath, element);
+      console.log("uploadMeta: ", uploadMeta);
 		} else {
-			const chunks = await splitFileIntoChunks(element, 5);
-			await multipartToS3(currentPath, element, chunks);
+      const chunks = await splitFileIntoChunks(element, 5);
+			const isUpload = await multipartToS3(currentPath, element, chunks);
+      console.log("isUpload: ", isUpload);
+      const uploadMeta = await uploadMetadata(currentPath, element);
+      console.log("uploadMeta: ", uploadMeta);
 		}
-		const isUploaded = await uploadMetadata(currentPath, element);
-		console.log(isUploaded);
 	}
 
 	$("#folder-input").val("");
+  $("#file-list").empty();
+  const newList = await getFileList($("#current-path").text());
+	showList(newList);
 });
 
 // ==========================================================================
@@ -159,14 +172,17 @@ $("#delete-button").click(async function () {
 // download
 $("#download-button").click(async function () {
 	const selected = $("input[name='list-checkbox']:checked");
+  let parentPath;
 	const fileToDownload = selected
 		.toArray()
 		.map((tickbox) => {
+      console.log(tickbox.value);
       if ($("#current-path").text() === "Home") {
+        parentPath = "/";
         return tickbox.value;
       }
-      else {
-        let parentPath = $("#current-path").text().replace(/^Home\//,"");
+      else {        
+        parentPath = $("#current-path").text().replace(/^Home/,"");
         return `${parentPath}/${tickbox.value}`;
       }
     });
@@ -177,10 +193,14 @@ $("#download-button").click(async function () {
 	  headers: {
 	    "Content-Type": "application/json"
 	  },
-	  body: JSON.stringify({ downloadList: fileToDownload })
+	  body: JSON.stringify({ 
+      downloadList: fileToDownload,
+      parentPath: parentPath 
+    })
 	});
 	const downloadResultData = await downloadResult.json();
-  console.log(downloadResultData);
+  // console.log(downloadResultData);
+  window.open(downloadResultData.downloadUrl, "_self");
 
 	selected.prop("checked", false);
   $("#delete-button").hide();
