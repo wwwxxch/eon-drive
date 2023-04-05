@@ -1,0 +1,16 @@
+body {
+  font-family: Verdana;
+}
+
+#current-path {
+  font-size: 22px;
+  margin: 10px 0;
+}
+
+.folder {
+ font-size: 18px; 
+}
+
+.file {
+  font-size: 18px;
+}
