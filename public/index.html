@@ -4,23 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>File-Storage</title>
+    <link rel="stylesheet" href="css/index.css">
   </head>
   <body>
     <div id="root">
-      <h3>Upload File</h3>
+      <h2>Upload File</h2>
       <form id="form-file">
         <input id="file-input" type="file" multiple>
         <p></p>
         <button>Upload</button>
       </form>
-      <h3>Upload Folder</h3>
+      <h2>Upload Folder</h2>
       <form id="form-folder">
         <input id="folder-input" type="file" webkitdirectory multiple>
         <p></p>
         <button>Upload</button>
       </form>
       <!---->
-      <h3>File Lists</h3>
+      <h2>File Lists</h2>
       <div id="current-path">Home</div>
       <div id="delete-button" style="display:none">
         <button>Delete</button>
@@ -37,5 +38,6 @@
   <script src="https://code.jquery.com/jquery-3.6.3.min.js" 
           integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
           crossorigin="anonymous"></script>
+  <script src="/socket.io/socket.io.js"></script>
   <script type="module" src="js/index.js"></script>
 </html>
