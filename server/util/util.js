@@ -26,7 +26,7 @@ const iterPath = async (path) => {
   }
   // console.log(parentId);
   return parentId;
-}
+};
 
 const recur = async (parentId, result, currentpath) => {
   const arr = await getFileList(parentId);
@@ -37,7 +37,7 @@ const recur = async (parentId, result, currentpath) => {
       await recur(arr[i].id, result, currentpath + arr[i].name);
     }
   }
-}
+};
 
 const getWholeChilds = async (path) => {
   const result = [];
@@ -47,7 +47,7 @@ const getWholeChilds = async (path) => {
   await recur(parentId, result, currentpath);
   // console.log("result: ", result);
   return result;
-}
+};
 
 const deleteLocal = async (path) => {
   try {
@@ -57,7 +57,7 @@ const deleteLocal = async (path) => {
   } catch (err) {
     console.log(path + " is not exsited");
   }
-}
+};
 
 const getFileListByPath = async (path) => {
   let parentId = 0;
@@ -73,7 +73,7 @@ const getFileListByPath = async (path) => {
   }
   const list = await getFileList(parentId);
   return { data: list };
-}
+};
 
 export {
   wrapAsync,

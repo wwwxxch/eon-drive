@@ -70,7 +70,7 @@ const getFileId = async(parentId, fileName) => {
     SELECT id FROM file WHERE parent_id = ? AND name = ? AND type = 'file'
   `, [parentId, fileName]);
   return row;
-}
+};
 
 const deleteById = async(id) => {
   const [row] = await pool.query(`
@@ -78,7 +78,7 @@ const deleteById = async(id) => {
   `, id);
   console.log("file deleted");
   return row;
-}
+};
 
 export {
   getDirId,

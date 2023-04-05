@@ -40,7 +40,7 @@ router.post("/download", async(req, res) => {
   
   const m_downloadList = req.body.downloadList.map(item => {
     return item.replace(/^\//,"").trim();
-  })
+  });
 
   if (m_downloadList.length === 1) {
     const downloadUrl = await getDownloadUrl(
@@ -87,7 +87,7 @@ router.post("/download-test", async(req, res) => {
   
   const m_downloadList = req.body.downloadList.map(item => {
     return item.replace(/^\//,"").trim();
-  })
+  });
 
   if (m_downloadList.length === 1) {
     const downloadUrl = await getDownloadUrl(

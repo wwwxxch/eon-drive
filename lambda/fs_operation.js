@@ -8,7 +8,7 @@ const deleteLocal = async (path) => {
   } catch (err) {
     return (path + " is not exsited");
   }
-}
+};
 
 module.exports = {
   deleteLocal

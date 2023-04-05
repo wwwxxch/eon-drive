@@ -140,7 +140,7 @@ const multipartToS3 = async (path, file, chunkArray) => {
 				body: xmlBody,
 			});
 
-      return { status: multipartUpload.status }
+      return { status: multipartUpload.status };
 		});
 	} catch (e) {
 		console.error("multipartToS3: ", e);
