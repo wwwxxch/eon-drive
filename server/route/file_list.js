@@ -10,12 +10,18 @@ import {
   getFileList
 } from "../model/db_file.js";
 
+import {
+  authentication
+} from "../controller/user_auth.js";
+
 // ------------------------------------------------------------------------------------
-router.post("/show-list", async(req, res) => {
-  console.log(req.body); 
+router.post("/show-list", authentication, async(req, res) => {
+  console.log(req.body);
+  console.log("req.session: ", req.session); 
   // req.body = { "path": "test2/test2inside/folder_20230405" }
   // req.body = { "path": "" }
-  
+  const userId = req.session.user.id;
+
   let parentId = 0; // start from 0
   if (req.body.path !== "") {
     const folders = req.body.path.split("/");
@@ -23,7 +29,7 @@ router.post("/show-list", async(req, res) => {
     
     // get the correct parentId
     for (let i = 0; i < folders.length; i++) {
-      const chkDir = await getDirId(parentId, folders[i]);
+      const chkDir = await getDirId(userId, parentId, folders[i]);
       // console.log(folders[i]);
       // console.log(chkDir);
       if (chkDir.length === 0) {
@@ -32,7 +38,7 @@ router.post("/show-list", async(req, res) => {
       parentId = chkDir[0].id;
     }
   }
-  const list = await getFileList(parentId);
+  const list = await getFileList(userId, parentId);
   return res.json({ data: list });
 });
 
