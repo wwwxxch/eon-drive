@@ -12,21 +12,15 @@ import fs from "fs";
 
 import dotenv from "dotenv";
 dotenv.config();
-const {
-	S3_BUCKET_REGION,
-	S3_ACCESS_KEY_ID,
-	S3_SECRET_ACCESS_KEY,
-} = process.env;
+const { S3_BUCKET_REGION, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } =
+	process.env;
 
 const config = {
 	credentials: {
 		accessKeyId: S3_ACCESS_KEY_ID,
 		secretAccessKey: S3_SECRET_ACCESS_KEY,
 	},
-	region: S3_BUCKET_REGION,
-  logger: {
-    log: (args) => console.log(args)
-  }
+	region: S3_BUCKET_REGION
 };
 
 const client = new S3Client(config);
@@ -62,6 +56,29 @@ async function getPartUrl(bucket, fileName, uploadId, partNumber, expiresIn) {
 		PartNumber: partNumber,
 	});
 	return await getSignedUrl(client, command, { expiresIn });
+}
+
+async function getMultiSignedUrl(bucket, fileName, count, expiresIn) {
+	const cmdCreateMultipartUpload = new CreateMultipartUploadCommand({
+		Bucket: bucket,
+		Key: fileName,
+	});
+	const createMultiUpload = await client.send(cmdCreateMultipartUpload);
+
+	const uploadId = createMultiUpload.UploadId;
+	const partUrls = await Promise.all(
+		Array.from({ length: count }, (v, k) => k + 1).map((item) =>
+			getPartUrl(bucket, fileName, uploadId, item, expiresIn)
+		)
+	);
+	const completeUrl = await getCompleteUrl(
+		bucket,
+		fileName,
+		uploadId,
+		expiresIn
+	);
+
+	return { partUrls: partUrls, completeUrl: completeUrl };
 }
 
 // upload large file
@@ -137,4 +154,10 @@ const largeUpload = async (bucket, fileName, localPath, fileSize) => {
 	}
 };
 
-export { getSingleSignedUrl, getCompleteUrl, getPartUrl, largeUpload };
+export { 
+  getSingleSignedUrl, 
+  getCompleteUrl, 
+  getPartUrl, 
+  getMultiSignedUrl, 
+  largeUpload 
+};
