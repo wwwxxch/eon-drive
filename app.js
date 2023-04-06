@@ -2,15 +2,33 @@ import express from "express";
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
+import session from "express-session";
 
 dotenv.config();
 const port = process.env.PORT;
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
 
+// socket.io setup
+const io = new Server(server);
 app.set("socketio", io);
+
+// session configure
+const sessionConfig = {
+  // name: "member",
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { SameSite: "lax", maxAge: 200 * 60 * 1000 } // 200 min
+};
+
+if (process.env.NODE_ENV === "prod") {
+  app.set("trust proxy", 1);
+  sessionConfig.cookie.secure = true;
+}
+
+app.use(session(sessionConfig));
 
 app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
@@ -23,12 +41,14 @@ import { file_list } from "./server/route/file_list.js";
 import { file_delete } from "./server/route/file_delete.js";
 import { file_create } from "./server/route/file_create.js";
 import { file_download } from "./server/route/file_download.js";
+import { user } from "./server/route/user.js";
 
 app.use(file_upload);
 app.use(file_list);
 app.use(file_delete);
 app.use(file_create);
 app.use(file_download);
+app.use(user);
 
 // ---------------------------------------------------
 // Simple check
