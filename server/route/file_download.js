@@ -36,13 +36,14 @@ router.post("/single-download", async(req, res) => {
 });
 
 router.post("/download", async(req, res) => {
-  console.log(req.body);
+  console.log("/download: ", req.body);
   
   const m_downloadList = req.body.downloadList.map(item => {
     return item.replace(/^\//,"").trim();
   });
-
-  if (m_downloadList.length === 1) {
+  console.log("m_downloadList: ", m_downloadList);
+  // Single file -> get presigned URL from S3 directly
+  if (m_downloadList.length === 1 && !m_downloadList[0].endsWith("/") ) {
     const downloadUrl = await getDownloadUrl(
       S3_BUCKET_NAME,
       m_downloadList[0],
@@ -74,7 +75,7 @@ router.post("/download", async(req, res) => {
   finalList = [...finalList, ...files];
   console.log("finalList: ", finalList);
 
-  // connect to lambda
+  // Multiple files -> connect to lambda
   const toLambda = await callLambdaZip(finalList, parentName);
   console.log("toLambda: ", toLambda.downloadUrl);
 

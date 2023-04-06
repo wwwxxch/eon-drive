@@ -207,7 +207,7 @@ $("#download-button").click(async function () {
 			return `${parentPath}/${tickbox.value}`;
 		}
 	});
-	console.log(fileToDownload);
+	console.log("fileToDownload: ",fileToDownload);
 
 	const downloadResult = await fetch("/download", {
 		method: "POST",
@@ -220,7 +220,7 @@ $("#download-button").click(async function () {
 		}),
 	});
 	const downloadResultData = await downloadResult.json();
-	// console.log(downloadResultData);
+	console.log(downloadResultData);
 	window.open(downloadResultData.downloadUrl, "_self");
 
 	selected.prop("checked", false);
