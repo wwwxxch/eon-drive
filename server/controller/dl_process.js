@@ -86,13 +86,14 @@ const dlMultiFileProcess = async (req, res, next) => {
 };
 
 const dlCallLambda = async (req, res) => {
-  const { finalList, parentName } = req.body;
+  const { finalList, parentPath, parentName } = req.body;
   const userId = req.session.user.id;
-  // TODO: 確認層級 - 現在會從最上層的user folder開始打包
-  const s3finalList = finalList.map(item => `user_${userId}/${item}`);
-  const toLambda = await callLambdaZip(s3finalList, parentName);
-  console.log("toLambda: ", toLambda.downloadUrl);
 
+  const toLambda = await callLambdaZip(userId, finalList, parentPath, parentName);
+  console.log("toLambda: ", toLambda);
+  if (!toLambda.downloadUrl) {
+    return res.status(500).json({ err: "something wrong" });
+  }
   return res.json({ downloadUrl: toLambda.downloadUrl });
 };
 

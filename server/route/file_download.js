@@ -39,22 +39,21 @@ router.post("/download-test",
 	dlMultiFileProcess,
 	async (req, res) => {
 		
-    const { finalList, parentName } = req.body;
+    const { finalList, parentPath, parentName } = req.body;
     const userId = req.session.user.id;
     
-    // TODO: 確認層級 - 現在會從最上層的user folder開始打包
 		const s3finalList = finalList.map((item) => `user_${userId}/${item}`);
 		// create zip file in local server
-		const saveToLocal = await getObjSave(S3_BUCKET_NAME, s3finalList);
+		const saveToLocal = await getObjSave(S3_BUCKET_NAME, s3finalList, finalList);
 		console.log("saveToLocal: ", saveToLocal);
-		const createZip = await zipFiles(s3finalList, parentName);
+		const createZip = await zipFiles(finalList, parentPath, parentName);
 		console.log("createZip: ", createZip);
 		const getZipUrl = await zipToS3(S3_BUCKET_NAME, parentName);
 		console.log("getZipUrl: ", getZipUrl);
 
 		// delete files
 		deleteLocal(`./${parentName}.zip`);
-		s3finalList.forEach((item) => {
+		finalList.forEach((item) => {
 			deleteLocal(`./${item.split("/").join("_")}`);
 		});
 

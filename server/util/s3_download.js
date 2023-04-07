@@ -36,39 +36,38 @@ async function getDownloadUrl(bucket, fileName, expiresIn) {
 }
 
 // download files to local
-async function getObjSave(bucket, fileArray) {
+async function getObjSave(bucket, s3fileArray, fileArray) {
 	try {
 		let S3Objects = [];
-		let tempName = [];
+		let tmpLocalName = [];
 		let writePromises = [];
-		for (let i = 0; i < fileArray.length; i++) {
+		for (let i = 0; i < s3fileArray.length; i++) {
 			const command = new GetObjectCommand({
 				Bucket: bucket,
-				Key: fileArray[i],
+				Key: s3fileArray[i], // complete URL
 			});
 
 			const response = await client.send(command);
 
-			tempName[i] = fileArray[i].split("/").join("_");
-			console.log(tempName[i]);
-			S3Objects[i] = fs.createWriteStream(`./${tempName[i]}`);
+			tmpLocalName[i] = fileArray[i].split("/").join("_");
+			console.log(tmpLocalName[i]);
+			S3Objects[i] = fs.createWriteStream(`./${tmpLocalName[i]}`);
 			writePromises.push(
 				new Promise((resolve, reject) => {
 					response.Body.pipe(S3Objects[i])
 						.on("finish", () => {
-							console.log("finished");
+							console.log("get S3 object to local finished");
 							resolve();
 						})
 						.on("error", (err) => {
-							console.error("error occurred");
+							console.error("get S3 object to local error occurred");
 							reject(err);
 						});
 				})
 			);
 		}
-
 		await Promise.all(writePromises);
-		return "done";
+		return "getObjSave: done";
 	} catch (e) {
 		console.error("getObjSave: ", e);
 		return false;
@@ -76,7 +75,7 @@ async function getObjSave(bucket, fileArray) {
 }
 
 // archive local files
-async function zipFiles(fileArray, parentName) {
+async function zipFiles(fileArray, parentPath, parentName) {
 	try {
 		const archive = archiver("zip", { zlib: { level: 9 } });
 		const output = fs.createWriteStream(`./${parentName}.zip`);
@@ -84,17 +83,24 @@ async function zipFiles(fileArray, parentName) {
 			throw err;
 		});
 		archive.pipe(output);
+		const parentPathModified = parentPath.replace(/\/$/, "").replace(/^\//, "");
 		const appendPromises = [];
 		for (let i = 0; i < fileArray.length; i++) {
+			let pathInZip;
+			if (parentPathModified === "") {
+				pathInZip = fileArray[i];
+			} else {
+				pathInZip = fileArray[i].slice(parentPathModified.length + 1);
+			}
 			const promise = new Promise((resolve) => {
 				const stream = fs.createReadStream(
 					`./${fileArray[i].split("/").join("_")}`
 				);
 				stream.on("close", () => {
-					console.log(`File ${fileArray[i]} appended to archive`);
+					console.log(`File ${pathInZip} appended to archive`);
 					resolve();
 				});
-				archive.append(stream, { name: fileArray[i] });
+				archive.append(stream, { name: pathInZip });
 			});
 			appendPromises.push(promise);
 		}
@@ -106,7 +112,7 @@ async function zipFiles(fileArray, parentName) {
 		});
 		archive.finalize();
 		await Promise.all([...appendPromises, zipPromise]);
-		return "zip done";
+		return "zipFiles: done";
 	} catch (e) {
 		console.error("zipFiles: ", e);
 		return false;
@@ -117,7 +123,7 @@ async function zipFiles(fileArray, parentName) {
 const zipToS3 = async (bucket, parentName) => {
 	const fileSize = fs.statSync(`./${parentName}.zip`).size;
 	console.log("fileSize: ", fileSize);
-  // zip size < 5 MB
+	// zip size < 5 MB
 	if (fileSize < 5 * 1024 * 1024) {
 		const putcommand = new PutObjectCommand({
 			Body: fs.createReadStream(`./${parentName}.zip`),
@@ -126,18 +132,18 @@ const zipToS3 = async (bucket, parentName) => {
 		});
 		const putZip = await client.send(putcommand);
 		console.log("putZip: ", putZip);
-  // zip size >= 5 MB
+		// zip size >= 5 MB
 	} else {
 		const largeUploadRes = await largeUpload(
 			bucket,
 			`zipfile/${parentName}.zip`,
 			`./${parentName}.zip`,
-      fileSize
+			fileSize
 		);
 		console.log("largeUploadRes: ", largeUploadRes);
 	}
 
-  // get URL to download
+	// get URL to download
 	const getcommand = new GetObjectCommand({
 		Bucket: bucket,
 		Key: `zipfile/${parentName}.zip`,

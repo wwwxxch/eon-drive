@@ -12,11 +12,15 @@ exports.handler = async (event) => {
   try {
     console.log("event: ", event);
 		const finalList = event.finalList;
+    const parentPath = event.parentPath;
 		const parentName = event.parentName;
+    const userId = event.userId;
 
-		const saveToLocal = await getObjSave(S3_BUCKET_NAME, finalList);
+		const s3finalList = finalList.map((item) => `user_${userId}/${item}`);
+
+		const saveToLocal = await getObjSave(S3_BUCKET_NAME, s3finalList, finalList);
 		console.log("saveToLocal: ", saveToLocal);
-		const createZip = await zipFiles(finalList, parentName);
+		const createZip = await zipFiles(finalList, parentPath, parentName);
 		console.log("createZip: ", createZip);
 		const getZipUrl = await zipToS3(S3_BUCKET_NAME, parentName);
 		console.log("getZipUrl: ", getZipUrl);
