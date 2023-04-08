@@ -8,18 +8,27 @@ const getDirId = async (userId, parentId, dirName) => {
   return row;
 };
 
-const saveMetadata = async(userId, parentId, name, type, size) => {
+const saveMetadata = async(userId, parentId, name, type, size, token) => {
   const [row] = await pool.query(`
-    INSERT INTO file (parent_id, name, type, size, user_id) VALUES (?, ?, ?, ?, ?) 
-  `, [parentId, name, type, size, userId]);
+    INSERT INTO file (parent_id, name, type, size, user_id, status, token) 
+    VALUES (?, ?, ?, ?, ?, ?, ?) 
+  `, [parentId, name, type, size, userId, "pending", token]);
   return row;
 };
 
-const updMetadata = async(userId, parentId, name, type, size) => {
+const updMetadata = async(userId, parentId, name, type, size, token) => {
   const [row] = await pool.query(`
-    UPDATE file SET size = ? 
+    UPDATE file SET size = ?, status = "pending", token = ? 
     WHERE user_id = ? AND parent_id = ? AND name = ? AND type = 'file'
-  `, [userId, size, parentId, name, type]);
+  `, [size, token, userId, parentId, name, type]);
+  return row;
+};
+
+const commitMetadata = async(userId, status, token) => {
+  const [row] = await pool.query(`
+    UPDATE file SET status = ?, token = NULL
+    WHERE user_id = ? AND token = ?
+  `, [status, userId, token]);
   return row;
 };
 
@@ -85,6 +94,7 @@ export {
   getDirId,
   saveMetadata,
   updMetadata,
+  commitMetadata,
   getFileList,
   deleteWholeFolder,
   getFileId,
