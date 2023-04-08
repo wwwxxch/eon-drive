@@ -1,10 +1,41 @@
 import express from "express";
 import dotenv from "dotenv";
+import http from "http";
+import { Server } from "socket.io";
+import session from "express-session";
+import RedisStore from "connect-redis";
+import { redis } from "./server/util/cache.js";
 
 dotenv.config();
 const port = process.env.PORT;
 
 const app = express();
+const server = http.createServer(app);
+
+// socket.io setup
+const io = new Server(server);
+app.set("socketio", io);
+
+// session configuration
+const redisStore = new RedisStore({
+  client: redis,
+  prefix: "user:"
+});
+
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET,
+  store: redisStore,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { SameSite: "lax", maxAge: 200 * 60 * 1000 } // 200 min
+};
+
+if (process.env.NODE_ENV === "prod") {
+  app.set("trust proxy", 1);
+  sessionConfig.cookie.secure = true;
+}
+
+app.use(session(sessionConfig));
 
 app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
@@ -12,17 +43,17 @@ app.use(express.json());
 
 // ---------------------------------------------------
 // Routes
-import { file_upload } from "./server/route/file_upload.js";
-import { file_list } from "./server/route/file_list.js";
-import { file_delete } from "./server/route/file_delete.js";
-import { file_create } from "./server/route/file_create.js";
-import { file_download } from "./server/route/file_download.js";
+import { user_auth_route } from "./server/route/user/user_auth_route.js";
+import { file_upload_route } from "./server/route/file/file_upload_route.js";
+import { file_list_route } from "./server/route/file/file_list_route.js";
+import { file_delete_route } from "./server/route/file/file_delete_route.js";
+import { file_download_route } from "./server/route/file/file_download_route.js";
 
-app.use(file_upload);
-app.use(file_list);
-app.use(file_delete);
-app.use(file_create);
-app.use(file_download);
+app.use(user_auth_route);
+app.use(file_upload_route);
+app.use(file_list_route);
+app.use(file_delete_route);
+app.use(file_download_route);
 
 // ---------------------------------------------------
 // Simple check
@@ -52,6 +83,6 @@ app.use((err, req, res, next) => {
 });
 
 // ---------------------------------------------------
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}...`);
 });

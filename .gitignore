@@ -5,5 +5,4 @@ node_modules
 .env
 
 # for check
-db_schema.sql
-dropbox_req.json
+.dev/
