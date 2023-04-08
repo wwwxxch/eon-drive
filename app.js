@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import session from "express-session";
+import RedisStore from "connect-redis";
+import { redis } from "./server/util/cache.js";
 
 dotenv.config();
 const port = process.env.PORT;
@@ -15,11 +17,16 @@ const io = new Server(server);
 app.set("socketio", io);
 
 // session configuration
+const redisStore = new RedisStore({
+  client: redis,
+  prefix: "user:"
+});
+
 const sessionConfig = {
-  // name: "member",
   secret: process.env.SESSION_SECRET,
+  store: redisStore,
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { SameSite: "lax", maxAge: 200 * 60 * 1000 } // 200 min
 };
 
