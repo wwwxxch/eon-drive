@@ -14,7 +14,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 app.set("socketio", io);
 
-// session configure
+// session configuration
 const sessionConfig = {
   // name: "member",
   secret: process.env.SESSION_SECRET,
@@ -36,19 +36,17 @@ app.use(express.json());
 
 // ---------------------------------------------------
 // Routes
-import { file_upload } from "./server/route/file_upload.js";
-import { file_list } from "./server/route/file_list.js";
-import { file_delete } from "./server/route/file_delete.js";
-import { file_create } from "./server/route/file_create.js";
-import { file_download } from "./server/route/file_download.js";
-import { user } from "./server/route/user.js";
+import { user_auth_route } from "./server/route/user/user_auth_route.js";
+import { file_upload_route } from "./server/route/file/file_upload_route.js";
+import { file_list_route } from "./server/route/file/file_list_route.js";
+import { file_delete_route } from "./server/route/file/file_delete_route.js";
+import { file_download_route } from "./server/route/file/file_download_route.js";
 
-app.use(file_upload);
-app.use(file_list);
-app.use(file_delete);
-app.use(file_create);
-app.use(file_download);
-app.use(user);
+app.use(user_auth_route);
+app.use(file_upload_route);
+app.use(file_list_route);
+app.use(file_delete_route);
+app.use(file_download_route);
 
 // ---------------------------------------------------
 // Simple check
