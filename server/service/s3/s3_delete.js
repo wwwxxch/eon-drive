@@ -18,6 +18,7 @@ const deleteObject = async (client, bucket, key) => {
   }
 };
 
+// TODO: no error handling here
 const deleteFolderAndContents = async (client, bucket, key) => {
   const listCMD = new ListObjectsV2Command({
     Bucket: bucket,

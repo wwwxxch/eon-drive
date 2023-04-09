@@ -12,7 +12,7 @@ const updateUsed = async (userId) => {
   `;
   const [row] = await pool.query(q2, [file[0].total_size, userId]);
   
-  console.log("updateUsed: update user table: ", row);
+  console.log("updateUsed: update user table: ", row.affectedRows);
   
   // TODO: error handling
   return true;

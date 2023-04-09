@@ -16,6 +16,8 @@ import {
 	commitMetadata,
 } from "../../model/db_file.js";
 
+import { getUser } from "../../model/db_user.js";
+
 import { updateUsed } from "../../model/db_plan.js";
 
 import { emitNewList } from "../../service/sync_list.js";
@@ -67,7 +69,7 @@ const uploadChangeDB = async (req, res, next) => {
 			fileSize,
 			token
 		);
-		console.log("toDBFile: ", toDBFile);
+		console.log("toDBFile.affectedRows: ", toDBFile.affectedRows);
 		if (toDBFile.affectedRows !== 1) {
 			return res.status(500).json({ msg: "Something Wrong" });
 		}
@@ -80,15 +82,18 @@ const uploadChangeDB = async (req, res, next) => {
 			fileSize,
 			token
 		);
-		console.log("updDBFile: ", updDBFile);
+		console.log("updDBFile.affectedRows: ", updDBFile.affectedRows);
 		if (updDBFile.affectedRows !== 1) {
 			return res.status(500).json({ msg: "Something Wrong" });
 		}
 	}
 
+  // TODO: check again the flow
 	// update user.used
-	// TODO: to be checked
 	const updUsed = await updateUsed(userId);
+  const userInfo = await getUser("id", userId);
+  // console.log("userInfo:", userInfo);
+  req.session.user.used = userInfo.used;
 	req.token = token;
 	next();
 };

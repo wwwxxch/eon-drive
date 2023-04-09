@@ -1,5 +1,9 @@
 import argon2  from "argon2";
 import { pool } from "./connection.js";
+
+import dotenv from "dotenv";
+dotenv.config();
+const basic = parseInt(process.env.BASIC);
 // ----------------------------------------------------------
 const chkmail = async (mail) => {
   const [row] = await pool.query(`
@@ -32,7 +36,7 @@ const createUser = async (mail, pwd, name) => {
   const hashed = await argon2.hash(pwd);
   const [row] = await pool.query(`
     INSERT INTO user (email, password, name, plan, allocated, used) 
-    VALUES (?, ?, ?, ?, ?, ?)`, [mail, hashed, name, 1,  400 * 1024 * 1024, 0]
+    VALUES (?, ?, ?, ?, ?, ?)`, [mail, hashed, name, 1,  basic * 1024 * 1024, 0]
   );
   const insertId = row.insertId;
   return getUser("id", insertId);
