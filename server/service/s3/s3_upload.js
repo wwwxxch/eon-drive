@@ -11,10 +11,9 @@ import fs from "fs";
 
 import dotenv from "dotenv";
 dotenv.config();
-const { 
-  DEFAULT_S3_EXPIRES,
-  CHUNK_SIZE
-} = process.env;
+
+const DEFAULT_S3_EXPIRES = parseInt(process.env.DEFAULT_S3_EXPIRES);
+const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE * 1024 * 1024);
 
 // ==================================================================
 
@@ -79,7 +78,7 @@ const largeUpload = async (client, bucket, key, localPath, fileSize) => {
 		Key: key,
 	});
 	const multipartUpload = await client.send(cmdCreateMultipartUpload);
-
+  console.log("largeUpload: multipartUpload: ", multipartUpload);
 	// Upload Parts
 	const uploadId = multipartUpload.UploadId;
 	try {
