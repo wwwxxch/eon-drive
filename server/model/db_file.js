@@ -39,46 +39,11 @@ const getFileList = async(userId, parentId) => {
   return row;
 };
 
-const deleteWholeFolder = async(userId, parentId) => {
-  const connection = await pool.getConnection();
- 
-  try { 
-    // Start transaction
-    console.log("START TRANSACTION...");
-    await connection.query("START TRANSACTION");
-
-    // Delete files
-    await connection.query(`
-      DELETE FROM file WHERE user_id = ? AND parent_id = ?
-    `, [userId, parentId]);
-
-    // Delete folder
-    await connection.query(`
-      DELETE FROM file WHERE user_id = ? AND id = ?
-    `, [userId, parentId]);
-
-    // Complete transaction - Commit
-    await connection.commit();
-    console.log(`...COMMIT 
-      - folder and files inside are deleted`);
-    
-    return true;
-  } catch (err) {
-    // Failed - Rollback
-    await connection.query("ROLLBACK");
-    console.log("...ROLLBACK - ", err, + "...");
-    return false;
-  } finally {
-    // Release connection
-    await connection.release();
-    console.log("...RELEASE CONNECTON");
-  }
-};
-
 const getFileId = async(userId, parentId, fileName) => {
   const [row] = await pool.query(`
     SELECT id FROM file WHERE user_id = ? AND parent_id = ? AND name = ? AND type = 'file'
   `, [userId, parentId, fileName]);
+  console.log("getFileId: ", row);
   return row;
 };
 
@@ -86,7 +51,15 @@ const deleteById = async(userId, id) => {
   const [row] = await pool.query(`
     DELETE FROM file WHERE user_id = ? AND id = ?
   `, [userId, id]);
-  console.log("file deleted");
+  console.log("file deleted: row.affectedRows: ", row.affectedRows);
+  return row;
+};
+
+const getOneLevelChild = async(userId, parentId) => {
+  const [row] = await pool.query(`
+    SELECT id, type FROM file WHERE user_id = ? AND parent_id = ?
+  `, [userId, parentId]);
+  console.log("getOneLevelChild: ", row);
   return row;
 };
 
@@ -96,7 +69,7 @@ export {
   updMetadata,
   commitMetadata,
   getFileList,
-  deleteWholeFolder,
   getFileId,
-  deleteById
+  deleteById,
+  getOneLevelChild
 };

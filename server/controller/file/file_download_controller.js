@@ -22,8 +22,7 @@ const dlValidation = async (req, res, next) => {
     return res.status(400).json({ err: "error" });
   }
 
-  // TODO: not yet
-  // downloadList 不能是 "/"
+  // TODO: download API - input validation - downloadList 不能是 "/"
 
   next();
 };
@@ -77,7 +76,7 @@ const dlMultiFileProcess = async (req, res, next) => {
 
   let finalList = [];
   for (let i = 0; i < folders.length; i++) {
-    const wholeChilds = await getWholeChilds(userId, folders[i]);
+    const wholeChilds = await getWholeChilds(userId, folders[i].slice(0, folders[i].length-1));
     finalList = [...finalList, ...wholeChilds];
   }
   finalList = [...finalList, ...files];
