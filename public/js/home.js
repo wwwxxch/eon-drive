@@ -48,6 +48,7 @@ if (isLogin) {
       `);
     });
   }
+  // TODO: if path in url is not exsited -> should redirect user to home page
 }
 
 function showList(obj) {
