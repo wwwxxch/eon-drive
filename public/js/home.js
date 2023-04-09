@@ -1,6 +1,7 @@
 import { uploadFile } from "./api/upload.js";
 import { getFileList } from "./api/list.js";
 import { deleteFile } from "./api/delete.js";
+import { downloadFile } from "./api/download.js";
 // ==========================================================================
 // logout button
 $(".logout-button").on("click", async function(e) {
@@ -88,7 +89,8 @@ $("#file-list").on("click", ".folder", async function () {
 // socket.io
 const socket = io();
 socket.on("listupd", (data) => {
-	console.log("socket.on listupd: ", data);
+	// console.log("socket.on listupd: ", data);
+  console.log("In socket.on(\"listupd\")");
 	let currentPath = "";
 	if ($("#current-path").text() !== "Home") {
 		currentPath = $("#current-path").text().split("/").slice(1).join("/");
@@ -143,37 +145,17 @@ $("#delete-button").click(async function () {
 });
 
 // download
-// $("#download-button").click(async function () {
-// 	const selected = $("input[name='list-checkbox']:checked");
-// 	let parentPath;
-// 	const fileToDownload = selected.toArray().map((tickbox) => {
-// 		console.log(tickbox.value);
-// 		if ($("#current-path").text() === "Home") {
-// 			parentPath = "/";
-// 			return tickbox.value;
-// 		} else {
-// 			parentPath = $("#current-path").text().replace(/^Home/, "");
-// 			return `${parentPath}/${tickbox.value}`;
-// 		}
-// 	});
-// 	console.log("fileToDownload: ",fileToDownload);
+$("#download-button").click(async function () {
+  const currentPath = $("#current-path").text();
+	const selected = $("input[name='list-checkbox']:checked");
+	
+  const downloadFileRes = await downloadFile(currentPath, selected);
+  // console.log("downloadFileRes: ", downloadFileRes);
+  if (downloadFileRes.status === 200) {
+    window.open(downloadFileRes.downloadUrl, "_self");
+  }
 
-// 	const downloadResult = await fetch("/download", {
-// 		method: "POST",
-// 		headers: {
-// 			"Content-Type": "application/json",
-// 		},
-// 		body: JSON.stringify({
-// 			downloadList: fileToDownload,
-// 			parentPath: parentPath,
-// 		}),
-// 	});
-// 	const downloadResultData = await downloadResult.json();
-// 	console.log(downloadResultData);
-// 	window.open(downloadResultData.downloadUrl, "_self");
-
-// 	selected.prop("checked", false);
-// 	$("#delete-button").hide();
-// 	$("#download-button").hide();
-// });
-
+	selected.prop("checked", false);
+	$("#delete-button").hide();
+	$("#download-button").hide();
+});

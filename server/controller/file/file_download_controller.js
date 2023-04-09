@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
-const {	S3_BUCKET_NAME } = process.env;
+const {	S3_MAIN_BUCKET_NAME } = process.env;
+
+import { s3clientGeneral, s3clientDownload } from "../../service/s3/s3_client.js";
 
 import {
   getDownloadUrl
@@ -32,7 +34,8 @@ const dlSingleFile = async (req, res, next) => {
   if (downloadList.length === 1 && !downloadList[0].endsWith("/")) {
     const userId = req.session.user.id;
     const downloadUrl = await getDownloadUrl(
-      S3_BUCKET_NAME,
+      s3clientGeneral,
+      S3_MAIN_BUCKET_NAME,
       `user_${userId}/${downloadList[0].replace(/^\//,"").trim()}`,
       60 * 5
     );

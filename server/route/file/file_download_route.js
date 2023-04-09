@@ -3,7 +3,9 @@ const router = express.Router();
 
 import dotenv from "dotenv";
 dotenv.config();
-const { S3_BUCKET_NAME } = process.env;
+const { S3_MAIN_BUCKET_NAME, S3_DOWNLOAD_BUCKET_NAME } = process.env;
+
+import { s3clientGeneral, s3clientDownload } from "../../service/s3/s3_client.js";
 
 import { authentication } from "../../controller/user/user_auth_controller.js";
 
@@ -44,11 +46,11 @@ router.post("/download-test",
     
 		const s3finalList = finalList.map((item) => `user_${userId}/${item}`);
 		// create zip file in local server
-		const saveToLocal = await getObjSave(S3_BUCKET_NAME, s3finalList, finalList);
+		const saveToLocal = await getObjSave(s3clientGeneral, S3_MAIN_BUCKET_NAME, s3finalList, finalList);
 		console.log("saveToLocal: ", saveToLocal);
 		const createZip = await zipFiles(finalList, parentPath, parentName);
 		console.log("createZip: ", createZip);
-		const getZipUrl = await zipToS3(S3_BUCKET_NAME, parentName);
+		const getZipUrl = await zipToS3(userId, s3clientDownload, S3_DOWNLOAD_BUCKET_NAME, parentName);
 		console.log("getZipUrl: ", getZipUrl);
 
 		// delete files

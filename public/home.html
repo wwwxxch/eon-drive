@@ -11,32 +11,36 @@
       <div>
         <button class="logout-button">Logout</button>
       </div>
+
       <h2>Upload File</h2>
       <form id="form-file">
         <input id="file-input" type="file" multiple>
         <p></p>
         <button>Upload</button>
       </form>
+      
       <h2>Upload Folder</h2>
       <form id="form-folder">
         <input id="folder-input" type="file" webkitdirectory multiple>
         <p></p>
         <button>Upload</button>
       </form>
-      <!---->
-      <h2>File Lists</h2>
-      <div id="current-path">Home</div>
+
+      <p></p>
+      <h2 id="current-path">Home</h2>
+      <p></p>
+      
       <div id="delete-button" style="display:none">
         <button>Delete</button>
       </div>
       <div id="download-button" style="display:none">
         <button>Download</button>
       </div>
-      <h4 id="current-path">Home</h4>
+
       <div>
         <div id="file-list"></div>
       </div>
-      <!---->
+
     </div>
   </body>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

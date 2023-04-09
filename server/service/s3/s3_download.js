@@ -6,7 +6,9 @@ import fs from "fs";
 
 import dotenv from "dotenv";
 dotenv.config();
-const { DEFAULT_S3_EXPIRES, CHUNK_SIZE } = process.env;
+
+const DEFAULT_S3_EXPIRES = parseInt(process.env.DEFAULT_S3_EXPIRES);
+const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE * 1024 * 1024);
 
 import { largeUpload } from "./s3_upload.js";
 
@@ -39,16 +41,16 @@ const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
 			tmpLocalName = fileArray[i].split("/").join("_");
 			console.log("tmpLocalName: ", tmpLocalName);
 
-			S3Objects[i] = fs.createWriteStream(`${tmpDir}/${tmpLocalName[i]}`);
+			S3Objects[i] = fs.createWriteStream(`${tmpDir}/${tmpLocalName}`);
 			writePromises.push(
 				new Promise((resolve, reject) => {
 					getS3Object.Body.pipe(S3Objects[i])
 						.on("finish", () => {
-							console.log(`get S3 object to local ${tmpDir}/${tmpLocalName[i]} finished`);
+							console.log(`get S3 object to local ${tmpDir}/${tmpLocalName} finished`);
 							resolve();
 						})
 						.on("error", (err) => {
-							console.error(`get S3 object to local ${tmpDir}/${tmpLocalName[i]} error occurred`);
+							console.error(`get S3 object to local ${tmpDir}/${tmpLocalName} error occurred`);
 							reject(err);
 						});
 				})
@@ -110,7 +112,7 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 // send zip file to S3
 const zipToS3 = async (userId, client, bucket, parentName) => {
   const localZip = `${tmpDir}/${parentName}.zip`;
-  const key = `${userId}/${parentName}.zip`;
+  const key = `user_${userId}/${parentName}.zip`;
 
 	const fileSize = fs.statSync(localZip).size;
 	console.log("fileSize: ", fileSize);
