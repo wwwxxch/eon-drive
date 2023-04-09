@@ -6,6 +6,7 @@ const getFileList = async (path) => {
   try {
     const getList = await axios.post("/show-list", { path: parentPath} );
     // console.log("getList: ", getList);
+    // console.log("getList.data: ", getList.data);
     return getList.data;
   } catch (e) {
     console.error("getFileList: ", e);

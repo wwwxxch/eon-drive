@@ -8,6 +8,15 @@ body {
   margin: 10px 0;
 }
 
+#whole-path {
+  display: flex;
+  align-items: center;
+}
+
+.path-slash {
+  padding: 0 5px;
+}
+
 .folder {
  font-size: 18px; 
 }

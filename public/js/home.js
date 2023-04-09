@@ -22,11 +22,32 @@ const chkLoginStatus = async() => {
   }
 };
 
-// show file list under root folder
+// show file list under root folder 
 const isLogin = await chkLoginStatus();
 if (isLogin) {
-  const homeList = await getFileList("Home");
-  showList(homeList);
+  const url = new URL(window.location.href);
+  const path = url.searchParams.get("path");
+  const list = await getFileList((path === null ? "Home" : "Home/" + path));
+  showList(list);
+  if (path != null) {
+    const pathArray = path.split("/").reduce((prev, curr, i) => {
+      const folder = (i === 0) ? curr : `${prev[i - 1]}/${curr}`;
+      return [...prev, folder];
+    }, []);
+    // console.log("pathArray: ", pathArray);
+    pathArray.forEach((item, i) => {
+      $("#whole-path").append(`
+        <span class="path-slash"> / </span>
+        <a href="http://localhost:9999/home.html?path=${item}">
+          <h2>
+            <span class="path-text">
+              ${item.split("/").pop()}
+            </span>
+          </h2>
+        </a>
+      `);
+    });
+  }
 }
 
 function showList(obj) {
@@ -72,29 +93,62 @@ function showList(obj) {
 // click folder --> show lists under that folder
 $("#file-list").on("click", ".folder", async function () {
 	const dirName = $(this).text();
-	const newPath = `${$("#current-path").text()}/${dirName}`;
+  const pathTexts = $(".path-text").map(function() {
+    return $(this).text().trim();
+  }).get().join("/");
+  let uri;
+  if (pathTexts === "Home") {
+    uri = dirName;
+  } else {
+    uri = `${pathTexts.replace(/^Home\//,"")}/${dirName}`;
+  }
+
+  console.log("dirName: ", dirName);
+  console.log("pathTexts: ", pathTexts);
+  console.log("uri: ", uri);
+  history.pushState({}, "", `/home.html?path=${uri}`);
 
 	// clear file list and get file list under new dir
+  const newPath = `${pathTexts}/${dirName}`;
 	$("#file-list").empty();
 	const newList = await getFileList(newPath);
 	showList(newList);
-
+  
 	// update current path
-	$("#current-path").text(newPath);
+  $("#whole-path").append(`
+    <span class="path-slash"> / </span>
+    <a href="http://localhost:9999/home.html?path=${uri}">
+      <h2>
+        <span class="path-text">
+          ${dirName}
+        </span>
+      </h2>
+    </a>
+  `);
 
 	$("#file-input").val("");
 	$("#folder-input").val("");
 });
 
+
+// ==========================================================================
 // socket.io
 const socket = io();
 socket.on("listupd", (data) => {
-	// console.log("socket.on listupd: ", data);
-  console.log("In socket.on(\"listupd\")");
-	let currentPath = "";
-	if ($("#current-path").text() !== "Home") {
-		currentPath = $("#current-path").text().split("/").slice(1).join("/");
+	console.log("socket.on listupd: ", data);
+  // console.log("In socket.on(\"listupd\")");
+	
+  const pathTexts = $(".path-text").map(function() {
+    return $(this).text().trim();
+  }).get().join("/");
+  
+  let currentPath = "";
+	if (pathTexts !== "Home") {
+		currentPath = pathTexts.replace(/^Home\//,"");
 	}
+  // console.log("currentPath: ", currentPath);
+  // console.log("pathTexts: ", pathTexts);
+
 	if (currentPath === data.parentPath) {
 		$("#file-list").empty();
 		showList(data.list);
@@ -105,7 +159,10 @@ socket.on("listupd", (data) => {
 // upload file
 $("#form-file").on("submit", async function (e) {
 	e.preventDefault();
-	const currentPath = $("#current-path").text();
+  const currentPath = $(".path-text").map(function() {
+    return $(this).text().trim();
+  }).get().join("/");
+  console.log(currentPath);
 	const fileList = $("#file-input")[0].files;
 
 	for (let file of fileList) {
@@ -119,7 +176,10 @@ $("#form-file").on("submit", async function (e) {
 // upload folder
 $("#form-folder").on("submit", async function (e) {
 	e.preventDefault();
-	const currentPath = $("#current-path").text();
+	// const currentPath = $("#current-path").text();
+  const currentPath = $(".path-text").map(function() {
+    return $(this).text().trim();
+  }).get().join("/");
 	const fileList = $("#folder-input")[0].files;
 
 	for (let file of fileList) {
@@ -133,7 +193,10 @@ $("#form-folder").on("submit", async function (e) {
 // ==========================================================================
 // delete
 $("#delete-button").click(async function () {
-  const currentPath = $("#current-path").text();
+  // const currentPath = $("#current-path").text();
+  const currentPath = $(".path-text").map(function() {
+    return $(this).text().trim();
+  }).get().join("/");
   const selected = $("input[name='list-checkbox']:checked");
   
   const deleteFileRes = await deleteFile(currentPath, selected);
@@ -146,7 +209,10 @@ $("#delete-button").click(async function () {
 
 // download
 $("#download-button").click(async function () {
-  const currentPath = $("#current-path").text();
+  // const currentPath = $("#current-path").text();
+  const currentPath = $(".path-text").map(function() {
+    return $(this).text().trim();
+  }).get().join("/");
 	const selected = $("input[name='list-checkbox']:checked");
 	
   const downloadFileRes = await downloadFile(currentPath, selected);
