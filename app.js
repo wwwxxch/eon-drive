@@ -3,8 +3,7 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import session from "express-session";
-import RedisStore from "connect-redis";
-import { redis } from "./server/util/cache.js";
+import { sessionConfig } from "./server/util/session.js";
 
 dotenv.config();
 const port = process.env.PORT;
@@ -16,25 +15,11 @@ const server = http.createServer(app);
 const io = new Server(server);
 app.set("socketio", io);
 
-// session configuration
-const redisStore = new RedisStore({
-  client: redis,
-  prefix: "user:"
-});
-
-const sessionConfig = {
-  secret: process.env.SESSION_SECRET,
-  store: redisStore,
-  resave: false,
-  saveUninitialized: false,
-  cookie: { SameSite: "lax", maxAge: 200 * 60 * 1000 } // 200 min
-};
-
+// session
 if (process.env.NODE_ENV === "prod") {
   app.set("trust proxy", 1);
   sessionConfig.cookie.secure = true;
 }
-
 app.use(session(sessionConfig));
 
 app.use(express.static("./public"));
@@ -49,8 +34,9 @@ import { file_list_route } from "./server/route/file/file_list_route.js";
 import { file_delete_route } from "./server/route/file/file_delete_route.js";
 import { file_download_route } from "./server/route/file/file_download_route.js";
 
-app.use(user_auth_route);
-app.use(file_upload_route);
+// app.use(user_auth_route);
+// app.use(file_upload_route);
+app.use(user_auth_route, file_upload_route);
 app.use(file_list_route);
 app.use(file_delete_route);
 app.use(file_download_route);
