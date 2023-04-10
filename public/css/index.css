@@ -51,3 +51,15 @@ body {
   justify-content: flex-start;
   margin: 10px 0;
 }
+
+.blank-div {
+  min-height: 20px;
+}
+
+#operation-block {
+  display: flex;
+}
+
+.operation-btn {
+  margin: 0 10px 0 0;
+}

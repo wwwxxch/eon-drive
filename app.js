@@ -30,18 +30,21 @@ app.use(express.json());
 // Routes
 import { user_auth_route } from "./server/route/user/user_auth_route.js";
 import { file_upload_route } from "./server/route/file/file_upload_route.js";
+import { folder_create_route } from "./server/route/file/folder_create_route.js";
 import { file_list_route } from "./server/route/file/file_list_route.js";
 import { file_delete_route } from "./server/route/file/file_delete_route.js";
 import { file_download_route } from "./server/route/file/file_download_route.js";
 import { share_link_route } from "./server/route/share/share_link_route.js";
 
-// app.use(user_auth_route);
-// app.use(file_upload_route);
-app.use(user_auth_route, file_upload_route);
-app.use(file_list_route);
-app.use(file_delete_route);
-app.use(file_download_route);
-app.use(share_link_route);
+app.use(
+  user_auth_route, 
+  file_upload_route,
+  folder_create_route,
+  file_list_route,
+  file_delete_route,
+  file_download_route,
+  share_link_route
+);
 
 // ---------------------------------------------------
 // import path from "path";

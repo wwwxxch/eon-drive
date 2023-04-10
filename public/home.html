@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EON Drive</title>
     <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
   </head>
   <body>
     <div id="root">
@@ -12,23 +13,21 @@
         <button class="logout-button">Logout</button>
       </div>
 
-      <h2>Upload File</h2>
+      <h3>Upload File</h3>
       <form id="form-file">
         <input id="file-input" type="file" multiple>
         <p></p>
         <button>Upload</button>
       </form>
       
-      <h2>Upload Folder</h2>
+      <h3>Upload Folder</h3>
       <form id="form-folder">
         <input id="folder-input" type="file" webkitdirectory multiple>
         <p></p>
         <button>Upload</button>
       </form>
-
-      <!-- <p></p>
-      <h2 id="current-path">Home</h2>
-      <p></p> -->
+      
+      <!-- <div class="blank-div"></div> -->
 
       <div id="whole-path">
         <a href="http://localhost:9999/home.html">
@@ -40,11 +39,21 @@
         </a>
       </div>
 
-      <div id="delete-button" style="display:none">
-        <button>Delete</button>
-      </div>
-      <div id="download-button" style="display:none">
-        <button>Download</button>
+      <div id="operation-block">
+        <div id="create-button" class="operation-btn">
+          <button>Create Folder</button>
+        </div>
+        <div id="create-folder-dialog" style="display:none">
+          <label for="create-folder-name">Folder Name:</label>
+          <input type="text" id="create-folder-name" name="create-folder-name">
+        </div>
+
+        <div id="delete-button" class="operation-btn" style="display:none">
+          <button>Delete</button>
+        </div>
+        <div id="download-button" class="operation-btn" style="display:none">
+          <button>Download</button>
+        </div>  
       </div>
 
       <div id="file-list-outer">
@@ -56,6 +65,9 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.3.min.js" 
           integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+          crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"
+          integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" 
           crossorigin="anonymous"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script type="module" src="js/home.js"></script>

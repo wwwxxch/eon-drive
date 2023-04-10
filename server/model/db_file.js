@@ -91,6 +91,14 @@ const getDetail = async(id) => {
   return row;
 };
 
+const createNewDir = async(userId, parentId, folderName, token) => {
+  const [row] = await pool.query(`
+    INSERT INTO file (parent_id, name, type, user_id, status, token)
+    VALUES (?, ?, ?, ?, ?, ?) 
+  `, [parentId, folderName, "folder", userId, "pending", token]);
+  return row;
+};
+
 export {
   getDirId,
   saveMetadata,
@@ -102,5 +110,6 @@ export {
   deleteById,
   getOneLevelChild,
   getFileOrDirId,
-  getDetail
+  getDetail,
+  createNewDir
 };

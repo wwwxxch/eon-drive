@@ -1,4 +1,5 @@
 import { uploadFile } from "./api/upload.js";
+import { createFolder } from "./api/create_folder.js";
 import { getFileList } from "./api/list.js";
 import { deleteFile } from "./api/delete.js";
 import { downloadFile } from "./api/download.js";
@@ -23,35 +24,7 @@ const chkLoginStatus = async() => {
   }
 };
 
-// show file list under root folder 
-const isLogin = await chkLoginStatus();
-if (isLogin) {
-  const url = new URL(window.location.href);
-  const path = url.searchParams.get("path");
-  const list = await getFileList((path === null ? "Home" : "Home/" + path));
-  showList(list);
-  if (path != null) {
-    const pathArray = path.split("/").reduce((prev, curr, i) => {
-      const folder = (i === 0) ? curr : `${prev[i - 1]}/${curr}`;
-      return [...prev, folder];
-    }, []);
-    // console.log("pathArray: ", pathArray);
-    pathArray.forEach((item, i) => {
-      $("#whole-path").append(`
-        <span class="path-slash"> / </span>
-        <a href="http://localhost:9999/home.html?path=${item}">
-          <h2>
-            <span class="path-text">
-              ${item.split("/").pop()}
-            </span>
-          </h2>
-        </a>
-      `);
-    });
-  }
-  // TODO: if path in url is not exsited -> should redirect user to home page
-}
-
+// show file list function
 function showList(obj) {
 	const fileList = $("#file-list");
 	obj.data.forEach((item) => {
@@ -92,6 +65,35 @@ function showList(obj) {
 		div.append(tickbox, span, sharebtn);
 		fileList.append(div);
 	});
+}
+
+// show file list under root folder 
+const isLogin = await chkLoginStatus();
+if (isLogin) {
+  const url = new URL(window.location.href);
+  const path = url.searchParams.get("path");
+  const list = await getFileList((path === null ? "Home" : "Home/" + path));
+  showList(list);
+  if (path != null) {
+    const pathArray = path.split("/").reduce((prev, curr, i) => {
+      const folder = (i === 0) ? curr : `${prev[i - 1]}/${curr}`;
+      return [...prev, folder];
+    }, []);
+    // console.log("pathArray: ", pathArray);
+    pathArray.forEach((item, i) => {
+      $("#whole-path").append(`
+        <span class="path-slash"> / </span>
+        <a href="http://localhost:9999/home.html?path=${item}">
+          <h2>
+            <span class="path-text">
+              ${item.split("/").pop()}
+            </span>
+          </h2>
+        </a>
+      `);
+    });
+  }
+  // TODO: if path in url is not exsited -> should redirect user to home page
 }
 
 // click folder --> show lists under that folder
@@ -141,11 +143,6 @@ $("#file-list").on("click", ".share-btn", async function () {
   const fileDiv = $(this).closest(".file-div");
   // 找到 checkbox 的 value 屬性
   const targetName = fileDiv.find("input[type=\"checkbox\"]").val();
-  // // 找到 file span 的文字內容
-  // const fileText = fileDiv.find(".file").text();
-  // // 執行你需要的邏輯
-  // console.log("Checkbox value: " + checkboxValue);
-  // console.log("File text: " + fileText);
 
   const parentPath = $(".path-text").map(function() {
     return $(this).text().trim();
@@ -154,24 +151,27 @@ $("#file-list").on("click", ".share-btn", async function () {
   const getLink = await createLink(parentPath, targetName);
   console.log("getLink: ", getLink);
   
-  const tempInput = $("<input>");
-  $("body").append(tempInput);
-  tempInput.val(getLink.share_link);
-  tempInput.select();
+  if (getLink.share_link) {
+		const inputForShareLink = $("<input>");
+		$("body").append(inputForShareLink);
+		inputForShareLink.val(getLink.share_link);
+		inputForShareLink.select();
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        console.log("Text copied to clipboard");
-      })
-      .catch((err) => {
-        console.error("Error copying text to clipboard:", err);
-      });
-  };
-  
-  copyToClipboard(getLink.share_link); 
-  tempInput.remove();
-  prompt("Here's your link:", getLink.share_link);
+		const copyToClipboard = (text) => {
+			navigator.clipboard
+				.writeText(text)
+				.then(() => {
+					console.log("Text copied to clipboard");
+				})
+				.catch((err) => {
+					console.error("Error copying text to clipboard:", err);
+				});
+		};
+
+		copyToClipboard(getLink.share_link);
+		inputForShareLink.remove();
+		prompt("Here's your link: ", getLink.share_link);
+	}
 });
 
 // ==========================================================================
@@ -231,6 +231,40 @@ $("#form-folder").on("submit", async function (e) {
 	}
 
 	$("#folder-input").val("");
+});
+
+// create folder
+const dialog = $("#create-folder-dialog").dialog({
+  autoOpen: false,
+  modal: true,
+  buttons: {
+    "Create": async function() {
+      
+      const currentPath = $(".path-text").map(function() {
+        return $(this).text().trim();
+      }).get().join("/");
+      const createFolderName = $("#create-folder-name").val();
+
+      const createFolderRes = await createFolder(currentPath, createFolderName);
+      console.log("createFolderRes: ", createFolderRes);
+      
+      // TODO: if (createFolderRes.response.status !== 200)
+      if (createFolderRes.data && createFolderRes.data.msg === "Folder existed") {
+        alert(`Folder ${createFolderName} has been existed`);
+      }
+
+      $(this).dialog("close");
+      $("#create-folder-name").val("");
+    },
+    "Cancel": function() {
+      $(this).dialog("close");
+      $("#create-folder-name").val("");
+    }
+  }
+});
+
+$("#create-button").on("click", function() {
+  dialog.dialog("open");
 });
 
 // ==========================================================================
