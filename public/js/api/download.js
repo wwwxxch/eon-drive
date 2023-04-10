@@ -14,7 +14,7 @@ const downloadFile = async (path, fileArray) => {
 	console.log("fileToDownload: ", downloadList);
   
   try {
-    const downloadRes = await axios.post("/download-test", { parentPath, downloadList });
+    const downloadRes = await axios.post("/download", { parentPath, downloadList });
     console.log("downloadRes: ", downloadRes);
     return { status: 200, downloadUrl: downloadRes.data.downloadUrl } ;
   } catch (e) {

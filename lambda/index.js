@@ -6,7 +6,14 @@ const {
 
 const { deleteLocal } = require("./fs_operation.js");
 
-const S3_BUCKET_NAME = "eondrive";
+const {
+  S3Client
+} = require("@aws-sdk/client-s3");
+
+const client = new S3Client({ region: "ap-southeast-1" });
+
+const S3_MAIN_BUCKET_NAME = "eondrive";
+const S3_DOWNLOAD_BUCKET_NAME = "eondrive-download";
 
 exports.handler = async (event) => {
   try {
@@ -18,11 +25,11 @@ exports.handler = async (event) => {
 
 		const s3finalList = finalList.map((item) => `user_${userId}/${item}`);
 
-		const saveToLocal = await getObjSave(S3_BUCKET_NAME, s3finalList, finalList);
+		const saveToLocal = await getObjSave(client, S3_MAIN_BUCKET_NAME, s3finalList, finalList);
 		console.log("saveToLocal: ", saveToLocal);
 		const createZip = await zipFiles(finalList, parentPath, parentName);
 		console.log("createZip: ", createZip);
-		const getZipUrl = await zipToS3(S3_BUCKET_NAME, parentName);
+		const getZipUrl = await zipToS3(userId, client, S3_DOWNLOAD_BUCKET_NAME, parentName);
 		console.log("getZipUrl: ", getZipUrl);
 
 		// delete files
