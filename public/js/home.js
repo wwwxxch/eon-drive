@@ -2,6 +2,7 @@ import { uploadFile } from "./api/upload.js";
 import { getFileList } from "./api/list.js";
 import { deleteFile } from "./api/delete.js";
 import { downloadFile } from "./api/download.js";
+import { createLink } from "./api/share.js";
 // ==========================================================================
 // logout button
 $(".logout-button").on("click", async function(e) {
@@ -85,8 +86,10 @@ function showList(obj) {
 			span.text(item.name);
 			span.addClass("folder").attr("data-folder-id", item.id);
 		}
-
-		div.append(tickbox, span);
+    const sharebtn = $("<button>");
+    sharebtn.text("Share Link").addClass("share-btn");
+    div.addClass("file-div");
+		div.append(tickbox, span, sharebtn);
 		fileList.append(div);
 	});
 }
@@ -131,6 +134,45 @@ $("#file-list").on("click", ".folder", async function () {
 	$("#folder-input").val("");
 });
 
+// click share button
+$("#file-list").on("click", ".share-btn", async function () {
+  
+  // 找到按鈕所在的 file-div 元素
+  const fileDiv = $(this).closest(".file-div");
+  // 找到 checkbox 的 value 屬性
+  const targetName = fileDiv.find("input[type=\"checkbox\"]").val();
+  // // 找到 file span 的文字內容
+  // const fileText = fileDiv.find(".file").text();
+  // // 執行你需要的邏輯
+  // console.log("Checkbox value: " + checkboxValue);
+  // console.log("File text: " + fileText);
+
+  const parentPath = $(".path-text").map(function() {
+    return $(this).text().trim();
+  }).get().join("/");
+  
+  const getLink = await createLink(parentPath, targetName);
+  console.log("getLink: ", getLink);
+  
+  const tempInput = $("<input>");
+  $("body").append(tempInput);
+  tempInput.val(getLink.share_link);
+  tempInput.select();
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        console.log("Text copied to clipboard");
+      })
+      .catch((err) => {
+        console.error("Error copying text to clipboard:", err);
+      });
+  };
+  
+  copyToClipboard(getLink.share_link); 
+  tempInput.remove();
+  prompt("Here's your link:", getLink.share_link);
+});
 
 // ==========================================================================
 // socket.io

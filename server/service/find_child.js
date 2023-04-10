@@ -1,6 +1,7 @@
 import { 
   getDirId,
   getFileId,
+  getFileOrDirId,
   getFileList,
   getOneLevelChild,
   deleteById
@@ -14,11 +15,14 @@ import {
  * @returns {Promise} Promise object represents -1 (error) or id of the last folder
  */
 const iterForParentId = async(userId, folders) => {
+  console.log("iterForParentId: folders: ", folders);
   let parentId = 0;
   for (let i = 0; i < folders.length; i++) {
     const chkDir = await getDirId(userId, parentId, folders[i]);
     if (chkDir.length === 1) {
       parentId = chkDir[0].id;
+    } else if (folders[i] === "") {
+      continue;
     } else {
       console.error("(fn) iterForParentId - error");
       console.error("parentId: ", parentId, " folders[i]: ", folders[i]);
@@ -38,10 +42,23 @@ const findFileIdByPath = async(userId, path) => {
   const parent = path.split("/");
   const child = parent.pop();
   const parentId = await iterForParentId(userId, parent);
-  const [childId] = await getFileId(userId, parentId, child);
-
-  return childId.id;
+  const [childResult] = await getFileId(userId, parentId, child);
+  // console.log("childResult: ", childResult);
+  return childResult.id;
 };
+
+const findFileOrDirByPath = async(userId, parentPath, targetName, type) => {
+  const parent = parentPath.split("/");
+  let child = targetName;
+  if (type === "folder") {
+    child = child.replace(/\/$/, ""); // remove final slash
+  }
+  const parentId = await iterForParentId(userId, parent);
+  const [childResult] = await getFileOrDirId(userId, parentId, child, type);
+  // console.log("childResult: ", childResult);
+  return childResult.id;
+};
+
 /**
  * delete all files and folders under giving parentId
  * @param {number} userId 
@@ -107,4 +124,11 @@ const getWholeChilds = async (userId, path) => {
   return result;
 };
 
-export { iterForParentId, findFileIdByPath, getWholeChilds, iterPath, deleteRecur };
+export {
+	iterForParentId,
+	findFileIdByPath,
+  findFileOrDirByPath,
+	getWholeChilds,
+	iterPath,
+	deleteRecur,
+};
