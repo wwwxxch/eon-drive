@@ -36,13 +36,14 @@ const deleteS3AndDB = async (req, res) => {
       const folders = key.slice(0, key.length-1).split("/");
       const parentId = await iterForParentId(userId, folders);
       const deleteRecurRes = await deleteRecur(userId, parentId);
-      console.log("deleteRecurRes.affectedRows:", deleteRecurRes.affectedRows);
+      console.log("deleteRecurRes: ", deleteRecurRes);
     } else {
       // S3
       await deleteObject(s3clientGeneral, S3_MAIN_BUCKET_NAME, `user_${userId}/${key}`);
       // DB
       const fileId = await findFileIdByPath(userId, key);
-      await deleteById(userId, fileId);
+      const deleteRes = await deleteById(userId, fileId);
+      console.log("deleteRes.affectedRows: ", deleteRes.affectedRows);
     }
   }
 

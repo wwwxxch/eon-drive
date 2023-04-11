@@ -67,16 +67,19 @@ const findFileOrDirByPath = async(userId, parentPath, targetName, type) => {
 const deleteRecur = async (userId, parentId) => {
   try {
     const list = await getOneLevelChild(userId, parentId);
-    for (let i = 0; i < list.length; i++) {
-      if (list[i].type === "file") {
-        const deleteRes = await deleteById(userId, list[i].id);
-        console.log("deleteRes: ", deleteRes);
-      } else {
-        await deleteRecur(userId, list[i].id);
+    if (list.length > 0) {
+      for (let i = 0; i < list.length; i++) {
+        if (list[i].type === "file") {
+          const deleteFileRes = await deleteById(userId, list[i].id);
+          console.log("deleteFileRes.affectedRows: ", deleteFileRes.affectedRows);
+        } else {
+          await deleteRecur(userId, list[i].id);
+        }
       }
     }
     // delete folder itself
-    await deleteById(userId, parentId);
+    const deleteFolderRes = await deleteById(userId, parentId);
+    console.log("deleteFolderRes.affectedRows: ", deleteFolderRes.affectedRows);
     return true;
   } catch (e) {
     console.error ("(fn) deleteRecur - error ", e);
