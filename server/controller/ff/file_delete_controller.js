@@ -12,6 +12,7 @@ const deleteDB = async(req, res) => {
   // req.body = { "delList": ["folder/", "file.ext"] }
   const { delList, parentPath } = req.body; 
   const userId = req.session.user.id;
+  const nowTime = Date.now();
 
   for (let i = 0; i < delList.length; i++) {
     const key = delList[i];
@@ -24,7 +25,7 @@ const deleteDB = async(req, res) => {
       // DB
       const folders = key.slice(0, key.length-1).split("/");
       const parentId = await iterForParentId(userId, folders);
-      const deleteRecurRes = await deleteRecur(parentId);
+      const deleteRecurRes = await deleteRecur(parentId, userId, nowTime);
       console.log("deleteRecurRes: ", deleteRecurRes);
     } else {
       console.log("delete file");
@@ -35,13 +36,13 @@ const deleteDB = async(req, res) => {
       // DB
       const fileId = await findFileIdByPath(userId, key);
       console.log("fileId: ", fileId);
-      const deleteRes = await markDeleteById(fileId);
-      console.log("deleteRes.affectedRows: ", deleteRes.affectedRows);
+      const deleteRes = await markDeleteById(nowTime, fileId, userId);
+      console.log("deleteRes: ", deleteRes);
     }
   }
 
   // update usage of an user
-	const currentUsed = await updSpaceUsed(userId);
+	const currentUsed = await updSpaceUsed(userId, nowTime);
 	req.session.user.used = currentUsed;
   
   // emit list

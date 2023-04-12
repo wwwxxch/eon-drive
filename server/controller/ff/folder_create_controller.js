@@ -14,7 +14,7 @@ const createFolderS3AndDB = async (req, res) => {
   console.log("/v2/create-folder: ", req.body);
 	const userId = req.session.user.id;
 	const { parentPath, folderName } = req.body;
-
+  const nowTime = Date.now();
 	// DB
   let token;
 	// find parentId first
@@ -31,12 +31,12 @@ const createFolderS3AndDB = async (req, res) => {
   } else if (chkDir.length > 0 && chkDir[0].is_delete === 1) {
     // if yes & is_delete === 1
     console.log("create folder name as deleted folder");
-    const chgDelStatus = await chgDirDelStatus(0, chkDir[0].id);
+    const chgDelStatus = await chgDirDelStatus(0, chkDir[0].id, nowTime);
     console.log("chgDelStatus.affectedRows: ", chgDelStatus.affectedRows);
   } else {
     // if no -> createNewDir, status = "pending"
     token = uuidv4();
-    const newDirId = await createDir(userId, parentId, folderName, token);
+    const newDirId = await createDir(userId, parentId, folderName, token, nowTime);
     console.log("newDirId: ", newDirId);
   }
 

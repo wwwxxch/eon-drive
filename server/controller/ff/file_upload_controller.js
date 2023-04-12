@@ -25,7 +25,7 @@ const uploadChangeDB = async (req, res, next) => {
 
 	const folders = fileWholePath.split("/");
 	folders.pop();
-
+  const nowTime = Date.now();
 	// get parentId
 	let parentId = 0;
 	const token = uuidv4();
@@ -34,11 +34,11 @@ const uploadChangeDB = async (req, res, next) => {
 			const chkDir = await getDirId(folders[i], userId, parentId);
 			if (chkDir.length === 0) {
 				// if no such dir, create new dir
-				const newDir = await createDir(userId, parentId, folders[i], token);
+				const newDir = await createDir(userId, parentId, folders[i], token, nowTime);
 				parentId = newDir;
 			} else if (chkDir[0].is_delete === 1) {
 				// if dir has been deleted, change delete status
-				const chgDirDel = await chgDirDelStatus(0, chkDir[0].id);
+				const chgDirDel = await chgDirDelStatus(0, chkDir[0].id, nowTime);
 				parentId = chkDir[0].id;
 			} else {
 				parentId = chkDir[0].id;
@@ -51,23 +51,23 @@ const uploadChangeDB = async (req, res, next) => {
   let version;
 	if (chkFile.length === 0) {
 		// create new file record
-		const newFile = await createFile(token, userId, parentId, fileName, fileSize);
+		const newFile = await createFile(token, userId, parentId, fileName, fileSize, nowTime);
     console.log("newFile: ", newFile);
-    version = newFile.current_ver;
+    version = newFile.new_ver;
 	} else if (chkFile[0].is_delete === 1) {
 		// if file has been deleted, change delete status & update tables
-		const updDelFile = await updFileAndChgDelStatus(0, token, chkFile[0].id, fileSize);
+		const updDelFile = await updFileAndChgDelStatus(0, token, chkFile[0].id, fileSize, nowTime, userId);
     console.log("updDelFile: ", updDelFile);
-    version = updDelFile.current_ver;
+    version = updDelFile.new_ver;
 	} else {
 		// update new version
-		const updExistedFile = await updFile(token, chkFile[0].id, fileSize);
+		const updExistedFile = await updFile(token, chkFile[0].id, fileSize, nowTime, userId);
     console.log("updExistedFile: ", updExistedFile);
-    version = updExistedFile.current_ver;
+    version = updExistedFile.new_ver;
 	}
 
 	// update usage of an user
-	const currentUsed = await updSpaceUsed(userId);
+	const currentUsed = await updSpaceUsed(userId, nowTime);
 	req.session.user.used = currentUsed;
 	req.token = token;
   req.version = version;

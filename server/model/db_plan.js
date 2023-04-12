@@ -17,7 +17,7 @@ const updateUsed = async (userId) => {
   return true;
 };
 
-const updSpaceUsed = async (user_id) => {
+const updSpaceUsed = async (user_id, time) => {
   const q_calculateSum = `
     SELECT SUM(c.size) AS total_size
     FROM (SELECT ff_id, user_id FROM perm WHERE user_id = ? AND auth in ("owner", "write")) AS a 
@@ -28,7 +28,7 @@ const updSpaceUsed = async (user_id) => {
     GROUP BY user_id
   `;
   const q_updateUsed = `
-    UPDATE user SET used = ? WHERE id = ?
+    UPDATE user SET used = ?, updated_at = ? WHERE id = ?
   `;
 
   const conn = await pool.getConnection();
@@ -42,7 +42,7 @@ const updSpaceUsed = async (user_id) => {
     }
     console.log("q_calculateSum: ", ff[0].total_size);
     
-    const [upd] = await conn.query(q_updateUsed, [ff[0].total_size, user_id]);
+    const [upd] = await conn.query(q_updateUsed, [ff[0].total_size, time, user_id]);
     console.log("q_updateUsed: affectedRows: ", upd.affectedRows);
     if (upd.affectedRows !== 1) {
       throw new Error("q_updateUsed - sth wrong");

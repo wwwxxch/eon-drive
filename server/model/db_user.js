@@ -34,11 +34,11 @@ const getUser = async (col, colVal) => {
   return row[0];
 };
 
-const createUser = async (mail, pwd, name) => {
+const createUser = async (mail, pwd, name, time) => {
   const hashed = await argon2.hash(pwd);
   const [row] = await pool.query(`
-    INSERT INTO user (email, password, name, plan, allocated, used) 
-    VALUES (?, ?, ?, ?, ?, ?)`, [mail, hashed, name, 1,  basic * 1024 * 1024, 0]
+    INSERT INTO user (email, password, name, plan, allocated, used, created_at, updated_at) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [mail, hashed, name, 1,  basic * 1024 * 1024, 0, time, time]
   );
   const insertId = row.insertId;
   return getUser("id", insertId);

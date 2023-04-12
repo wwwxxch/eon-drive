@@ -34,7 +34,8 @@ const signUp = async (req, res) => {
   }
 
   // create user in DB
-  const createUserRes = await createUser(email, password, name);
+  const nowTime = Date.now();
+  const createUserRes = await createUser(email, password, name, nowTime);
   
   // save user info to session
   const user = {
