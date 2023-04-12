@@ -1,3 +1,5 @@
+const api_destination = "/v2/delete";
+
 const deleteFile = async (path, fileArray) => {
   // request body
   let parentPath = "";
@@ -16,7 +18,7 @@ const deleteFile = async (path, fileArray) => {
   console.log("delList: ", delList);
 
   try {
-    const deleteRes = await axios.post("/v2/delete", { parentPath, delList });
+    const deleteRes = await axios.post(api_destination, { parentPath, delList });
     console.log("deleteRes.status: ", deleteRes.status);
     return true;
   } catch (e) {

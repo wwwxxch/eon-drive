@@ -4,6 +4,8 @@ import { getFileList } from "./api/list.js";
 import { deleteFile } from "./api/delete.js";
 import { downloadFile } from "./api/download.js";
 import { createLink } from "./api/share.js";
+
+import { HOST } from "./constant/constant.js";
 // ==========================================================================
 // logout button
 $(".logout-button").on("click", async function(e) {
@@ -49,20 +51,16 @@ function showList(obj) {
 		});
 
 		if (item.type !== "folder") {
-			span.text(
-				`${item.name} (${item.size} bytes) ${new Date(
-					item.updated_at
-				).toLocaleString()}`
-			);
+			span.text(`${item.name} ${new Date(item.updated_at).toLocaleString()}`);
 			span.addClass("file").attr("data-file-id", item.id);
 		} else {
 			span.text(item.name);
 			span.addClass("folder").attr("data-folder-id", item.id);
 		}
-    const sharebtn = $("<button>");
-    sharebtn.text("Share Link").addClass("share-btn");
+    const linkbtn = $("<button>");
+    linkbtn.text("Get Link").addClass("link-btn");
     div.addClass("file-div");
-		div.append(tickbox, span, sharebtn);
+		div.append(tickbox, span, linkbtn);
 		fileList.append(div);
 	});
 }
@@ -83,7 +81,7 @@ if (isLogin) {
     pathArray.forEach((item, i) => {
       $("#whole-path").append(`
         <span class="path-slash"> / </span>
-        <a href="http://localhost:9999/home.html?path=${item}">
+        <a href="${HOST}/home.html?path=${item}">
           <h2>
             <span class="path-text">
               ${item.split("/").pop()}
@@ -123,7 +121,7 @@ $("#file-list").on("click", ".folder", async function () {
 	// update current path
   $("#whole-path").append(`
     <span class="path-slash"> / </span>
-    <a href="http://localhost:9999/home.html?path=${uri}">
+    <a href="${HOST}/home.html?path=${uri}">
       <h2>
         <span class="path-text">
           ${dirName}
@@ -137,7 +135,7 @@ $("#file-list").on("click", ".folder", async function () {
 });
 
 // click share button
-$("#file-list").on("click", ".share-btn", async function () {
+$("#file-list").on("click", ".link-btn", async function () {
   
   // 找到按鈕所在的 file-div 元素
   const fileDiv = $(this).closest(".file-div");
@@ -249,9 +247,9 @@ const dialog = $("#create-folder-dialog").dialog({
       console.log("createFolderRes: ", createFolderRes);
       
       // TODO: if (createFolderRes.response.status !== 200)
-      if (createFolderRes.data && createFolderRes.data.msg === "Folder existed") {
-        alert(`Folder ${createFolderName} has been existed`);
-      }
+      // if (createFolderRes.data && createFolderRes.data.msg === "Folder existed") {
+      //   alert(`Folder ${createFolderName} has been existed`);
+      // }
 
       $(this).dialog("close");
       $("#create-folder-name").val("");

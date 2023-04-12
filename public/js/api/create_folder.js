@@ -1,3 +1,5 @@
+const api_destination = "/v2/create-folder";
+
 const createFolder = async (path, folderName) => {
 	// request body
   let parentPath = "";
@@ -6,7 +8,7 @@ const createFolder = async (path, folderName) => {
   }
 	
   try {
-    const createFolderRes = await axios.post("/create-folder", { parentPath, folderName });
+    const createFolderRes = await axios.post(api_destination, { parentPath, folderName });
     // console.log("createFolderRes: ", createFolderRes);
     return true;
   } catch (e) {
