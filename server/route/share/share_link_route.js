@@ -55,7 +55,7 @@ router.post("/create-link", authentication, async (req, res) => {
   } 
   console.log("token: ", token);
   
-  // share link for folder or file
+  // create share link for folder or file
   let share_link;
   if (type === "file") {
     share_link = `${process.env.HOST}/s/${token}/${targetName}`;
