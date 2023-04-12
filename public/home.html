@@ -6,6 +6,15 @@
     <title>EON Drive</title>
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" 
+            integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"
+            integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" 
+            crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="js/home.js"></script>
   </head>
   <body>
     <div id="root">
@@ -28,15 +37,8 @@
       </form>
       
       <!-- <div class="blank-div"></div> -->
-      <!-- TODO: render this element (link) by js -->
+
       <div id="whole-path">
-        <a href="http://localhost:9990/home.html">
-          <h2>
-            <span class="path-text">
-              Home
-            </span>
-          </h2>
-        </a>
       </div>
 
       <div id="operation-block">
@@ -62,13 +64,4 @@
 
     </div>
   </body>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.3.min.js" 
-          integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
-          crossorigin="anonymous"></script>
-  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"
-          integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" 
-          crossorigin="anonymous"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script type="module" src="js/home.js"></script>
 </html>

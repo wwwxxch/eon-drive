@@ -68,6 +68,18 @@ function showList(obj) {
 // show file list under root folder 
 const isLogin = await chkLoginStatus();
 if (isLogin) {
+  
+  // add root path
+  $("#whole-path").append(`
+    <a href="${HOST}/home.html">
+      <h2>
+        <span class="path-text">
+          Home
+        </span>
+      </h2>
+    </a>
+  `);
+
   const url = new URL(window.location.href);
   const path = url.searchParams.get("path");
   const list = await getFileList((path === null ? "Home" : "Home/" + path));
