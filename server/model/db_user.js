@@ -3,6 +3,8 @@ import { pool } from "./connection.js";
 
 import dotenv from "dotenv";
 dotenv.config();
+
+// basic storage plan - X MB
 const basic = parseInt(process.env.BASIC);
 // ----------------------------------------------------------
 const chkmail = async (mail) => {

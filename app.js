@@ -46,6 +46,18 @@ app.use(
   share_link_route
 );
 
+import { file_upload_route_v2 } from "./server/route/ff/file_upload_route_v2.js";
+app.use(file_upload_route_v2);
+
+import { folder_create_route_v2 } from "./server/route/ff/folder_create_route_v2.js";
+app.use(folder_create_route_v2);
+
+import { file_list_route_v2 } from "./server/route/ff/file_list_route_v2.js";
+app.use(file_list_route_v2);
+
+import { file_delete_route_v2 } from "./server/route/ff/file_delete_route_v2.js";
+app.use(file_delete_route_v2);
+
 // ---------------------------------------------------
 // import path from "path";
 // import { fileURLToPath } from "url";
