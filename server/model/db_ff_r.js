@@ -63,11 +63,21 @@ const getOneLevelChildByParentId = async(parent_id) => {
   return row;
 };
 
+const getCurrentVersionByFileId = async(file_id) => {
+  const [row] = await pool.query(`
+    SELECT ver FROM file_ver WHERE ff_id = ? AND is_current = 1
+  `, file_id);
+  if (row.length !== 1) {
+    throw new Error("getCurrentVersionByFileId: sth wrong");
+  }
+  return row[0].ver;
+};
 
 export {
   getDirId,
   getFileId,
   getFileIdNoDel,
   getOneLevelListByParentId,
-  getOneLevelChildByParentId
+  getOneLevelChildByParentId,
+  getCurrentVersionByFileId
 };

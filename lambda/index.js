@@ -18,23 +18,39 @@ const S3_DOWNLOAD_BUCKET_NAME = "eondrive-download";
 exports.handler = async (event) => {
   try {
     console.log("event: ", event);
-		const finalList = event.finalList;
+		const finalListNoVer = event.finalListNoVer;
+    const finalListWithVer = event.finalListWithVer;
     const parentPath = event.parentPath;
 		const parentName = event.parentName;
     const userId = event.userId;
 
-		const s3finalList = finalList.map((item) => `user_${userId}/${item}`);
-
-		const saveToLocal = await getObjSave(client, S3_MAIN_BUCKET_NAME, s3finalList, finalList);
-		console.log("saveToLocal: ", saveToLocal);
-		const createZip = await zipFiles(finalList, parentPath, parentName);
-		console.log("createZip: ", createZip);
-		const getZipUrl = await zipToS3(userId, client, S3_DOWNLOAD_BUCKET_NAME, parentName);
-		console.log("getZipUrl: ", getZipUrl);
+		const s3finalList = finalListWithVer.map((item) => `user_${userId}/${item}`);
+	
+    // save objects
+    const saveToLocal = await getObjSave(
+      client,
+      S3_MAIN_BUCKET_NAME,
+      s3finalList,
+      finalListNoVer
+    );
+    console.log("saveToLocal: ", saveToLocal);
+    
+    // create zip
+    const createZip = await zipFiles(finalListNoVer, parentPath, parentName);
+    console.log("createZip: ", createZip);
+    
+    // upload zip to S3 and get the presigned URL
+    const getZipUrl = await zipToS3(
+      userId,
+      client,
+      S3_DOWNLOAD_BUCKET_NAME,
+      parentName
+    );
+    console.log("getZipUrl: ", getZipUrl);
 
 		// delete files
-    for (let i = 0; i < finalList.length; i ++) {
-      const deletefile = await deleteLocal(`/tmp/${finalList[i].split("/").join("_")}`);
+    for (let i = 0; i < finalListNoVer.length; i ++) {
+      const deletefile = await deleteLocal(`/tmp/${finalListNoVer[i].split("/").join("_")}`);
       console.log(deletefile);
     }
     const deleteZip = await deleteLocal(`/tmp/${parentName}.zip`);

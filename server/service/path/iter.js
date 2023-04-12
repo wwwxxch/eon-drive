@@ -30,7 +30,7 @@ const findFileIdByPath = async (userId, path) => {
 	const child = parents.pop();
 	const parentId = await iterForParentId(userId, parents);
 	const [childResult] = await getFileIdNoDel(child, userId, parentId);
-	console.log("childResult: ", childResult);
+	console.log("findFileIdByPath: childResult: ", childResult);
 	return childResult.id;
 };
 

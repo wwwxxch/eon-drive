@@ -1,3 +1,5 @@
+const api_destination = "/v2/download";
+
 const downloadFile = async (path, fileArray) => {
 	// request body
   let parentPath;
@@ -14,7 +16,7 @@ const downloadFile = async (path, fileArray) => {
 	console.log("fileToDownload: ", downloadList);
   
   try {
-    const downloadRes = await axios.post("/download", { parentPath, downloadList });
+    const downloadRes = await axios.post(api_destination, { parentPath, downloadList });
     console.log("downloadRes: ", downloadRes);
     return { status: 200, downloadUrl: downloadRes.data.downloadUrl } ;
   } catch (e) {
