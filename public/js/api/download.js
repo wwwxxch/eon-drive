@@ -1,4 +1,4 @@
-const api_destination = "/v2/download";
+const api_destination = "/download";
 
 const downloadFile = async (path, fileArray) => {
 	// request body

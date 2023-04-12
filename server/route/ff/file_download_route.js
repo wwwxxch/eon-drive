@@ -11,7 +11,7 @@ import {
 } from "../../controller/ff/file_download_controller.js";
 // ------------------------------------------------------------------------------------
 router.post(
-	"/v2/download-local",
+	"/download-local",
 	authentication,
 	dlValidation,
 	dlSingleFile,
@@ -20,7 +20,7 @@ router.post(
 );
 
 router.post(
-	"/v2/download",
+	"/download",
 	authentication,
 	dlValidation,
 	dlSingleFile,
@@ -28,4 +28,4 @@ router.post(
 	dlCallLambda
 );
 
-export { router as file_download_route_v2 };
+export { router as file_download_route };

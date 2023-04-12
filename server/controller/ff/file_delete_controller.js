@@ -8,7 +8,7 @@ import { updSpaceUsed } from "../../model/db_plan.js";
 import { emitNewList } from "../../service/sync/list.js";
 // ======================================================================
 const deleteDB = async(req, res) => {
-  console.log("/v2/delete: ", req.body);
+  console.log("/deleteDB: ", req.body);
   // req.body = { "delList": ["folder/", "file.ext"] }
   const { delList, parentPath } = req.body; 
   const userId = req.session.user.id;

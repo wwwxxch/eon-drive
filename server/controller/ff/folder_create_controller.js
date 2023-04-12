@@ -11,7 +11,7 @@ import { chgDirDelStatus, commitMetadata } from "../../model/db_ff_u.js";
 import { emitNewList } from "../../service/sync/list.js";
 // ===========================================================================
 const createFolderS3AndDB = async (req, res) => {
-  console.log("/v2/create-folder: ", req.body);
+  console.log("/createFolderS3AndDB: ", req.body);
 	const userId = req.session.user.id;
 	const { parentPath, folderName } = req.body;
   const nowTime = Date.now();

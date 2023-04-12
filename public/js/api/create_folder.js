@@ -1,4 +1,4 @@
-const api_destination = "/v2/create-folder";
+const api_destination = "/create-folder";
 
 const createFolder = async (path, folderName) => {
 	// request body

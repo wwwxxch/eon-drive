@@ -1,4 +1,4 @@
-const api_destination = "/v2/show-list";
+const api_destination = "/show-list";
 
 const getFileList = async (path) => {
   let parentPath = "";

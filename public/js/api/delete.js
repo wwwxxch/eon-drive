@@ -1,4 +1,4 @@
-const api_destination = "/v2/delete";
+const api_destination = "/delete";
 
 const deleteFile = async (path, fileArray) => {
   // request body

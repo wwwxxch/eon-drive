@@ -1,8 +1,8 @@
 import { CHUNK_SIZE } from "../constant/constant.js";
 import { splitFileIntoChunks } from "../util/util.js";
 
-const api_startUpload = "/v2/upload-start";
-const api_commitUpload = "/v2/upload-commit";
+const api_startUpload = "/upload-start";
+const api_commitUpload = "/upload-commit";
 
 const startUpload = async(fileName, fileWholePath, fileSize, fileSplit) => {
   try {
