@@ -14,7 +14,7 @@ const deleteRecur = async (parentId, userId, time) => {
 		if (list.length > 0) {
 			for (let i = 0; i < list.length; i++) {
 				if (list[i].type === "file") {
-					const deleteFileRes = await markDeleteById(time, list[i].id, userId);
+					const deleteFileRes = await markDeleteById(time, list[i].id);
 					console.log("deleteFileRes: ", deleteFileRes);
 				} else {
 					await deleteRecur(list[i].id);
@@ -22,7 +22,7 @@ const deleteRecur = async (parentId, userId, time) => {
 			}
 		}
 		// delete folder itself
-		const deleteFolderRes = await markDeleteById(time, parentId, userId);
+		const deleteFolderRes = await markDeleteById(time, parentId);
 		console.log("deleteFolderRes: ", deleteFolderRes);
 		return true;
 	} catch (e) {

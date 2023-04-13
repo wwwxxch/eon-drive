@@ -73,11 +73,32 @@ const getCurrentVersionByFileId = async(file_id) => {
   return row[0].ver;
 };
 
+const getVersionsByFileId = async(file_id) => {
+  const [row] = await pool.query(`
+    SELECT ver, size, updated_at AS operation_time, is_current, operation 
+    FROM file_ver WHERE ff_id = ? 
+    ORDER BY is_current DESC, updated_at DESC 
+  `, file_id);
+
+  return row;
+};
+
+const getDeleteRecordsByFileId = async(file_id) => {
+  const [row] = await pool.query(`
+    SELECT deleted_at AS operation_time, "delete" AS operation 
+    FROM ff_delete WHERE ff_id = ?
+  `, file_id);
+
+  return row;
+};
+
 export {
   getDirId,
   getFileId,
   getFileIdNoDel,
   getOneLevelListByParentId,
   getOneLevelChildByParentId,
-  getCurrentVersionByFileId
+  getCurrentVersionByFileId,
+  getVersionsByFileId,
+  getDeleteRecordsByFileId
 };

@@ -7,6 +7,7 @@ const deleteFile = async (path, fileArray) => {
     parentPath = path.split("/").slice(1).join("/");
   }
   console.log("parentPath: ", parentPath);
+  // parentPath possible value: "" or "level1folder/level2folder"
 
   const delList = fileArray.toArray().map((item) => {
     if (path === "Home") {
@@ -16,6 +17,7 @@ const deleteFile = async (path, fileArray) => {
     }
   });
   console.log("delList: ", delList);
+  // delLIst possible value: whole path, e.g. "level1.ext" or "level1folder/level2.ext"
 
   try {
     const deleteRes = await axios.post(api_destination, { parentPath, delList });

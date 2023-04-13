@@ -36,7 +36,7 @@ const deleteDB = async(req, res) => {
       // DB
       const fileId = await findFileIdByPath(userId, key);
       console.log("fileId: ", fileId);
-      const deleteRes = await markDeleteById(nowTime, fileId, userId);
+      const deleteRes = await markDeleteById(nowTime, fileId);
       console.log("deleteRes: ", deleteRes);
     }
   }

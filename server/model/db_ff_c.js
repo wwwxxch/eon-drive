@@ -49,7 +49,7 @@ const createFile = async(token, user_id, parent_id, file_name, file_size, time) 
     const file_ver = await conn.query(`
       INSERT INTO file_ver (ff_id, ver, size, is_current, updated_at, user_id, operation) 
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, [ff_id, 1, file_size, 1, time, user_id, "create"]);
+    `, [ff_id, 1, file_size, 1, time, user_id, "add"]);
     
     await conn.commit();
     console.log("COMMIT");

@@ -1,6 +1,6 @@
 import { uploadFile } from "./api/upload.js";
 import { createFolder } from "./api/create_folder.js";
-import { getFileList } from "./api/list.js";
+import { getFileList, getFileHistory } from "./api/list.js";
 import { deleteFile } from "./api/delete.js";
 import { downloadFile } from "./api/download.js";
 import { createLink } from "./api/share.js";
@@ -31,23 +31,34 @@ function showList(obj) {
 	const fileList = $("#file-list");
 	obj.data.forEach((item) => {
 		const tickboxValue = item.type === "folder" ? item.name + "/" : item.name;
+    // const tickboxClass = item.type === "folder" ? "tickbox-folder" : "tickbox-file";
 		const div = $("<div>");
 		const tickbox = $("<input>").attr({
 			type: "checkbox",
 			name: "list-checkbox",
 			value: tickboxValue,
+      // class: tickboxClass
 		});
 		const span = $("<span>");
 
 		tickbox.change(function () {
 			const selected = $("input[name='list-checkbox']:checked");
-			if (selected.length > 0) {
+			const selectedVal = selected.toArray().map(item => item.value);
+      console.log(selectedVal);
+      if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
+        $("#delete-button").show();
+				$("#download-button").show();
+        $("#history-button").show();
+      } else if (selected.length > 0) {
 				$("#delete-button").show();
 				$("#download-button").show();
+        $("#history-button").hide();
 			} else {
 				$("#delete-button").hide();
 				$("#download-button").hide();
+        $("#history-button").hide();
 			}
+      $("#file-history").hide();
 		});
 
 		if (item.type !== "folder") {
@@ -312,3 +323,38 @@ $("#download-button").click(async function () {
 	$("#delete-button").hide();
 	$("#download-button").hide();
 });
+
+// showhistory
+$("#history-button").click(async function () {
+  $("#file-history").empty();
+  const currentPath = $(".path-text").map(function() {
+    return $(this).text().trim();
+  }).get().join("/");
+  const selected = $("input[name='list-checkbox']:checked");
+  const fileWholePath = selected.toArray().map(item => {
+    if (currentPath === "Home") {
+      return item.value;
+    } else {
+      return `${currentPath.replace(/^Home\//, "")}/${item.value}`;
+    }
+  });
+  // console.log(fileWholePath);
+  const historyRes = await getFileHistory(fileWholePath[0]);
+  console.log(historyRes);
+  const allRecords = [...historyRes.versions, ...historyRes.deleteRecords];
+  allRecords.sort((a, b) => a.operation_time - b.operation_time);
+  for (const operation of allRecords) {
+    let record = "";
+    if (operation.operation === "delete") {
+      const time = new Date(operation.operation_time).toLocaleString();
+      record = `<div> deleted at ${time} </div>`;
+    } else if (operation.operation) {
+      const time = new Date(operation.operation_time).toLocaleString();
+      const verb = operation.operation === "add" ? "added" : "updated";
+      record = `<div> ${verb} at ${time}, size = ${operation.size} kb</div>`;
+    }
+    $("#file-history").append(record);
+  }
+  $("#file-history").show();
+});
+

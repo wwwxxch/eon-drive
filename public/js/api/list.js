@@ -16,4 +16,14 @@ const getFileList = async (path) => {
   }
 };
 
-export { getFileList };
+const getFileHistory = async (fileWholePath) => {
+  try {
+    const getHistory = await axios.post("/show-history", { fileWholePath });
+    return getHistory.data;
+  } catch (e) {
+    console.error("getFileHistory: ", e);
+    return false;
+  }
+};
+
+export { getFileList, getFileHistory };

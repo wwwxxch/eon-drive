@@ -33,7 +33,7 @@ const updFileAndChgDelStatus = async (del_status, token, file_id, file_size, tim
     // set ver = largest version + 1  
     const upd_ver = await conn.query(`
       INSERT INTO file_ver (ff_id, ver, size, updated_at, is_current, user_id, operation) 
-      VALUES (?, ?, ?, ?, 1, ?, "update")
+      VALUES (?, ?, ?, ?, 1, ?, "add")
     `, [file_id, max_ver[0].max_ver + 1, file_size, time, user_id]);
 
     // set is_current = 0 for current version
