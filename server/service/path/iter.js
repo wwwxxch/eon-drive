@@ -2,6 +2,7 @@ import {
 	getDirId,
 	getFileIdNoDel,
 	getOneLevelListByParentId,
+	getParentIdAndNameByFFId,
 } from "../../model/db_ff_r.js";
 // ==========================================================================
 // input: folders = folders array, e.g. ["folder1", "folder2"]
@@ -38,7 +39,7 @@ const getFileListByPath = async (userId, path) => {
 	let parentId = 0;
 	if (path !== "") {
 		const folders = path.split("/");
-    console.log("folders: ", folders);
+		console.log("folders: ", folders);
 
 		for (let i = 0; i < folders.length; i++) {
 			const chkDir = await getDirId(folders[i], userId, parentId);
@@ -52,4 +53,29 @@ const getFileListByPath = async (userId, path) => {
 	return { data: list };
 };
 
-export { iterForParentId, findFileIdByPath, getFileListByPath };
+const findParentPathByFFId = async (ffId) => {
+	let arr = [];
+	let obj = await getParentIdAndNameByFFId(ffId);
+	// console.log("obj.parent_id: ", obj.parent_id);
+	// console.log("obj.parent_name: ", obj.parent_name);
+	arr.push(obj.parent_name);
+	while (obj.parent_id !== 0) {
+		obj = await getParentIdAndNameByFFId(obj.parent_id);
+		// console.log("obj.parent_id: ", obj.parent_id);
+		// console.log("obj.parent_name: ", obj.parent_name);
+		if (obj.parent_id !== 0) {
+			arr.push(obj.parent_name);
+		}
+	}
+
+	const parentPath = "Home/" + arr.reverse().join("/");
+	// console.log(parentPath);
+	return parentPath;
+};
+
+export {
+	iterForParentId,
+	findFileIdByPath,
+	getFileListByPath,
+	findParentPathByFFId,
+};

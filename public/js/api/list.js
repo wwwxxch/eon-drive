@@ -26,4 +26,14 @@ const getFileHistory = async (fileWholePath) => {
   }
 };
 
-export { getFileList, getFileHistory };
+const getTrash = async () => {
+  try {
+    const trashList = await axios.get("/show-deleted");
+    return trashList.data.data;
+  } catch (e) {
+    console.error("getTrash: ", e);
+    return false;
+  }
+};
+
+export { getFileList, getFileHistory, getTrash };

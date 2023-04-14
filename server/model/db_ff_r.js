@@ -92,6 +92,49 @@ const getDeleteRecordsByFileId = async(file_id) => {
   return row;
 };
 
+const getParentIdAndNameByFFId = async(ff_id) => {
+  const [parent] = await pool.query(`
+    SELECT b.parent_id, (SELECT name FROM ff WHERE id = b.parent_id) AS parent_name
+    FROM ff AS a INNER JOIN hier AS b ON a.id = b.ff_id
+    WHERE a.id = ?
+  `, ff_id);
+
+  if (parent.length !== 1) {
+    return -1;
+  }
+
+  return { parent_id: parent[0].parent_id, parent_name: parent[0].parent_name};
+};
+
+const getTrashList = async(user_id) => {
+
+  const [all] = await pool.query(`
+    SELECT a.id, a.name, b.parent_id, a.updated_at AS deleted_at 
+    FROM ff AS a LEFT JOIN hier AS b ON a.id = b.ff_id
+    WHERE a.is_delete = 1 AND b.user_id = ?
+  `, user_id);
+
+  const [folder] = await pool.query(`
+    SELECT a.id 
+    FROM ff AS a LEFT JOIN hier AS b ON a.id = b.ff_id
+    WHERE a.is_delete = 1 AND a.type = "folder" AND b.user_id = ?
+  `, user_id);
+
+  console.log("all: ", all);
+  console.log("folder: ", folder);
+
+  const folderIdList = folder.map(item => item.id);
+  console.log("folderIdList: ", folderIdList);
+  const trashList = [];
+  for (let i = 0; i < all.length; i++) {
+    if (!folderIdList.includes(all[i].parent_id)) {
+      trashList.push(all[i]);
+    }
+  }
+  // console.log("trashList: ", trashList);
+  return trashList;
+};
+
 export {
   getDirId,
   getFileId,
@@ -100,5 +143,7 @@ export {
   getOneLevelChildByParentId,
   getCurrentVersionByFileId,
   getVersionsByFileId,
-  getDeleteRecordsByFileId
+  getDeleteRecordsByFileId,
+  getParentIdAndNameByFFId,
+  getTrashList
 };

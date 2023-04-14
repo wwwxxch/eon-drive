@@ -3,10 +3,9 @@ body {
   font-size: 18px;
 }
 
-/* #current-path {
-  font-size: 22px;
-  margin: 10px 0;
-} */
+.go-page {
+  padding: 10px 0 0 0;
+}
 
 #whole-path {
   display: flex;
@@ -70,4 +69,18 @@ body {
 
 .btn-recover {
   display: none;
+}
+
+/* table */
+.th-left {
+  text-align: left;
+}
+.table-cell {
+  height: 70px;
+}
+.delete-parent-path {
+  font-size: 14px;
+}
+#restore-button {
+  margin: 10px;
 }

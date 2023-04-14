@@ -81,6 +81,10 @@ function showList(obj) {
 const isLogin = await chkLoginStatus();
 if (isLogin) {
   
+  // $(`
+  //   <a id="delete-link" href="/delete.html">Deleted File</a>
+  // `).insertAfter(".logout-button");
+
   // add root path
   $("#whole-path").append(`
     <a href="${HOST}/home.html">

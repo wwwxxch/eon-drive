@@ -6,7 +6,8 @@ import { authentication } from "../../controller/user/user_auth_controller.js";
 import { showList } from "../../controller/ff/file_list_controller.js";
 
 import { findFileIdByPath } from "../../service/path/iter.js";
-import { getVersionsByFileId, getDeleteRecordsByFileId } from "../../model/db_ff_r.js";
+import { getVersionsByFileId, getDeleteRecordsByFileId, getTrashList } from "../../model/db_ff_r.js";
+import { findParentPathByFFId } from "../../service/path/iter.js";
 // ------------------------------------------------------------------------------------
 router.post("/show-list", authentication, showList);
 
@@ -24,8 +25,16 @@ router.post("/show-history", authentication, async (req, res) => {
   return res.json({ versions, deleteRecords });
 });
 
-// router.post("/show-deleted")
+router.get("/show-deleted", authentication, async(req, res) => {
+  const userId = req.session.user.id;
+  const deleted = await getTrashList(userId);
+  console.log("deleted: ", deleted);
+  for (let i = 0; i < deleted.length; i++) {
+    const parentPath = await findParentPathByFFId(deleted[i].id);
+    deleted[i].parentPath = parentPath;
+  }
 
-
+  return res.json({ data: deleted });
+});
 
 export { router as file_list_route };
