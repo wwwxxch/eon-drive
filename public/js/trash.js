@@ -1,4 +1,5 @@
 import { getTrash } from "./api/list.js";
+import { restoreDelete } from "./api/restore.js";
 // ==========================================================================
 // logout button
 $(".logout-button").on("click", async function(e) {
@@ -24,17 +25,19 @@ if (isLogin) {
   
   const deleteList = $("#delete-list");
 
-  const selectedFiles = [];
-
   const trashListRes = await getTrash();
-  console.log("trashListRes: ", trashListRes);
+  // console.log("trashListRes: ", trashListRes);
 
   for (const item of trashListRes) {
+    const chkBoxVal = item.type === "file" ? 
+    `${item.parentPath.replace(/^Home\//,"")}/${item.name}` : 
+    `${item.parentPath.replace(/^Home\//,"")}/${item.name}/`;
+
     const tr = $("<tr>");
     const checkBox = $("<input>").attr({
       type: "checkbox",
       name: "trash-checkbox",
-      value: item.name,
+      value: chkBoxVal,
     });
     const nameTd = $("<td>").append(checkBox, `
       <div class="delete-name">${item.name}</div>
@@ -67,11 +70,13 @@ if (isLogin) {
 $("#restore-button").click(async function () {
 
 	const selected = $("input[name='trash-checkbox']:checked");
-  console.log(selected.toArray().map(item => item.value));
+  const toRestore = selected.toArray().map(item => item.value);
 
+  const askRestoreDelete = await restoreDelete(toRestore);
+  console.log("askRestoreDelete: ", askRestoreDelete);
 
+  
 	selected.prop("checked", false);
-
 	$("#restore-button").hide();
 });
 

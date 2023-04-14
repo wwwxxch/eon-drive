@@ -1,12 +1,21 @@
 import {
 	getOneLevelChildByParentId,
 	getOneLevelListByParentId,
+	getOneLevelChildByParentIdDeleted,
 	getCurrentVersionByFileId,
 } from "../../model/db_ff_r.js";
 
 import { markDeleteById } from "../../model/db_ff_d.js";
 
+import { restoreDeletedFile, restoreDeletedFolder } from "../../model/db_ff_u.js";
+
 import { iterForParentId } from "./iter.js";
+
+import dotenv from "dotenv";
+dotenv.config();
+const { S3_MAIN_BUCKET_NAME } = process.env;
+import { s3clientGeneral } from "../../service/s3/s3_client.js";
+import { copyS3Obj } from "../../service/s3/s3_copy.js";
 // ========================================================================================
 const deleteRecur = async (parentId, userId, time) => {
 	try {
@@ -17,7 +26,7 @@ const deleteRecur = async (parentId, userId, time) => {
 					const deleteFileRes = await markDeleteById(time, list[i].id);
 					console.log("deleteFileRes: ", deleteFileRes);
 				} else {
-					await deleteRecur(list[i].id);
+					await deleteRecur(list[i].id, userId, time);
 				}
 			}
 		}
@@ -56,9 +65,70 @@ const getAllChildren = async (userId, path) => {
 	const childsNoVer = [];
 	const childsWithVer = [];
 	await folderRecur(parentId, childsNoVer, childsWithVer, path);
-  console.log("getAllChildren: childsNoVer: ", childsNoVer);
-  console.log("getAllChildren: childsWithVer: ", childsWithVer);
+	console.log("getAllChildren: childsNoVer: ", childsNoVer);
+	console.log("getAllChildren: childsWithVer: ", childsWithVer);
 	return { childsNoVer, childsWithVer };
 };
 
-export { deleteRecur, getAllChildren };
+// for restoring deleted folder
+const restoreRecur = async (parentId, currentPath, time, token, userId) => {
+  try {
+		const list = await getOneLevelChildByParentIdDeleted(parentId);
+		if (list.length > 0) {
+			for (let i = 0; i < list.length; i++) {
+				if (list[i].type === "file") {
+					// update DB for file restore
+          const restoreFileRes = await restoreDeletedFile(token, list[i].id, time, userId);
+          console.log("restoreFileRes: ", restoreFileRes);
+          // copy new version in S3
+          const newRecordInS3 = await copyS3Obj(
+            s3clientGeneral, 
+            S3_MAIN_BUCKET_NAME, 
+            `user_${userId}/${currentPath}/${list[i].name}.v${restoreFileRes.cur_ver}`, 
+            `user_${userId}/${currentPath}/${list[i].name}.v${restoreFileRes.new_ver}`);
+          console.log("newRecordInS3: ", newRecordInS3);
+				} else {
+					await restoreRecur(list[i].id, `${currentPath}/${list[i].name}`, time, token, userId);
+				}
+			}
+		}
+		// update DB for folder restore
+    const restoreFolderRes = await restoreDeletedFolder(token, parentId, time);
+		console.log("restoreFolderRes: ", restoreFolderRes);
+		return true;
+	} catch (e) {
+		console.error("(fn) restoreRecur - error ", e);
+		return false;
+	}
+};
+
+// for restoring deleted folder
+const folderRecurDeleted = async (parentId, currentPath, result) => {
+	const arr = await getOneLevelChildByParentIdDeleted(parentId);
+	for (let i = 0; i < arr.length; i++) {
+		if (arr[i].type === "file") {
+			result.push(`${currentPath}/${arr[i].name}`);
+		} else {
+			await folderRecurDeleted(
+				arr[i].id,
+				`${currentPath}/${arr[i].name}`,
+				result
+			);
+		}
+	}
+};
+
+// for restoring deleted folder
+const getAllChildrenDeleted = async (userId, currentPath) => {
+	const folders = currentPath.split("/");
+	const parentId = await iterForParentId(userId, folders);
+	const result = [];
+	// find children where parent_id = parentId
+	// if that child is "file" => return path
+	// if that children is "folder" => call recur function
+	await folderRecurDeleted(parentId, currentPath, result);
+	// console.log("result: ", result);
+	return result;
+};
+
+export { deleteRecur, getAllChildren, restoreRecur, getAllChildrenDeleted };

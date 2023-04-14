@@ -12,4 +12,14 @@ const restoreFile = async (version, fileWholePath, parentPath) => {
 	}
 };
 
-export { restoreFile };
+const restoreDelete = async (restoreList) => {
+  try {
+		const restoreDeleteRes = await axios.post("/restore-deleted",{ restoreList });
+		return restoreDeleteRes;
+	} catch (e) {
+		console.error("restoreDelete: ", e);
+		return false;
+	}
+};
+
+export { restoreFile, restoreDelete };

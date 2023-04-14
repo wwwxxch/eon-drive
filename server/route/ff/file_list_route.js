@@ -26,9 +26,11 @@ router.post("/show-history", authentication, async (req, res) => {
 });
 
 router.get("/show-deleted", authentication, async(req, res) => {
+  console.log("/show-deleted");
   const userId = req.session.user.id;
   const deleted = await getTrashList(userId);
-  console.log("deleted: ", deleted);
+  // console.log("deleted: ", deleted);
+
   for (let i = 0; i < deleted.length; i++) {
     const parentPath = await findParentPathByFFId(deleted[i].id);
     deleted[i].parentPath = parentPath;

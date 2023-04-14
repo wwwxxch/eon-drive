@@ -1,6 +1,7 @@
 import {
 	getDirId,
 	getFileIdNoDel,
+  getFileIdIsDel,
 	getOneLevelListByParentId,
 	getParentIdAndNameByFFId,
 } from "../../model/db_ff_r.js";
@@ -32,6 +33,15 @@ const findFileIdByPath = async (userId, path) => {
 	const parentId = await iterForParentId(userId, parents);
 	const [childResult] = await getFileIdNoDel(child, userId, parentId);
 	console.log("findFileIdByPath: childResult: ", childResult);
+	return childResult.id;
+};
+
+const findDeletedFileIdByPath = async (userId, path) => {
+  const parents = path.split("/");
+	const child = parents.pop();
+	const parentId = await iterForParentId(userId, parents);
+	const [childResult] = await getFileIdIsDel(child, userId, parentId);
+	console.log("findDeletedFileIdByPath: childResult: ", childResult);
 	return childResult.id;
 };
 
@@ -76,6 +86,7 @@ const findParentPathByFFId = async (ffId) => {
 export {
 	iterForParentId,
 	findFileIdByPath,
+  findDeletedFileIdByPath,
 	getFileListByPath,
 	findParentPathByFFId,
 };

@@ -163,10 +163,78 @@ const restoreFileTo = async(token, file_id, version, time, user_id) => {
   }
 };
 
+const restoreDeletedFile = async(token, file_id, time, user_id) => {
+  // ff: setup is_delete & token & updated_at 
+  // file_ver: find the largest version
+  // file_ver: find the version & size with is_current = 1 -> this is the version to be restored
+  // file_ver: set current version record is_current = 0
+  // file_ver: create a record with new version, operation=restore, is_current = 1
+  const conn = await pool.getConnection();
+  try {
+    console.log("START TRANSACTION");
+    await conn.query("START TRANSACTION");
+
+    // change up_status, token, updated_at
+    const ff = await conn.query(`
+      UPDATE ff 
+      SET up_status = "pending", token = ?, updated_at = ?, is_delete = 0 
+      WHERE id = ? 
+    `, [token, time, file_id]);
+
+    // find the largest version
+    const [max_ver] = await conn.query(`
+      SELECT max(ver) AS max_ver FROM file_ver WHERE ff_id = ?
+    `, file_id);
+
+    // file_ver: find the version & size with is_current = 1
+    const [cur_ver] = await conn.query(`
+      SELECT ver, size FROM file_ver WHERE is_current = 1 AND ff_id = ?
+    `, file_id);
+    console.log("cur_ver: ", cur_ver);
+    
+    // file_ver: set current version record is_current = 0
+    const chg_is_cur = await conn.query(`
+      UPDATE file_ver SET is_current = 0 WHERE ff_id = ? AND is_current = 1
+    `, file_id);
+
+    // file_ver: create a record with new version, operation=restore, is_current = 1
+    const new_ver = await conn.query(`
+      INSERT INTO file_ver (ff_id, ver, size, updated_at, is_current, user_id, operation) 
+      VALUES (?, ?, ?, ?, 1, ?, "restore")
+    `, [file_id, max_ver[0].max_ver + 1, cur_ver[0].size, time, user_id]);
+
+    await conn.commit();
+    console.log("COMMIT");
+    return { cur_ver: cur_ver[0].ver, new_ver: max_ver[0].max_ver + 1 };
+
+  } catch (e) {
+    await conn.query("ROLLBACK");
+    console.log("ROLLBACK - error: ", e);
+    return -1;
+    
+  } finally {
+    await conn.release();
+    console.log("RELEASE CONNECTION");
+  }
+};
+
+const restoreDeletedFolder = async(token, folder_id, time ) => {
+  // only need to update ff table, let is_delete = 0
+  const q_string = `
+    UPDATE ff  
+    SET up_status = "pending", token = ?, updated_at = ?, is_delete = 0 
+    WHERE id = ?
+  `;
+  const [row] = await pool.query(q_string, [token, time, folder_id]);
+  return row;
+};
+
 export {
   chgDirDelStatus,
   updFileAndChgDelStatus,
   updFile,
   commitMetadata,
-  restoreFileTo
+  restoreFileTo,
+  restoreDeletedFile,
+  restoreDeletedFolder
 };
