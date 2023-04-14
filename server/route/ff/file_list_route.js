@@ -11,6 +11,7 @@ import { getVersionsByFileId, getDeleteRecordsByFileId } from "../../model/db_ff
 router.post("/show-list", authentication, showList);
 
 router.post("/show-history", authentication, async (req, res) => {
+  console.log("/show-history: ", req.body);
   const { fileWholePath } = req.body;
   const userId = req.session.user.id;
   const fileId = await findFileIdByPath(userId, fileWholePath);

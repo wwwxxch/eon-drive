@@ -14,7 +14,7 @@ const sessionConfig = {
   store: redisStore,
 	resave: false,
 	saveUninitialized: false,
-	cookie: { SameSite: "lax", maxAge: 200 * 60 * 1000 }, // 200 min
+	cookie: { SameSite: "lax", maxAge: 5 * 60 * 60 * 1000 }, // 5 hours
 };
 
 export { sessionConfig };

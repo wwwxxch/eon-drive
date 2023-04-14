@@ -35,6 +35,7 @@ import { folder_create_route } from "./server/route/ff/folder_create_route.js";
 import { file_list_route } from "./server/route/ff/file_list_route.js";
 import { file_delete_route } from "./server/route/ff/file_delete_route.js";
 import { file_download_route } from "./server/route/ff/file_download_route.js";
+import { file_restore_route } from "./server/route/ff/file_restore_route.js";
 
 app.use(
   user_auth_route, 
@@ -42,7 +43,8 @@ app.use(
   folder_create_route,
   file_list_route,
   file_delete_route,
-  file_download_route
+  file_download_route,
+  file_restore_route
 );
 
 // ---------------------------------------------------

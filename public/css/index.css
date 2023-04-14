@@ -53,7 +53,7 @@ body {
 }
 
 .blank-div {
-  min-height: 20px;
+  min-height: 100px;
 }
 
 #operation-block {
@@ -62,4 +62,12 @@ body {
 
 .operation-btn {
   margin: 0 10px 0 0;
+}
+
+.version:hover .btn-recover {
+  display: block;
+}
+
+.btn-recover {
+  display: none;
 }

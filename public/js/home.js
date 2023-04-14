@@ -3,6 +3,7 @@ import { createFolder } from "./api/create_folder.js";
 import { getFileList, getFileHistory } from "./api/list.js";
 import { deleteFile } from "./api/delete.js";
 import { downloadFile } from "./api/download.js";
+import { restoreFile } from "./api/restore.js";
 import { createLink } from "./api/share.js";
 
 import { HOST } from "./constant/constant.js";
@@ -326,35 +327,78 @@ $("#download-button").click(async function () {
 
 // showhistory
 $("#history-button").click(async function () {
-  $("#file-history").empty();
-  const currentPath = $(".path-text").map(function() {
-    return $(this).text().trim();
-  }).get().join("/");
-  const selected = $("input[name='list-checkbox']:checked");
-  const fileWholePath = selected.toArray().map(item => {
-    if (currentPath === "Home") {
-      return item.value;
-    } else {
-      return `${currentPath.replace(/^Home\//, "")}/${item.value}`;
-    }
-  });
-  // console.log(fileWholePath);
-  const historyRes = await getFileHistory(fileWholePath[0]);
+	$("#file-history").empty();
+	const currentPath = $(".path-text")
+		.map(function () {
+			return $(this).text().trim();
+		})
+		.get()
+		.join("/");
+	const selected = $("input[name='list-checkbox']:checked");
+	const selectedArr = selected.toArray().map((item) => {
+		if (currentPath === "Home") {
+			return item.value;
+		} else {
+			return `${currentPath.replace(/^Home\//, "")}/${item.value}`;
+		}
+	});
+  const fileWholePath = selectedArr[0];
+	// console.log(fileWholePath);
+	const historyRes = await getFileHistory(fileWholePath);
+	// change to function
   console.log(historyRes);
-  const allRecords = [...historyRes.versions, ...historyRes.deleteRecords];
-  allRecords.sort((a, b) => a.operation_time - b.operation_time);
-  for (const operation of allRecords) {
-    let record = "";
-    if (operation.operation === "delete") {
-      const time = new Date(operation.operation_time).toLocaleString();
-      record = `<div> deleted at ${time} </div>`;
-    } else if (operation.operation) {
-      const time = new Date(operation.operation_time).toLocaleString();
-      const verb = operation.operation === "add" ? "added" : "updated";
-      record = `<div> ${verb} at ${time}, size = ${operation.size} kb</div>`;
+	const allRecords = [...historyRes.versions, ...historyRes.deleteRecords];
+	allRecords.sort((a, b) => a.operation_time - b.operation_time);
+	for (const operation of allRecords) {
+		let record = "";
+		if (operation.operation === "delete") {
+			const time = new Date(operation.operation_time).toLocaleString();
+			record = `<div> deleted at ${time} </div>`;
+		} else if (operation.operation) {
+			const time = new Date(operation.operation_time).toLocaleString();
+
+			const verb =
+				operation.operation === "add"
+					? operation.operation + "ed"
+					: operation.operation + "d";
+      let versionDiv = `
+        <div class="version" data-version="${operation.ver}"> 
+          ${verb} at ${time}, size = ${operation.size} kb
+        </div>
+      `;
+			// record = `
+      //   <div class="version" data-version=${operation.ver}> 
+      //     ${verb} at ${time}, size = ${operation.size} kb
+          
+      //   </div>`;
+      console.log("operation: ", operation);
+      if (operation.is_current === 0) {
+        const recoverBtn = `
+          <button class="btn-recover" data-version="${operation.ver}">
+            Recover
+          </button>
+        `;
+        // how to append recoverBtn inside <div class="version" ... > ?
+        versionDiv = $(versionDiv).append(recoverBtn);
+      }
+      record = versionDiv;
+		}
+		$("#file-history").append(record);
+	}
+	$("#file-history").show();
+
+  $("#file-history").on("click", ".btn-recover", async function() {
+    const version = $(this).data("version");
+    // call recover function with version
+    console.log("recover version: ", version);
+    console.log("currentPath: ", currentPath);
+    console.log("fileWholePath: ", fileWholePath);
+    let parentPath = "";
+    if (currentPath !== "Home") {
+      parentPath = currentPath.replace(/^Home\//, "");
     }
-    $("#file-history").append(record);
-  }
-  $("#file-history").show();
+    const askRestore = await restoreFile(version, fileWholePath, parentPath);
+    console.log("askRestore: ", askRestore);
+  });
 });
 
