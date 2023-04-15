@@ -101,10 +101,10 @@ const showProfile = async (req, res) => {
 };
 
 const loginStatus = async (req, res) => {
-  console.log("loginStatus");
   if (!req.session.user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+  console.log("loginStatus - user.id", req.session.user.id);
   return res.json({ msg: "Authorized" }); 
 };
 

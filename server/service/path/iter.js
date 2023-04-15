@@ -61,7 +61,7 @@ const getFileListByPath = async (userId, path) => {
 			parentId = chkDir[0].id;
 		}
 	}
-	const list = await getOneLevelChildByParentId(parentId, 0);
+	const list = await getOneLevelChildByParentId(userId, parentId, 0);
 	return { data: list };
 };
 

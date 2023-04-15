@@ -44,4 +44,11 @@ const createUser = async (mail, pwd, name, time) => {
   return getUser("id", insertId);
 };
 
-export { chkmail, chkpair, getUser, createUser };
+const getMultipleUserId = async (col, vals) => {
+  const [row] = await pool.query(`
+    SELECT id FROM user WHERE ${col} IN (?)`, [vals]);
+  console.log("row: ", row.map(item => item.id));
+  return row.map(item => item.id);
+};
+
+export { chkmail, chkpair, getUser, createUser, getMultipleUserId };
