@@ -1,11 +1,7 @@
 import {
 	getFolderId,
-	// getFileIdNoDel,
   getNoDelFileId,
-  // getFileIdIsDel,
   getIsDelFileId,
-	// getOneLevelListByParentId,
-	// getParentIdAndNameByFFId,
   getOneLevelChildByParentId,
   getParentInfoByFFId
 } from "../../model/db_ff_r.js";
@@ -14,19 +10,21 @@ import {
 const iterForParentId = async (userId, folders) => {
 	console.log("iterForParentId: folders: ", folders);
 	let parentId = 0;
-	for (let i = 0; i < folders.length; i++) {
-		const chkDir = await getFolderId( userId, folders[i], parentId);
-		if (chkDir.length === 1) {
-			console.log("chkDir: ", chkDir);
-			parentId = chkDir[0].id;
-		} else if (folders[i] === "") {
-			continue;
-		} else {
-			console.error("(fn) iterForParentId - error");
-			console.error("parentId: ", parentId, " folders[i]: ", folders[i]);
-			return -1;
-		}
-	}
+  if (folders.length !== 1 || folders[0] !== "") {
+    for (let i = 0; i < folders.length; i++) {
+      const chkDir = await getFolderId( userId, parentId, folders[i]);
+      console.log("chkDir: ", chkDir);
+      if (chkDir.length === 1) {
+        parentId = chkDir[0].id;
+      } else if (folders[i] === "") {
+        continue;
+      } else {
+        console.error("(fn) iterForParentId - error");
+        console.error("parentId: ", parentId, " folders[i]: ", folders[i]);
+        return -1;
+      }
+    }
+  }
 	return parentId;
 };
 

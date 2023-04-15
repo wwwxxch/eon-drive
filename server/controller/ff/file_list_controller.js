@@ -18,28 +18,6 @@ const showList = async(req, res) => {
   
   const getFileListRes = await getFileListByPath(userId, path);
   return res.json({ data: getFileListRes.data });
-  // let parentId = 0; 
-
-  // // get the correct parentId
-  // if (path !== "") {
-  //   const folders = path.split("/");
-  //   console.log("folders: ", folders);
-    
-  //   for (let i = 0; i < folders.length; i++) {
-  //     const chkDir = await getFolderId(userId, parentId, folders[i]);
-  //     // console.log(folders[i]);
-  //     // console.log(chkDir);
-  //     if (chkDir.length === 0) {
-  //       return res.status(400).json({ msg: "error" });
-  //     }
-  //     parentId = chkDir[0].id;
-  //   }
-  // }
-
-  // // get file list by userId & parentId
-  // const list = await getOneLevelChildByParentId(parentId, 0);
-
-  // return res.json({ data: list });
 };
 
 const showHistory = async(req, res) => {
