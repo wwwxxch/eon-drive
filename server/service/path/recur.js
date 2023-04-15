@@ -1,25 +1,27 @@
 import {
 	getOneLevelChildByParentId,
-	getOneLevelListByParentId,
-	getOneLevelChildByParentIdDeleted,
+	// getOneLevelListByParentId,
+	// getOneLevelChildByParentIdDeleted,
 	getCurrentVersionByFileId,
 } from "../../model/db_ff_r.js";
-
+import {
+	restoreDeletedFile,
+	restoreDeletedFolder,
+} from "../../model/db_ff_u.js";
 import { markDeleteById } from "../../model/db_ff_d.js";
-
-import { restoreDeletedFile, restoreDeletedFolder } from "../../model/db_ff_u.js";
-
 import { iterForParentId } from "./iter.js";
 
 import dotenv from "dotenv";
 dotenv.config();
 const { S3_MAIN_BUCKET_NAME } = process.env;
+
 import { s3clientGeneral } from "../../service/s3/s3_client.js";
 import { copyS3Obj } from "../../service/s3/s3_copy.js";
 // ========================================================================================
 const deleteRecur = async (parentId, userId, time) => {
 	try {
-		const list = await getOneLevelChildByParentId(parentId);
+    // find not deleted list
+		const list = await getOneLevelChildByParentId(parentId, 0);
 		if (list.length > 0) {
 			for (let i = 0; i < list.length; i++) {
 				if (list[i].type === "file") {
@@ -41,7 +43,7 @@ const deleteRecur = async (parentId, userId, time) => {
 };
 
 const folderRecur = async (parentId, arrNoVer, arrWithVer, currentPath) => {
-	const arr = await getOneLevelListByParentId(parentId);
+	const arr = await getOneLevelChildByParentId(parentId, 0);
 	for (let i = 0; i < arr.length; i++) {
 		if (arr[i].type === "file") {
 			arrNoVer.push(`${currentPath}/${arr[i].name}`);
@@ -72,28 +74,41 @@ const getAllChildren = async (userId, path) => {
 
 // for restoring deleted folder
 const restoreRecur = async (parentId, currentPath, time, token, userId) => {
-  try {
-		const list = await getOneLevelChildByParentIdDeleted(parentId);
+	try {
+    // find deleted children
+		const list = await getOneLevelChildByParentId(parentId, 1);
 		if (list.length > 0) {
 			for (let i = 0; i < list.length; i++) {
 				if (list[i].type === "file") {
 					// update DB for file restore
-          const restoreFileRes = await restoreDeletedFile(token, list[i].id, time, userId);
-          console.log("restoreFileRes: ", restoreFileRes);
-          // copy new version in S3
-          const newRecordInS3 = await copyS3Obj(
-            s3clientGeneral, 
-            S3_MAIN_BUCKET_NAME, 
-            `user_${userId}/${currentPath}/${list[i].name}.v${restoreFileRes.cur_ver}`, 
-            `user_${userId}/${currentPath}/${list[i].name}.v${restoreFileRes.new_ver}`);
-          console.log("newRecordInS3: ", newRecordInS3);
+					const restoreFileRes = await restoreDeletedFile(
+						token,
+						list[i].id,
+						time,
+						userId
+					);
+					console.log("restoreFileRes: ", restoreFileRes);
+					// copy new version in S3
+					const newRecordInS3 = await copyS3Obj(
+						s3clientGeneral,
+						S3_MAIN_BUCKET_NAME,
+						`user_${userId}/${currentPath}/${list[i].name}.v${restoreFileRes.cur_ver}`,
+						`user_${userId}/${currentPath}/${list[i].name}.v${restoreFileRes.new_ver}`
+					);
+					console.log("newRecordInS3: ", newRecordInS3);
 				} else {
-					await restoreRecur(list[i].id, `${currentPath}/${list[i].name}`, time, token, userId);
+					await restoreRecur(
+						list[i].id,
+						`${currentPath}/${list[i].name}`,
+						time,
+						token,
+						userId
+					);
 				}
 			}
 		}
 		// update DB for folder restore
-    const restoreFolderRes = await restoreDeletedFolder(token, parentId, time);
+		const restoreFolderRes = await restoreDeletedFolder(token, parentId, time);
 		console.log("restoreFolderRes: ", restoreFolderRes);
 		return true;
 	} catch (e) {
@@ -104,16 +119,12 @@ const restoreRecur = async (parentId, currentPath, time, token, userId) => {
 
 // for restoring deleted folder
 const folderRecurDeleted = async (parentId, currentPath, result) => {
-	const arr = await getOneLevelChildByParentIdDeleted(parentId);
+	const arr = await getOneLevelChildByParentId(parentId, 1);
 	for (let i = 0; i < arr.length; i++) {
 		if (arr[i].type === "file") {
 			result.push(`${currentPath}/${arr[i].name}`);
 		} else {
-			await folderRecurDeleted(
-				arr[i].id,
-				`${currentPath}/${arr[i].name}`,
-				result
-			);
+			await folderRecurDeleted(arr[i].id, `${currentPath}/${arr[i].name}`,result);
 		}
 	}
 };

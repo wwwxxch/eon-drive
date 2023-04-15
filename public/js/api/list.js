@@ -28,7 +28,7 @@ const getFileHistory = async (fileWholePath) => {
 
 const getTrash = async () => {
   try {
-    const trashList = await axios.get("/show-deleted");
+    const trashList = await axios.get("/show-trash");
     return trashList.data.data;
   } catch (e) {
     console.error("getTrash: ", e);

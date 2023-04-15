@@ -4,7 +4,7 @@ import {
 } from "../../service/path/iter.js";
 import { deleteRecur } from "../../service/path/recur.js";
 import { markDeleteById } from "../../model/db_ff_d.js";
-import { updSpaceUsed } from "../../model/db_plan.js";
+import { updateSpaceUsedByUser } from "../../model/db_plan.js";
 import { emitNewList } from "../../service/sync/list.js";
 // ======================================================================
 const deleteDB = async(req, res) => {
@@ -16,7 +16,9 @@ const deleteDB = async(req, res) => {
 
   for (let i = 0; i < delList.length; i++) {
     const key = delList[i];
+
     if (key.endsWith("/")) {
+      
       console.log("delete folder");
       
       // S3
@@ -25,9 +27,11 @@ const deleteDB = async(req, res) => {
       // DB
       const folders = key.slice(0, key.length-1).split("/");
       const parentId = await iterForParentId(userId, folders);
+      console.log("parentId: ", parentId);
       const deleteRecurRes = await deleteRecur(parentId, userId, nowTime);
       console.log("deleteRecurRes: ", deleteRecurRes);
     } else {
+      
       console.log("delete file");
       
       // S3
@@ -42,7 +46,7 @@ const deleteDB = async(req, res) => {
   }
 
   // update usage of an user
-	const currentUsed = await updSpaceUsed(userId, nowTime);
+	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	req.session.user.used = currentUsed;
   
   // emit list

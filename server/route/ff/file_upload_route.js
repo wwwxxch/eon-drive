@@ -10,6 +10,6 @@ import { uploadChangeDB, getS3Url, uploadCommitDB } from "../../controller/ff/fi
 // --------------------------------------------------------------------------------
 router.post("/upload-start", authentication, checkUsed, uploadChangeDB, getS3Url);
 
-router.post("/upload-commit", uploadCommitDB);
+router.post("/upload-commit", authentication, uploadCommitDB);
 
 export { router as file_upload_route };

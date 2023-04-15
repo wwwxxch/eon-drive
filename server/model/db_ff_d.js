@@ -3,7 +3,7 @@ import { pool } from "./connection.js";
 const markDeleteById = async(time, id) => {
   const conn = await pool.getConnection();
   try {
-    console.log("START TRANSACTION");
+    console.log("START TRANSACTION - markDeleteById");
     await conn.query("START TRANSACTION");
 
     const ff = await conn.query(`
