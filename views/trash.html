@@ -22,6 +22,9 @@
 
   <!-- css internal -->
   <style>
+    #nav-head {
+      background-color: white;
+    }
     .form-check-input {
       border-color: darkgray;
       /* border-width: 1px; */
@@ -36,7 +39,7 @@
 <body>
   <div id="root">
     <!-- header start -->
-    <div class="container">
+    <div class="container fixed-top" id="nav-head">
       <header
         class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
         <div class="col-md-3 mb-2 mb-md-0">
@@ -56,8 +59,8 @@
             </div>
           </div>
           <div class="dropdown">
-            <button class="btn dropdown-toggle hidden-arrow" type="button" id="dropdownMenuButton1"
-              data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-expanded="false">
+            <button class="btn hidden-arrow" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown"
+              data-mdb-toggle="dropdown" aria-expanded="false">
               <svg xmlns="http://www.w3.org/2000/svg" height="35" fill="currentColor" class="bi bi-person"
                 viewBox="0 0 16 16">
                 <path
@@ -65,8 +68,7 @@
               </svg>
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-              <li><a class="dropdown-item" href="/">Profile</a></li>
-              <li><a class="dropdown-item" href="/logout">Logout</a></li>
+              <li><button class="dropdown-item" id="logout-btn">Logout</button></li>
             </ul>
 
           </div>
@@ -74,6 +76,7 @@
       </header>
       <!-- header end -->
     </div>
+    <div class="header-placeholder" style="height: 115px;"></div>
 
     <!-- main block start -->
     <div class="container">
@@ -123,16 +126,16 @@
               <h4>Deleted</h4>
             </div>
 
-            
+
           </div>
           <!-- BUTTON  -->
           <div style="width: 100%; height: 50px;" class="d-flex align-items-center">
             <div>
-              <button type="button" id ="restore-delete-btn" class="btn btn-secondary me-2" style="display: none;">
+              <button type="button" id="restore-delete-btn" class="btn btn-secondary me-2" style="display: none;">
                 Restore
               </button>
             </div>
-            
+
             <div>
               <button type="button" id="perm-delete-btn" class="btn btn-outline-secondary me-2" style="display: none;">
                 Permanently Delete
@@ -164,7 +167,7 @@
 
 
   <script src="/socket.io/socket.io.js"></script>
-  <script type="module" src="/newjs/trash.js"></script>
+  <script type="module" src="/js/trash.js"></script>
   <script>
     $(document).ready(function ()
     {

@@ -6,155 +6,184 @@ import { downloadFile } from "./api/download.js";
 import { restoreFile } from "./api/restore.js";
 import { createLink } from "./api/share.js";
 
+import { formatTime } from "./util/util.js";
 import { HOST } from "./constant/constant.js";
 // ==========================================================================
+
 // logout button
-$(".logout-button").on("click", async function(e) {
-  e.preventDefault();
-  const logoutReq = await axios.get("/logout");
-  // console.log("logoutReq: ", logoutReq);
-  window.location.href="/";
+$("#logout-btn").on("click", async function (e) {
+	e.preventDefault();
+	const logoutReq = await axios.get("/logout");
+	window.location.href = "/";
 });
 
 // check login status
-const chkLoginStatus = async() => {
-  try {
-    await axios.get("/login-status");
-    return true;
-  } catch(err) {
-    window.location.href="/login";
-    return false;
-  }
+const chkLoginStatus = async () => {
+	try {
+		await axios.get("/login-status");
+		return true;
+	} catch (err) {
+		window.location.href = "/login";
+		return false;
+	}
 };
 
-// show file list function
+// showList
+let table;
 function showList(obj) {
-  console.log("showList - ", obj);
-	const fileList = $("#file-list");
-	obj.data.forEach((item) => {
-		const tickboxValue = item.type === "folder" ? item.name + "/" : item.name;
-    // const tickboxClass = item.type === "folder" ? "tickbox-folder" : "tickbox-file";
-		const div = $("<div>");
-		const tickbox = $("<input>").attr({
-			type: "checkbox",
-			name: "list-checkbox",
-			value: tickboxValue,
-      // class: tickboxClass
-		});
-		const span = $("<span>");
+	console.log("showList: ", obj);
+	if (obj.data.length === 0) {
+		$("#list-table").hide();
+		return;
+	}
+	const path = window.location.pathname.split("/").slice(2).join("/");
+	console.log(path);
+	table = $("#list-table").DataTable({
+		data: obj.data,
+		columns: [
+			{
+				data: "name",
+				render: function (data, type, row, meta) {
+					const tickboxValue =
+						row.type === "folder" ? row.name + "/" : row.name;
+					const tickbox = `<input type="checkbox" name="list-checkbox" value=${tickboxValue}>`;
+					return tickbox;
+				},
+			},
+			{
+				data: "name",
+				render: function (data, type, row, meta) {
+					if (row.type === "folder") {
+						return `<span class="${row.type} ff_name">${data}</span>`;
+					} else {
+						const uri = path === "" ? data : `${path}/${data}`;
+						return `<a class="file-link" href="/history/${uri}">
+                      <span class="${row.type} ff_name">${data}</span>
+                      </a>
+                    `;
+					}
+				},
+			},
+			{
+				data: "updated_at",
+				render: function (data, type, row, meta) {
+					const time = row.type === "folder" ? "-" : formatTime(data);
+					const div = `
+            <div class="d-flex justify-content-between">
+              <div>${time}</div>
+              <div class="dropdown">
+                <button class="btn btn-link links-operation"  type="button" id="linksOperationMenu"
+                  data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" class="bi bi-three-dots links-operation-svg"
+                    viewBox="0 0 16 16">
+                    <path
+                      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
+                  </svg>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="linksOperationMenu">
+                  <button type="button" class="dropdown-item get-link"
+                    data-bs-toggle="modal" data-bs-target="#getLinkModal">
+                    get link</button>
+                  <button class="dropdown-item get-link">revoke link</button>
+                </div>
+              </div>
+            </div>
+          `;
+					return div;
+				},
+			},
+		],
+		searching: false,
+		lengthChange: false,
+	});
 
-		tickbox.change(function () {
-			const selected = $("input[name='list-checkbox']:checked");
-			const selectedVal = selected.toArray().map(item => item.value);
-      console.log(selectedVal);
-      if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
-        $("#delete-button").show();
-				$("#download-button").show();
-        $("#history-button").show();
-      } else if (selected.length > 0) {
-				$("#delete-button").show();
-				$("#download-button").show();
-        $("#history-button").hide();
-			} else {
-				$("#delete-button").hide();
-				$("#download-button").hide();
-        $("#history-button").hide();
-			}
-      $("#file-history").hide();
-		});
-
-		if (item.type !== "folder") {
-			span.text(`${item.name} ${new Date(item.updated_at).toLocaleString()}`);
-			span.addClass("file").attr("data-file-id", item.id);
+	$("input[name='list-checkbox']").on("change", function () {
+		const selected = $("input[name='list-checkbox']:checked");
+		const selectedVal = selected.toArray().map((item) => item.value);
+		console.log("block: ", selectedVal);
+		if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
+			$("#delete-btn-div").show();
+			$("#download-btn-div").show();
+		} else if (selected.length > 0) {
+			$("#delete-btn-div").show();
+			$("#download-btn-div").show();
 		} else {
-			span.text(item.name);
-			span.addClass("folder").attr("data-folder-id", item.id);
+			$("#delete-btn-div").hide();
+			$("#download-btn-div").hide();
 		}
-    const linkbtn = $("<button>");
-    linkbtn.text("Get Link").addClass("link-btn");
-    div.addClass("file-div");
-		div.append(tickbox, span, linkbtn);
-		fileList.append(div);
 	});
 }
 
-// show file list under root folder 
+$(document).click(function (e) {
+	if (!$(e.target).is("input[name='list-checkbox'], #select-all")) {
+		$("input[name='list-checkbox']").prop("checked", false);
+		$("#select-all").prop("checked", false);
+	}
+});
+
+// show file list under root folder
 const isLogin = await chkLoginStatus();
 if (isLogin) {
-  
-  // add root path
-  $("#whole-path").append(`
+	// add root path
+	$("#whole-path").append(`
     <a href="${HOST}/home">
-      <h2>
-        <span class="path-text">
-          Home
-        </span>
-      </h2>
+      <h4><span class="path-text">Home</span></h4>
     </a>
   `);
 
-  const url = new URL(window.location.href);
-  const path = url.searchParams.get("path");
-  // const path = window.location.pathname.split("/").slice(2).join("/");
-  // console.log("path: ", path);
-  const list = await getFileList((path === null ? "Home" : "Home/" + path));
-  showList(list);
-  if (path != null) {
-    const pathArray = path.split("/").reduce((prev, curr, i) => {
-      const folder = (i === 0) ? curr : `${prev[i - 1]}/${curr}`;
-      return [...prev, folder];
-    }, []);
-    // console.log("pathArray: ", pathArray);
-    pathArray.forEach((item, i) => {
-      $("#whole-path").append(`
-        <span class="path-slash"> / </span>
-        <a href="${HOST}/home?path=${item}">
-          <h2>
-            <span class="path-text">
-              ${item.split("/").pop()}
-            </span>
-          </h2>
+	const path = window.location.pathname.split("/").slice(2).join("/");
+	console.log("window.location.pathname: ", window.location.pathname);
+	console.log("path: ", path);
+	const list = await getFileList(path === "" ? "Home" : "Home/" + path);
+	showList(list);
+
+	if (path !== "") {
+		const pathArray = path.split("/").reduce((prev, curr, i) => {
+			const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
+			return [...prev, folder];
+		}, []);
+		// console.log("pathArray: ", pathArray);
+		pathArray.forEach((item, i) => {
+			$("#whole-path").append(`
+        <span class="slash"> / </span>
+        <a href="${HOST}/home/${item}">
+          <h4><span class="path-text">${item.split("/").pop()}</span></h4>
         </a>
       `);
-    });
-  }
-  // TODO: if path in url is not exsited -> should redirect user to home page
+		});
+	}
 }
 
 // click folder --> show lists under that folder
-$("#file-list").on("click", ".folder", async function () {
+$("#list-table").on("click", ".folder", async function () {
 	const dirName = $(this).text();
-  const pathTexts = $(".path-text").map(function() {
-    return $(this).text().trim();
-  }).get().join("/");
-  let uri;
-  if (pathTexts === "Home") {
-    uri = dirName;
-  } else {
-    uri = `${pathTexts.replace(/^Home\//,"")}/${dirName}`;
-  }
+	const pathTexts = $(".path-text")
+		.map(function () {
+			return $(this).text().trim();
+		})
+		.get()
+		.join("/");
+	const uri =
+		pathTexts === "Home"
+			? dirName
+			: `${pathTexts.replace(/^Home\//, "")}/${dirName}`;
 
-  console.log("dirName: ", dirName);
-  console.log("pathTexts: ", pathTexts);
-  console.log("uri: ", uri);
-  history.pushState({}, "", `/home?path=${uri}`);
-  // history.pushState({}, "", `/home/${uri}`);
+	console.log("dirName: ", dirName);
+	console.log("pathTexts: ", pathTexts);
+	console.log("uri: ", uri);
+	history.pushState({}, "", `/home/${uri}`);
 
 	// clear file list and get file list under new dir
-  const newPath = `${pathTexts}/${dirName}`;
-	$("#file-list").empty();
+	const newPath = `${pathTexts}/${dirName}`;
 	const newList = await getFileList(newPath);
+	table.destroy();
 	showList(newList);
-  
+
 	// update current path
-  $("#whole-path").append(`
-    <span class="path-slash"> / </span>
-    <a href="${HOST}/home?path=${uri}">
-      <h2>
-        <span class="path-text">
-          ${dirName}
-        </span>
-      </h2>
+	$("#whole-path").append(`
+    <span class="slash"> / </span>
+    <a href="${HOST}/home/${uri}">
+      <h4><span class="path-text">${dirName}</span></h4>
     </a>
   `);
 
@@ -162,42 +191,95 @@ $("#file-list").on("click", ".folder", async function () {
 	$("#folder-input").val("");
 });
 
-// click share button
-$("#file-list").on("click", ".link-btn", async function () {
-  
-  // 找到按鈕所在的 file-div 元素
-  const fileDiv = $(this).closest(".file-div");
-  // 找到 checkbox 的 value 屬性
-  const targetName = fileDiv.find("input[type=\"checkbox\"]").val();
+$(window).on("popstate", async function () {
+	const path = window.location.pathname.split("/").slice(2).join("/");
+	const list = await getFileList(path === "" ? "Home" : "Home/" + path);
+	table.destroy();
+	showList(list);
 
-  const parentPath = $(".path-text").map(function() {
-    return $(this).text().trim();
-  }).get().join("/");
-  
-  const getLink = await createLink(parentPath, targetName);
-  console.log("getLink: ", getLink);
-  
-  if (getLink.share_link) {
-		const inputForShareLink = $("<input>");
-		$("body").append(inputForShareLink);
-		inputForShareLink.val(getLink.share_link);
-		inputForShareLink.select();
+	if (path !== "") {
+		const pathArray = path.split("/").reduce((prev, curr, i) => {
+			const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
+			return [...prev, folder];
+		}, []);
+		// console.log("pathArray: ", pathArray);
 
-		const copyToClipboard = (text) => {
-			navigator.clipboard
-				.writeText(text)
-				.then(() => {
-					console.log("Text copied to clipboard");
-				})
-				.catch((err) => {
-					console.error("Error copying text to clipboard:", err);
-				});
-		};
-
-		copyToClipboard(getLink.share_link);
-		inputForShareLink.remove();
-		prompt("Here's your link: ", getLink.share_link);
+		$("#whole-path").empty().append(`
+      <a href="${HOST}/home">
+        <h4><span class="path-text">Home</span></h4>
+      </a>
+    `);
+		pathArray.forEach((item, i) => {
+			$("#whole-path").append(`
+        <span class="slash"> / </span>
+        <a href="${HOST}/home/${item}">
+          <h4><span class="path-text">${item.split("/").pop()}</span></h4>
+        </a>
+      `);
+		});
 	}
+});
+
+$("input[name='access']").change(function () {
+	if ($(this).attr("id") == "access-user") {
+		$("#recipient").prop("disabled", false);
+	} else {
+		$("#recipient").prop("disabled", true);
+	}
+});
+
+// 按下 get-link 按鈕 -> 跳出視窗問要 public or private share
+// 按送出才真的送到後端去 create link
+// TODO: email validation & email search ......
+$("#list-table").on("click", ".get-link", async function () {
+	const targetName = $(this)
+		.closest("tr")
+		.find("input[name='list-checkbox']")
+		.val();
+	const parentPath = $(".path-text")
+		.map(function () {
+			return $(this).text().trim();
+		})
+		.get()
+		.join("/");
+	console.log(parentPath);
+	console.log(targetName);
+
+	$("#create-link-btn").off("click").on("click", async function () {
+		const access = $("input[name='access']:checked").val();
+		const email = $("#recipient").val().split(";");
+		// console.log(access);
+		// console.log(email);
+		// console.log(parentPath);
+		// console.log(targetName);
+		const getLink = await createLink(parentPath, targetName, access, email);
+		console.log("getLink: ", getLink);
+    $("#getLinkModal").modal("hide");
+    let inputForShareLink;
+		if (getLink.share_link) {
+			if (!inputForShareLink) {
+        inputForShareLink = $("<input>");
+        $("body").append(inputForShareLink);
+      }
+			inputForShareLink.val(getLink.share_link);
+			inputForShareLink.select();
+
+			const copyToClipboard = (text) => {
+				navigator.clipboard
+					.writeText(text)
+					.then(() => {
+						console.log("Text copied to clipboard");
+					})
+					.catch((err) => {
+						console.error("Error copying text to clipboard:", err);
+					});
+			};
+
+			copyToClipboard(getLink.share_link);
+			inputForShareLink.remove();
+			prompt("Here's your link: ", getLink.share_link);
+		}		
+	});
 });
 
 // ==========================================================================
@@ -205,133 +287,122 @@ $("#file-list").on("click", ".link-btn", async function () {
 const socket = io();
 socket.on("listupd", (data) => {
 	console.log("socket.on listupd: ", data);
-  // console.log("In socket.on(\"listupd\")");
-	
-  const pathTexts = $(".path-text").map(function() {
-    return $(this).text().trim();
-  }).get().join("/");
-  
-  let currentPath = "";
+	// console.log("In socket.on(\"listupd\")");
+
+	const pathTexts = $(".path-text")
+		.map(function () {
+			return $(this).text().trim();
+		})
+		.get()
+		.join("/");
+
+	let currentPath = "";
 	if (pathTexts !== "Home") {
-		currentPath = pathTexts.replace(/^Home\//,"");
+		currentPath = pathTexts.replace(/^Home\//, "");
 	}
-  // console.log("currentPath: ", currentPath);
-  // console.log("pathTexts: ", pathTexts);
+	// console.log("currentPath: ", currentPath);
+	// console.log("pathTexts: ", pathTexts);
 
 	if (currentPath === data.parentPath) {
-		$("#file-list").empty();
+		table.destroy();
 		showList(data.list);
 	}
 });
 
-// ==========================================================================
-// upload file
-$("#form-file").on("submit", async function (e) {
-	e.preventDefault();
-  const currentPath = $(".path-text").map(function() {
-    return $(this).text().trim();
-  }).get().join("/");
-  console.log(currentPath);
-	const fileList = $("#file-input")[0].files;
+// =================================================================================
+// Upload
+$("#file-upload-btn").on("click", function () {
+	$("#file-input").click();
+});
 
+$("#folder-upload-btn").on("click", function () {
+	$("#folder-input").click();
+});
+
+$("#file-input").on("change", function () {
+	$("#file-form").trigger("submit");
+});
+
+$("#folder-input").on("change", function () {
+	$("#folder-form").trigger("submit");
+});
+
+$("#file-form").on("submit", async function (e) {
+	e.preventDefault();
+	const currentPath = $(".path-text")
+		.map(function () {
+			return $(this).text().trim();
+		})
+		.get()
+		.join("/");
+	console.log(currentPath);
+	const fileList = $("#file-input")[0].files;
+	console.log("fileList: ", fileList);
 	for (let file of fileList) {
-    const uploadFileRes = await uploadFile(currentPath, file);
-    console.log("uploadFileRes: ", uploadFileRes);
+		const uploadFileRes = await uploadFile(currentPath, file);
+		console.log("uploadFileRes: ", uploadFileRes);
 	}
 
 	$("#file-input").val("");
 });
 
-// upload folder
-$("#form-folder").on("submit", async function (e) {
+$("#folder-form").on("submit", async function (e) {
 	e.preventDefault();
-	// const currentPath = $("#current-path").text();
-  const currentPath = $(".path-text").map(function() {
-    return $(this).text().trim();
-  }).get().join("/");
+	const currentPath = $(".path-text")
+		.map(function () {
+			return $(this).text().trim();
+		})
+		.get()
+		.join("/");
+	console.log(currentPath);
 	const fileList = $("#folder-input")[0].files;
-
+	console.log("fileList: ", fileList);
 	for (let file of fileList) {
 		const uploadFileRes = await uploadFile(currentPath, file);
-    console.log("uploadFileRes: ", uploadFileRes);
+		console.log("uploadFileRes: ", uploadFileRes);
 	}
 
 	$("#folder-input").val("");
 });
 
-// create folder
-const dialog = $("#create-folder-dialog").dialog({
-  autoOpen: false,
-  modal: true,
-  buttons: {
-    "Create": async function() {
-      
-      const currentPath = $(".path-text").map(function() {
-        return $(this).text().trim();
-      }).get().join("/");
-      const createFolderName = $("#create-folder-name").val();
-
-      const createFolderRes = await createFolder(currentPath, createFolderName);
-      console.log("createFolderRes: ", createFolderRes);
-      
-      // TODO: if (createFolderRes.response.status !== 200)
-      // if (createFolderRes.data && createFolderRes.data.msg === "Folder existed") {
-      //   alert(`Folder ${createFolderName} has been existed`);
-      // }
-
-      $(this).dialog("close");
-      $("#create-folder-name").val("");
-    },
-    "Cancel": function() {
-      $(this).dialog("close");
-      $("#create-folder-name").val("");
-    }
-  }
-});
-
-$("#create-button").on("click", function() {
-  dialog.dialog("open");
+// ==========================================================================
+// Create folder
+$("#create-btn").on("click", async function () {
+	const currentPath = $(".path-text")
+		.map(function () {
+			return $(this).text().trim();
+		})
+		.get()
+		.join("/");
+	const createFolderName = $("#create-folder-name").val().trim();
+	console.log("create: ", currentPath);
+	console.log("create: ", createFolderName);
+	const createFolderRes = await createFolder(currentPath, createFolderName);
+	console.log("createFolderRes: ", createFolderRes);
+	// TODO: if (createFolderRes.response.status !== 200)
+	if (createFolderRes.data && createFolderRes.data.msg === "Folder existed") {
+		alert(`Folder ${createFolderName} has been existed`);
+	}
+	$("#createFolderModal").modal("hide");
+	$("#create-folder-name").val("");
 });
 
 // ==========================================================================
+// select all & deselect all
+$("#select-all").on("change", function () {
+	if (this.checked) {
+		$("input[name='list-checkbox']").prop("checked", true);
+		$("#delete-btn-div").show();
+		$("#download-btn-div").show();
+	} else {
+		$("input[name='list-checkbox']").prop("checked", false);
+		$("#delete-btn-div").hide();
+		$("#download-btn-div").hide();
+	}
+});
+// ===============================================================================
 // delete
-$("#delete-button").click(async function () {
-  // const currentPath = $("#current-path").text();
-  const currentPath = $(".path-text").map(function() {
-    return $(this).text().trim();
-  }).get().join("/");
-  const selected = $("input[name='list-checkbox']:checked");
-  
-  const deleteFileRes = await deleteFile(currentPath, selected);
-  console.log("deleteFileRes: ", deleteFileRes);
-	
-	selected.prop("checked", false);
-	$("#delete-button").hide();
-	$("#download-button").hide();
-});
-
-// download
-$("#download-button").click(async function () {
-  // const currentPath = $("#current-path").text();
-  const currentPath = $(".path-text").map(function() {
-    return $(this).text().trim();
-  }).get().join("/");
-	const selected = $("input[name='list-checkbox']:checked");
-	
-  const downloadFileRes = await downloadFile(currentPath, selected);
-  // console.log("downloadFileRes: ", downloadFileRes);
-  if (downloadFileRes.status === 200) {
-    window.open(downloadFileRes.downloadUrl, "_self");
-  }
-
-	selected.prop("checked", false);
-	$("#delete-button").hide();
-	$("#download-button").hide();
-});
-
-// showhistory
-$("#history-button").click(async function () {
-	$("#file-history").empty();
+$("#delete-btn").click(async function () {
 	const currentPath = $(".path-text")
 		.map(function () {
 			return $(this).text().trim();
@@ -339,70 +410,33 @@ $("#history-button").click(async function () {
 		.get()
 		.join("/");
 	const selected = $("input[name='list-checkbox']:checked");
-	const selectedArr = selected.toArray().map((item) => {
-		if (currentPath === "Home") {
-			return item.value;
-		} else {
-			return `${currentPath.replace(/^Home\//, "")}/${item.value}`;
-		}
-	});
-  const fileWholePath = selectedArr[0];
-	// console.log(fileWholePath);
-	const historyRes = await getFileHistory(fileWholePath);
-	// change to function
-  console.log(historyRes);
-	const allRecords = [...historyRes.versions, ...historyRes.deleteRecords];
-	allRecords.sort((a, b) => a.operation_time - b.operation_time);
-	for (const operation of allRecords) {
-		let record = "";
-		if (operation.operation === "delete") {
-			const time = new Date(operation.operation_time).toLocaleString();
-			record = `<div> deleted at ${time} </div>`;
-		} else if (operation.operation) {
-			const time = new Date(operation.operation_time).toLocaleString();
 
-			const verb =
-				operation.operation === "add"
-					? operation.operation + "ed"
-					: operation.operation + "d";
-      let versionDiv = `
-        <div class="version" data-version="${operation.ver}"> 
-          ${verb} at ${time}, size = ${operation.size} kb
-        </div>
-      `;
-			// record = `
-      //   <div class="version" data-version=${operation.ver}> 
-      //     ${verb} at ${time}, size = ${operation.size} kb
-          
-      //   </div>`;
-      console.log("operation: ", operation);
-      if (operation.is_current === 0) {
-        const recoverBtn = `
-          <button class="btn-recover" data-version="${operation.ver}">
-            Recover
-          </button>
-        `;
-        // how to append recoverBtn inside <div class="version" ... > ?
-        versionDiv = $(versionDiv).append(recoverBtn);
-      }
-      record = versionDiv;
-		}
-		$("#file-history").append(record);
-	}
-	$("#file-history").show();
+	const deleteFileRes = await deleteFile(currentPath, selected);
+	console.log("deleteFileRes: ", deleteFileRes);
 
-  $("#file-history").on("click", ".btn-recover", async function() {
-    const version = $(this).data("version");
-    // call recover function with version
-    console.log("recover version: ", version);
-    console.log("currentPath: ", currentPath);
-    console.log("fileWholePath: ", fileWholePath);
-    let parentPath = "";
-    if (currentPath !== "Home") {
-      parentPath = currentPath.replace(/^Home\//, "");
-    }
-    const askRestore = await restoreFile(version, fileWholePath, parentPath);
-    console.log("askRestore: ", askRestore);
-  });
+	selected.prop("checked", false);
+	$("#delete-btn-div").hide();
+	$("#download-btn-div").hide();
 });
 
+// download
+$("#download-btn").click(async function () {
+	const currentPath = $(".path-text")
+		.map(function () {
+			return $(this).text().trim();
+		})
+		.get()
+		.join("/");
+	const selected = $("input[name='list-checkbox']:checked");
+
+	const downloadFileRes = await downloadFile(currentPath, selected);
+	console.log("downloadFileRes: ", downloadFileRes);
+
+	if (downloadFileRes.status === 200) {
+		window.open(downloadFileRes.downloadUrl, "_self");
+	}
+
+	selected.prop("checked", false);
+	$("#delete-btn-div").hide();
+	$("#download-btn-div").hide();
+});
