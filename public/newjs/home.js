@@ -36,6 +36,8 @@ function showList(obj) {
 		$("#list-table").hide();
 		return;
 	}
+	const path = window.location.pathname.split("/").slice(2).join("/");
+	console.log(path);
 	table = $("#list-table").DataTable({
 		data: obj.data,
 		columns: [
@@ -51,13 +53,43 @@ function showList(obj) {
 			{
 				data: "name",
 				render: function (data, type, row, meta) {
-					return `<span class="${row.type}">${data}</span>`;
+					if (row.type === "folder") {
+						return `<span class="${row.type} ff_name">${data}</span>`;
+					} else {
+						const uri = path === "" ? data : `${path}/${data}`;
+						return `<a class="file-link" href="/history/${uri}">
+                      <span class="${row.type} ff_name">${data}</span>
+                      </a>
+                    `;
+					}
 				},
 			},
 			{
 				data: "updated_at",
-				render: function (data) {
-					return new Date(data).toLocaleString();
+				render: function (data, type, row, meta) {
+					const time = row.type === "folder" ? "-" : formatTime(data);
+					const div = `
+            <div class="d-flex justify-content-between">
+              <div>${time}</div>
+              <div class="dropdown">
+                <button class="btn btn-link links-operation"  type="button" id="linksOperationMenu"
+                  data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" class="bi bi-three-dots links-operation-svg"
+                    viewBox="0 0 16 16">
+                    <path
+                      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
+                  </svg>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="linksOperationMenu">
+                  <button type="button" class="dropdown-item get-link"
+                    data-bs-toggle="modal" data-bs-target="#getLinkModal">
+                    get link</button>
+                  <button class="dropdown-item get-link">revoke link</button>
+                </div>
+              </div>
+            </div>
+          `;
+					return div;
 				},
 			},
 		],
@@ -72,34 +104,18 @@ function showList(obj) {
 		if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
 			$("#delete-btn-div").show();
 			$("#download-btn-div").show();
-			// $("#history-btn").prop("disabled", false);
 		} else if (selected.length > 0) {
 			$("#delete-btn-div").show();
 			$("#download-btn-div").show();
-
-			// console.log("showInfo: a - ", showInfo);
-			// if (showInfo) {
-			// 	$("#history-btn").trigger("click");
-			// }
-			// $("#history-btn").prop("disabled", true);
 		} else {
 			$("#delete-btn-div").hide();
 			$("#download-btn-div").hide();
-
-			// console.log("showInfo: b - ", showInfo);
-			// if (showInfo) {
-			// 	$("#history-btn").trigger("click");
-			// }
-			// $("#history-btn").prop("disabled", true);
 		}
 	});
 }
 
 $(document).click(function (e) {
-	if (
-		!$(e.target).is("input[name='list-checkbox'], #select-all") /*&&
-		$(e.target).closest("#history-btn").length === 0*/
-	) {
+	if (!$(e.target).is("input[name='list-checkbox'], #select-all")) {
 		$("input[name='list-checkbox']").prop("checked", false);
 		$("#select-all").prop("checked", false);
 	}
@@ -114,7 +130,6 @@ if (isLogin) {
       <h4><span class="path-text">Home</span></h4>
     </a>
   `);
-	// $("#history-btn").prop("disabled", true);
 
 	const path = window.location.pathname.split("/").slice(2).join("/");
 	console.log("window.location.pathname: ", window.location.pathname);
@@ -205,45 +220,66 @@ $(window).on("popstate", async function () {
 	}
 });
 
-// TODO: share link !!
-// click share button
-$("#file-list").on("click", ".link-btn", async function () {
-	// 找到按鈕所在的 file-div 元素
-	const fileDiv = $(this).closest(".file-div");
-	// 找到 checkbox 的 value 屬性
-	const targetName = fileDiv.find('input[type="checkbox"]').val();
+$("input[name='access']").change(function () {
+	if ($(this).attr("id") == "access-user") {
+		$("#recipient").prop("disabled", false);
+	} else {
+		$("#recipient").prop("disabled", true);
+	}
+});
 
+// 按下 get-link 按鈕 -> 跳出視窗問要 public or private share
+// 按送出才真的送到後端去 create link
+// TODO: email validation & email search ......
+$("#list-table").on("click", ".get-link", async function () {
+	const targetName = $(this)
+		.closest("tr")
+		.find("input[name='list-checkbox']")
+		.val();
 	const parentPath = $(".path-text")
 		.map(function () {
 			return $(this).text().trim();
 		})
 		.get()
 		.join("/");
+	console.log(parentPath);
+	console.log(targetName);
 
-	const getLink = await createLink(parentPath, targetName);
-	console.log("getLink: ", getLink);
+	$("#create-link-btn").off("click").on("click", async function () {
+		const access = $("input[name='access']:checked").val();
+		const email = $("#recipient").val().split(";");
+		// console.log(access);
+		// console.log(email);
+		// console.log(parentPath);
+		// console.log(targetName);
+		const getLink = await createLink(parentPath, targetName, access, email);
+		console.log("getLink: ", getLink);
+    $("#getLinkModal").modal("hide");
+    let inputForShareLink;
+		if (getLink.share_link) {
+			if (!inputForShareLink) {
+        inputForShareLink = $("<input>");
+        $("body").append(inputForShareLink);
+      }
+			inputForShareLink.val(getLink.share_link);
+			inputForShareLink.select();
 
-	if (getLink.share_link) {
-		const inputForShareLink = $("<input>");
-		$("body").append(inputForShareLink);
-		inputForShareLink.val(getLink.share_link);
-		inputForShareLink.select();
+			const copyToClipboard = (text) => {
+				navigator.clipboard
+					.writeText(text)
+					.then(() => {
+						console.log("Text copied to clipboard");
+					})
+					.catch((err) => {
+						console.error("Error copying text to clipboard:", err);
+					});
+			};
 
-		const copyToClipboard = (text) => {
-			navigator.clipboard
-				.writeText(text)
-				.then(() => {
-					console.log("Text copied to clipboard");
-				})
-				.catch((err) => {
-					console.error("Error copying text to clipboard:", err);
-				});
-		};
-
-		copyToClipboard(getLink.share_link);
-		inputForShareLink.remove();
-		prompt("Here's your link: ", getLink.share_link);
-	}
+			copyToClipboard(getLink.share_link);
+			inputForShareLink.remove();
+			prompt("Here's your link: ", getLink.share_link);
+		}		
+	});
 });
 
 // ==========================================================================
@@ -268,7 +304,6 @@ socket.on("listupd", (data) => {
 	// console.log("pathTexts: ", pathTexts);
 
 	if (currentPath === data.parentPath) {
-		// $("#file-list").empty();
 		table.destroy();
 		showList(data.list);
 	}
@@ -364,9 +399,7 @@ $("#select-all").on("change", function () {
 		$("#delete-btn-div").hide();
 		$("#download-btn-div").hide();
 	}
-
 });
-
 // ===============================================================================
 // delete
 $("#delete-btn").click(async function () {
@@ -407,88 +440,3 @@ $("#download-btn").click(async function () {
 	$("#delete-btn-div").hide();
 	$("#download-btn-div").hide();
 });
-
-// ===============================================================================
-// showhistory
-/*
-let showInfo = false;
-$("#history-btn").click(async function () {
-	$("#info-block").empty();
-
-	if (showInfo) {
-		$("#list-block").removeClass("col-9").addClass("col-12");
-		$("#list-table").css("width", $("#list-block").width());
-
-		$("#info-block").removeClass("col-3");
-		showInfo = false;
-		return;
-	}
-	// } else {
-	$("#list-block").removeClass("col-12").addClass("col-9");
-	$("#list-table").css("width", $("#list-block").width());
-
-	$("#info-block").addClass("col-3");
-	showInfo = true;
-
-	const currentPath = $(".path-text")
-		.map(function () {
-			return $(this).text().trim();
-		})
-		.get()
-		.join("/");
-	const selected = $("input[name='list-checkbox']:checked");
-	const selectedArr = selected.toArray().map((item) => {
-		if (currentPath === "Home") {
-			return item.value;
-		} else {
-			return `${currentPath.replace(/^Home\//, "")}/${item.value}`;
-		}
-	});
-	const fileWholePath = selectedArr[0];
-	// console.log(fileWholePath);
-	const historyRes = await getFileHistory(fileWholePath);
-	// change to function
-	console.log(historyRes);
-	const allRecords = [...historyRes.versions, ...historyRes.deleteRecords];
-	allRecords.sort((a, b) => a.operation_time - b.operation_time);
-	for (const operation of allRecords) {
-		let record = "";
-		if (operation.operation === "delete") {
-			const time = formatTime(operation.operation_time);
-			record = `<div> deleted at ${time} </div>`;
-		} else if (operation.operation) {
-			const time = formatTime(operation.operation_time);
-			let versionDiv = `
-      <div class="version" data-version="${operation.ver}"> 
-        ${operation.operation} at ${time}, size = ${operation.size} kb
-      </div>
-    `;
-
-			if (operation.is_current === 0) {
-				const recoverBtn = `
-        <button class="btn btn-outline-secondary btn-sm recover-btn" data-version="${operation.ver}">
-          Recover
-        </button>
-      `;
-				versionDiv = $(versionDiv).append(recoverBtn);
-			}
-			record = versionDiv;
-		}
-		$("#info-block").append(record);
-	}
-	$("#info-block").on("click", ".recover-btn", async function () {
-		const version = $(this).data("version");
-		// call recover function with version
-		console.log("recover version: ", version);
-		console.log("currentPath: ", currentPath);
-		console.log("fileWholePath: ", fileWholePath);
-		let parentPath = "";
-		if (currentPath !== "Home") {
-			parentPath = currentPath.replace(/^Home\//, "");
-		}
-		const askRestore = await restoreFile(version, fileWholePath, parentPath);
-		console.log("askRestore: ", askRestore);
-	});
-	// }
-});
-*/

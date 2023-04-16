@@ -25,23 +25,45 @@
     .folder {
       cursor: pointer;
     }
+
     .folder:hover {
       color: rgb(57, 120, 223);
       font-weight: bold;
     }
+
     .slash {
       padding: 0 6px;
     }
+
     .form-check-input {
       border-color: darkgray;
       /* border-width: 1px; */
     }
-    .version:hover .recover-btn {
-      display: block;
+
+    .file-link {
+      color: inherit;
+      text-decoration: none;
     }
 
-    .recover-btn {
-      display: none;
+    .file-link:hover {
+      color: rgb(64, 80, 207);
+      font-weight: bold;
+    }
+
+    #nav-head {
+      background-color: white;
+    }
+
+    .links-operation:hover {
+      cursor: pointer;
+    }
+
+    .links-operation-svg {
+      color: black;
+    }
+
+    .links-operation-svg:hover {
+      color: darkgrey
     }
 
     /* .d-flex {
@@ -56,7 +78,7 @@
 <body>
   <div id="root">
     <!-- header start -->
-    <div class="container">
+    <div class="container fixed-top" id="nav-head">
       <header
         class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
         <div class="col-md-3 mb-2 mb-md-0">
@@ -76,8 +98,8 @@
             </div>
           </div>
           <div class="dropdown">
-            <button class="btn dropdown-toggle hidden-arrow" type="button" id="dropdownMenuButton1"
-              data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-expanded="false">
+            <button class="btn hidden-arrow" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown"
+              data-mdb-toggle="dropdown" aria-expanded="false">
               <svg xmlns="http://www.w3.org/2000/svg" height="35" fill="currentColor" class="bi bi-person"
                 viewBox="0 0 16 16">
                 <path
@@ -85,8 +107,6 @@
               </svg>
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-              <!-- <li><a class="dropdown-item" href="/profile">Profile</a></li> -->
-              <!-- <li><a class="dropdown-item" href="/">Logout</a></li> -->
               <li><button class="dropdown-item" id="logout-btn">Logout</button></li>
             </ul>
 
@@ -95,7 +115,7 @@
       </header>
       <!-- header end -->
     </div>
-
+    <div class="header-placeholder" style="height: 115px;"></div>
     <!-- main block start -->
     <div class="container">
       <div class="row">
@@ -176,11 +196,12 @@
 
               <!-- Create Folder Buttons -->
               <div class="me-3">
-                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#createFolderModal">Create Folder</button>
+                <button type="button" class="btn btn-light" data-bs-toggle="modal"
+                  data-bs-target="#createFolderModal">Create Folder</button>
               </div>
               <!-- Create Folder Modal -->
-              <div class="modal fade" id="createFolderModal" tabindex="-1" 
-                    aria-labelledby="createFolderModalLabel" aria-hidden="true">
+              <div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel"
+                aria-hidden="true">
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
@@ -202,7 +223,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Download Button -->
               <div class="me-3" style="display: none;" id="download-btn-div">
                 <button type="button" class="btn btn-light" id="download-btn">Download</button>
@@ -212,41 +233,11 @@
               <div class="me-3" style="display: none;" id="delete-btn-div">
                 <button type="button" class="btn btn-secondary" id="delete-btn">Delete</button>
               </div>
-              
+
             </div>
-            
-            <!-- <div class="d-flex align-items-center">
-
-              
-              <div class="me-2">
-                <button type="button" id="info-btn" style="border: none; background-color: transparent;">
-                  <svg xmlns="http://www.w3.org/2000/svg" height="27" fill="currentColor" class="bi bi-info-circle"
-                    viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                    <path
-                      d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-                  </svg>
-                </button>
-              </div>
-
-              
-              <div class="me-2" id="history-btn-div">
-                <button type="button" id="history-btn" style="border: none; background-color: transparent;">
-                  <svg xmlns="http://www.w3.org/2000/svg" height="27" fill="currentColor" class="bi bi-clock-history"
-                    viewBox="0 0 16 16">
-                    <path
-                      d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z" />
-                    <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z" />
-                    <path
-                      d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z" />
-                  </svg>
-                </button>
-              </div>
-            </div> -->
-
 
           </div>
-          
+
           <div id="list-and-info" class="d-flex align-items-start" style="width: 100%;">
             <!-- sub left -->
             <!-- table  -->
@@ -261,11 +252,49 @@
                 </thead>
               </table>
             </div>
-            
+
             <!-- sub right -->
             <!-- <div id="info-block" class="d-flex flex-column align-items-start"></div> -->
           </div>
-         
+          <!-- Modal for get link  -->
+          <div class="modal fade" id="getLinkModal" tabindex="-1" aria-labelledby="getLinkModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="getLinkModalLabel">Share with</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <div class="mb-3">
+                      <label for="recipient" class="col-form-label">Email:</label>
+                      <input type="email" class="form-control" id="recipient" disabled>
+                    </div>
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" value="anyone" name="access" id="access-anyone" checked>
+                        <label class="form-check-label" for="access-anyone">
+                          Anyone knows the link
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" value="user" name="access" id="access-user">
+                        <label class="form-check-label" for="access-user">
+                          User
+                        </label>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-primary" id="create-link-btn">Create Link</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Modal for get link end  -->
 
         </div>
       </div>

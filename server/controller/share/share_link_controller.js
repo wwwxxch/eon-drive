@@ -28,7 +28,7 @@ const publicLink = async (req, res, next) => {
   const target = type === "folder" ? path.replace(/\/$/, "") : path;
   
   const targetName = target.split("/").pop();
-  
+  console.log("type, target, targetName - ", type, target, targetName);
   const targetId = 
     type === "folder" ? 
     await iterForParentId(userId, target.split("/")) :
