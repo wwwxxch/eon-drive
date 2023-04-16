@@ -23,7 +23,7 @@ const chkLoginStatus = async () => {
 const isLogin = await chkLoginStatus();
 if (isLogin) {
 	const trashListRes = await getTrash();
-	console.log(trashListRes);
+	// console.log(trashListRes);
 	$("#trash-table").DataTable({
 		data: trashListRes,
 		columns: [
@@ -60,10 +60,50 @@ if (isLogin) {
 		searching: false,
 		lengthChange: false,
 	});
-}
 
+  $("input[name='trash-checkbox']").on("change", function () {
+		const selected = $("input[name='trash-checkbox']:checked");
+    if (selected.length > 0) {
+      $("#restore-delete-btn").show();
+      $("#perm-delete-btn").show();
+    } else {
+      $("#restore-delete-btn").hide();
+      $("#perm-delete-btn").hide();
+    }
+		
+	});
+}
+// ==========================================================================
+// click other place on the page -> cancel checked
+$(document).click(function (e) {
+	if (
+		!$(e.target).is("input[name='trash-checkbox'], #select-all")
+	) {
+		$("input[name='trash-checkbox']").prop("checked", false);
+		$("#select-all").prop("checked", false);
+    $("#restore-delete-btn").hide();
+    $("#perm-delete-btn").hide();
+    
+	}
+});
+
+// ==========================================================================
+// select all & deselect all
+$("#select-all").on("change", function () {
+	if (this.checked) {
+		$("input[name='trash-checkbox']").prop("checked", true);
+		$("#restore-delete-btn").show();
+      $("#perm-delete-btn").show();
+	} else {
+		$("input[name='trash-checkbox']").prop("checked", false);
+		$("#restore-delete-btn").hide();
+    $("#perm-delete-btn").hide();
+	}
+});
+
+// ==========================================================================
 // restore
-$("#restore-button").click(async function () {
+$("#restore-delete-btn").click(async function () {
 	const selected = $("input[name='trash-checkbox']:checked");
 	const toRestore = selected.toArray().map((item) => item.value);
 
@@ -71,5 +111,4 @@ $("#restore-button").click(async function () {
 	console.log("askRestoreDelete: ", askRestoreDelete);
 
 	selected.prop("checked", false);
-	$("#restore-button").hide();
 });

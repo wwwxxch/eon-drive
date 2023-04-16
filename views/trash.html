@@ -128,11 +128,15 @@
           <!-- BUTTON  -->
           <div style="width: 100%; height: 50px;" class="d-flex align-items-center">
             <div>
-              <button type="button" class="btn btn-secondary me-2">Restore</button>
+              <button type="button" id ="restore-delete-btn" class="btn btn-secondary me-2" style="display: none;">
+                Restore
+              </button>
             </div>
             
             <div>
-              <button type="button" class="btn btn-outline-secondary me-2">Permanently Delete</button>
+              <button type="button" id="perm-delete-btn" class="btn btn-outline-secondary me-2" style="display: none;">
+                Permanently Delete
+              </button>
             </div>
 
           </div>
@@ -143,7 +147,7 @@
               <table class="table" id="trash-table">
                 <thead class="table-header">
                   <tr>
-                    <th><input type="checkbox" name="select_all" id="select-all"></th>
+                    <th><input type="checkbox" name="select-all" id="select-all"></th>
                     <th>Name</th>
                     <th>Deleted</th>
                   </tr>
