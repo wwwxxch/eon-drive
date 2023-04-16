@@ -15,7 +15,7 @@ const chkLoginStatus = async() => {
     await axios.get("/login-status");
     return true;
   } catch(err) {
-    window.location.href="/login.html";
+    window.location.href="/login";
     return false;
   }
 };

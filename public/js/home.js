@@ -22,13 +22,14 @@ const chkLoginStatus = async() => {
     await axios.get("/login-status");
     return true;
   } catch(err) {
-    window.location.href="/login.html";
+    window.location.href="/login";
     return false;
   }
 };
 
 // show file list function
 function showList(obj) {
+  console.log("showList - ", obj);
 	const fileList = $("#file-list");
 	obj.data.forEach((item) => {
 		const tickboxValue = item.type === "folder" ? item.name + "/" : item.name;
@@ -81,13 +82,9 @@ function showList(obj) {
 const isLogin = await chkLoginStatus();
 if (isLogin) {
   
-  // $(`
-  //   <a id="delete-link" href="/delete.html">Deleted File</a>
-  // `).insertAfter(".logout-button");
-
   // add root path
   $("#whole-path").append(`
-    <a href="${HOST}/home.html">
+    <a href="${HOST}/home">
       <h2>
         <span class="path-text">
           Home
@@ -98,6 +95,8 @@ if (isLogin) {
 
   const url = new URL(window.location.href);
   const path = url.searchParams.get("path");
+  // const path = window.location.pathname.split("/").slice(2).join("/");
+  // console.log("path: ", path);
   const list = await getFileList((path === null ? "Home" : "Home/" + path));
   showList(list);
   if (path != null) {
@@ -109,7 +108,7 @@ if (isLogin) {
     pathArray.forEach((item, i) => {
       $("#whole-path").append(`
         <span class="path-slash"> / </span>
-        <a href="${HOST}/home.html?path=${item}">
+        <a href="${HOST}/home?path=${item}">
           <h2>
             <span class="path-text">
               ${item.split("/").pop()}
@@ -138,7 +137,8 @@ $("#file-list").on("click", ".folder", async function () {
   console.log("dirName: ", dirName);
   console.log("pathTexts: ", pathTexts);
   console.log("uri: ", uri);
-  history.pushState({}, "", `/home.html?path=${uri}`);
+  history.pushState({}, "", `/home?path=${uri}`);
+  // history.pushState({}, "", `/home/${uri}`);
 
 	// clear file list and get file list under new dir
   const newPath = `${pathTexts}/${dirName}`;
@@ -149,7 +149,7 @@ $("#file-list").on("click", ".folder", async function () {
 	// update current path
   $("#whole-path").append(`
     <span class="path-slash"> / </span>
-    <a href="${HOST}/home.html?path=${uri}">
+    <a href="${HOST}/home?path=${uri}">
       <h2>
         <span class="path-text">
           ${dirName}

@@ -26,9 +26,15 @@ app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// ---------------------------------------------------
-// Routes
+app.set("view engine", "ejs");
 
+// --------------------------------------------------------------------------------
+// Page
+import { page } from "./server/route/page/page.js";
+app.use(page);
+
+// --------------------------------------------------------------------------------
+// API
 import { user_auth_route } from "./server/route/user/user_auth_route.js";
 import { file_upload_route } from "./server/route/ff/file_upload_route.js";
 import { folder_create_route } from "./server/route/ff/folder_create_route.js";
@@ -50,21 +56,11 @@ app.use(
 );
 
 // ---------------------------------------------------
-// import path from "path";
-// import { fileURLToPath } from "url";
-// import { dirname } from  "path";
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-// console.log("__filename: ", __filename);
-// console.log("__dirname: ", __dirname);
-
-// ---------------------------------------------------
 // Simple check
 
 app.get("/check", (req, res) => {
   console.log("/check");
-  return res.send("Hello World!");
+  return res.send("/check");
 });
 
 // ---------------------------------------------------
