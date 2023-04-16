@@ -3,6 +3,11 @@ dotenv.config();
 
 import { getTargetByLink, getAccessList } from "../../model/db_share.js";
 import { getFileDetail, getOneLevelChildByParentId } from "../../model/db_ff_r.js";
+
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // ===========================================================================
 const shareTokenValid = async (req, res, next) => {
 	console.log(req.path);
@@ -52,9 +57,12 @@ const checkSharePermission = async (req, res, next) => {
 	const target = req.target;
 	// check permission
 	if (target.is_public === 0) {
-		const userList = await getAccessList(target.id);
-		const userId = req.session.user.id;
+    if (!req.session.user) {
+      return res.status(403).json({ msg: "No access" });
+    }
 
+    const userList = await getAccessList(target.id);
+		const userId = req.session.user.id;
 		if (!userList.includes(userId) && userId !== target.user_id) {
 			return res.status(403).json({ msg: "No access" });
 		}
@@ -67,8 +75,11 @@ const returnFileInfo = async (req, res) => {
 
 	const detail = await getFileDetail(target.id);
 	// console.log("detail: ", detail);
-
-	return res.json({ data: detail });
+  const { name, size, updated_at, owner } = detail;
+	// return res.json({ data: detail });
+  return res.render("view_file", {
+    name, size, updated_at, owner
+  });
 };
 
 const returnFolderInfo = async (req, res) => {
@@ -77,7 +88,8 @@ const returnFolderInfo = async (req, res) => {
   const children = await getOneLevelChildByParentId(target.user_id, target.id, 0);
   // console.log("children: ", children);
 
-  return res.json({ data: children });
+  // return res.json({ data: children });
+  return res.render("view_folder");
 };
 
 export {
