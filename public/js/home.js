@@ -1,13 +1,10 @@
 import { uploadFile } from "./api/upload.js";
 import { createFolder } from "./api/create_folder.js";
-import { getFileList, getFileHistory } from "./api/list.js";
+import { getFileList } from "./api/list.js";
 import { deleteFile } from "./api/delete.js";
 import { downloadFile } from "./api/download.js";
-import { restoreFile } from "./api/restore.js";
 import { createLink } from "./api/share.js";
-
 import { formatTime } from "./util/util.js";
-import { HOST } from "./constant/constant.js";
 // ==========================================================================
 
 // logout button
@@ -126,7 +123,7 @@ const isLogin = await chkLoginStatus();
 if (isLogin) {
 	// add root path
 	$("#whole-path").append(`
-    <a href="${HOST}/home">
+    <a href="/home">
       <h4><span class="path-text">Home</span></h4>
     </a>
   `);
@@ -146,7 +143,7 @@ if (isLogin) {
 		pathArray.forEach((item, i) => {
 			$("#whole-path").append(`
         <span class="slash"> / </span>
-        <a href="${HOST}/home/${item}">
+        <a href="/home/${item}">
           <h4><span class="path-text">${item.split("/").pop()}</span></h4>
         </a>
       `);
@@ -182,7 +179,7 @@ $("#list-table").on("click", ".folder", async function () {
 	// update current path
 	$("#whole-path").append(`
     <span class="slash"> / </span>
-    <a href="${HOST}/home/${uri}">
+    <a href="/home/${uri}">
       <h4><span class="path-text">${dirName}</span></h4>
     </a>
   `);
@@ -205,14 +202,14 @@ $(window).on("popstate", async function () {
 		// console.log("pathArray: ", pathArray);
 
 		$("#whole-path").empty().append(`
-      <a href="${HOST}/home">
+      <a href="/home">
         <h4><span class="path-text">Home</span></h4>
       </a>
     `);
 		pathArray.forEach((item, i) => {
 			$("#whole-path").append(`
         <span class="slash"> / </span>
-        <a href="${HOST}/home/${item}">
+        <a href="/home/${item}">
           <h4><span class="path-text">${item.split("/").pop()}</span></h4>
         </a>
       `);
