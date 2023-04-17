@@ -262,14 +262,20 @@ $("#list-table").on("click", ".get-link", async function () {
 			inputForShareLink.select();
 
 			const copyToClipboard = (text) => {
-				navigator.clipboard
-					.writeText(text)
-					.then(() => {
-						console.log("Text copied to clipboard");
-					})
-					.catch((err) => {
-						console.error("Error copying text to clipboard:", err);
-					});
+				// navigator.clipboard
+				// 	.writeText(text)
+				// 	.then(() => {
+				// 		console.log("Text copied to clipboard");
+				// 	})
+				// 	.catch((err) => {
+				// 		console.error("Error copying text to clipboard:", err);
+				// 	});
+        const input = document.createElement("textarea");
+				input.value = text;
+				document.body.appendChild(input);
+				input.select();
+				document.execCommand("copy");
+				document.body.removeChild(input);
 			};
 
 			copyToClipboard(getLink.share_link);
