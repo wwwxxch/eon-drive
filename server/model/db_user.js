@@ -15,6 +15,7 @@ const chkmail = async (mail) => {
 };
 
 const chkpair = async (mail, pwd) => {
+  console.log("chkpair");
   const [row] = await pool.query(`
     SELECT email, password FROM user WHERE email = ?`, mail
 	);
