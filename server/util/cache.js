@@ -7,28 +7,46 @@ const {
   CACHE_PORT,
   CACHE_USER,
   CACHE_PASSWORD,
-  CACHE_DB 
+  CACHE_DB,
+  NODE_ENV
 } = process.env;
 
-const redis = new Redis({
-  host: CACHE_HOST,
-  port: parseInt(CACHE_PORT),
-  username: CACHE_USER, // for aws elastic cache - to be updated
-  password: CACHE_PASSWORD,
-  db: parseInt(CACHE_DB),
-  tls: {}, // to be updated // for aws elastic cache - to be updated
-  retryStrategy(times) {
-    console.log(`***Retrying redis connection: attempt ${times}***`);
-    console.log(`***redis.status: ${redis.status}***`);
-    if (times < 4) {
-      return 1000 * 1;
-    }
-    else if (times > 10) {
-      return null; 
-    }
-    return 1000 * 5;
-  }
-});
+let redisConfig;
+if (NODE_ENV === "dev") {
+  redisConfig = {
+		host: CACHE_HOST,
+		port: parseInt(CACHE_PORT),
+		username: CACHE_USER,
+		password: CACHE_PASSWORD,
+		db: parseInt(CACHE_DB),
+		retryStrategy(times) {
+			console.log(`***Retrying redis connection: attempt ${times}***`);
+			console.log(`***redis.status: ${redis.status}***`);
+			if (times < 4) return 1000 * 1;
+			else if (times > 10) return null;
+			return 1000 * 5;
+		},
+	};
+} else if (NODE_ENV === "prod") {
+  redisConfig = {
+		host: CACHE_HOST,
+		port: parseInt(CACHE_PORT),
+		username: CACHE_USER,
+		password: CACHE_PASSWORD,
+		db: parseInt(CACHE_DB),
+    tls: {},
+		retryStrategy(times) {
+			console.log(`***Retrying redis connection: attempt ${times}***`);
+			console.log(`***redis.status: ${redis.status}***`);
+			if (times < 4) return 1000 * 1;
+			else if (times > 10) return 1000 * 2**(times);
+			return 1000 * 5;
+		},
+	};
+}
+
+
+const redis = new Redis(redisConfig);
 
 redis.on("connect", () => {
   console.log("===Success! Redis connection established===");

@@ -16,7 +16,7 @@ const io = new Server(server);
 app.set("socketio", io);
 
 // session
-if (process.env.NODE_ENV === "prod") {
+if (process.env.PROTOCOL === "HTTPS") {
   app.set("trust proxy", 1);
   sessionConfig.cookie.secure = true;
 }
