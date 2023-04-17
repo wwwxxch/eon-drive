@@ -1,7 +1,7 @@
 import { pool } from "./connection.js";
 // ==========================================
 const getFolderId = async(user_id, parent_id, folder_name) => {
-  console.log("user_id: ", user_id);
+  // console.log("user_id: ", user_id);
   const [row] = await pool.query(`
     SELECT id, is_delete FROM ff 
     WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "folder"

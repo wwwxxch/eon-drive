@@ -79,9 +79,13 @@ const findParentPathByFFId = async (ffId) => {
 			arr.push(obj.parent_name);
 		}
 	}
-
-	const parentPath = "Home/" + arr.reverse().join("/");
-	// console.log(parentPath);
+  let parentPath;
+  if (arr.length === 1 && arr[0] === null) {
+    parentPath = "Home/";
+  } else {
+    parentPath = "Home/" + arr.reverse().join("/") + "/";
+  }
+	console.log("findParentPathByFFId - return value:", parentPath);
 	return parentPath;
 };
 

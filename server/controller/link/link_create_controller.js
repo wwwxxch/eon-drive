@@ -60,8 +60,8 @@ const publicLink = async (req, res, next) => {
 
   const share_link = 
     type === "folder" ?
-    `${HOST}/sdir/${token}/${targetName}` :
-    `${HOST}/s/${token}/${targetName}`;
+    `${HOST}/view/fo/${token}` :
+    `${HOST}/view/fi/${token}`;
 
   return res.json({ share_link });
 };

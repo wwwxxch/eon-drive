@@ -42,7 +42,8 @@ import { file_list_route } from "./server/route/ff/file_list_route.js";
 import { file_delete_route } from "./server/route/ff/file_delete_route.js";
 import { file_download_route } from "./server/route/ff/file_download_route.js";
 import { file_restore_route } from "./server/route/ff/file_restore_route.js";
-import { share_link_route } from "./server/route/share/share_link_route.js";
+import { link_manage_route } from "./server/route/link/link_manage_route.js";
+import { view_route } from "./server/route/view/view_route.js";
 
 app.use(
   user_auth_route, 
@@ -52,7 +53,8 @@ app.use(
   file_delete_route,
   file_download_route,
   file_restore_route,
-  share_link_route
+  link_manage_route,
+  view_route
 );
 
 // ---------------------------------------------------

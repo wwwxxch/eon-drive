@@ -105,6 +105,7 @@ const dlMultiFileProcess = async (req, res, next) => {
 	let finalListNoVer = [];
 	let finalListWithVer = [];
 	for (let i = 0; i < folders.length; i++) {
+    console.log("input for getAllChildren: " ,folders[i].slice(0, folders[i].length - 1));
 		const allChildren = await getAllChildren(
 			userId,
 			folders[i].slice(0, folders[i].length - 1)

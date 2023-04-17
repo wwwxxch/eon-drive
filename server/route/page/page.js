@@ -36,17 +36,8 @@ router.get("/history/*", async (req, res) => {
   const fileId = await findFileIdByPath(userId, fileWholePath);
   console.log("fileId: ", fileId);
   if (!fileId) {
-    return res.staatus(404).send("404");
+    return res.status(404).send("404");
   }
-  
-  // const versions = await getVersionsByFileId(fileId);
-  // console.log("versions", versions);
-
-  // const deleteRecords = await getDeleteRecordsByFileId(fileId);
-  // console.log("deleteRecords: ", deleteRecords); 
-  
-  // return res.json({ versions, deleteRecords });
-  // return res.sendFile(path.join(__dirname, "../../../views", "history.html"));
   return res.render("history", { fileName });
 });
 
