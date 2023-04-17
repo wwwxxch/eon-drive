@@ -21,7 +21,10 @@ if (process.env.PROTOCOL === "HTTPS") {
   sessionConfig.cookie.secure = true;
 }
 app.use(session(sessionConfig));
-
+app.get("/test", (req, res) => {
+  console.log("test");
+  return res.send("/test");
+});
 app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -64,10 +67,7 @@ app.get("/check", (req, res) => {
   return res.send("/check");
 });
 
-app.get("/test", (req, res) => {
-  console.log("test");
-  return res.send("/test");
-});
+
 
 // ---------------------------------------------------
 // Errors
