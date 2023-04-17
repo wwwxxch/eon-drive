@@ -10,7 +10,7 @@ const {
   CACHE_DB,
   NODE_ENV
 } = process.env;
-
+console.log("NODE_ENV: ", NODE_ENV);
 let redisConfig;
 if (NODE_ENV === "dev") {
   redisConfig = {
