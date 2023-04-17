@@ -6,14 +6,16 @@ const {
   CACHE_HOST,
   CACHE_PORT,
   CACHE_USER,
-  CACHE_PASSWORD 
+  CACHE_PASSWORD,
+  CACHE_DB 
 } = process.env;
 
 const redis = new Redis({
   host: CACHE_HOST,
-  port: CACHE_PORT,
+  port: parseInt(CACHE_PORT),
   // username: CACHE_USER, // for aws elastic cache - to be updated
   password: CACHE_PASSWORD,
+  db: parseInt(CACHE_DB),
   tls: {}, // to be updated // for aws elastic cache - to be updated
   retryStrategy(times) {
     console.log(`***Retrying redis connection: attempt ${times}***`);
