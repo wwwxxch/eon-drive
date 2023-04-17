@@ -7,11 +7,10 @@ const loginReq = async () => {
 
   try {
     const loginRes = await axios.post("/signin", { email: email, password: password });
-    console.log("loginRes: ", loginRes);
-    // if (loginRes.status === 200) {
-    //   console.log("login success");
-    //   window.location.href="/home";
-    // }
+    if (loginRes.status === 200) {
+      console.log("login success");
+      window.location.href="/home";
+    }
   } catch (err) {
     console.error("loginReq: ", err);
     console.log(err.response.data);
