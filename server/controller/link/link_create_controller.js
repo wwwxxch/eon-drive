@@ -1,6 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config();
-const { HOST } = process.env;
+const { NODE_ENV, LOCAL_HOST, PROD_HOST } = process.env;
+
+let HOST;
+if (NODE_ENV === "dev") {
+  HOST=LOCAL_HOST;
+} else if (NODE_ENV === "prod") {
+  HOST=PROD_HOST;
+}
 
 import {
 	addUserToAcessList,
