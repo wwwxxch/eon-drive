@@ -14,6 +14,7 @@ const redis = new Redis({
   port: CACHE_PORT,
   username: CACHE_USER,
   password: CACHE_PASSWORD,
+  tls: {}, // to be updated
   retryStrategy(times) {
     console.log(`***Retrying redis connection: attempt ${times}***`);
     console.log(`***redis.status: ${redis.status}***`);
