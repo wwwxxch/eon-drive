@@ -13,7 +13,7 @@ const {
 const redis = new Redis({
   host: CACHE_HOST,
   port: parseInt(CACHE_PORT),
-  // username: CACHE_USER, // for aws elastic cache - to be updated
+  username: CACHE_USER, // for aws elastic cache - to be updated
   password: CACHE_PASSWORD,
   db: parseInt(CACHE_DB),
   tls: {}, // to be updated // for aws elastic cache - to be updated
