@@ -274,7 +274,8 @@ $("#list-table").on("click", ".get-link", async function () {
 
 			copyToClipboard(getLink.share_link);
 			inputForShareLink.remove();
-			prompt("Here's your link: ", getLink.share_link);
+			// prompt("Here's your link: ", getLink.share_link);
+      alert("Link has been copied");
 		}		
 	});
 });
