@@ -64,6 +64,11 @@ app.get("/check", (req, res) => {
   return res.send("/check");
 });
 
+app.get("/123", (req, res) => {
+  console.log(123);
+  return res.send("/123");
+});
+
 // ---------------------------------------------------
 // Errors
 app.use((req, res, next) => {
