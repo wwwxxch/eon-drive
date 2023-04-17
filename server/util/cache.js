@@ -10,6 +10,12 @@ const {
   CACHE_DB 
 } = process.env;
 
+console.log("xxxxx", CACHE_HOST,
+  CACHE_PORT,
+  CACHE_USER,
+  CACHE_PASSWORD,
+  CACHE_DB);
+
 const redis = new Redis({
   host: CACHE_HOST,
   port: parseInt(CACHE_PORT),
