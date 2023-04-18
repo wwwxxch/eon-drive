@@ -202,7 +202,7 @@ const restoreDeletedFile = async(token, file_id, time, user_id) => {
     const new_rec = await conn.query(`
       INSERT INTO file_ver 
       (ff_id, ver, size, updated_at, is_current, operation) 
-      VALUES (?, ?, ?, ?, 1, "restore")
+      VALUES (?, ?, ?, ?, 1, "restored")
     `, [file_id, max_ver[0].max_ver + 1, cur_ver[0].size, time]);
 
     await conn.commit();

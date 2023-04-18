@@ -33,7 +33,7 @@ if (isLogin) {
 	let recDiv;
 	for (const rec of allRecords) {
 		const time = formatTime(rec.operation_time);
-		if (rec.operation === "delete") {
+		if (rec.operation === "deleted") {
 			recDiv = `
         <div style="width: 100%;" 
             class="rec deleted-rec d-flex justify-content-between align-items-center py-3">

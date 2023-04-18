@@ -65,7 +65,7 @@ const getVersionsByFileId = async(file_id) => {
 
 const getDeleteRecordsByFileId = async(file_id) => {
   const [row] = await pool.query(`
-    SELECT deleted_at AS operation_time, "delete" AS operation 
+    SELECT deleted_at AS operation_time, "deleted" AS operation 
     FROM ff_delete WHERE ff_id = ?
   `, file_id);
 

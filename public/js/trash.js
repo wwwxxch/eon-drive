@@ -33,8 +33,8 @@ if (isLogin) {
 				render: function (data, type, row, meta) {
 					const tickboxValue =
 						row.type === "file"
-							? `${row.parentPath.replace(/^Home\//, "")}/${row.name}`
-							: `${row.parentPath.replace(/^Home\//, "")}/${row.name}/`;
+							? `${row.parentPath.replace(/^Home\//, "")}${row.name}`
+							: `${row.parentPath.replace(/^Home\//, "")}${row.name}/`;
 					const tickbox = `<input type="checkbox" name="trash-checkbox" value=${tickboxValue}>`;
 					return tickbox;
 				},
@@ -107,7 +107,7 @@ $("#select-all").on("change", function () {
 $("#restore-delete-btn").click(async function () {
 	const selected = $("input[name='trash-checkbox']:checked");
 	const toRestore = selected.toArray().map((item) => item.value);
-
+  console.log("toRestore: ", toRestore);
 	const askRestoreDelete = await restoreDelete(toRestore);
 	console.log("askRestoreDelete: ", askRestoreDelete);
 

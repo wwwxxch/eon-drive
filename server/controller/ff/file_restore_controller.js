@@ -70,9 +70,10 @@ const restoreDeleted = async (req, res) => {
 
 	// if it's folder -> find the children under deleted folder
 	// if it's file -> find the deleted file by path
-	const token = uuidv4();
-	const nowTime = Date.now();
+
 	for (let i = 0; i < restoreList.length; i++) {
+    const token = uuidv4();
+    const nowTime = Date.now();
 		let key = restoreList[i];
 
 		if (key.endsWith("/")) {
@@ -90,6 +91,11 @@ const restoreDeleted = async (req, res) => {
 				userId
 			);
 			console.log("restoreRecurRes: ", restoreRecurRes);
+      if (restoreRecurRes) {
+				// commit metadata
+				const commit = await commitMetadata("done", token);
+				console.log("commit: ", commit);
+			}
 		} else {
 			// get fileId
 			const fileId = await findDeletedFileIdByPath(userId, key);
@@ -105,6 +111,11 @@ const restoreDeleted = async (req, res) => {
 			console.log("restoreDeleted: ", restoreDeleted); // cur version & new version
 
 			// update S3
+      console.log(key);
+			// if (key.match(/^\//)) {
+			// 	key = key.replace(/^\//, "");
+			// }
+      // console.log(key);
 			const newRecordInS3 = await copyS3Obj(
 				s3clientGeneral,
 				S3_MAIN_BUCKET_NAME,
@@ -112,13 +123,14 @@ const restoreDeleted = async (req, res) => {
 				`user_${userId}/${key}.v${restoreDeleted.new_ver}`
 			);
 			console.log("newRecordInS3: ", newRecordInS3);
+      if (newRecordInS3) {
+				// commit metadata
+				const commit = await commitMetadata("done", token);
+				console.log("commit: ", commit);
+			}
 		}
 	}
-
-	// commit metadata
-	const commit = await commitMetadata("done", token);
-	console.log("commit: ", commit);
-
+	
 	// TODO: emit new trash list
 
 	return res.send("ok");

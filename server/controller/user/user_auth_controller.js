@@ -90,7 +90,8 @@ const signIn = async (req, res) => {
 const logOut = async (req, res) => {
   console.log("logOut");
   req.session.destroy();
-  return res.json({ msg: "logout" });
+  // return res.json({ msg: "logout" });
+  return res.redirect("/");
 };
 
 const showProfile = async (req, res) => {

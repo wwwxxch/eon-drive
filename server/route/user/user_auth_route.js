@@ -18,7 +18,7 @@ router.post("/signup", signUp);
 
 router.post("/signin", signIn);
 
-router.get("/logout", authentication, logOut);
+router.get("/logout", /*authentication,*/ logOut);
 
 router.get("/profile", showProfile);
 
