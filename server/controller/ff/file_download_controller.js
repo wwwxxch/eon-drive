@@ -141,7 +141,9 @@ const dlCallLambda = async (req, res) => {
 		parentPath,
 		parentName
 	);
-	console.log("toLambda: ", toLambda);
+	if (toLambda.downloadUrl) {
+    console.log("toLambda: downloadUrl is not blank");
+  } 
 	if (!toLambda.downloadUrl) {
 		return res.status(500).json({ err: "something wrong" });
 	}

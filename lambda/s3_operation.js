@@ -14,7 +14,7 @@ const archiver = require("archiver");
 const fs = require("fs");
 
 const DEFAULT_S3_EXPIRES = parseInt(process.env.DEFAULT_S3_EXPIRES);
-const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE);
+const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE * 1024 * 1024);
 
 const tmpDir = "/tmp";
 // ==================================================================================
