@@ -18,11 +18,9 @@ $("#logout-btn").on("click", async function (e) {
 const chkLoginStatus = async () => {
 	try {
 		await axios.get("/login-status");
-    console.log("chkLoginStatus: true");
 		return true;
 	} catch (err) {
-		// window.location.href = "/login";
-    console.log("chkLoginStatus: true");
+		window.location.href = "/login";
 		return false;
 	}
 };
