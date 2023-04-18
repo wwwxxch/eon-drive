@@ -1,8 +1,7 @@
 const {
-	S3Client,
 	GetObjectCommand,
 	PutObjectCommand,
-  PutObjectTaggingCommand,
+	PutObjectTaggingCommand,
 	CreateMultipartUploadCommand,
 	CompleteMultipartUploadCommand,
 	UploadPartCommand,
@@ -14,17 +13,20 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const archiver = require("archiver");
 const fs = require("fs");
 
-// const client = new S3Client({ region: "ap-southeast-1" });
-
-// TODO: setup env variables in lambda
-const DEFAULT_S3_EXPIRES = 300;
-const CHUNK_SIZE = 5 * 1024 * 1024;
+const DEFAULT_S3_EXPIRES = process.env.DEFAULT_S3_EXPIRES;
+const CHUNK_SIZE = process.env.CHUNK_SIZE;
 
 const tmpDir = "/tmp";
 // ==================================================================================
 
 // get the pre-signed URL for completing a multipart upload
-const getCompleteUrl = async (client, bucket, key, uploadId, expiresIn = DEFAULT_S3_EXPIRES) => {
+const getCompleteUrl = async (
+	client,
+	bucket,
+	key,
+	uploadId,
+	expiresIn = DEFAULT_S3_EXPIRES
+) => {
 	const command = new CompleteMultipartUploadCommand({
 		Bucket: bucket,
 		Key: key,
@@ -41,7 +43,7 @@ const largeUpload = async (client, bucket, key, localPath, fileSize) => {
 		Key: key,
 	});
 	const multipartUpload = await client.send(cmdCreateMultipartUpload);
-  console.log("largeUpload: multipartUpload: ", multipartUpload);
+	console.log("largeUpload: multipartUpload: ", multipartUpload);
 	// Upload Parts
 	const uploadId = multipartUpload.UploadId;
 	try {
@@ -67,7 +69,13 @@ const largeUpload = async (client, bucket, key, localPath, fileSize) => {
 		}
 
 		// Complete Multipart Upload - Using presigned URL send the request manually
-		const completeUrl = await getCompleteUrl(client, bucket, key, uploadId, 3600);
+		const completeUrl = await getCompleteUrl(
+			client,
+			bucket,
+			key,
+			uploadId,
+			3600
+		);
 		const uploadResults = await Promise.all(uploadPromises);
 		const xmlBody = `
       <CompleteMultipartUpload>
@@ -105,7 +113,6 @@ const largeUpload = async (client, bucket, key, localPath, fileSize) => {
 		}
 	}
 };
-
 
 // download files to local
 const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
@@ -211,7 +218,7 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 
 	// upload zip to S3
 	if (fileSize < CHUNK_SIZE) {
-    console.log("zipToS3 - one zip general upload");
+		console.log("zipToS3 - one zip general upload");
 		const putcommand = new PutObjectCommand({
 			Body: fs.createReadStream(localZip),
 			Bucket: bucket,
@@ -220,7 +227,7 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 		const putZip = await client.send(putcommand);
 		console.log("putZip: ", putZip);
 	} else {
-    console.log("zipToS3 - one zip multipart upload");
+		console.log("zipToS3 - one zip multipart upload");
 		const largeUploadRes = await largeUpload(
 			client,
 			bucket,
@@ -230,22 +237,22 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 		);
 		console.log("largeUploadRes: ", largeUploadRes);
 	}
-  
-  // add Tag
-  const puttaggingcommand = new PutObjectTaggingCommand({
-    Bucket: bucket,
-    Key: key,
-    Tagging: {
-      TagSet: [
-        {
-          Key: "zip",
-          Value: "download"
-        }
-      ]
-    }
-  });
-  const putZipTag = await client.send(puttaggingcommand);
-  console.log("putZipTag: ", putZipTag);
+
+	// add Tag
+	const puttaggingcommand = new PutObjectTaggingCommand({
+		Bucket: bucket,
+		Key: key,
+		Tagging: {
+			TagSet: [
+				{
+					Key: "zip",
+					Value: "download",
+				},
+			],
+		},
+	});
+	const putZipTag = await client.send(puttaggingcommand);
+	console.log("putZipTag: ", putZipTag);
 
 	// get URL to download
 	const getcommand = new GetObjectCommand({

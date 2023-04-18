@@ -1,8 +1,12 @@
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 import dotenv from "dotenv";
 dotenv.config();
-const { IAM_USER_ACCESS_KEY_ID, IAM_USER_SECRET_ACCESS_KEY, LAMBDA_REGION } =
-	process.env;
+const {
+	IAM_USER_ACCESS_KEY_ID,
+	IAM_USER_SECRET_ACCESS_KEY,
+	LAMBDA_REGION,
+	LAMBDA_FUNCTION_NAME,
+} = process.env;
 
 const config = {
 	credentials: {
@@ -30,7 +34,7 @@ const callLambdaZip = async (
 		parentName
 	);
 	const command = new InvokeCommand({
-		FunctionName: "zipfiles", // lambda function name - zip files
+		FunctionName: LAMBDA_FUNCTION_NAME,
 		Payload: JSON.stringify({
 			userId,
 			finalListNoVer,
