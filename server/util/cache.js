@@ -13,6 +13,7 @@ const {
 console.log("NODE_ENV: ", NODE_ENV);
 let redisConfig;
 if (NODE_ENV === "dev") {
+  console.log("xxx");
   redisConfig = {
 		host: CACHE_HOST,
 		port: parseInt(CACHE_PORT),

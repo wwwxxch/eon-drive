@@ -270,6 +270,8 @@ $("#list-table").on("click", ".get-link", async function () {
 				// 	.catch((err) => {
 				// 		console.error("Error copying text to clipboard:", err);
 				// 	});
+        
+        // TODO: 跳出視窗美化、剪貼簿設計
         const input = document.createElement("textarea");
 				input.value = text;
 				document.body.appendChild(input);

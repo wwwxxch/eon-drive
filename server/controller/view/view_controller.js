@@ -73,6 +73,7 @@ const checkShareTarget = async (req, res, next) => {
 
 const checkSharePermission = async (req, res, next) => {
 	const target = req.target;
+  console.log(req.session.user);
 	// check permission
 	if (target.is_public === 0) {
 		if (!req.session.user) {
@@ -81,6 +82,8 @@ const checkSharePermission = async (req, res, next) => {
 
 		const userList = await getAccessList(target.id);
 		const userId = req.session.user.id;
+    console.log(userList);
+    console.log(userId);
 		if (!userList.includes(userId) && userId !== target.user_id) {
 			return res.status(403).json({ msg: "No access" });
 		}
@@ -198,10 +201,14 @@ const viewDLcallLambda = async (req, res, next) => {
 		parentPath,
 		parentName
 	);
-	console.log("toLambda: ", toLambda);
+
+  if (toLambda.downloadUrl) {
+    console.log("toLambda: downloadUrl is not blank");
+  } 
 	if (!toLambda.downloadUrl) {
 		return res.status(500).json({ err: "something wrong" });
 	}
+  
 	return res.json({ downloadUrl: toLambda.downloadUrl });
 };
 
