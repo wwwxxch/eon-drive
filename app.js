@@ -20,9 +20,10 @@ const PROTOCOL =
 	process.env.NODE_ENV === "dev"
 		? process.env.LOCAL_PROTOCOL
 		: process.env.PROD_PROTOCOL;
+
 if (process.env.NODE_ENV === "prod") {
 	app.set("trust proxy", 1);
-	sessionConfig.cookie.secure = true;
+	// sessionConfig.cookie.secure = true; // this is for HTTPS !!!
 }
 app.use(session(sessionConfig));
 
