@@ -13,8 +13,8 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const archiver = require("archiver");
 const fs = require("fs");
 
-const DEFAULT_S3_EXPIRES = process.env.DEFAULT_S3_EXPIRES;
-const CHUNK_SIZE = process.env.CHUNK_SIZE;
+const DEFAULT_S3_EXPIRES = parseInt(process.env.DEFAULT_S3_EXPIRES);
+const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE);
 
 const tmpDir = "/tmp";
 // ==================================================================================

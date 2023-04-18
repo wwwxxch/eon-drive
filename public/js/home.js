@@ -30,9 +30,13 @@ let table;
 function showList(obj) {
 	console.log("showList: ", obj);
 	if (obj.data.length === 0) {
+    console.log("obj.data.length === 0");
 		$("#list-table").hide();
 		return;
-	}
+	} else {
+    console.log("obj.data.length !== 0");
+    $("#list-table").show();
+  }
 	const path = window.location.pathname.split("/").slice(2).join("/");
 	console.log(path);
 	table = $("#list-table").DataTable({
@@ -306,11 +310,13 @@ socket.on("listupd", (data) => {
 	if (pathTexts !== "Home") {
 		currentPath = pathTexts.replace(/^Home\//, "");
 	}
-	// console.log("currentPath: ", currentPath);
-	// console.log("pathTexts: ", pathTexts);
+	console.log("currentPath: ", currentPath);
+	console.log("pathTexts: ", pathTexts);
 
 	if (currentPath === data.parentPath) {
-		table.destroy();
+    if ($("#list-table").is(":visible")) {
+      table.destroy();
+    }
 		showList(data.list);
 	}
 });
