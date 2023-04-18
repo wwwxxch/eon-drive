@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - 'feature_*'
+      - 'fix_*'
       - 'develop'
 
 jobs:
