@@ -16,15 +16,16 @@ const io = new Server(server);
 app.set("socketio", io);
 
 // session
-if (process.env.PROTOCOL === "HTTPS") {
-  app.set("trust proxy", 1);
-  sessionConfig.cookie.secure = true;
+const PROTOCOL =
+	process.env.NODE_ENV === "dev"
+		? process.env.LOCAL_PROTOCOL
+		: process.env.PROD_PROTOCOL;
+if (PROTOCOL === "HTTPS") {
+	app.set("trust proxy", 1);
+	sessionConfig.cookie.secure = true;
 }
 app.use(session(sessionConfig));
-app.get("/test", (req, res) => {
-  console.log("test");
-  return res.send("/test");
-});
+
 app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -49,45 +50,42 @@ import { link_manage_route } from "./server/route/link/link_manage_route.js";
 import { view_route } from "./server/route/view/view_route.js";
 
 app.use(
-  user_auth_route, 
-  file_upload_route,
-  folder_create_route,
-  file_list_route,
-  file_delete_route,
-  file_download_route,
-  file_restore_route,
-  link_manage_route,
-  view_route
+	user_auth_route,
+	file_upload_route,
+	folder_create_route,
+	file_list_route,
+	file_delete_route,
+	file_download_route,
+	file_restore_route,
+	link_manage_route,
+	view_route
 );
 
 // ---------------------------------------------------
 // Simple check
 app.get("/check", (req, res) => {
-  console.log("/check");
-  return res.send("/check");
+	console.log("/check");
+	return res.send("check");
 });
-
-
 
 // ---------------------------------------------------
 // Errors
 app.use((req, res, next) => {
-  console.log("ERROR req.path: ", req.path);
-  const err = new Error("=====Page not found=====");
-  err.status = 404;
-  next(err);
+	console.log("ERROR req.path: ", req.path);
+	const err = new Error("=====Page not found=====");
+	err.status = 404;
+	next(err);
 });
 
-app.use((err, req, res, next) => {  
-  res.status(err.status || 500)
-    .json({ 
-      status: err.status,
-      message: err.message,
-      stack: err.stack 
-    });
+app.use((err, req, res, next) => {
+	res.status(err.status || 500).json({
+		status: err.status,
+		message: err.message,
+		stack: err.stack,
+	});
 });
 
 // ---------------------------------------------------
 server.listen(port, () => {
-  console.log(`Server is running on port ${port}...`);
+	console.log(`Server is running on port ${port}...`);
 });
