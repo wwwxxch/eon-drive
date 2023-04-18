@@ -1,6 +1,7 @@
 import { getTrash } from "./api/list.js";
 import { restoreDelete } from "./api/restore.js";
 import { formatTime } from "./util/util.js";
+import { permDeleteFile } from "./api/delete.js";
 // ==========================================================================
 // logout button
 $(".logout-button").on("click", async function (e) {
@@ -102,6 +103,8 @@ $("#select-all").on("change", function () {
 	}
 });
 
+// TODO: socket.io refresh
+
 // ==========================================================================
 // restore
 $("#restore-delete-btn").click(async function () {
@@ -112,4 +115,14 @@ $("#restore-delete-btn").click(async function () {
 	console.log("askRestoreDelete: ", askRestoreDelete);
 
 	selected.prop("checked", false);
+});
+// perm delete
+$("#perm-delete-btn").click(async function() {
+  const selected = $("input[name='trash-checkbox']:checked");
+	const toPermDelete = selected.toArray().map((item) => item.value);
+  console.log("toPermDelete: ", toPermDelete);
+  const askPermDelete = await permDeleteFile(toPermDelete);
+  console.log("askPermDelete: ", askPermDelete);
+
+  selected.prop("checked", false);
 });

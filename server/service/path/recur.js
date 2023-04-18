@@ -6,7 +6,11 @@ import {
 	restoreDeletedFile,
 	restoreDeletedFolder,
 } from "../../model/db_ff_u.js";
-import { markDeleteById } from "../../model/db_ff_d.js";
+import {
+	markDeleteById,
+	permDeleteByFileId,
+	permDeleteByFolderId,
+} from "../../model/db_ff_d.js";
 import { iterForParentId } from "./iter.js";
 
 import dotenv from "dotenv";
@@ -18,7 +22,7 @@ import { copyS3Obj } from "../../service/s3/s3_copy.js";
 // ========================================================================================
 const deleteRecur = async (parentId, userId, time) => {
 	try {
-    // find not deleted list
+		// find not deleted list
 		const list = await getOneLevelChildByParentId(userId, parentId, 0);
 		if (list.length > 0) {
 			for (let i = 0; i < list.length; i++) {
@@ -40,7 +44,37 @@ const deleteRecur = async (parentId, userId, time) => {
 	}
 };
 
-const folderRecur = async (userId, parentId, arrNoVer, arrWithVer, currentPath) => {
+const permDeleteRecur = async (parentId, userId) => {
+	try {
+		// find deleted list
+		const list = await getOneLevelChildByParentId(userId, parentId, 1);
+		if (list.length > 0) {
+			for (let i = 0; i < list.length; i++) {
+				if (list[i].type === "file") {
+					const permDeleteFileRes = await permDeleteByFileId(list[i].id);
+					console.log("permDeleteFileRes: ", permDeleteFileRes);
+				} else {
+					await permDeleteRecur(list[i].id, userId);
+				}
+			}
+		}
+		// delete folder itself
+		const deleteFolderRes = await permDeleteByFolderId(parentId);
+		console.log("deleteFolderRes: ", deleteFolderRes);
+		return true;
+	} catch (e) {
+		console.error("(fn) deleteRecur - error ", e);
+		return false;
+	}
+};
+
+const folderRecur = async (
+	userId,
+	parentId,
+	arrNoVer,
+	arrWithVer,
+	currentPath
+) => {
 	const arr = await getOneLevelChildByParentId(userId, parentId, 0);
 	for (let i = 0; i < arr.length; i++) {
 		if (arr[i].type === "file") {
@@ -49,7 +83,7 @@ const folderRecur = async (userId, parentId, arrNoVer, arrWithVer, currentPath) 
 			arrWithVer.push(`${currentPath}/${arr[i].name}.v${version}`);
 		} else {
 			await folderRecur(
-        userId,
+				userId,
 				arr[i].id,
 				arrNoVer,
 				arrWithVer,
@@ -74,7 +108,7 @@ const getAllChildren = async (userId, path) => {
 // for restoring deleted folder
 const restoreRecur = async (parentId, currentPath, time, token, userId) => {
 	try {
-    // find deleted children
+		// find deleted children
 		const list = await getOneLevelChildByParentId(userId, parentId, 1);
 		if (list.length > 0) {
 			for (let i = 0; i < list.length; i++) {
@@ -123,7 +157,12 @@ const folderRecurDeleted = async (userId, parentId, currentPath, result) => {
 		if (arr[i].type === "file") {
 			result.push(`${currentPath}/${arr[i].name}`);
 		} else {
-			await folderRecurDeleted(userId, arr[i].id, `${currentPath}/${arr[i].name}`,result);
+			await folderRecurDeleted(
+				userId,
+				arr[i].id,
+				`${currentPath}/${arr[i].name}`,
+				result
+			);
 		}
 	}
 };
@@ -141,4 +180,10 @@ const getAllChildrenDeleted = async (userId, currentPath) => {
 	return result;
 };
 
-export { deleteRecur, getAllChildren, restoreRecur, getAllChildrenDeleted };
+export {
+	deleteRecur,
+	permDeleteRecur,
+	getAllChildren,
+	restoreRecur,
+	getAllChildrenDeleted,
+};

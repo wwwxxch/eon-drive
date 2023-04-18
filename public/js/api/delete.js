@@ -1,5 +1,3 @@
-const api_destination = "/delete";
-
 const deleteFile = async (path, fileArray) => {
   // request body
   let parentPath = "";
@@ -20,7 +18,7 @@ const deleteFile = async (path, fileArray) => {
   // delLIst possible value: whole path, e.g. "level1.ext" or "level1folder/level2.ext"
 
   try {
-    const deleteRes = await axios.post(api_destination, { parentPath, delList });
+    const deleteRes = await axios.post("/delete", { parentPath, delList });
     console.log("deleteRes.status: ", deleteRes.status);
     return true;
   } catch (e) {
@@ -29,4 +27,14 @@ const deleteFile = async (path, fileArray) => {
   }
 };
 
-export { deleteFile };
+const permDeleteFile = async (permDeleteList) => {
+  try {
+		const permDeleteRes = await axios.post("/perm-delete",{ permDeleteList });
+		return permDeleteRes;
+	} catch (e) {
+		console.error("permDeleteFile: ", e);
+		return false;
+	}
+};
+
+export { deleteFile, permDeleteFile };

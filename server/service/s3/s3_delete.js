@@ -18,7 +18,28 @@ const deleteObject = async (client, bucket, key) => {
   }
 };
 
-// TODO: no error handling here
+const deleteAllVersionsForOneObject = async (client, bucket, key) => {
+  try {
+    const listCommand = new ListObjectsV2Command({
+      Bucket: bucket,
+      Prefix: key,
+    });
+    const listRes = await client.send(listCommand);
+    const contents = listRes.Contents;
+    console.log("contents: ", contents);
+    if (contents.length > 0) {
+      for (let i = 0; i< contents.length; i++) {
+        await deleteObject(client, bucket, contents[i].Key);
+      }
+    }
+    return true;
+  } catch(e) {
+    console.error("deleteAllVersionsForOneObject: ", e);
+    return false;
+  }
+};
+
+
 const deleteFolderAndContents = async (client, bucket, key) => {
   const listCMD = new ListObjectsV2Command({
     Bucket: bucket,
@@ -40,7 +61,7 @@ const deleteFolderAndContents = async (client, bucket, key) => {
   for (let i = 0; i < contents.length; i++) {
     // if the item is a file, delete it
     if (contents[i].Key !== key && !contents[i].Key.endsWith("/")) {
-      await deleteObject(client, bucket, contents[i].Key);
+      await deleteAllVersionsForOneObject(client, bucket, contents[i].Key);
     }
     // if the item is a folder, call the same function recursively to delete its contents
     else if (contents[i].Key.endsWith("/")) {
@@ -69,5 +90,6 @@ const deleteFolderAndContents = async (client, bucket, key) => {
 
 export { 
   deleteObject,
-  deleteFolderAndContents
+  deleteFolderAndContents,
+  deleteAllVersionsForOneObject
 };
