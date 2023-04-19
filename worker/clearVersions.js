@@ -74,3 +74,5 @@ const clearVersions = async () => {
 };
 
 export { clearVersions };
+
+clearVersions();

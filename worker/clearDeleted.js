@@ -9,7 +9,7 @@ import {
 import dotenv from "dotenv";
 dotenv.config();
 const { S3_MAIN_BUCKET_NAME } = process.env;
-import { s3clientGeneral } from "../../service/s3/s3_client.js";
+import { s3clientGeneral } from "../server/service/s3/s3_client.js";
 import { deleteAllVersionsForOneObject } from "../server/service/s3/s3_delete.js";
 import { deleteObject } from "../server/service/s3/s3_delete.js";
 
@@ -79,3 +79,5 @@ const clearDeleted = async () => {
 };
 
 export { clearDeleted };
+
+clearDeleted();
