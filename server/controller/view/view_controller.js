@@ -46,9 +46,9 @@ const checkShareTarget = async (req, res, next) => {
 	const shareToken = req.params.shareToken;
 
 	const target = await getTargetByLink(shareToken);
-	// console.log("target: ", target);
+	console.log("target: ", target);
 	// target: id, name, is_public, user_id, type
-	if (target.length === 0) {
+	if (!target) {
 		console.log("ERROR req.path: ", req.path);
 		const err = new Error("=====Page not found=====");
 		err.status = 404;
