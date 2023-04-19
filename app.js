@@ -48,6 +48,7 @@ import { file_delete_route } from "./server/route/ff/file_delete_route.js";
 import { file_download_route } from "./server/route/ff/file_download_route.js";
 import { file_restore_route } from "./server/route/ff/file_restore_route.js";
 import { link_manage_route } from "./server/route/link/link_manage_route.js";
+import { link_list_route } from "./server/route/link/link_list_route.js";
 import { view_route } from "./server/route/view/view_route.js";
 
 app.use(
@@ -59,6 +60,7 @@ app.use(
 	file_download_route,
 	file_restore_route,
 	link_manage_route,
+  link_list_route,
 	view_route
 );
 
