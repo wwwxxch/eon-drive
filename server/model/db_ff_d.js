@@ -7,9 +7,15 @@ const markDeleteById = async(time, id) => {
     await conn.query("START TRANSACTION");
 
     const ff = await conn.query(`
-      UPDATE ff SET is_delete = 1, updated_at = ? WHERE id = ?
+      UPDATE ff 
+      SET is_delete = 1, share_token = null, is_public = 0, updated_at = ? 
+      WHERE id = ?
     `, [time, id]);
     
+    const [share_link_perm] = await conn.query(`
+      DELETE FROM share_link_perm WHERE ff_id = ?
+    `, id);
+
     const delete_rec = await conn.query(`
       INSERT INTO ff_delete (ff_id, deleted_at) VALUES (?, ?)
     `, [id, time]);
