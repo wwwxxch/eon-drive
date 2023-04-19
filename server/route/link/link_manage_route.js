@@ -9,11 +9,10 @@ import {
 	privateLink,
 	publicLink,
 } from "../../controller/link/link_create_controller.js";
-
+import { revokeLink } from "../../controller/link/link_revoke_controller.js";
 // --------------------------------------------------------------------------------
-router.post("/share-with", authentication, publicLink, privateLink);
+router.post("/create-link", authentication, publicLink, privateLink);
 
-// TODO: /revoke-link
-// router.post("/revoke-link")
+router.post("/revoke-link", authentication, revokeLink);
 
 export { router as link_manage_route };

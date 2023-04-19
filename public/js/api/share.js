@@ -20,7 +20,7 @@ const createLink = async (path, targetName, accessType, userList = []) => {
 		};
 	}
 	try {
-		const createLinkRes = await axios.post("/share-with", {
+		const createLinkRes = await axios.post("/create-link", {
 			access: access,
       path: ffWholePath
 		});

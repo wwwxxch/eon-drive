@@ -213,6 +213,36 @@ const getLinksYouShared = async (user_id) => {
   return row;
 };
 
+const deleteLinkByFFId = async(user_id, ff_id) => {
+  const conn = await pool.getConnection();
+  try {
+    console.log("START TRANSACTION - deleteLinkByFFid");
+    await conn.query("START TRANSACTION");
+    
+    const [ff] = await conn.query(`
+      UPDATE ff SET share_token = null, is_public = 0 WHERE user_id = ? AND id = ? 
+    `, [user_id, ff_id]);
+
+    const [share_link_perm] = await conn.query(`
+      DELETE FROM share_link_perm WHERE ff_id = ?
+    `, [ff_id]);
+
+    await conn.commit();
+    console.log("COMMIT");
+    return true;
+
+  } catch (e) {
+    await conn.query("ROLLBACK");
+    console.log("ROLLBACK - error: ", e);
+    return false;
+
+  } finally {
+    await conn.release();
+    console.log("RELEASE CONNECTION");
+  }
+
+};
+
 export {
   checkLinkByFFId,
   createPublicLink,
@@ -223,5 +253,6 @@ export {
   getAccessList,
   getTargetByLink,
   getLinksSharedWithYou,
-  getLinksYouShared
+  getLinksYouShared,
+  deleteLinkByFFId
 };
