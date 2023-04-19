@@ -22,10 +22,6 @@
 
   <!-- css internal -->
   <style>
-    .form-check-input {
-      border-color: darkgray;
-      /* border-width: 1px; */
-    }
 
     /* .d-flex {
       border: 1px dashed;
@@ -118,25 +114,25 @@
         <div class="col-11 d-flex flex-column align-items-start">
 
           <div class="d-flex align-items-center justify-content-md-between my-2" style="width: 100%;">
-
             <div>
               <h4>Shared with You</h4>
             </div>
-
-            
           </div>
 
           <!-- sub -->
-          <div class="col-12 d-flex flex-column align-items-start">
+          <div class="col-12 d-flex flex-column align-items-center mt-3">
             <!-- table  -->
             <div style="width: 100%;">
-              <table class="table" id="shared-table">
+              <table class="table table-hover" id="shared-with-list-table">
                 <thead class="table-header">
                   <tr>
-                    <th>Owner</th>
-                    <th>Link</th>
+                    <th scope="col">File / Folder</th>
+                    <th scope="col">Owner</th>
+                    <th scope="col">Link</th>
                   </tr>
                 </thead>
+                <tbody id="shared-with-list-tbody">
+                </tbody>
               </table>
             </div>
           </div>
@@ -149,7 +145,7 @@
 
 
   <!-- <script src="/socket.io/socket.io.js"></script> -->
-  <!-- <script type="module" src="/newjs/trash.js"></script> -->
+  <script type="module" src="/js/shared.js"></script>
   <script>
     $(document).ready(function ()
     {

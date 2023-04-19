@@ -32,4 +32,27 @@ const createLink = async (path, targetName, accessType, userList = []) => {
 	}
 };
 
-export { createLink };
+const askSharedWithList = async() => {
+  try {
+		const askSharedWithListRes = await axios.get("/links-shared-with");
+		console.log("askSharedWithListRes: ", askSharedWithListRes);
+		return askSharedWithListRes.data;
+	} catch (e) {
+		console.error("askSharedWithListRes: ", e);
+		return false;
+	}
+};
+
+
+const askYouSharedList = async() => {
+  try {
+		const askYouSharedListRes = await axios.get("/links-you-shared");
+		console.log("askYouSharedListRes: ", askYouSharedListRes);
+		return askYouSharedListRes.data;
+	} catch (e) {
+		console.error("askYouSharedListRes: ", e);
+		return false;
+	}
+};
+
+export { createLink, askSharedWithList, askYouSharedList };
