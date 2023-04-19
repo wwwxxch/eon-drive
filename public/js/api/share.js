@@ -32,6 +32,17 @@ const createLink = async (path, targetName, accessType, userList = []) => {
 	}
 };
 
+const revokeLink = async(ff_id) => {
+  try {
+		const revokeLinkRes = await axios.post("/revoke-link", { ff_id });
+		console.log("revokeLinkRes: ", revokeLinkRes);
+		return revokeLinkRes.data;
+	} catch (e) {
+		console.error("revokeLinkRes: ", e);
+		return false;
+	}
+};
+
 const askSharedWithList = async() => {
   try {
 		const askSharedWithListRes = await axios.get("/links-shared-with");
@@ -55,4 +66,4 @@ const askYouSharedList = async() => {
 	}
 };
 
-export { createLink, askSharedWithList, askYouSharedList };
+export { createLink, revokeLink, askSharedWithList, askYouSharedList };
