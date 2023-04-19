@@ -46,8 +46,9 @@ const createUser = async (mail, pwd, name, time) => {
 };
 
 const getMultipleUserId = async (col, vals) => {
+  const vals_trim = vals.map(item => item.trim());
   const [row] = await pool.query(`
-    SELECT id FROM user WHERE ${col} IN (?)`, [vals]);
+    SELECT id FROM user WHERE ${col} IN (?)`, [vals_trim]);
   console.log("row: ", row.map(item => item.id));
   return row.map(item => item.id);
 };

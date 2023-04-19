@@ -175,6 +175,44 @@ const getTargetByLink = async (share_token) => {
   return row[0];
 };
 
+const getLinksSharedWithYou = async (has_access) => {
+  const [row] = await pool.query(`
+    SELECT
+      a.ff_id,
+      a.has_access,
+      b.name as ff_name, 
+      c.name as owner, 
+      CASE 
+        WHEN b.type = "folder" THEN CONCAT ("view/fo/", b.share_token)
+        ELSE CONCAT ("view/fi/", b.share_token) 
+        END AS link 
+    FROM share_link_perm AS a 
+      INNER JOIN ff AS b on a.ff_id = b.id
+      INNER JOIN user AS c on b.user_id = c.id
+    WHERE a.has_access = ?
+  `, has_access);
+  return row;
+};
+
+const getLinksYouShared = async (user_id) => {
+  const [row] = await pool.query(`
+    SELECT 
+      a.id as ff_id,
+      a.name as ff_name,
+      CASE 
+        WHEN a.type = "folder" THEN CONCAT ("view/fo/", a.share_token)
+        ELSE CONCAT ("view/fi/", a.share_token) END AS link,
+      a.is_public,
+      c.name as user_name,
+      c.email as user_email
+    FROM ff AS a 
+      LEFT JOIN share_link_perm AS b ON a.id = b.ff_id 
+      LEFT JOIN user AS c on b.has_access = c.id
+    WHERE a.user_id = ? AND share_token IS NOT NULL
+  `, user_id);
+  return row;
+};
+
 export {
   checkLinkByFFId,
   createPublicLink,
@@ -183,5 +221,7 @@ export {
   changeLinkToPrivate,
   addUserToAcessList,
   getAccessList,
-  getTargetByLink
+  getTargetByLink,
+  getLinksSharedWithYou,
+  getLinksYouShared
 };
