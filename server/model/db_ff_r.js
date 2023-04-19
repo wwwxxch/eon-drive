@@ -130,6 +130,13 @@ const getFileDetail = async(ff_id) => {
   return row[0];
 };
 
+const getFFInfoById = async(ff_id) => {
+  const [row] = await pool.query(`
+    SELECT id, name, type, user_id FROM ff WHERE id = ?
+  `, ff_id);
+  return row[0];
+};
+
 export {
   getFolderId,
   getFileId,
@@ -141,5 +148,6 @@ export {
   getDeleteRecordsByFileId,
   getParentInfoByFFId,
   getDeletedList,
-  getFileDetail
+  getFileDetail,
+  getFFInfoById
 };
