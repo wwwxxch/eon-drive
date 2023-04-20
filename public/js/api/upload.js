@@ -27,7 +27,7 @@ const singleUpload = async(url, file) => {
       method: "put",
       data: file,
       onUploadProgress: (progress) => {
-        console.log( (progress.loaded/file.size)*100 );
+        console.log("progress:", (progress.loaded/file.size)*100 );
       }
     });
     console.log("putFile: ", putFile);
@@ -116,6 +116,15 @@ const commitUpload = async(token, parentPath) => {
 
 // ==============================================================================
 const uploadFile = async (currentDir, file) => {
+  let fileUsed = {};
+  if (file.modified) {
+    fileUsed.name = file.file.name;
+    fileUsed.size = file.file.size;
+    fileUsed.webkitRelativePath = file.webkitRelativePath;
+  } else {
+    fileUsed = file;
+  }
+
   // 0. request payload
   let parentPath = "";
   if (currentDir !== "Home") {
@@ -124,21 +133,21 @@ const uploadFile = async (currentDir, file) => {
   console.log("parentPath: ", parentPath);
 
   let wholePath = "";
-  if (file.webkitRelativePath) {
-    wholePath = ((parentPath === "" ? "" : parentPath + "/") + file.webkitRelativePath).trim();
+  if (fileUsed.webkitRelativePath) {
+    wholePath = ((parentPath === "" ? "" : parentPath + "/") + fileUsed.webkitRelativePath).trim();
   } else {
-    wholePath = ((parentPath === "" ? "" : parentPath + "/") + file.name).trim();
+    wholePath = ((parentPath === "" ? "" : parentPath + "/") + fileUsed.name).trim();
   }
   console.log("wholePath: ", wholePath);
 
   let splitCount = 1;
-  if (file.size > CHUNK_SIZE) {
-    splitCount = Math.ceil(file.size / CHUNK_SIZE);
+  if (fileUsed.size > CHUNK_SIZE) {
+    splitCount = Math.ceil(fileUsed.size / CHUNK_SIZE);
   }
   
   try {
     // 1. fetch /upload-start
-    const getUrl = await startUpload(file.name, wholePath, file.size, splitCount);
+    const getUrl = await startUpload(fileUsed.name, wholePath, fileUsed.size, splitCount);
     console.log("getUrl.status: ", getUrl.status);
     if (getUrl.status !== 200) {
       // TODO: if fetch /upload-start failed

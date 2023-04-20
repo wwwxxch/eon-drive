@@ -38,7 +38,7 @@ function showList(obj) {
 		$("#list-table").show();
 	}
 	const path = window.location.pathname.split("/").slice(2).join("/");
-	console.log(path);
+	// console.log(path);
 	table = $("#list-table").DataTable({
 		data: obj.data,
 		columns: [
@@ -348,49 +348,59 @@ $(function () {
 		$(this).removeClass("drag-over");
 		$("#drag-drop-box").removeClass("drag-over");
 
-		// send files to backend
-		// const fileList = e.originalEvent.dataTransfer.files;
-		// console.log("files: ", fileList);
 		const currentPath = $(".path-text")
 			.map(function () {
 				return $(this).text().trim();
 			})
 			.get()
 			.join("/");
-    
-      const items = Array.from(e.originalEvent.dataTransfer.items);
-      const files = [];
-      for (const item of items) {
-        if (item.kind === 'file') {
-          const entry = item.webkitGetAsEntry();
-          if (entry.isDirectory) {
-            const fileList = await traverseDirectory(entry);
-            files.push(...fileList);
-          } else {
-            files.push(item.getAsFile());
-          }
-        }
-      }
-      console.log('files:', files);
-		// let fileList = [];
+
+		// const files = e.originalEvent.dataTransfer.files;
+		// console.log("files: ", files);
 		// const items = e.originalEvent.dataTransfer.items;
+		// console.log("items: ", items);
 
-		// for (let i = 0; i < items.length; i++) {
-		// 	const entry = items[i].webkitGetAsEntry();
-		// 	if (entry.isDirectory) {
-		// 		const files = await traverseDirectory(entry);
-		// 		fileList = [...fileList, ...files];
-		// 	} else {
-		// 		fileList.push(items[i].getAsFile());
-		// 	}
-		// }
+		// const numKeys = Object.keys(items);
+		// console.log(numKeys);
+		// console.log(items[0].webkitGetAsEntry());
+		// console.log(items[1].webkitGetAsEntry());
+		// console.log(numKeys.length);
+		// console.log(items.length);
+		// const numItems = items.length;
 
-		// console.log("fileList:", fileList);
+		// const items = Array.from(e.originalEvent.dataTransfer.items);
+		const items = e.originalEvent.dataTransfer.items;
+		console.log(items);
 
-		// for (let file of fileList) {
-		//   const uploadFileRes = await uploadFile(currentPath, file);
-		//   console.log("uploadFileRes: ", uploadFileRes);
-		// }
+		let entries = [];
+		for (let i = 0; i < items.length; i++) {
+			entries.push(items[i].webkitGetAsEntry());
+		}
+		console.log(entries);
+
+		let arr = [];
+		for (let i = 0; i < entries.length; i++) {
+			console.log(i);
+			// const item = items[i];
+			// console.log("item: ", item);
+			const entry = entries[i];
+			console.log("entry: ", entry, entry.isDirectory);
+
+			if (entry.isDirectory) {
+				const fileList = await traverseDirectory(entry);
+				arr.push(...fileList);
+			} else {
+				console.log("not isDirectory: ", entry);
+				const file = items[i].getAsFile();
+				arr.push(file);
+			}
+		}
+		console.log("arr: ", arr);
+		for (let element of arr) {
+      console.log(element);
+			const uploadFileRes = await uploadFile(currentPath, element);
+			console.log("uploadFileRes: ", uploadFileRes);
+		}
 	});
 });
 

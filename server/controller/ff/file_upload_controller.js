@@ -30,6 +30,7 @@ const uploadChangeDB = async (req, res, next) => {
 
 	const folders = fileWholePath.split("/");
 	folders.pop();
+  console.log("folders: ", folders);
 	const now = DateTime.utc();
   const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 	// get parentId
