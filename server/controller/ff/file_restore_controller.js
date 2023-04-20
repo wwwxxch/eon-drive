@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { DateTime } from "luxon";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -33,7 +34,8 @@ const restoreHistory = async (req, res) => {
 
 	// change table
 	const token = uuidv4();
-	const nowTime = Date.now();
+	const now = DateTime.utc();
+  const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 	const restore = await restoreFileToPrev(
 		token,
 		fileId,
@@ -73,7 +75,8 @@ const restoreDeleted = async (req, res) => {
 
 	for (let i = 0; i < restoreList.length; i++) {
     const token = uuidv4();
-    const nowTime = Date.now();
+    const now = DateTime.utc();
+    const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 		let key = restoreList[i];
 
 		if (key.endsWith("/")) {

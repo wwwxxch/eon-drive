@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 import dotenv from "dotenv";
 dotenv.config();
 const {	
@@ -34,7 +36,9 @@ const signUp = async (req, res) => {
   }
 
   // create user in DB
-  const nowTime = Date.now();
+  const now = DateTime.utc();
+  const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
+
   const createUserRes = await createUser(email, password, name, nowTime);
   
   // save user info to session

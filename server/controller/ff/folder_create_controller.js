@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import { v4 as uuidv4 } from "uuid";
 
 const { S3_MAIN_BUCKET_NAME } = process.env;
@@ -18,7 +19,8 @@ const createFolderS3AndDB = async (req, res) => {
 	console.log("createFolderS3AndDB: ", req.body);
 	const userId = req.session.user.id;
 	const { parentPath, folderName } = req.body;
-	const nowTime = Date.now();
+	const now = DateTime.utc();
+  const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 
 	// DB
 	let token;

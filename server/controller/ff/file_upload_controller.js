@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { DateTime } from "luxon";
 
 import { getFolderId, getFileId } from "../../model/db_ff_r.js";
 import { createFolder, createFile } from "../../model/db_ff_c.js";
@@ -29,7 +30,8 @@ const uploadChangeDB = async (req, res, next) => {
 
 	const folders = fileWholePath.split("/");
 	folders.pop();
-	const nowTime = Date.now();
+	const now = DateTime.utc();
+  const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 	// get parentId
 	let parentId = 0;
 	const token = uuidv4();
