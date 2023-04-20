@@ -4,7 +4,7 @@ import { getFileList } from "./api/list.js";
 import { deleteFile } from "./api/delete.js";
 import { downloadFile } from "./api/download.js";
 import { createLink } from "./api/share.js";
-import { formatTime } from "./util/util.js";
+import { formatTime, traverseDirectory } from "./util/util.js";
 // ==========================================================================
 
 // logout button
@@ -30,13 +30,13 @@ let table;
 function showList(obj) {
 	console.log("showList: ", obj);
 	if (obj.data.length === 0) {
-    console.log("obj.data.length === 0");
+		console.log("obj.data.length === 0");
 		$("#list-table").hide();
 		return;
 	} else {
-    console.log("obj.data.length !== 0");
-    $("#list-table").show();
-  }
+		console.log("obj.data.length !== 0");
+		$("#list-table").show();
+	}
 	const path = window.location.pathname.split("/").slice(2).join("/");
 	console.log(path);
 	table = $("#list-table").DataTable({
@@ -246,50 +246,52 @@ $("#list-table").on("click", ".get-link", async function () {
 	console.log(parentPath);
 	console.log(targetName);
 
-	$("#create-link-btn").off("click").on("click", async function () {
-		const access = $("input[name='access']:checked").val();
-		const email = $("#recipient").val().split(";");
-		// console.log(access);
-		// console.log(email);
-		// console.log(parentPath);
-		// console.log(targetName);
-		const getLink = await createLink(parentPath, targetName, access, email);
-		console.log("getLink: ", getLink);
-    $("#getLinkModal").modal("hide");
-    let inputForShareLink;
-		if (getLink.share_link) {
-			if (!inputForShareLink) {
-        inputForShareLink = $("<input>");
-        $("body").append(inputForShareLink);
-      }
-			inputForShareLink.val(getLink.share_link);
-			inputForShareLink.select();
+	$("#create-link-btn")
+		.off("click")
+		.on("click", async function () {
+			const access = $("input[name='access']:checked").val();
+			const email = $("#recipient").val().split(";");
+			// console.log(access);
+			// console.log(email);
+			// console.log(parentPath);
+			// console.log(targetName);
+			const getLink = await createLink(parentPath, targetName, access, email);
+			console.log("getLink: ", getLink);
+			$("#getLinkModal").modal("hide");
+			let inputForShareLink;
+			if (getLink.share_link) {
+				if (!inputForShareLink) {
+					inputForShareLink = $("<input>");
+					$("body").append(inputForShareLink);
+				}
+				inputForShareLink.val(getLink.share_link);
+				inputForShareLink.select();
 
-			const copyToClipboard = (text) => {
-				// navigator.clipboard
-				// 	.writeText(text)
-				// 	.then(() => {
-				// 		console.log("Text copied to clipboard");
-				// 	})
-				// 	.catch((err) => {
-				// 		console.error("Error copying text to clipboard:", err);
-				// 	});
-        
-        // TODO: 跳出視窗美化、剪貼簿設計
-        const input = document.createElement("textarea");
-				input.value = text;
-				document.body.appendChild(input);
-				input.select();
-				document.execCommand("copy");
-				document.body.removeChild(input);
-			};
+				const copyToClipboard = (text) => {
+					// navigator.clipboard
+					// 	.writeText(text)
+					// 	.then(() => {
+					// 		console.log("Text copied to clipboard");
+					// 	})
+					// 	.catch((err) => {
+					// 		console.error("Error copying text to clipboard:", err);
+					// 	});
 
-			copyToClipboard(getLink.share_link);
-			inputForShareLink.remove();
-			prompt("Here's your link: ", getLink.share_link);
-      // alert("Link has been copied");
-		}		
-	});
+					// TODO: 跳出視窗美化、剪貼簿設計
+					const input = document.createElement("textarea");
+					input.value = text;
+					document.body.appendChild(input);
+					input.select();
+					document.execCommand("copy");
+					document.body.removeChild(input);
+				};
+
+				copyToClipboard(getLink.share_link);
+				inputForShareLink.remove();
+				prompt("Here's your link: ", getLink.share_link);
+				// alert("Link has been copied");
+			}
+		});
 });
 
 // ==========================================================================
@@ -314,10 +316,122 @@ socket.on("listupd", (data) => {
 	console.log("pathTexts: ", pathTexts);
 
 	if (currentPath === data.parentPath) {
-    if ($("#list-table").is(":visible")) {
-      table.destroy();
-    }
+		if ($("#list-table").is(":visible")) {
+			table.destroy();
+		}
 		showList(data.list);
+	}
+});
+
+// =================================================================================
+// Drag & Drop
+$(function () {
+	$("#drag-drop-zone").on("dragenter", function (e) {
+		e.preventDefault();
+		$(this).addClass("drag-over");
+		$("#drag-drop-box").addClass("drag-over");
+	});
+
+	$("#drag-drop-zone").on("dragover", function (e) {
+		e.preventDefault();
+		$(this).addClass("drag-over");
+		$("#drag-drop-box").addClass("drag-over");
+	});
+
+	$("#drag-drop-zone").on("dragleave", function (e) {
+		$(this).removeClass("drag-over");
+		$("#drag-drop-box").removeClass("drag-over");
+	});
+
+	$("#drag-drop-zone").on("drop", async function (e) {
+		e.preventDefault();
+		$(this).removeClass("drag-over");
+		$("#drag-drop-box").removeClass("drag-over");
+
+		// send files to backend
+		// const fileList = e.originalEvent.dataTransfer.files;
+		// console.log("files: ", fileList);
+		const currentPath = $(".path-text")
+			.map(function () {
+				return $(this).text().trim();
+			})
+			.get()
+			.join("/");
+    
+      const items = Array.from(e.originalEvent.dataTransfer.items);
+      const files = [];
+      for (const item of items) {
+        if (item.kind === 'file') {
+          const entry = item.webkitGetAsEntry();
+          if (entry.isDirectory) {
+            const fileList = await traverseDirectory(entry);
+            files.push(...fileList);
+          } else {
+            files.push(item.getAsFile());
+          }
+        }
+      }
+      console.log('files:', files);
+		// let fileList = [];
+		// const items = e.originalEvent.dataTransfer.items;
+
+		// for (let i = 0; i < items.length; i++) {
+		// 	const entry = items[i].webkitGetAsEntry();
+		// 	if (entry.isDirectory) {
+		// 		const files = await traverseDirectory(entry);
+		// 		fileList = [...fileList, ...files];
+		// 	} else {
+		// 		fileList.push(items[i].getAsFile());
+		// 	}
+		// }
+
+		// console.log("fileList:", fileList);
+
+		// for (let file of fileList) {
+		//   const uploadFileRes = await uploadFile(currentPath, file);
+		//   console.log("uploadFileRes: ", uploadFileRes);
+		// }
+	});
+});
+
+$(function () {
+	const dropZone = $("#drag-drop-zone");
+
+	dropZone.on("drop", function (e) {
+		const files = e.originalEvent.dataTransfer.files;
+		handleFiles(files);
+	});
+
+	const dropBox = $("#drag-drop-box");
+
+	function handleFiles(files) {
+		// // 顯示拖曳的檔案
+		// for (let i = 0; i < files.length; i++) {
+		//   const file = files[i];
+		//   const img = $("<img>");
+		//   img.attr("src", URL.createObjectURL(file));
+		//   img.appendTo(dropBox);
+		// }
+
+		// 上傳檔案到後端
+		const formData = new FormData();
+		for (let i = 0; i < files.length; i++) {
+			formData.append("file[]", files[i]);
+		}
+		// TODO:
+		// $.ajax({
+		//   url: '/upload',
+		//   method: 'POST',
+		//   data: formData,
+		//   contentType: false,
+		//   processData: false,
+		//   success: function(response) {
+		//     console.log('Upload success:', response);
+		//   },
+		//   error: function(xhr, status, error) {
+		//     console.log('Upload error:', error);
+		//   }
+		// });
 	}
 });
 
