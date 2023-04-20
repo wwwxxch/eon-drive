@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import { iterForParentId, findFileIdByPath } from "../../service/path/iter.js";
 import { deleteRecur, permDeleteRecur } from "../../service/path/recur.js";
 import { markDeleteById } from "../../model/db_ff_d.js";
@@ -23,7 +24,8 @@ const deleteDB = async (req, res) => {
 	// req.body = { "delList": ["folder/", "file.ext"] }
 	const { delList, parentPath } = req.body;
 	const userId = req.session.user.id;
-	const nowTime = Date.now();
+	const now = DateTime.utc();
+  const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 
 	for (let i = 0; i < delList.length; i++) {
 		const key = delList[i];

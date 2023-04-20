@@ -29,7 +29,9 @@ if (isLogin) {
 	const history = await getFileHistory(fileWholePath);
 	// console.log(history);
 	const allRecords = [...history.versions, ...history.deleteRecords];
-	allRecords.sort((a, b) => b.operation_time - a.operation_time);
+  console.log(allRecords);
+	allRecords.sort((a, b) => new Date(b.operation_time) - new Date(a.operation_time));
+  console.log(allRecords);
 	let recDiv;
 	for (const rec of allRecords) {
 		const time = formatTime(rec.operation_time);
