@@ -3,7 +3,7 @@ import { createFolder } from "./api/create_folder.js";
 import { getFileList } from "./api/list.js";
 import { deleteFile } from "./api/delete.js";
 import { downloadFile } from "./api/download.js";
-import { createLink } from "./api/share.js";
+import { createLink, revokeLink } from "./api/share.js";
 import { formatTime, traverseDirectory } from "./util/util.js";
 // ==========================================================================
 
@@ -55,11 +55,11 @@ function showList(obj) {
 				data: "name",
 				render: function (data, type, row, meta) {
 					if (row.type === "folder") {
-						return `<span class="${row.type} ff_name">${data}</span>`;
+						return `<span class="${row.type} ff_name" data-id="${row.id}">${data}</span>`;
 					} else {
 						const uri = path === "" ? data : `${path}/${data}`;
 						return `<a class="file-link" href="/history/${uri}">
-                      <span class="${row.type} ff_name">${data}</span>
+                      <span class="${row.type} ff_name" data-id="${row.id}">${data}</span>
                       </a>
                     `;
 					}
@@ -85,7 +85,9 @@ function showList(obj) {
                   <button type="button" class="dropdown-item get-link"
                     data-bs-toggle="modal" data-bs-target="#getLinkModal">
                     get link</button>
-                  <button class="dropdown-item get-link">revoke link</button>
+                  <button type="button" class="dropdown-item revoke-link"
+                    data-bs-toggle="modal" data-bs-target="#revokeLinkModal">
+                    revoke link</button>
                 </div>
               </div>
             </div>
@@ -220,7 +222,10 @@ $(window).on("popstate", async function () {
 		});
 	}
 });
+// ===============================================================================
+// create share link
 
+// get link - email input
 $("input[name='access']").change(function () {
 	if ($(this).attr("id") == "access-user") {
 		$("#recipient").prop("disabled", false);
@@ -229,8 +234,6 @@ $("input[name='access']").change(function () {
 	}
 });
 
-// 按下 get-link 按鈕 -> 跳出視窗問要 public or private share
-// 按送出才真的送到後端去 create link
 // TODO: email validation & email search ......
 $("#list-table").on("click", ".get-link", async function () {
 	const targetName = $(this)
@@ -291,6 +294,29 @@ $("#list-table").on("click", ".get-link", async function () {
 				prompt("Here's your link: ", getLink.share_link);
 				// alert("Link has been copied");
 			}
+		});
+});
+
+// ===============================================================================
+// revoke share link
+$("#list-table").on("click", ".revoke-link", async function () {
+	const ff_id = $(this).closest("tr").find(".ff_name").data("id");
+	console.log(ff_id);
+
+	$("#revoke-link-btn")
+		.off("click")
+		.on("click", async function () {
+			const askRevokeLink = await revokeLink(ff_id);
+			console.log("askRevokeLink: ", askRevokeLink);
+			// TODO: response from backend
+			if (askRevokeLink) {
+				console.log("here");
+				$("#revokeAlertModal").modal("show");
+				setTimeout(function () {
+					$("#revokeAlertModal").modal("hide");
+				}, 2000);
+			}
+			$("#revokeLinkModal").modal("hide");
 		});
 });
 
@@ -397,54 +423,12 @@ $(function () {
 		}
 		console.log("arr: ", arr);
 		for (let element of arr) {
-      console.log(element);
+			console.log(element);
 			const uploadFileRes = await uploadFile(currentPath, element);
 			console.log("uploadFileRes: ", uploadFileRes);
 		}
 	});
 });
-
-$(function () {
-	const dropZone = $("#drag-drop-zone");
-
-	dropZone.on("drop", function (e) {
-		const files = e.originalEvent.dataTransfer.files;
-		handleFiles(files);
-	});
-
-	const dropBox = $("#drag-drop-box");
-
-	function handleFiles(files) {
-		// // 顯示拖曳的檔案
-		// for (let i = 0; i < files.length; i++) {
-		//   const file = files[i];
-		//   const img = $("<img>");
-		//   img.attr("src", URL.createObjectURL(file));
-		//   img.appendTo(dropBox);
-		// }
-
-		// 上傳檔案到後端
-		const formData = new FormData();
-		for (let i = 0; i < files.length; i++) {
-			formData.append("file[]", files[i]);
-		}
-		// TODO:
-		// $.ajax({
-		//   url: '/upload',
-		//   method: 'POST',
-		//   data: formData,
-		//   contentType: false,
-		//   processData: false,
-		//   success: function(response) {
-		//     console.log('Upload success:', response);
-		//   },
-		//   error: function(xhr, status, error) {
-		//     console.log('Upload error:', error);
-		//   }
-		// });
-	}
-});
-
 // =================================================================================
 // Upload
 $("#file-upload-btn").on("click", function () {
