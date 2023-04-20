@@ -1,3 +1,4 @@
+import { DateTime, Duration } from "luxon";
 import { getExpiredDeleted } from "../server/model/db_expiration.js";
 import { getFFInfoById } from "../server/model/db_ff_r.js";
 import { findParentPathByFFId } from "../server/service/path/iter.js";
@@ -7,8 +8,16 @@ import {
 } from "../server/model/db_ff_d.js";
 
 import dotenv from "dotenv";
-dotenv.config();
-const { S3_MAIN_BUCKET_NAME } = process.env;
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, "..", ".env") });
+
+const { EXPIRATION_DAY, EXPIRATION_MIN, S3_MAIN_BUCKET_NAME } = process.env;
+const DUR = parseInt(EXPIRATION_MIN) * 60; // min to sec
+// const DUR = parseInt(EXPIRATION_DAY) * 24 * 60 * 60 // day to sec
+
 import { s3clientGeneral } from "../server/service/s3/s3_client.js";
 import { deleteAllVersionsForOneObject } from "../server/service/s3/s3_delete.js";
 import { deleteObject } from "../server/service/s3/s3_delete.js";
@@ -16,9 +25,14 @@ import { deleteObject } from "../server/service/s3/s3_delete.js";
 // ============================================================================
 const clearDeleted = async () => {
   try {
-    const nowDT = Date.now();
-    const expiredDeletedList = await getExpiredDeleted(nowDT);
+    const now = DateTime.utc();
+    const duration = Duration.fromObject({ seconds: DUR });
+    const expiredDT = (now.minus(duration)).toFormat("yyyy-MM-dd HH:mm:ss");
+    console.log("expiredDT: ", expiredDT);
+
+    const expiredDeletedList = await getExpiredDeleted(expiredDT);
     if (expiredDeletedList.length === 0) {
+      console.log("no expired deleted file/folder");
       return;
     }
 
@@ -68,7 +82,7 @@ const clearDeleted = async () => {
       );
       console.log("deleteS3: ", deleteS3);
     }
-    console.log("clear deleted files/folders > expiration DT");
+    console.log("clear deleted files/folders < expiration DT");
     return true;
   } catch (e) {
     console.log("clearDeleted - error: ", e);

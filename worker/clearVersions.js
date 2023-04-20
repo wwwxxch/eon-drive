@@ -1,3 +1,4 @@
+import { DateTime, Duration } from "luxon";
 import {
   getFileIdWithVersionsExpired,
 	getExpiredVersionsById,
@@ -10,26 +11,40 @@ import {
 import { findParentPathByFFId } from "../server/service/path/iter.js";
 
 import dotenv from "dotenv";
-dotenv.config();
-const { S3_MAIN_BUCKET_NAME } = process.env;
-import { s3clientGeneral } from "../../service/s3/s3_client.js";
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, "..", ".env") });
+
+const { EXPIRATION_DAY, EXPIRATION_MIN, S3_MAIN_BUCKET_NAME } = process.env;
+const DUR = parseInt(EXPIRATION_MIN) * 60; // min to sec
+// const DUR = parseInt(EXPIRATION_DAY) * 24 * 60 * 60 // day to sec
+
+import { s3clientGeneral } from "../server/service/s3/s3_client.js";
 import { deleteObject } from "../server/service/s3/s3_delete.js";
 // =======================================================================
 const clearVersions = async () => {
 	try {
-		const nowDT = Date.now();
+		const now = DateTime.utc();
+    const duration = Duration.fromObject({ seconds: DUR });
+    const expiredDT = (now.minus(duration)).toFormat("yyyy-MM-dd HH:mm:ss");
+    console.log("expiredDT: ", expiredDT);
     // 1.
 		// find file with versions expired
-		const fileWithVersionsExpired = await getFileIdWithVersionsExpired(nowDT);
+		const fileWithVersionsExpired = await getFileIdWithVersionsExpired(expiredDT);
       // distinct ff_id, name, user_id
+    console.log("fileWithVersionsExpired: ", fileWithVersionsExpired);
 
 		for (const element of fileWithVersionsExpired) {
+      console.log("element: ", element);
 			// get expired versions by ff_id
 			const expiredVersions = await getExpiredVersionsById(
 				element.ff_id,
-				nowDT
+				expiredDT
 			);
         // file_ver_id, ver
+      console.log(expiredVersions);
 
 			const fileVerIdList = expiredVersions.map((item) => item.file_ver_id);
 			const fileVersionList = expiredVersions.map((item) => item.ver);
@@ -42,6 +57,8 @@ const clearVersions = async () => {
 			// get the whole path by ff_id
 			const parentPath = await findParentPathByFFId(element.ff_id);
 			const fullPath = parentPath.replace(/^Home\//, "") + element.name;
+      console.log("fullPath: ", fullPath);
+
 			for (const ver of fileVersionList) {
 				const deleteVerInS3 = await deleteObject(
 					s3clientGeneral,
@@ -51,19 +68,28 @@ const clearVersions = async () => {
         console.log("deleteVerInS3: ", deleteVerInS3);
 			}
 		}
-    console.log("clear versions > expiration DT");
+    if (fileWithVersionsExpired.length === 0) {
+      console.log("no versions < expiration DT");
+    } else {
+      console.log("clear versions < expiration DT");
+    }
 
     // 2.
 		// expired deleted records
-		const expiredDeletedRec = await getExpiredDeletedRec(nowDT);
-		if (expiredDeletedRec.length > 0) {
-			const deleteExpiredDeletedRecInDB = await deleteExpiredDeletedRec(
-				expiredDeletedRec
-			);
-			console.log("deleteExpiredDeletedRecInDB: ", deleteExpiredDeletedRecInDB);
-		}
+		const expiredDeletedRec = await getExpiredDeletedRec(expiredDT);
+    console.log("expiredDeletedRec: ", expiredDeletedRec);
+    
+    if (expiredDeletedRec.length === 0) {
+      console.log("no deleted records < expireation DT");
+      return;
+    }
+		
+    const deleteExpiredDeletedRecInDB = await deleteExpiredDeletedRec(
+      expiredDeletedRec
+    );
+    console.log("deleteExpiredDeletedRecInDB: ", deleteExpiredDeletedRecInDB);
 
-    console.log("clear deleted records > expiration DT");
+    console.log("clear deleted records < expiration DT");
     return true;
 	} catch (e) {
 		console.log("clearVersions - error: ", e);

@@ -1,14 +1,7 @@
 import { pool } from "./connection.js";
 
-import dotenv from "dotenv";
-dotenv.config();
-const { EXPIRATION_DAYS, EXPIRATION_MIN } = process.env;
-
-const DUR = parseInt(EXPIRATION_MIN) * 60; // min to sec
-// const DUR = parseInt(EXPIRATION_DAYS) * 24 * 60 * 60 // day to sec
-
-const getExpiredDeleted = async (currentDT) => {
-	const expiredDT = currentDT - DUR;
+// ==================================================================
+const getExpiredDeleted = async (expiredDT) => {
 	const [row] = await pool.query(
 		`
     SELECT ff_id FROM ff_delete WHERE deleted_at < ?
@@ -19,15 +12,14 @@ const getExpiredDeleted = async (currentDT) => {
 	return idList;
 };
 
-const getFileIdWithVersionsExpired = async (currentDT) => {
-	const expiredDT = currentDT - DUR;
+const getFileIdWithVersionsExpired = async (expiredDT) => {
 	const [row] = await pool.query(
 		`
     SELECT DISTINCT 
       a.id AS ff_id, a.name, a.user_id
     FROM ff AS a INNER JOIN file_ver AS b
     ON a.id = b.ff_id
-    WHERE a.is_current = 0 AND b.updated_at < ?
+    WHERE b.is_current = 0 AND b.updated_at < ?
   `,
 		expiredDT
 	);
@@ -35,12 +27,11 @@ const getFileIdWithVersionsExpired = async (currentDT) => {
 	return row;
 };
 
-const getExpiredVersionsById = async (ff_id, currentDT) => {
-  const expiredDT = currentDT - DUR;
+const getExpiredVersionsById = async (ff_id, expiredDT) => {
 	const [row] = await pool.query(
 		`
     SELECT id AS file_ver_id, ver 
-    FROM file_ver WHERE id = ? AND updated_at < ?
+    FROM file_ver WHERE is_current = 0 AND ff_id = ? AND updated_at < ?
   `,
 		[ff_id, expiredDT]
 	);
@@ -48,8 +39,7 @@ const getExpiredVersionsById = async (ff_id, currentDT) => {
 	return row;
 };
 
-const getExpiredDeletedRec = async (currentDT) => {
-	const expiredDT = currentDT - DUR;
+const getExpiredDeletedRec = async (expiredDT) => {
 	const [row] = await pool.query(
 		`
     SELECT a.id 
