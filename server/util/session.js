@@ -3,6 +3,7 @@ import RedisStore from "connect-redis";
 import { redis } from "./cache.js";
 
 dotenv.config();
+const sessionHour = parseInt(process.env.SESSION_HOUR);
 
 const redisStore = new RedisStore({
   client: redis,
@@ -17,7 +18,7 @@ const sessionConfig = {
   store: redisStore,
 	resave: false,
 	saveUninitialized: false,
-	cookie: { SameSite: "lax", maxAge: 5 * 60 * 60 * 1000 }, // 5 hours
+	cookie: { SameSite: "true", maxAge: sessionHour * 60 * 60 * 1000 },
   proxy: isProxy
 };
 

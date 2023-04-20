@@ -2,8 +2,10 @@ import express from "express";
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
-import session from "express-session";
+import session, { MemoryStore } from "express-session";
 import { sessionConfig } from "./server/util/session.js";
+// import RedisStore from "connect-redis";
+// import { redis } from "./server/util/cache.js";
 
 dotenv.config();
 const port = process.env.PORT;
@@ -15,6 +17,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 app.set("socketio", io);
 
+// ------------------------------------------------------------------------------
 // session
 const PROTOCOL =
 	process.env.NODE_ENV === "dev"
@@ -25,8 +28,34 @@ if (process.env.NODE_ENV === "prod") {
 	app.set("trust proxy", 1);
 	// sessionConfig.cookie.secure = true; // this is for HTTPS !!!
 }
+// const sessionHour = parseInt(process.env.SESSION_HOUR);
+// let isProxy = false;
+// if (process.env.NODE_ENV === "prod") isProxy = true;
+// const sessionConfig = {
+//   secret: process.env.SESSION_SECRET,
+//   store: new MemoryStore(),
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: { SameSite: "true", maxAge: sessionHour * 60 * 60 * 1000 },
+//   proxy: isProxy,
+// };
+// const sessionStoreChange = (req, res, next) => {
+//   if (!redis || redis.status !== "ready") {
+//     console.log("sessionStoreChange - MemoryStore");
+//     sessionConfig.store = new MemoryStore();
+//     console.log(sessionConfig);
+//   } else {
+//     console.log("sessionStoreChange - redis");
+//     sessionConfig.store = new RedisStore({ client: redis, prefix: "user:" });
+//     console.log(sessionConfig);
+//   }
+//   next();
+// };
+
+// app.use(sessionStoreChange);
 app.use(session(sessionConfig));
 
+// ------------------------------------------------------------------------------
 app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
