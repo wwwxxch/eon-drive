@@ -14,17 +14,6 @@ $("#logout-btn").on("click", async function (e) {
 	window.location.href = "/";
 });
 
-// check login status
-const chkLoginStatus = async () => {
-	try {
-		await axios.get("/login-status");
-		return true;
-	} catch (err) {
-		window.location.href = "/login";
-		return false;
-	}
-};
-
 // showList
 let table;
 function showList(obj) {
@@ -125,37 +114,36 @@ $(document).click(function (e) {
 });
 
 // show file list under root folder
-const isLogin = await chkLoginStatus();
-if (isLogin) {
-	// add root path
-	$("#whole-path").append(`
-    <a href="/home">
-      <h4><span class="path-text">Home</span></h4>
-    </a>
-  `);
 
-	const path = window.location.pathname.split("/").slice(2).join("/");
-	console.log("window.location.pathname: ", window.location.pathname);
-	console.log("path: ", path);
-	const list = await getFileList(path === "" ? "Home" : "Home/" + path);
-	showList(list);
+// add root path
+$("#whole-path").append(`
+  <a href="/home">
+    <h4><span class="path-text">Home</span></h4>
+  </a>
+`);
 
-	if (path !== "") {
-		const pathArray = path.split("/").reduce((prev, curr, i) => {
-			const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
-			return [...prev, folder];
-		}, []);
-		// console.log("pathArray: ", pathArray);
-		pathArray.forEach((item, i) => {
-			$("#whole-path").append(`
-        <span class="slash"> / </span>
-        <a href="/home/${item}">
-          <h4><span class="path-text">${item.split("/").pop()}</span></h4>
-        </a>
-      `);
-		});
-	}
+const path = window.location.pathname.split("/").slice(2).join("/");
+console.log("window.location.pathname: ", window.location.pathname);
+console.log("path: ", path);
+const list = await getFileList(path === "" ? "Home" : "Home/" + path);
+showList(list);
+
+if (path !== "") {
+  const pathArray = path.split("/").reduce((prev, curr, i) => {
+    const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
+    return [...prev, folder];
+  }, []);
+  // console.log("pathArray: ", pathArray);
+  pathArray.forEach((item, i) => {
+    $("#whole-path").append(`
+      <span class="slash"> / </span>
+      <a href="/home/${item}">
+        <h4><span class="path-text">${item.split("/").pop()}</span></h4>
+      </a>
+    `);
+  });
 }
+
 
 // click folder --> show lists under that folder
 $("#list-table").on("click", ".folder", async function () {

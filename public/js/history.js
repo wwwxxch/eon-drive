@@ -10,33 +10,22 @@ $("#logout-btn").on("click", async function (e) {
 	window.location.href = "/";
 });
 
-// check login status
-const chkLoginStatus = async () => {
-	try {
-		await axios.get("/login-status");
-		return true;
-	} catch (err) {
-		window.location.href = "/login";
-		return false;
-	}
-};
+const reqPath = window.location.pathname;
+const fileWholePath = reqPath.replace(/^\/history\//, "");
 
-const isLogin = await chkLoginStatus();
-if (isLogin) {
-  const reqPath = window.location.pathname;
-	const fileWholePath = reqPath.replace(/^\/history\//, "");
-
-	const history = await getFileHistory(fileWholePath);
-	// console.log(history);
-	const allRecords = [...history.versions, ...history.deleteRecords];
-  console.log(allRecords);
-	allRecords.sort((a, b) => new Date(b.operation_time) - new Date(a.operation_time));
-  console.log(allRecords);
-	let recDiv;
-	for (const rec of allRecords) {
-		const time = formatTime(rec.operation_time);
-		if (rec.operation === "deleted") {
-			recDiv = `
+const history = await getFileHistory(fileWholePath);
+// console.log(history);
+const allRecords = [...history.versions, ...history.deleteRecords];
+console.log(allRecords);
+allRecords.sort(
+	(a, b) => new Date(b.operation_time) - new Date(a.operation_time)
+);
+console.log(allRecords);
+let recDiv;
+for (const rec of allRecords) {
+	const time = formatTime(rec.operation_time);
+	if (rec.operation === "deleted") {
+		recDiv = `
         <div style="width: 100%;" 
             class="rec deleted-rec d-flex justify-content-between align-items-center py-3">
           <div class="operation-time col-3">${time}</div>
@@ -47,20 +36,20 @@ if (isLogin) {
           </div>
         <div>
       `;
-		} else if (rec.operation) {
-			let showSize;
-			if (rec.size < 1024) {
-				showSize = `${rec.size} bytes`;
-			} else if (rec.size < 1024 * 1024) {
-				showSize = `${Math.ceil(rec.size / 1024)} KB`;
-			} else if (rec.size < 1024 * 1024 * 1024) {
-				showSize = `${Math.ceil(rec.size / (1024 * 1024))} MB`;
-			} else if (rec.size < 1024 * 1024 * 1024 * 1024) {
-				showSize = `${Math.ceil(rec.size / (1024 * 1024 * 1024))} GB`;
-			}
+	} else if (rec.operation) {
+		let showSize;
+		if (rec.size < 1024) {
+			showSize = `${rec.size} bytes`;
+		} else if (rec.size < 1024 * 1024) {
+			showSize = `${Math.ceil(rec.size / 1024)} KB`;
+		} else if (rec.size < 1024 * 1024 * 1024) {
+			showSize = `${Math.ceil(rec.size / (1024 * 1024))} MB`;
+		} else if (rec.size < 1024 * 1024 * 1024 * 1024) {
+			showSize = `${Math.ceil(rec.size / (1024 * 1024 * 1024))} GB`;
+		}
 
-			if (rec.is_current === 1) {
-				recDiv = `
+		if (rec.is_current === 1) {
+			recDiv = `
         <div style="width: 100%;" 
             class="rec current-rec d-flex justify-content-between align-items-center py-3">
             <div class="operation-time col-3">${time}</div>
@@ -75,13 +64,13 @@ if (isLogin) {
             </div>
           <div>
         `;
-			} else {
-				const restoreDiv = `
+		} else {
+			const restoreDiv = `
           <button class="restore-btn btn btn-outline-secondary" data-version="${rec.ver}">
             Restore
           </button>
         `;
-				recDiv = `
+			recDiv = `
           <div style="width: 100%;" 
               class="rec previous-rec d-flex justify-content-between align-items-center py-3">
             <div class="operation-time col-3">${time}</div>
@@ -92,22 +81,21 @@ if (isLogin) {
             </div>
           <div>
         `;
-			}
 		}
-		$("#file-history").append(recDiv);
 	}
-
-  $(".rec").on("click", ".restore-btn", async function () {
-    const version = $(this).data("version");
-    // call recover function with version
-    console.log("recover version: ", version);
-    console.log("fileWholePath: ", fileWholePath);
-
-    const arr = fileWholePath.split("/");
-    const parentPath = arr.slice(0, arr.length-1).join("/");
-    console.log("parentPath: ", parentPath);
-
-    const askRestore = await restoreFile(version, fileWholePath, parentPath);
-    console.log("askRestore: ", askRestore);
-  });
+	$("#file-history").append(recDiv);
 }
+
+$(".rec").on("click", ".restore-btn", async function () {
+	const version = $(this).data("version");
+	// call recover function with version
+	console.log("recover version: ", version);
+	console.log("fileWholePath: ", fileWholePath);
+
+	const arr = fileWholePath.split("/");
+	const parentPath = arr.slice(0, arr.length - 1).join("/");
+	console.log("parentPath: ", parentPath);
+
+	const askRestore = await restoreFile(version, fileWholePath, parentPath);
+	console.log("askRestore: ", askRestore);
+});

@@ -1,6 +1,3 @@
-import { checkAuth } from "./api/auth.js";
-checkAuth();
-
 const registerReq = async () => {
   const name = $(".input-name").val();
   const email = $(".input-email").val();

@@ -106,17 +106,31 @@ const showProfile = async (req, res) => {
   return res.json({ data: { user: req.session.user } });
 };
 
-const loginStatus = async (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  console.log("loginStatus - user.id", req.session.user.id);
-  return res.json({ msg: "Authorized" }); 
-};
+// const loginStatus = async (req, res) => {
+//   if (!req.session.user) {
+//     return res.status(401).json({ error: "Unauthorized" });
+//   }
+//   console.log("loginStatus - user.id", req.session.user.id);
+//   return res.json({ msg: "Authorized" }); 
+// };
 
 const authentication = async (req, res, next) => {
   if (!req.session.user) {
     return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+};
+
+const loginRedirect = async (req, res, next) => {
+  if (req.session.user) {
+    return res.redirect("/home");
+  }
+  next();
+};
+
+const pageAuth = async (req, res, next) => {
+  if (!req.session.user) {
+    return res.redirect("/");
   }
   next();
 };
@@ -126,6 +140,8 @@ export {
   signIn,
   logOut,
   showProfile,
-  loginStatus,
-  authentication
+  // loginStatus,
+  authentication,
+  pageAuth,
+  loginRedirect
 };

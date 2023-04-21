@@ -1,6 +1,3 @@
-import { checkAuth } from "./api/auth.js";
-checkAuth();
-
 const loginReq = async () => {
   const email = $(".input-email").val();
   const password = $(".input-password").val();

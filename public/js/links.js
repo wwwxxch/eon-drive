@@ -7,23 +7,12 @@ $("#logout-btn").on("click", async function (e) {
 	window.location.href = "/";
 });
 
-// check login status
-const chkLoginStatus = async () => {
-	try {
-		await axios.get("/login-status");
-		return true;
-	} catch (err) {
-		window.location.href = "/login";
-		return false;
-	}
-};
-
 function showYouSharedList(obj) {
 	// if (obj.data.length === 0) {
 
 	// }
 	obj.data.forEach((item) => {
-    const revokeDiv = `
+		const revokeDiv = `
       <button class="revoke-btn btn btn-outline-secondary">
         Revoke Link
       </button>
@@ -70,18 +59,18 @@ function showYouSharedList(obj) {
         `;
 				})
 				.join("");
-        
-      cellAccess = $("<td>").append(
-        $("<div>")
-          .addClass("access d-flex justify-content-between align-items-start")
-          .append($("<div>").append($(userDiv)))
-          .append($(revokeDiv))
-      );
+
+			cellAccess = $("<td>").append(
+				$("<div>")
+					.addClass("access d-flex justify-content-between align-items-start")
+					.append($("<div>").append($(userDiv)))
+					.append($(revokeDiv))
+			);
 		}
 		const tr = $("<tr>").addClass("you-shared-row");
-    tr.attr("data-id", item.ff_id);
+		tr.attr("data-id", item.ff_id);
 		tr.append(cellFF, cellLink, cellAccess);
-    
+
 		$("#links-you-shared-tbody").append(tr);
 	});
 }
@@ -92,9 +81,9 @@ showYouSharedList(list);
 
 // revoke link
 $(".you-shared-row").on("click", ".revoke-btn", async function () {
-  const ff_id = $(this).closest("tr").data("id");
-  console.log(ff_id);
+	const ff_id = $(this).closest("tr").data("id");
+	console.log(ff_id);
 
-  const askRevokeLink = await revokeLink(ff_id);
-  console.log("askRevokeLink: ", askRevokeLink);
+	const askRevokeLink = await revokeLink(ff_id);
+	console.log("askRevokeLink: ", askRevokeLink);
 });

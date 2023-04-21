@@ -5,9 +5,7 @@ import {
   signUp,
   signIn,
   logOut,
-  showProfile,
-  loginStatus,
-  authentication 
+  showProfile
 } from "../../controller/user/user_auth_controller.js";
 
 // ======================================
@@ -22,6 +20,6 @@ router.get("/logout", /*authentication,*/ logOut);
 
 router.get("/profile", showProfile);
 
-router.get("/login-status", loginStatus);
+// router.get("/login-status", loginStatus);
 
 export { router as user_auth_route };
