@@ -21,7 +21,7 @@ import {
 } from "../../service/path/iter.js";
 import { restoreRecur } from "../../service/path/recur.js";
 
-import { emitNewList } from "../../service/sync/list.js";
+import { emitNewList, emitTrashList } from "../../service/sync/list.js";
 // ===================================================================================
 const restoreHistory = async (req, res) => {
 	console.log("restoreHistory ", req.body);
@@ -136,6 +136,8 @@ const restoreDeleted = async (req, res) => {
 	}
 	
 	// TODO: emit new trash list
+  const io = req.app.get("socketio");
+  emitTrashList(io, userId);
 
 	return res.send("ok");
 };

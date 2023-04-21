@@ -3,54 +3,69 @@ import { restoreDelete } from "./api/restore.js";
 import { formatTime } from "./util/util.js";
 import { permDeleteFile } from "./api/delete.js";
 // ==========================================================================
-const trashListRes = await getTrash();
-// console.log(trashListRes);
-$("#trash-table").DataTable({
-	data: trashListRes,
-	columns: [
-		{
-			data: "name",
-			render: function (data, type, row, meta) {
-				const tickboxValue =
-					row.type === "file"
-						? `${row.parentPath.replace(/^Home\//, "")}${row.name}`
-						: `${row.parentPath.replace(/^Home\//, "")}${row.name}/`;
-				const tickbox = `<input type="checkbox" name="trash-checkbox" value=${tickboxValue}>`;
-				return tickbox;
-			},
-		},
-		{
-			data: "name",
-			render: function (data, type, row, meta) {
-				const content = `
-            <div>
-              <div class="delete-name">${row.name}</div>
-              <div class="delete-parent-path">${row.parentPath}</div>
-            </div>
-          `;
-				return content;
-			},
-		},
-		{
-			data: "deleted_at",
-			render: function (data) {
-				return formatTime(data);
-			},
-		},
-	],
-	searching: false,
-	lengthChange: false,
-});
 
-$("input[name='trash-checkbox']").on("change", function () {
-	const selected = $("input[name='trash-checkbox']:checked");
-	if (selected.length > 0) {
-		$("#restore-delete-btn").show();
-		$("#perm-delete-btn").show();
-	} else {
-		$("#restore-delete-btn").hide();
-		$("#perm-delete-btn").hide();
-	}
+// show trash list
+let table;
+function showTrashList(input) {
+	table = $("#trash-table").DataTable({
+		data: input,
+		columns: [
+			{
+				data: "name",
+				render: function (data, type, row, meta) {
+					const tickboxValue =
+						row.type === "file"
+							? `${row.parentPath.replace(/^Home\//, "")}${row.name}`
+							: `${row.parentPath.replace(/^Home\//, "")}${row.name}/`;
+					const tickbox = `<input type="checkbox" name="trash-checkbox" value=${tickboxValue}>`;
+					return tickbox;
+				},
+			},
+			{
+				data: "name",
+				render: function (data, type, row, meta) {
+					const content = `
+              <div>
+                <div class="delete-name">${row.name}</div>
+                <div class="delete-parent-path">${row.parentPath}</div>
+              </div>
+            `;
+					return content;
+				},
+			},
+			{
+				data: "deleted_at",
+				render: function (data) {
+					return formatTime(data);
+				},
+			},
+		],
+		searching: false,
+		lengthChange: false,
+	});
+	$("input[name='trash-checkbox']").on("change", function () {
+		const selected = $("input[name='trash-checkbox']:checked");
+		if (selected.length > 0) {
+			$("#restore-delete-btn").show();
+			$("#perm-delete-btn").show();
+		} else {
+			$("#restore-delete-btn").hide();
+			$("#perm-delete-btn").hide();
+		}
+	});
+}
+
+const trashListRes = await getTrash();
+console.log("trashListRes: ", trashListRes);
+showTrashList(trashListRes);
+
+// ==========================================================================
+// socket.io
+const socket = io();
+socket.on("trashupd", (data) => {
+	console.log("socket.on trashupd: ", data);
+	table.destroy();
+	showTrashList(data.list);
 });
 
 // ==========================================================================
@@ -78,8 +93,6 @@ $("#select-all").on("change", function () {
 	}
 });
 
-// TODO: socket.io refresh
-
 // ==========================================================================
 // restore
 $("#restore-delete-btn").click(async function () {
@@ -91,6 +104,7 @@ $("#restore-delete-btn").click(async function () {
 
 	selected.prop("checked", false);
 });
+
 // perm delete
 $("#perm-delete-btn").click(async function () {
 	const selected = $("input[name='trash-checkbox']:checked");
