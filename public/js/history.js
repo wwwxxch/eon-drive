@@ -3,12 +3,6 @@ import { restoreFile } from "./api/restore.js";
 import { formatTime } from "./util/util.js";
 
 // ===================================================
-// logout button
-$("#logout-btn").on("click", async function (e) {
-	e.preventDefault();
-	const logoutReq = await axios.get("/logout");
-	window.location.href = "/";
-});
 
 const reqPath = window.location.pathname;
 const fileWholePath = reqPath.replace(/^\/history\//, "");

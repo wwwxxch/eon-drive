@@ -125,8 +125,7 @@ $("#fo-list-table").on("click", ".folder", async function() {
   `);
 });
 
-
-
+// download folder
 $(".fo-dl-btn").on("click", async function() {
   const pathTexts = $(".path-text")
   .map(function () {
@@ -142,6 +141,7 @@ $(".fo-dl-btn").on("click", async function() {
 	}
 });
 
+// download individual file/folder
 $(".individual-dl-btn").on("click", async function() {
   const pathTexts = $(".path-text")
   .map(function () {

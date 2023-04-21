@@ -3,14 +3,6 @@ import { restoreDelete } from "./api/restore.js";
 import { formatTime } from "./util/util.js";
 import { permDeleteFile } from "./api/delete.js";
 // ==========================================================================
-// logout button
-$(".logout-button").on("click", async function (e) {
-	e.preventDefault();
-	const logoutReq = await axios.get("/logout");
-	// console.log("logoutReq: ", logoutReq);
-	window.location.href = "/";
-});
-
 const trashListRes = await getTrash();
 // console.log(trashListRes);
 $("#trash-table").DataTable({

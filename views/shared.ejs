@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shared - EON Drive</title>
+  <%- include('./partials/stylesheet') %>
+  <%- include('./partials/script') %>
+  <!-- css internal -->
+  <style>
+
+    /* .d-flex {
+      border: 1px dashed;
+    } */
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <%- include('./partials/header') %>
+    <!-- main block start -->
+    <div class="container">
+      <div class="row">
+        <!-- left  -->
+        <%- include('./partials/left') %>
+        <!-- right  -->
+        <div class="col-11 d-flex flex-column align-items-start">
+
+          <div class="d-flex align-items-center justify-content-md-between my-2" style="width: 100%;">
+            <div>
+              <h4>Shared with You</h4>
+            </div>
+          </div>
+
+          <!-- sub -->
+          <div class="col-12 d-flex flex-column align-items-center mt-3">
+            <!-- table  -->
+            <div style="width: 100%;">
+              <table class="table table-hover" id="shared-with-list-table">
+                <thead class="table-header">
+                  <tr>
+                    <th scope="col">File / Folder</th>
+                    <th scope="col">Owner</th>
+                    <th scope="col">Link</th>
+                  </tr>
+                </thead>
+                <tbody id="shared-with-list-tbody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- main block end -->
+    </div>
+  </div>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/header.js"></script>
+  <script type="module" src="/js/shared.js"></script>
+  <script>
+    $(document).ready(function ()
+    {
+      $('.dropdown-toggle').dropdown();
+    });
+  </script>
+</body>
+
+</html>

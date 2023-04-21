@@ -7,13 +7,6 @@ import { createLink, revokeLink } from "./api/share.js";
 import { formatTime, traverseDirectory } from "./util/util.js";
 // ==========================================================================
 
-// logout button
-$("#logout-btn").on("click", async function (e) {
-	e.preventDefault();
-	const logoutReq = await axios.get("/logout");
-	window.location.href = "/";
-});
-
 // showList
 let table;
 function showList(obj) {
@@ -456,20 +449,6 @@ $(function () {
 			.get()
 			.join("/");
 
-		// const files = e.originalEvent.dataTransfer.files;
-		// console.log("files: ", files);
-		// const items = e.originalEvent.dataTransfer.items;
-		// console.log("items: ", items);
-
-		// const numKeys = Object.keys(items);
-		// console.log(numKeys);
-		// console.log(items[0].webkitGetAsEntry());
-		// console.log(items[1].webkitGetAsEntry());
-		// console.log(numKeys.length);
-		// console.log(items.length);
-		// const numItems = items.length;
-
-		// const items = Array.from(e.originalEvent.dataTransfer.items);
 		const items = e.originalEvent.dataTransfer.items;
 		console.log(items);
 
