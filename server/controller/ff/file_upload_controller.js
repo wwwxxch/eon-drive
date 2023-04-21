@@ -140,8 +140,9 @@ const uploadCommitDB = async (req, res) => {
 
 	const commit = await commitMetadata("done", token);
 	console.log("commit: ", commit);
-
-	emitNewList(req, userId, parentPath);
+  
+  const io = req.app.get("socketio");
+	emitNewList(io, userId, parentPath);
 
 	return res.json({ msg: "commit complete" });
 };

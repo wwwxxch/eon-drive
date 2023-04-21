@@ -73,7 +73,8 @@ const createFolderS3AndDB = async (req, res) => {
 	console.log("commit.affectedRows: ", commit.affectedRows);
 
 	// emit new list
-	emitNewList(req, userId, parentPath);
+  const io = req.app.get("socketio");
+	emitNewList(io, userId, parentPath);
 
 	return res.json({ msg: "ok" });
 };

@@ -59,7 +59,8 @@ const restoreHistory = async (req, res) => {
 	console.log("commit: ", commit);
 
 	// emit new list
-	emitNewList(req, userId, parentPath);
+  const io = req.app.get("socketio");
+	emitNewList(io, userId, parentPath);
 	// TODO: emit new history
 
 	return res.send("ok");

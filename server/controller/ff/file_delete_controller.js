@@ -55,7 +55,8 @@ const deleteDB = async (req, res) => {
 	req.session.user.used = currentUsed;
 
 	// emit list
-	emitNewList(req, userId, parentPath);
+  const io = req.app.get("socketio");
+	emitNewList(io, userId, parentPath);
 
 	return res.json({ msg: "delete" });
 };

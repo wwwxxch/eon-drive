@@ -421,7 +421,9 @@ socket.on("listupd", (data) => {
 		showList(data.list);
 	}
 });
-
+socket.on("notification", (data) => {
+  console.log("notification: ", data);
+});
 // =================================================================================
 // Drag & Drop
 $(function () {

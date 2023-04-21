@@ -30,7 +30,7 @@ const createPublicLink = async(ff_id, share_token) => {
   }
 };
 
-const createPrivateLink = async(ff_id, share_token, user_list) => {
+const createPrivateLink = async(ff_id, share_token, time, user_list) => {
   const conn = await pool.getConnection();
   try {
     console.log("START TRANSACTION - createPrivateLink");
@@ -42,9 +42,9 @@ const createPrivateLink = async(ff_id, share_token, user_list) => {
     
     for (const user of user_list) {
       const [share_link_perm] = await conn.query(`
-        INSERT INTO share_link_perm (ff_id, has_access)
-        VALUES (?, ?)
-      `, [ff_id, parseInt(user)]);
+        INSERT INTO share_link_perm (ff_id, has_access, created_at, is_read)
+        VALUES (?, ?, ?, 0)
+      `, [ff_id, parseInt(user), time]);
     }
 
     await conn.commit();
@@ -89,7 +89,7 @@ const changeLinkToPublic = async(ff_id) => {
   }
 };
 
-const changeLinkToPrivate = async(ff_id, user_list) => {
+const changeLinkToPrivate = async(ff_id, time, user_list) => {
   const conn = await pool.getConnection();
   try {
     console.log("START TRANSACTION - changeLinkToPrivate");
@@ -100,9 +100,9 @@ const changeLinkToPrivate = async(ff_id, user_list) => {
     
     for (const user of user_list) {
       const [share_link_perm] = await conn.query(`
-        INSERT INTO share_link_perm (ff_id, has_access)
-        VALUES (?, ?)
-      `, [ff_id, user]);
+        INSERT INTO share_link_perm (ff_id, has_access, created_at, is_read)
+        VALUES (?, ?, ?, 0 )
+      `, [ff_id, user, time]);
     }
 
     await conn.commit();
@@ -120,7 +120,7 @@ const changeLinkToPrivate = async(ff_id, user_list) => {
   }
 };
 
-const addUserToAcessList = async(ff_id, user_list) => {
+const addUserToAcessList = async(ff_id, time, user_list) => {
   // check if the user is already in the share_link_perm table
   // if yes - ignore
   // if no - add user
@@ -137,8 +137,10 @@ const addUserToAcessList = async(ff_id, user_list) => {
     for (const user of user_list) {
       if (!currentUser.includes(user)) {
         const [share_link_perm] = await conn.query(`
-          INSERT INTO share_link_perm (ff_id, has_access) VALUES (?, ?)
-        `, [ff_id, user]);
+          INSERT INTO 
+            share_link_perm (ff_id, has_access, created_at, is_read) 
+            VALUES (?, ?, ?, 0)
+        `, [ff_id, user, time]);
       }
     }
 
@@ -180,6 +182,7 @@ const getLinksSharedWithYou = async (has_access) => {
     SELECT
       a.ff_id,
       a.has_access,
+      a.created_at,
       b.name as ff_name, 
       c.name as owner, 
       CASE 
@@ -240,7 +243,6 @@ const deleteLinkByFFId = async(user_id, ff_id) => {
     await conn.release();
     console.log("RELEASE CONNECTION");
   }
-
 };
 
 export {

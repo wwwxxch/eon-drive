@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import dotenv from "dotenv";
 dotenv.config();
 const { NODE_ENV, LOCAL_HOST, PROD_HOST } = process.env;
@@ -95,13 +96,15 @@ const privateLink = async (req, res) => {
   const userList = await getMultipleUserId("email", access.user);
 
   let token;
+  const now = DateTime.utc();
+  const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
   if (!shareStatus.share_token) {
     // no link -> 
     // link to user table find other users' id &     
     // update ff table with share_token & 
     // update share_link_perm table
     token = shareTokenGenerator();
-    const createLinkRes  = await createPrivateLink(targetId, token, userList);
+    const createLinkRes  = await createPrivateLink(targetId, token, nowTime, userList);
     console.log("createLinkRes: ", createLinkRes);
   } else if (shareStatus.is_public === 1) {
     // public link -> return existed link
@@ -121,6 +124,15 @@ const privateLink = async (req, res) => {
     console.log("grantAccess: ", grantAccess);
     token = shareStatus.share_token;
   }
+
+  // emit notification 
+  const io = req.app.get("socketio");
+  userList.forEach(item => {
+    io.to(`user_${item}`).emit("notification", {
+      owner: userId,
+      ff: targetName
+    });
+  });
 
   const share_link = 
     type === "folder" ?

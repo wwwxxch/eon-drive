@@ -6,16 +6,13 @@ import session, { MemoryStore } from "express-session";
 import { sessionConfig } from "./server/util/session.js";
 // import RedisStore from "connect-redis";
 // import { redis } from "./server/util/cache.js";
+import { realTime } from "./server/service/sync/socket.js";
 
 dotenv.config();
 const port = process.env.PORT;
 
 const app = express();
 const server = http.createServer(app);
-
-// socket.io setup
-const io = new Server(server);
-app.set("socketio", io);
 
 // ------------------------------------------------------------------------------
 // session
@@ -56,6 +53,13 @@ if (process.env.NODE_ENV === "prod") {
 app.use(session(sessionConfig));
 
 // ------------------------------------------------------------------------------
+// socket.io setup
+const io = new Server(server);
+io.engine.use(session(sessionConfig));
+app.set("socketio", io);
+realTime(io);
+
+// --------------------------------------------------------------------------------
 app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
