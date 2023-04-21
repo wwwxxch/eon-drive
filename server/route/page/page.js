@@ -42,7 +42,7 @@ router.get("/history/*", pageAuth, async (req, res) => {
 	if (!fileId) {
 		return res.status(404).send("404");
 	}
-	return res.render("history", { fileName });
+	return res.render("history", { fileName, fileId });
 });
 
 router.get("/trash", pageAuth, (req, res) => {

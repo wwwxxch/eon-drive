@@ -21,7 +21,7 @@ import {
 } from "../../service/path/iter.js";
 import { restoreRecur } from "../../service/path/recur.js";
 
-import { emitNewList, emitTrashList } from "../../service/sync/list.js";
+import { emitNewList, emitHistoryList, emitTrashList } from "../../service/sync/list.js";
 // ===================================================================================
 const restoreHistory = async (req, res) => {
 	console.log("restoreHistory ", req.body);
@@ -61,7 +61,7 @@ const restoreHistory = async (req, res) => {
 	// emit new list
   const io = req.app.get("socketio");
 	emitNewList(io, userId, parentPath);
-	// TODO: emit new history
+  emitHistoryList(io, userId, fileId);
 
 	return res.send("ok");
 };

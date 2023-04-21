@@ -39,7 +39,9 @@
         <div class="col-11 d-flex flex-column align-items-start">
           <div class="d-flex align-items-center pb-3" >
             <h4>Version history : </h4>
-            <h4 class="ps-2" style="color: grey;"><%= fileName %></h4>
+            <h4 class="ps-2 file-name" data-id="<%= fileId %>" style="color: grey;">
+              <%= fileName %>
+            </h4>
           </div>
           <div class="d-flex justify-content-center" style="width: 100%;">
             <div id="file-history" style="width: 90%;"></div>
