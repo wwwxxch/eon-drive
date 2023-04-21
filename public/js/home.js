@@ -231,6 +231,9 @@ $("input[name='access']").change(function () {
 		$("#recipient").prop("disabled", false);
 	} else {
 		$("#recipient").prop("disabled", true);
+    $("#recipient").val("");
+    $(".email-list").empty();
+    $(".email-chips-container").empty();
 	}
 });
 
@@ -249,18 +252,100 @@ $("#list-table").on("click", ".get-link", async function () {
 	console.log(parentPath);
 	console.log(targetName);
 
+	// TODO: email auto-complete
+	$("#recipient").on("input", function () {
+		const text = $(this).val().trim();
+
+		if (text) {
+			axios
+				.get(`/select-user?q=${text}`)
+				.then((res) => {
+					const emails = res.data.list;
+					if (emails.length > 0) {
+						$(".email-list").empty();
+						emails.forEach((email) => {
+              // TODO: if this email has been displayed in $(".email-chips-container"), then no need to add it into list
+							const $emailItem = $("<div class='email-item'></div>");
+							$emailItem.text(email);
+							$emailItem.appendTo($(".email-list"));
+						});
+						$(".email-list").show();
+					} else {
+						$(".email-list").hide();
+					}
+				})
+				.catch((e) => {
+					console.error("selectableEmail: ", e);
+				});
+		} else {
+			$(".email-list").hide();
+		}
+	});
+
+	// Hide email list when user clicks outside of it
+	$(document).on("click", function (e) {
+		if (
+			!$(".email-list").is(e.target) &&
+			!$("#recipient").is(e.target) &&
+			$(".email-list").has(e.target).length === 0
+		) {
+      $("#recipient").val("");
+			$(".email-list").hide();
+		}
+	});
+
+	$(".email-list").off("click").on("click", ".email-item", function () {
+		const email = $(this).text();
+		const $emailChip = $(
+			`<div class="email-chip">
+        <span class="email-text"></span>
+        <button class="email-remove">&times;</button>
+      </div>`
+		);
+		$emailChip.find(".email-text").text(email);
+		$(".email-chips-container").append($emailChip);
+		$(this).remove();
+		$(".email-list").hide();
+		$("#recipient").val("");
+	});
+
+	$(".email-chips-container").off("click").on("click", ".email-remove", function () {
+		const $emailChip = $(this).parent(".email-chip");
+		const email = $emailChip.find(".email-text").text();
+		const $emailItem = $("<div class='email-item'></div>");
+		$emailItem.text(email);
+		$(".email-list").append($emailItem);
+		$(this).parent().remove();
+	});
+
+  $("#create-link-cancel-btn").off("click").on("click", function() {
+    $("#recipient").val("");
+    $(".email-list").empty();
+    $(".email-chips-container").empty();
+    $("input[id='access-anyone']").prop("checked", true);
+    $("input[id='access-user']").prop("checked", false);
+    $("#recipient").prop("disabled", true);
+  });
+
 	$("#create-link-btn")
 		.off("click")
 		.on("click", async function () {
 			const access = $("input[name='access']:checked").val();
-			const email = $("#recipient").val().split(";");
-			// console.log(access);
-			// console.log(email);
-			// console.log(parentPath);
-			// console.log(targetName);
-			const getLink = await createLink(parentPath, targetName, access, email);
+			const selectedEmails = [];
+			$(".email-chip")
+				.find(".email-text")
+				.each(function () {
+					selectedEmails.push($(this).text());
+				});
+
+			console.log(selectedEmails);
+
+			const getLink = await createLink(parentPath, targetName, access, selectedEmails);
 			console.log("getLink: ", getLink);
 			$("#getLinkModal").modal("hide");
+      $(".email-list").empty();
+      $(".email-chips-container").empty();
+
 			let inputForShareLink;
 			if (getLink.share_link) {
 				if (!inputForShareLink) {
@@ -416,7 +501,6 @@ $(function () {
 				const fileList = await traverseDirectory(entry);
 				arr.push(...fileList);
 			} else {
-				console.log("not isDirectory: ", entry);
 				const file = items[i].getAsFile();
 				arr.push(file);
 			}
