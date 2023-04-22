@@ -83,6 +83,7 @@ import { file_restore_route } from "./server/route/ff/file_restore_route.js";
 import { link_manage_route } from "./server/route/link/link_manage_route.js";
 import { link_list_route } from "./server/route/link/link_list_route.js";
 import { view_route } from "./server/route/view/view_route.js";
+import { notification_route } from "./server/route/notification/notification_route.js";
 
 app.use(
 	user_auth_route,
@@ -94,7 +95,8 @@ app.use(
 	file_restore_route,
 	link_manage_route,
   link_list_route,
-	view_route
+	view_route,
+  notification_route
 );
 
 // ---------------------------------------------------

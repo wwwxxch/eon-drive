@@ -3,7 +3,7 @@ import { createFolder } from "./api/create_folder.js";
 import { getFileList } from "./api/list.js";
 import { deleteFile } from "./api/delete.js";
 import { downloadFile } from "./api/download.js";
-import { createLink, revokeLink } from "./api/share.js";
+import { createLink, revokeLink, checkShareStatus } from "./api/share.js";
 import { formatTime, traverseDirectory } from "./util/util.js";
 // ==========================================================================
 
@@ -122,21 +122,20 @@ const list = await getFileList(path === "" ? "Home" : "Home/" + path);
 showList(list);
 
 if (path !== "") {
-  const pathArray = path.split("/").reduce((prev, curr, i) => {
-    const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
-    return [...prev, folder];
-  }, []);
-  // console.log("pathArray: ", pathArray);
-  pathArray.forEach((item, i) => {
-    $("#whole-path").append(`
+	const pathArray = path.split("/").reduce((prev, curr, i) => {
+		const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
+		return [...prev, folder];
+	}, []);
+	// console.log("pathArray: ", pathArray);
+	pathArray.forEach((item, i) => {
+		$("#whole-path").append(`
       <span class="slash"> / </span>
       <a href="/home/${item}">
         <h4><span class="path-text">${item.split("/").pop()}</span></h4>
       </a>
     `);
-  });
+	});
 }
-
 
 // click folder --> show lists under that folder
 $("#list-table").on("click", ".folder", async function () {
@@ -212,14 +211,56 @@ $("input[name='access']").change(function () {
 		$("#recipient").prop("disabled", false);
 	} else {
 		$("#recipient").prop("disabled", true);
-    $("#recipient").val("");
-    $(".email-list").empty();
-    $(".email-chips-container").empty();
+		$("#recipient").val("");
+		$(".email-list").empty();
+		$(".email-chips-container").empty();
 	}
 });
 
 // TODO: email validation & email search ......
 $("#list-table").on("click", ".get-link", async function () {
+	// TODO: call API to show who have the access
+	const targetId = $(this).closest("tr").find(".ff_name").data("id");
+	console.log("targetId: ", targetId);
+	const shareStatus = await checkShareStatus(targetId);
+	console.log(shareStatus);
+	$("#current-access-list").empty();
+	if (!shareStatus.share_link) {
+		$("#current-access-list").append(`
+      <div>Only you</div>
+    `);
+	} else if (shareStatus.is_public === 1) {
+		$("#current-access-list").append(`
+      <div>Anyone knows the link</div>
+      <div>
+        <a href="${shareStatus.share_link}">
+          ${window.location.origin}${shareStatus.share_link}      
+        </a>
+      </div>
+    `);
+	} else if (shareStatus.acl.length > 0) {
+		const userDiv = shareStatus.acl
+			.map((item) => {
+				return `
+          <div class="d-flex align-items-center">
+            <div>${item.name}&ensp;&ensp;</div>
+            <div style="font-size: smaller; color: rgb(86, 86, 86);">
+              ${item.email}
+            </div>
+          </div>
+        `;
+			})
+			.join("");
+		$("#current-access-list").append(`
+        <div>${userDiv}</div>
+        <div>
+          <a href="${shareStatus.share_link}">
+            ${window.location.origin}${shareStatus.share_link}      
+          </a>
+        </div>
+      `);
+	}
+
 	const targetName = $(this)
 		.closest("tr")
 		.find("input[name='list-checkbox']")
@@ -245,7 +286,7 @@ $("#list-table").on("click", ".get-link", async function () {
 					if (emails.length > 0) {
 						$(".email-list").empty();
 						emails.forEach((email) => {
-              // TODO: if this email has been displayed in $(".email-chips-container"), then no need to add it into list
+							// TODO: if this email has been displayed in $(".email-chips-container"), then no need to add it into list
 							const $emailItem = $("<div class='email-item'></div>");
 							$emailItem.text(email);
 							$emailItem.appendTo($(".email-list"));
@@ -270,43 +311,49 @@ $("#list-table").on("click", ".get-link", async function () {
 			!$("#recipient").is(e.target) &&
 			$(".email-list").has(e.target).length === 0
 		) {
-      $("#recipient").val("");
+			$("#recipient").val("");
 			$(".email-list").hide();
 		}
 	});
 
-	$(".email-list").off("click").on("click", ".email-item", function () {
-		const email = $(this).text();
-		const $emailChip = $(
-			`<div class="email-chip">
+	$(".email-list")
+		.off("click")
+		.on("click", ".email-item", function () {
+			const email = $(this).text();
+			const $emailChip = $(
+				`<div class="email-chip">
         <span class="email-text"></span>
         <button class="email-remove">&times;</button>
       </div>`
-		);
-		$emailChip.find(".email-text").text(email);
-		$(".email-chips-container").append($emailChip);
-		$(this).remove();
-		$(".email-list").hide();
-		$("#recipient").val("");
-	});
+			);
+			$emailChip.find(".email-text").text(email);
+			$(".email-chips-container").append($emailChip);
+			$(this).remove();
+			$(".email-list").hide();
+			$("#recipient").val("");
+		});
 
-	$(".email-chips-container").off("click").on("click", ".email-remove", function () {
-		const $emailChip = $(this).parent(".email-chip");
-		const email = $emailChip.find(".email-text").text();
-		const $emailItem = $("<div class='email-item'></div>");
-		$emailItem.text(email);
-		$(".email-list").append($emailItem);
-		$(this).parent().remove();
-	});
+	$(".email-chips-container")
+		.off("click")
+		.on("click", ".email-remove", function () {
+			const $emailChip = $(this).parent(".email-chip");
+			const email = $emailChip.find(".email-text").text();
+			const $emailItem = $("<div class='email-item'></div>");
+			$emailItem.text(email);
+			$(".email-list").append($emailItem);
+			$(this).parent().remove();
+		});
 
-  $("#create-link-cancel-btn").off("click").on("click", function() {
-    $("#recipient").val("");
-    $(".email-list").empty();
-    $(".email-chips-container").empty();
-    $("input[id='access-anyone']").prop("checked", true);
-    $("input[id='access-user']").prop("checked", false);
-    $("#recipient").prop("disabled", true);
-  });
+	$("#create-link-cancel-btn")
+		.off("click")
+		.on("click", function () {
+			$("#recipient").val("");
+			$(".email-list").empty();
+			$(".email-chips-container").empty();
+			$("input[id='access-anyone']").prop("checked", true);
+			$("input[id='access-user']").prop("checked", false);
+			$("#recipient").prop("disabled", true);
+		});
 
 	$("#create-link-btn")
 		.off("click")
@@ -321,11 +368,16 @@ $("#list-table").on("click", ".get-link", async function () {
 
 			console.log(selectedEmails);
 
-			const getLink = await createLink(parentPath, targetName, access, selectedEmails);
+			const getLink = await createLink(
+				parentPath,
+				targetName,
+				access,
+				selectedEmails
+			);
 			console.log("getLink: ", getLink);
 			$("#getLinkModal").modal("hide");
-      $(".email-list").empty();
-      $(".email-chips-container").empty();
+			$(".email-list").empty();
+			$(".email-chips-container").empty();
 
 			let inputForShareLink;
 			if (getLink.share_link) {
@@ -415,7 +467,7 @@ socket.on("listupd", (data) => {
 	}
 });
 socket.on("notification", (data) => {
-  console.log("notification: ", data);
+	console.log("notification: ", data);
 });
 // =================================================================================
 // Drag & Drop
