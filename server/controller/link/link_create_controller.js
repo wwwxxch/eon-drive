@@ -94,6 +94,7 @@ const privateLink = async (req, res) => {
   console.log("shareStatus: ", shareStatus);
   
   const userList = await getMultipleUserId("email", access.user);
+  console.log("userList: ", userList);
 
   let token;
   const now = DateTime.utc();
@@ -120,7 +121,7 @@ const privateLink = async (req, res) => {
     // link to user table find other users' id =>
     // check if this user is in share_link_perm table &
     // update share_link_perm table
-    const grantAccess = await addUserToAcessList(targetId, userList);
+    const grantAccess = await addUserToAcessList(targetId, nowTime, userList);
     console.log("grantAccess: ", grantAccess);
     token = shareStatus.share_token;
   }
