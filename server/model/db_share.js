@@ -245,6 +245,18 @@ const deleteLinkByFFId = async(user_id, ff_id) => {
   }
 };
 
+const getFFShareStatus = async(user_id, ff_id) => {
+  const [row] = await pool.query(`
+    SELECT a.type, a.share_token, a.is_public, c.name, c.email
+    FROM ff AS a 
+    LEFT JOIN share_link_perm AS b ON a.id = b.ff_id
+    LEFT JOIN user AS c ON b.has_access = c.id
+    WHERE a.user_id = ? AND a.id = ?
+  `, [user_id, ff_id]);
+
+  return row;
+};
+
 export {
   checkLinkByFFId,
   createPublicLink,
@@ -256,5 +268,6 @@ export {
   getTargetByLink,
   getLinksSharedWithYou,
   getLinksYouShared,
-  deleteLinkByFFId
+  deleteLinkByFFId,
+  getFFShareStatus
 };
