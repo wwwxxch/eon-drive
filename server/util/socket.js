@@ -1,4 +1,4 @@
-const realTime = (io) => {
+const socketConn = (io) => {
   io.use((socket, next) => {
     // const session = socket.request.session;
     const { user } = socket.request.session;
@@ -23,4 +23,4 @@ const realTime = (io) => {
   });
 };
 
-export { realTime };
+export { socketConn };
