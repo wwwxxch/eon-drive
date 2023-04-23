@@ -34,10 +34,14 @@ router.get("/history/*", pageAuth, async (req, res) => {
 	console.log(req.path);
 	const fileWholePath = req.path.replace(/^\/history\//, "");
   console.log("/history", fileWholePath);
-	const fileName = fileWholePath.split("/").pop();
+
+  const decodeFileWholePath = decodeURI(fileWholePath);
+  console.log(decodeFileWholePath);
+
+	const fileName = decodeFileWholePath.split("/").pop();
 	const userId = req.session.user.id;
 
-	const fileId = await findFileIdByPath(userId, fileWholePath);
+	const fileId = await findFileIdByPath(userId, decodeFileWholePath);
 	console.log("fileId: ", fileId);
 	if (!fileId) {
 		return res.status(404).send("404");

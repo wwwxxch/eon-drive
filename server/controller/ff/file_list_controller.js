@@ -15,8 +15,9 @@ const showList = async(req, res) => {
   // req.body = { "path": "" }
   const { path } = req.body;
   const userId = req.session.user.id;
-  
-  const getFileListRes = await getFileListByPath(userId, path);
+  const decodePath = decodeURI(path);
+  console.log(decodePath);
+  const getFileListRes = await getFileListByPath(userId, decodePath);
   return res.json({ data: getFileListRes.data });
 };
 
@@ -24,8 +25,9 @@ const showHistory = async(req, res) => {
   console.log("showHistory: ", req.body);
   const { fileWholePath } = req.body;
   const userId = req.session.user.id;
-  
-  const fileId = await findFileIdByPath(userId, fileWholePath);
+  const decodeFileWholePath = decodeURI(fileWholePath);
+  console.log(decodeFileWholePath);
+  const fileId = await findFileIdByPath(userId, decodeFileWholePath);
   console.log("fileId: ", fileId);
   
   const versions = await getVersionsByFileId(fileId);
