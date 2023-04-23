@@ -6,32 +6,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Profile - EON Drive</title>
   <%- include('../partials/main_stylesheet') %>
-  <%- include('../partials/main_script') %>
-  <!-- css internal -->
-  <style>
-    /* .d-flex {
-      border: 1px dashed;
-    } */
-
-  </style>
+    <%- include('../partials/main_script') %>
+      <!-- css internal -->
+      <style>
+        div {
+          /* border: 1px dashed; */
+        }
+        .footer-block {
+          position: fixed;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+        .user-name {
+          padding-top: 10vh;
+          padding-bottom: 2vh;
+        }
+        .item {
+          width: 12vw;
+        }
+        .content {
+          width: 15vw;
+        }
+      </style>
 </head>
 
 <body>
   <div id="root">
-    <%- include('../partials/main_header') %>
-    <!-- main block start -->
-    <div class="container content-block">
-      <div class="row">
-        <!-- left  -->
-        <%- include('../partials/main_left') %>
-        <!-- right  -->
-        <div class="col-11 d-flex flex-column align-items-start">
-          <!-- TODO: to be completed - profile & current usage -->
+    <%- include('../partials/profile_header') %>
+      <!-- main block start -->
+      <div class="container content-block w-75">
+        <div class="row">
+          <!-- left  -->
+          <%- include('../partials/main_left') %>
+            <!-- right  -->
+            <div class="col-11 d-flex justify-content-center">
+              <div class="row d-flex flex-column align-items-center">
+                <h2 class="user-name">
+                  <%= name %>
+                </h2>
+                <div class="d-flex">
+                  <div class="item">
+                    <p>Email: </p>
+                    <p>Registered Date: </p>
+                    <p>Plan: </p>
+                    <p>Current Usage: </p>
+                  </div>
+                  <div class="content">
+                    <p>
+                      <%= email %>
+                    </p>
+                    <p>
+                      <%= created_at.toLocaleString() %>
+                    </p>
+                    <p>
+                      <% if (plan === 1) { %>
+                        Basic
+                      <% } %>
+                      
+                    </p>
+                    <p>
+                      <%= currentUse %>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
         </div>
+        <!-- main block end -->
       </div>
-      <!-- main block end -->
-    </div>
-    <%- include('../partials/main_footer') %>
+      <%- include('../partials/view_footer') %>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>

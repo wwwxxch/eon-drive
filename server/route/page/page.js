@@ -13,6 +13,7 @@ import {
 } from "../../controller/user/user_auth_controller.js";
 
 import { findFileIdByPath } from "../../service/path/iter.js";
+import { getProfile } from "../../model/db_user.js";
 // =====================================================================================
 router.get("/", loginRedirect, (req, res) => {
   return res.render("view/index");
@@ -66,14 +67,21 @@ router.get("/links", pageAuth, (req, res) => {
   return res.render("main/links");
 });
 
-router.get("/profile", pageAuth, (req, res, next) => {
-  // if (!req.session.user) {
-  //   const err = new Error("Unauthorized: Access is denied due to invalid credentials.");
-  //     err.status = 401;
-  //     return next(err);
-  // }
+router.get("/profile", pageAuth, async (req, res) => {
+  const userId = req.session.user.id;
+  const profile = await getProfile(userId);
+  const { email, name, plan, allocated, used, created_at } = profile;
+  console.log(created_at);
+  const usedNum = parseInt(used);
+  const allocatedNum = parseInt(allocated);
+  const percent = (usedNum / allocatedNum) * 100;
+  const currentUse = `
+    ${(usedNum / (1024 * 1024)).toFixed(2)} MB / 
+    ${allocatedNum / (1024 * 1024)} MB (${percent.toFixed(2)}%)`;
 
-  return res.render("main/profile", { data: req.session.user });
+  return res.render("main/profile", { 
+    email, name, plan, currentUse, created_at
+  });
 });
 
 export { router as page };
