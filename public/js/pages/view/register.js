@@ -1,23 +1,25 @@
 const registerReq = async () => {
-  const name = $(".input-name").val();
-  const email = $(".input-email").val();
-  const password = $(".input-password").val();
+  const name = $("#username").val();
+  const email = $("#email").val();
+  const password = $("#password").val();
 
   try {
-    const loginRes = await axios.post("/signup", { name: name, email: email, password: password });
+    const loginRes = await axios.post("/signup", { name, email, password });
     if (loginRes.status === 200) {
-      console.log("signup success");
+      // console.log("signup success");
       window.location.href="/home";
     }
   } catch (err) {
     console.error("registerReq: ", err);
-    console.log(err.response.data);
+    $("#login-failed-modal").modal("show");
+    $("#login-err-msg").text(err.response.data.error);
   }
 };
 
-$(".input-button").on("click", function (e) {
+$(".login-btn").on("click", function (e) {
   e.preventDefault();
   registerReq();
-  $(".input-email").val("");
-  $(".input-password").val("");
+  $("#username").val("");
+  $("#email").val("");
+  $("#password").val("");
 });
