@@ -182,7 +182,6 @@ const getLinksSharedWithYou = async (has_access) => {
     SELECT
       a.ff_id,
       a.has_access,
-      a.created_at,
       b.name as ff_name, 
       c.name as owner, 
       CASE 
@@ -257,6 +256,31 @@ const getFFShareStatus = async(user_id, ff_id) => {
   return row;
 };
 
+const getLinksSharedNoti = async(has_access) => {
+  const [row] = await pool.query(`
+    SELECT
+      a.ff_id,
+      a.has_access,
+      a.created_at AS time_shared,
+      b.name as ff_name, 
+      c.name as owner
+    FROM share_link_perm AS a 
+      INNER JOIN ff AS b on a.ff_id = b.id
+      INNER JOIN user AS c on b.user_id = c.id
+    WHERE a.has_access = ? AND a.is_read = 0
+  `, has_access);
+  return row;
+};
+
+const changeNotiRead = async(has_access) => {
+  const [row] = await pool.query(`
+    UPDATE share_link_perm SET is_read = 1 
+    WHERE has_access = ? AND is_read = 0
+  `, has_access);
+
+  return row;
+};
+
 export {
   checkLinkByFFId,
   createPublicLink,
@@ -269,5 +293,7 @@ export {
   getLinksSharedWithYou,
   getLinksYouShared,
   deleteLinkByFFId,
-  getFFShareStatus
+  getFFShareStatus,
+  getLinksSharedNoti,
+  changeNotiRead
 };

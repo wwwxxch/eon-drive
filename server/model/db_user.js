@@ -76,6 +76,13 @@ const getPossibleUser = async (str) => {
 	return row.map((item) => item.email);
 };
 
+const getProfile = async (user_id) => {
+	const [row] = await pool.query(`
+    SELECT email, name, plan, allocated, used, created_at FROM user 
+    WHERE id = ?`, user_id);
+	return row[0];
+};
+
 export {
 	chkmail,
 	chkpair,
@@ -83,4 +90,5 @@ export {
 	createUser,
 	getMultipleUserId,
 	getPossibleUser,
+  getProfile
 };
