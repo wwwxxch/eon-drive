@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EON Drive</title>
+  <%- include('../partials/view_stylesheet') %>
+    <%- include('../partials/view_script') %>
+
+      <!-- css internal -->
+      <style>
+        .footer-block {
+          position: fixed;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: white;
+        }
+
+        .item-title {
+          font-size: 2vw;
+          font-weight: 600;
+        }
+
+        div {
+          /* border: 1px dashed; */
+        }
+      </style>
+</head>
+
+<body>
+  <div id="root">
+    <%- include('../partials/view_header') %>
+      <!-- Main Body  -->
+      <div class="w-75 container content-block d-flex align-items-center">
+        <div class="d-flex flex-column">
+          <div id="terms">
+            <div class="item-title">Terms and Conditions</div>
+            <div class="px-2">
+              <span>By using this website, you agree to the following terms and conditions:</span>
+              <ol>
+                <li><b>User Content:</b> You are solely responsible for any content you upload to our website. You
+                  represent and warrant that you have all necessary rights to such content and that it does not violate
+                  any laws or infringe on the rights of any third party. You agree not to upload any content that is
+                  obscene, offensive, defamatory, or otherwise objectionable.</li>
+                <li><b>Disclaimer of Liability:</b> You acknowledge and agree that your use of our website is at your
+                  own
+                  risk. We make no representations or warranties of any kind, whether express or implied, regarding the
+                  operation of our website, the information, content, materials or products on our website, or the
+                  results
+                  of any use thereof. To the fullest extent permitted by law, we disclaim all warranties, express or
+                  implied, including but not limited to implied warranties of merchantability, fitness for a particular
+                  purpose, and non-infringement.</li>
+                <li><b>Consequences of Violating These Terms:</b> We reserve the right to take any necessary action,
+                  including but not limited to limiting or terminating your account, removing your content, or pursuing
+                  legal action, if you violate these terms and conditions. </li>
+                <li><b>Limitation of Liability:</b> In no event shall we be liable to you or any third party for any
+                  direct, indirect, incidental, special, or consequential damages arising out of or in connection with
+                  your use of our website or the content, materials or products on our website, even if we have been
+                  advised of the possibility of such damages. </li>
+                <li><b>Indemnification:</b> You agree to indemnify and hold us harmless from and against any claims,
+                  damages, losses, liabilities, costs and expenses (including reasonable attorneys' fees) arising out of
+                  or in connection with your use of our website or any content you upload to our website. </li>
+                <li><b>Disclaimer Regarding Data Loss:</b> While we make reasonable efforts to ensure the security and
+                  integrity of user data, we cannot guarantee that the uploaded files will be permanently stored and
+                  available. We are not liable for any data loss or damage to user content, including but not limited to
+                  corruption, deletion, or unauthorized access. By using our service, you acknowledge and agree that you
+                  upload your content at your own risk and you are solely responsible for any loss or damage that may
+                  result. </li>
+                <li><b>Violation of Terms:</b> We reserve the right to terminate or suspend any user account or access
+                  to
+                  our service in the event of a violation of our terms and conditions. We may take any necessary action
+                  to
+                  enforce our policies, including but not limited to removing user content and reporting any illegal
+                  activity to the appropriate authorities. </li>
+                <li><b>Governing Law:</b> These terms and conditions shall be governed by and construed in accordance
+                  with
+                  the laws of Taiwan, without regard to its conflict of law provisions. Any disputes
+                  arising under or in connection with these terms and conditions shall be subject to the exclusive
+                  jurisdiction of the courts of Taiwan. </li>
+                <li><b>Changes to Terms and Conditions:</b> We reserve the right to modify, update or change these terms
+                  and conditions at any time, without prior notice to users. Your continued use of our service after
+                  such
+                  modifications will constitute your acceptance of the revised terms and conditions. </li>
+                <li><b>Entire Agreement:</b> These terms and conditions constitute the entire agreement between you and
+                  us
+                  regarding the use of our service and supersede any prior agreements, whether written or oral, relating
+                  to the same subject matter. </li>
+              </ol>
+            </div>
+          </div>
+          <div id="privacy">
+            <div class="item-title">Privacy Policy</div>
+            <div class="px-2">
+              <span>We take your privacy seriously. This policy outlines the types of personal information we collect
+                when you use our website, as well as how we use and protect that information.</span>
+              <ol>
+                <li>
+                  <b>Information We Collect:</b>
+                  When you use our website, we may collect certain personal information
+                  from you, including your name, email address, and IP address. We may also collect information about
+                  the device you are using to access our website, such as the type of device and browser you are using.
+                </li>
+                <li>
+                  <b>How We Use Your Information: </b>
+                  We may use your personal information to:
+                  <ul>
+                    <li>Respond to your inquiries and requests</li>
+                    <li>Provide you with information about our products and services</li>
+                    <li>Improve our website and services</li>
+                    <li>Comply with legal and regulatory requirements</li>
+                  </ul>
+                </li>
+                <span>We will never sell or rent your personal information to third parties.</span>
+                <li>
+                  <b>How We Protect Your Information:</b>
+                  We take reasonable measures to protect your personal information from unauthorized access, use, or
+                  disclosure. However, no data transmission over the internet or electronic storage system can be
+                  guaranteed to be 100% secure. Therefore, we cannot guarantee the security of any information you
+                  transmit to us.
+                </li>
+                <li>
+                  <b>Cookies:</b>
+                  Our website uses cookies to enhance your experience and analyze usage. You can choose to disable
+                  cookies in your browser settings, but please note that some features of our website may not function
+                  properly as a result.
+                </li>
+                <li>
+                  <b>Changes to This Policy:</b>
+                  We may update this policy from time to time. When we make changes, we will revise the "last updated"
+                  date at the top of this policy.
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <%- include('../partials/view_footer') %>
+  </div>
+
+  <!-- <script type="module" src="/js/pages/view/view_folder.js"></script> -->
+</body>
+
+</html>

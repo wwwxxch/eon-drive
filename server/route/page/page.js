@@ -25,6 +25,11 @@ router.get("/login", loginRedirect, (req, res) => {
 router.get("/register", loginRedirect, (req, res) => {
 	return res.render("view/register");
 });
+
+router.get("/info", (req, res) => {
+  return res.render("view/information");
+});
+
 // =====================================================================================
 router.get(/^\/home(\/.*)?$/, pageAuth, (req, res) => {
   return res.render("main/home");
@@ -61,10 +66,12 @@ router.get("/links", pageAuth, (req, res) => {
   return res.render("main/links");
 });
 
-router.get("/profile", pageAuth, (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+router.get("/profile", pageAuth, (req, res, next) => {
+  // if (!req.session.user) {
+  //   const err = new Error("Unauthorized: Access is denied due to invalid credentials.");
+  //     err.status = 401;
+  //     return next(err);
+  // }
 
   return res.render("main/profile", { data: req.session.user });
 });
