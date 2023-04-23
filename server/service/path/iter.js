@@ -32,6 +32,8 @@ const iterForParentId = async (userId, folders) => {
 const findFileIdByPath = async (userId, path) => {
 	const parents = path.split("/");
 	const child = parents.pop();
+  console.log("parents: ", parents);
+  console.log("child: ", child);
 	const parentId = await iterForParentId(userId, parents);
 	const [childResult] = await getNoDelFileId(userId, parentId, child);
 	console.log("findFileIdByPath: childResult: ", childResult);
