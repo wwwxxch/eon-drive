@@ -3,7 +3,7 @@ import { iterForParentId, findFileIdByPath } from "../../service/path/iter.js";
 import { deleteRecur, permDeleteRecur } from "../../service/path/recur.js";
 import { markDeleteById } from "../../model/db_ff_d.js";
 import { updateSpaceUsedByUser } from "../../model/db_plan.js";
-import { emitNewList, emitTrashList } from "../../service/sync/list.js";
+import { emitNewList, emitTrashList, emitUsage } from "../../service/sync/list.js";
 
 import { findDeletedFileIdByPath } from "../../service/path/iter.js";
 import { permDeleteByFileId } from "../../model/db_ff_d.js";
@@ -57,6 +57,7 @@ const deleteDB = async (req, res) => {
 	// emit list
   const io = req.app.get("socketio");
 	emitNewList(io, userId, parentPath);
+  emitUsage(io, userId, req.session.user);
 
 	return res.json({ msg: "delete" });
 };

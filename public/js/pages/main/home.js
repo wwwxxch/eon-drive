@@ -7,6 +7,18 @@ import { createLink, revokeLink, checkShareStatus } from "../../api/share.js";
 import { formatTime, traverseDirectory } from "../../util/util.js";
 // ==========================================================================
 
+//show usage
+const usageRes = await axios.get("/usage");
+const usedNum = parseInt(usageRes.data.used);
+const allocatedNum = parseInt(usageRes.data.allocated);
+const percent = (usedNum / allocatedNum) * 100;
+$(".progress-bar").css("width", percent);
+$("#progress-des").text(
+	`${(usedNum / (1024 * 1024)).toFixed(2)} MB / ${
+		allocatedNum / (1024 * 1024)
+	} MB`
+);
+
 // showList
 let table;
 function showList(obj) {
@@ -466,6 +478,18 @@ socket.on("listupd", (data) => {
 		showList(data.list);
 	}
 });
+socket.on("usageupd", (data) => {
+  const usedNum = parseInt(data.used);
+  const allocatedNum = parseInt(data.allocated);
+  const percent = (usedNum / allocatedNum) * 100;
+  $(".progress-bar").css("width", percent);
+  $("#progress-des").text(
+    `${(usedNum / (1024 * 1024)).toFixed(2)} MB / 
+    ${allocatedNum / (1024 * 1024)} MB`
+  );
+});
+
+// TODO: notification
 socket.on("notification", (data) => {
 	console.log("notification: ", data);
 });

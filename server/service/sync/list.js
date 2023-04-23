@@ -51,4 +51,11 @@ const emitTrashList = async (io, userId) => {
 	});
 };
 
-export { emitNewList, emitHistoryList, emitTrashList };
+const emitUsage = async (io, userId, userInSession) => {
+  io.to(`user_${userId}`).emit("usageupd", {
+		allocated: userInSession.allocated,
+		used: userInSession.used,
+	});
+};
+
+export { emitNewList, emitHistoryList, emitTrashList, emitUsage };

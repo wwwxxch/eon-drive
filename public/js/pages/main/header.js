@@ -13,6 +13,7 @@ $("#profile-btn").on("click", function(e) {
   window.location.href = "/profile";
 });
 
+// notification - sb share link with you
 const sharedWith = await askSharedWithList();
 console.log("sharedWith: ", sharedWith);
 if (sharedWith.data.length > 0) {

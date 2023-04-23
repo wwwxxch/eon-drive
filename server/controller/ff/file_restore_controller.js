@@ -13,7 +13,7 @@ import {
 	restoreDeletedFile,
 	commitMetadata,
 } from "../../model/db_ff_u.js";
-
+import { updateSpaceUsedByUser } from "../../model/db_plan.js";
 import {
 	iterForParentId,
 	findFileIdByPath,
@@ -21,7 +21,7 @@ import {
 } from "../../service/path/iter.js";
 import { restoreRecur } from "../../service/path/recur.js";
 
-import { emitNewList, emitHistoryList, emitTrashList } from "../../service/sync/list.js";
+import { emitNewList, emitHistoryList, emitTrashList, emitUsage } from "../../service/sync/list.js";
 // ===================================================================================
 const restoreHistory = async (req, res) => {
 	console.log("restoreHistory ", req.body);
@@ -58,10 +58,15 @@ const restoreHistory = async (req, res) => {
 	const commit = await commitMetadata("done", token);
 	console.log("commit: ", commit);
 
+  // update usage of an user
+	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
+	req.session.user.used = currentUsed;
+
 	// emit new list
   const io = req.app.get("socketio");
 	emitNewList(io, userId, parentPath);
   emitHistoryList(io, userId, fileId);
+  emitUsage(io, userId, req.session.user);
 
 	return res.send("ok");
 };
@@ -135,9 +140,16 @@ const restoreDeleted = async (req, res) => {
 		}
 	}
 	
-	// TODO: emit new trash list
+  // update usage of an user
+  const now = DateTime.utc();
+  const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
+	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
+	req.session.user.used = currentUsed;
+
+  // emit new list
   const io = req.app.get("socketio");
   emitTrashList(io, userId);
+  emitUsage(io, userId, req.session.user);
 
 	return res.send("ok");
 };

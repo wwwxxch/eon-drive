@@ -6,336 +6,372 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EON Drive</title>
   <%- include('../partials/main_stylesheet') %>
-  <%- include('../partials/main_script') %>
-  
-  <!-- css internal -->
-  <style>
-    /* div {
-      border: 1px dashed;
-    } */
+    <%- include('../partials/main_script') %>
 
-    #drag-drop-box {
-      font-size: 1.5vw;
-      border: 2px dashed lightgrey;
-      border-radius: 10px;
-      height: 100px;
-      margin-top: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    #drag-drop-zone.drag-over {
-      border: 2px dashed rgb(13, 110, 253);
-      border-radius: 10px;
-    }
-    #drag-drop-box.drag-over {
-      border: 2px dashed rgb(13, 110, 253);
-      background-color: rgb(245, 245, 245);
-    }
-    .slash {
-      padding: 0 6px 3px;
-      font-size: larger;
-    }
-    .form-check-input {
-      border-color: darkgray;
-    }
-    .folder {
-      cursor: pointer;
-    }
-    .folder:hover {
-      color: rgb(57, 120, 223);
-      font-weight: bold;
-    }
-    .file-link {
-      color: inherit;
-      text-decoration: none;
-    }
-    .file-link:hover {
-      color: rgb(64, 80, 207);
-      font-weight: bold;
-    }
-    .links-operation:hover {
-      cursor: pointer;
-    }
-    .links-operation-svg {
-      color: black;
-    }
-    .links-operation-svg:hover {
-      color: darkgrey
-    }
-  </style>
+      <!-- css internal -->
+      <style>
+        div {
+          /* border: 1px dashed; */
+        }
+
+        #drag-drop-box {
+          font-size: 1.5vw;
+          border: 2px dashed lightgrey;
+          border-radius: 10px;
+          height: 100px;
+          margin-top: 10px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        #drag-drop-zone.drag-over {
+          border: 2px dashed rgb(13, 110, 253);
+          border-radius: 10px;
+        }
+
+        #drag-drop-box.drag-over {
+          border: 2px dashed rgb(13, 110, 253);
+          background-color: rgb(245, 245, 245);
+        }
+
+        .slash {
+          padding: 0 6px 3px;
+          font-size: larger;
+        }
+
+        .form-check-input {
+          border-color: darkgray;
+        }
+
+        .folder {
+          cursor: pointer;
+        }
+
+        .folder:hover {
+          color: rgb(57, 120, 223);
+          font-weight: bold;
+        }
+
+        .file-link {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        .file-link:hover {
+          color: rgb(64, 80, 207);
+          font-weight: bold;
+        }
+
+        .links-operation:hover {
+          cursor: pointer;
+        }
+
+        .links-operation-svg {
+          color: black;
+        }
+
+        .links-operation-svg:hover {
+          color: darkgrey
+        }
+
+        .progress-bar-container {
+          width: 100%;
+          height: 2vh;
+          background-color: #f8f5ef;
+          border-radius: 5px;
+          overflow: hidden;
+        }
+
+        .progress-bar {
+          height: 100%;
+          background-color: #519cf6;
+          width: 50%;
+          transition: width 0.5s ease-in-out;
+        }
+
+        .email-container {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .form-control:focus {
+          border-color: #ced4da;
+          box-shadow: none;
+        }
+
+        .email-list {
+          top: calc(100% - 0px);
+          z-index: 1000;
+          background-color: #fff;
+          border-radius: 0 0 0.25rem 0.25rem;
+          border: 1px solid #ced4da;
+          border-top: none;
+          padding: 0 11px;
+        }
+
+        .email-item {
+          padding: 2px 0;
+        }
+
+        .email-item:hover {
+          cursor: pointer;
+        }
+
+        .email-chips-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 5px;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          background-color: #fff;
+          z-index: 999;
+          padding: 10px 0 0 0;
+        }
+
+        .email-chips-container .email-chip {
+          display: flex;
+          align-items: center;
+          background-color: #e0e0e0;
+          border-radius: 20px;
+          padding: 5px 10px;
+        }
+
+        .email-chips-container .email-chip .email-text {
+          margin-right: 10px;
+        }
+
+        .email-chips-container .email-chip .email-remove {
+          font-size: 12px;
+          color: #999;
+          cursor: pointer;
+          border-radius: 50%;
+          width: 16px;
+          height: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #fff;
+          border: none;
+          margin-left: 5px;
+          padding: 0;
+          outline: none;
+        }
+
+        .email-chips-container .email-chip .email-remove:hover {
+          font-weight: bolder;
+          background-color: #f2f2f2;
+        }
+      </style>
 </head>
 
 <body>
   <div id="root">
     <%- include('../partials/main_header') %>
-    <!-- main block start -->
-    <div class="container content-block">
-      <div class="row">
-        <!-- left  -->
-        <%- include('../partials/main_left') %>
-        <!-- right  -->
-        <div class="col-11 d-flex flex-column align-items-center" id="drag-drop-zone">
-          <!-- Drag Box -->
-          <div style="width: 98%;" id="drag-drop-box">
-            Drop files here to upload
-          </div>
-          <!-- PATH & USAGE -->
-          <div class="d-flex align-items-center justify-content-md-between my-2" style="width: 100%;">
-            <!-- whole path  -->
-            <div id="whole-path" class="d-flex align-items-center ps-2">
-            </div>
-            <!-- usage -->
-            <div class="mx-2" style="width: 20%;">
-              <div class="progress">
-                <div class="progress-bar progress-bar-striped bg-secondary" role="progressbar" style="width: 50%"
-                  aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+      <!-- main block start -->
+      <div class="container content-block">
+        <div class="row">
+          <!-- left  -->
+          <%- include('../partials/main_left') %>
+            <!-- right  -->
+            <div class="col-11 d-flex flex-column align-items-center" id="drag-drop-zone">
+              <!-- Drag Box -->
+              <div style="width: 98%;" id="drag-drop-box">
+                Drop files here to upload
               </div>
-            </div>
-          </div>
-          <!-- BUTTON  -->
-          <div style="width: 100%; height: 50px;" class="d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center">
-              <!-- Upload Buttons -->
-              <div class="dropdown me-3">
-                <button type="button" class="btn btn-light dropdown-toggle hidden-arrow" id="dropdownMenuButton1"
-                  data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-expanded="false">
-                  Upload</button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                  <li><button class="dropdown-item" id="file-upload-btn">Upload File</button></li>
-                  <li><button class="dropdown-item" id="folder-upload-btn">Upload Folder</button></li>
-                </ul>
-                <form id="file-form" style="display: none;">
-                  <input type="file" id="file-input" multiple>
-                </form>
-                <form id="folder-form" style="display: none;">
-                  <input type="file" id="folder-input" webkitdirectory multiple>
-                </form>
+              <!-- PATH & USAGE -->
+              <div class="d-flex align-items-center justify-content-md-between my-2" style="width: 100%;">
+                <!-- whole path  -->
+                <div id="whole-path" class="d-flex align-items-center ps-2">
+                </div>
+                <!-- usage -->
+                <div class="mx-2" style="width: 20%;">
+                  <div id="progress-des"></div>
+                  <div class="progress-bar-container">
+                    <div class="progress-bar"></div>
+                  </div>
+                </div>
               </div>
-              <!-- Create Folder Buttons -->
-              <div class="me-3">
-                <button type="button" class="btn btn-light" data-bs-toggle="modal"
-                  data-bs-target="#createFolderModal">Create Folder</button>
+              <!-- BUTTON  -->
+              <div style="width: 100%; height: 50px;" class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                  <!-- Upload Buttons -->
+                  <div class="dropdown me-3">
+                    <button type="button" class="btn btn-light dropdown-toggle hidden-arrow" id="dropdownMenuButton1"
+                      data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-expanded="false">
+                      Upload</button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                      <li><button class="dropdown-item" id="file-upload-btn">Upload File</button></li>
+                      <li><button class="dropdown-item" id="folder-upload-btn">Upload Folder</button></li>
+                    </ul>
+                    <form id="file-form" style="display: none;">
+                      <input type="file" id="file-input" multiple>
+                    </form>
+                    <form id="folder-form" style="display: none;">
+                      <input type="file" id="folder-input" webkitdirectory multiple>
+                    </form>
+                  </div>
+                  <!-- Create Folder Buttons -->
+                  <div class="me-3">
+                    <button type="button" class="btn btn-light" data-bs-toggle="modal"
+                      data-bs-target="#createFolderModal">Create Folder</button>
+                  </div>
+                  <!-- Create Folder Modal -->
+                  <div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="createFolderModalLabel">Create Folder</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <form id="folder-form">
+                            <div class="mb-3">
+                              <label for="create-folder-name" class="form-label">Folder Name</label>
+                              <input type="text" class="form-control" id="create-folder-name" name="folderName">
+                            </div>
+                          </form>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Cancel</button>
+                          <button type="button" class="btn btn-primary" id="create-btn">Create</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Download Button -->
+                  <div class="me-3" style="display: none;" id="download-btn-div">
+                    <button type="button" class="btn btn-light" id="download-btn">Download</button>
+                  </div>
+                  <!-- Delete Button -->
+                  <div class="me-3" style="display: none;" id="delete-btn-div">
+                    <button type="button" class="btn btn-secondary" id="delete-btn">Delete</button>
+                  </div>
+                </div>
               </div>
-              <!-- Create Folder Modal -->
-              <div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel"
+              <!-- LIST TABLE -->
+              <div id="list-and-info" class="d-flex align-items-start mb-4" style="width: 100%;">
+                <!-- table  -->
+                <div id="list-block" class="col-12">
+                  <table class="table" id="list-table">
+                    <thead class="table-header">
+                      <tr>
+                        <th><input type="checkbox" name="select-all" id="select-all"></th>
+                        <th>Name</th>
+                        <th>Modified</th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
+              <!-- Modal for get link  -->
+              <div class="modal fade" id="getLinkModal" tabindex="-1" aria-labelledby="getLinkModalLabel"
                 aria-hidden="true">
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title" id="createFolderModalLabel">Create Folder</h5>
+                      <h5 class="modal-title" id="getLinkModalLabel">Share with</h5>
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                      <form id="folder-form">
+                      <form>
                         <div class="mb-3">
-                          <label for="create-folder-name" class="form-label">Folder Name</label>
-                          <input type="text" class="form-control" id="create-folder-name" name="folderName">
+                          <label for="recipient" class="col-form-label">Email:</label>
+                          <div class="position-relative email-container">
+                            <input type="email" autocomplete="off" class="form-control" id="recipient" disabled>
+                            <div class="email-list position-absolute w-100 border rounded-top overflow-auto"
+                              style="display: none; max-height: 200px;"></div>
+                          </div>
+                          <div class="email-chips-container"></div>
                         </div>
+                        <div class="mb-3">
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" value="anyone" name="access" id="access-anyone"
+                              checked>
+                            <label class="form-check-label" for="access-anyone">
+                              Anyone knows the link
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" value="user" name="access" id="access-user">
+                            <label class="form-check-label" for="access-user">
+                              User
+                            </label>
+                          </div>
+                        </div>
+                        <div class="selected-emails mb-3"></div>
                       </form>
+                      <hr class="my-3">
+                      <div>
+                        <div>People with access: </div>
+                        <div id="current-access-list"></div>
+                      </div>
+                    </div>
+                    <div class="modal-footer flex-nowrap p-0">
+                      <button type="button"
+                        class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 border-end"
+                        data-bs-dismiss="modal" id="create-link-cancel-btn">Cancel</button>
+                      <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0"
+                        id="create-link-btn"><strong>Create Link</strong></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Modal for get link end  -->
+
+              <!-- Modal for revoke link  -->
+              <div class="modal fade" id="revokeLinkModal" tabindex="-1" aria-labelledby="revokeLinkModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="revokeLinkModalLabel">Revoke Share Link</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div>Are you sure to revoke the link?</div>
                     </div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                      <button type="button" class="btn btn-primary" id="create-btn">Create</button>
+                      <button type="button" class="btn btn-primary" id="revoke-link-btn">
+                        <!-- data-bs-toggle="modal" data-bs-target="#revokeAlertModal"> -->
+                        Yes
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        No
+                      </button>
+
                     </div>
                   </div>
                 </div>
               </div>
-              <!-- Download Button -->
-              <div class="me-3" style="display: none;" id="download-btn-div">
-                <button type="button" class="btn btn-light" id="download-btn">Download</button>
-              </div>
-              <!-- Delete Button -->
-              <div class="me-3" style="display: none;" id="delete-btn-div">
-                <button type="button" class="btn btn-secondary" id="delete-btn">Delete</button>
-              </div>
-            </div>
-          </div>
-          <!-- LIST TABLE -->
-          <div id="list-and-info" class="d-flex align-items-start mb-4" style="width: 100%;">
-            <!-- table  -->
-            <div id="list-block" class="col-12">
-              <table class="table" id="list-table">
-                <thead class="table-header">
-                  <tr>
-                    <th><input type="checkbox" name="select-all" id="select-all"></th>
-                    <th>Name</th>
-                    <th>Modified</th>
-                  </tr>
-                </thead>
-              </table>
-            </div>
-          </div>
-          <!-- Modal for get link  -->
-          <style>
-            .email-container {
-              display: flex;
-              flex-direction: column;
-            }
-
-            .form-control:focus {
-              border-color: #ced4da;
-              box-shadow: none;
-            }
-            .email-list {
-              top: calc(100% - 0px);
-              z-index: 1000;
-              background-color: #fff;
-              border-radius: 0 0 0.25rem 0.25rem;
-              border: 1px solid #ced4da;
-              border-top: none;
-              padding: 0 11px;
-            }
-            .email-item {
-              padding: 2px 0;
-            }
-            .email-item:hover {
-              cursor: pointer;
-            }
-                
-            .email-chips-container {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 5px;              
-              top: 100%;
-              left: 0;
-              width: 100%;
-              background-color: #fff;
-              z-index: 999;
-              padding: 10px 0 0 0;
-            }
-            .email-chips-container .email-chip {
-              display: flex;
-              align-items: center;
-              background-color: #e0e0e0;
-              border-radius: 20px;
-              padding: 5px 10px;
-            }
-            .email-chips-container .email-chip .email-text {
-              margin-right: 10px;
-            }
-            .email-chips-container .email-chip .email-remove {
-              font-size: 12px;
-              color: #999;
-              cursor: pointer;
-              border-radius: 50%;
-              width: 16px;
-              height: 16px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              background-color: #fff;
-              border: none;
-              margin-left: 5px;
-              padding: 0;
-              outline: none;
-            }
-            .email-chips-container .email-chip .email-remove:hover {
-              font-weight: bolder;
-              background-color: #f2f2f2;
-            } 
-          </style>
-          <div class="modal fade" id="getLinkModal" tabindex="-1" aria-labelledby="getLinkModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="getLinkModalLabel">Share with</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <form>
-                    <div class="mb-3">
-                      <label for="recipient" class="col-form-label">Email:</label>
-                      <div class="position-relative email-container">
-                        <input type="email" autocomplete="off" class="form-control" id="recipient" disabled>
-                        <div class="email-list position-absolute w-100 border rounded-top overflow-auto"
-                          style="display: none; max-height: 200px;"></div>
-                      </div>
-                      <div class="email-chips-container"></div>
-                    </div>
-                    <div class="mb-3">
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" value="anyone" name="access" id="access-anyone"
-                          checked>
-                        <label class="form-check-label" for="access-anyone">
-                          Anyone knows the link
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" value="user" name="access" id="access-user">
-                        <label class="form-check-label" for="access-user">
-                          User
-                        </label>
-                      </div>
-                    </div>
-                    <div class="selected-emails mb-3"></div>
-                  </form>
-                  <hr class="my-3" >
-                  <div>
-                    <div>People with access: </div>
-                    <div id="current-access-list"></div>
-                  </div>
-                </div>
-                <div class="modal-footer flex-nowrap p-0">
-                  <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 border-end" id="create-link-btn"><strong>Create Link</strong></button>
-                  <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0" data-bs-dismiss="modal" id="create-link-cancel-btn">Cancel</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Modal for get link end  -->
-
-          <!-- Modal for revoke link  -->
-          <div class="modal fade" id="revokeLinkModal" tabindex="-1" aria-labelledby="revokeLinkModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="revokeLinkModalLabel">Revoke Share Link</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <div>Are you sure to revoke the link?</div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-primary" id="revoke-link-btn">
-                    <!-- data-bs-toggle="modal" data-bs-target="#revokeAlertModal"> -->
-                    Yes
-                  </button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                    No
-                  </button>
-
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Modal for revoke link end  -->
-          <!-- Modal for revoke link alert  -->
-          <div class="modal fade" id="revokeAlertModal" tabindex="-1" aria-labelledby="revokeAlertModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <!-- <div class="modal-header">
+              <!-- Modal for revoke link end  -->
+              <!-- Modal for revoke link alert  -->
+              <div class="modal fade" id="revokeAlertModal" tabindex="-1" aria-labelledby="revokeAlertModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <!-- <div class="modal-header">
                     <h5 class="modal-title" id="revokeAlertModalLabel">Modal title</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div> -->
-                <div class="modal-body my-3">
-                  Your link has been revoked.
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <div class="modal-body my-3">
+                      Your link has been revoked.
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <!-- Modal for revoke link alert end -->
             </div>
-          </div>
-          <!-- Modal for revoke link alert end -->
         </div>
+        <!-- main block end -->
       </div>
-      <!-- main block end -->
-    </div>
-    <%- include('../partials/main_footer') %>
+      <%- include('../partials/main_footer') %>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>

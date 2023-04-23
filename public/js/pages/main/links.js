@@ -6,7 +6,7 @@ function showYouSharedList(obj) {
 	// }
 	obj.data.forEach((item) => {
 		const revokeDiv = `
-      <button class="revoke-btn btn btn-outline-secondary">
+      <button class="revoke-btn btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#revokeLinkModal">
         Revoke Link
       </button>
     `;
@@ -76,7 +76,20 @@ showYouSharedList(list);
 $(".you-shared-row").on("click", ".revoke-btn", async function () {
 	const ff_id = $(this).closest("tr").data("id");
 	console.log(ff_id);
+  $("#revoke-link-btn")
+		.off("click")
+		.on("click", async function () {
+			const askRevokeLink = await revokeLink(ff_id);
+			console.log("askRevokeLink: ", askRevokeLink);
+			// TODO: response from backend
+			if (askRevokeLink) {
+				console.log("here");
+				$("#revokeAlertModal").modal("show");
+				setTimeout(function () {
+					$("#revokeAlertModal").modal("hide");
+				}, 2000);
+			}
+			$("#revokeLinkModal").modal("hide");
+		});
 
-	const askRevokeLink = await revokeLink(ff_id);
-	console.log("askRevokeLink: ", askRevokeLink);
 });

@@ -21,7 +21,7 @@ import {
 	getMultiSignedUrl,
 } from "../../service/s3/s3_upload.js";
 
-import { emitNewList } from "../../service/sync/list.js";
+import { emitNewList, emitUsage } from "../../service/sync/list.js";
 // ======================================================================
 const uploadChangeDB = async (req, res, next) => {
 	console.log("uploadChangeDB: req.body: ", req.body);
@@ -143,7 +143,7 @@ const uploadCommitDB = async (req, res) => {
   
   const io = req.app.get("socketio");
 	emitNewList(io, userId, parentPath);
-
+  emitUsage(io, userId, req.session.user);
 	return res.json({ msg: "commit complete" });
 };
 

@@ -74,6 +74,7 @@ app.use(page);
 // --------------------------------------------------------------------------------
 // API
 import { user_auth_route } from "./server/route/user/user_auth_route.js";
+import { user_usage_route } from "./server/route/user/user_usage_route.js";
 import { file_upload_route } from "./server/route/ff/file_upload_route.js";
 import { folder_create_route } from "./server/route/ff/folder_create_route.js";
 import { file_list_route } from "./server/route/ff/file_list_route.js";
@@ -87,6 +88,7 @@ import { notification_route } from "./server/route/notification/notification_rou
 
 app.use(
 	user_auth_route,
+  user_usage_route,
 	file_upload_route,
 	folder_create_route,
 	file_list_route,
