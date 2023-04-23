@@ -1,4 +1,4 @@
-import { revokeLink, askYouSharedList } from "./api/share.js";
+import { revokeLink, askYouSharedList } from "../../api/share.js";
 // ===================================================
 function showYouSharedList(obj) {
 	// if (obj.data.length === 0) {

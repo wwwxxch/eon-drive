@@ -1,7 +1,7 @@
-import { getTrash } from "./api/list.js";
-import { restoreDelete } from "./api/restore.js";
-import { formatTime } from "./util/util.js";
-import { permDeleteFile } from "./api/delete.js";
+import { getTrash } from "../../api/list.js";
+import { restoreDelete } from "../../api/restore.js";
+import { formatTime } from "../../util/util.js";
+import { permDeleteFile } from "../../api/delete.js";
 // ==========================================================================
 
 // show trash list

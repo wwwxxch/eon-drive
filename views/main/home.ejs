@@ -4,14 +4,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="img/favicon.ico" rel="shortcut icon"/>
   <title>EON Drive</title>
-  <%- include('./partials/stylesheet') %>
-  <%- include('./partials/script') %>
+  <%- include('../partials/main_stylesheet') %>
+  <%- include('../partials/main_script') %>
   
   <!-- css internal -->
   <style>
+    /* div {
+      border: 1px dashed;
+    } */
+
     #drag-drop-box {
+      font-size: 1.5vw;
       border: 2px dashed lightgrey;
       border-radius: 10px;
       height: 100px;
@@ -20,70 +24,56 @@
       justify-content: center;
       align-items: center;
     }
-
     #drag-drop-zone.drag-over {
       border: 2px dashed rgb(13, 110, 253);
       border-radius: 10px;
     }
-
     #drag-drop-box.drag-over {
       border: 2px dashed rgb(13, 110, 253);
       background-color: rgb(245, 245, 245);
     }
-
-    .folder {
-      cursor: pointer;
-    }
-
-    .folder:hover {
-      color: rgb(57, 120, 223);
-      font-weight: bold;
-    }
-
     .slash {
       padding: 0 6px 3px;
       font-size: larger;
     }
-
     .form-check-input {
       border-color: darkgray;
     }
-
+    .folder {
+      cursor: pointer;
+    }
+    .folder:hover {
+      color: rgb(57, 120, 223);
+      font-weight: bold;
+    }
     .file-link {
       color: inherit;
       text-decoration: none;
     }
-
     .file-link:hover {
       color: rgb(64, 80, 207);
       font-weight: bold;
     }
-
     .links-operation:hover {
       cursor: pointer;
     }
-
     .links-operation-svg {
       color: black;
     }
-
     .links-operation-svg:hover {
       color: darkgrey
     }
-    /* div {
-      border: 1px dashed;
-    } */
   </style>
 </head>
 
 <body>
   <div id="root">
-    <%- include('./partials/header') %>
+    <%- include('../partials/main_header') %>
     <!-- main block start -->
-    <div class="container">
+    <div class="container content-block">
       <div class="row">
         <!-- left  -->
-        <%- include('./partials/left') %>
+        <%- include('../partials/main_left') %>
         <!-- right  -->
         <div class="col-11 d-flex flex-column align-items-center" id="drag-drop-zone">
           <!-- Drag Box -->
@@ -345,11 +335,12 @@
       </div>
       <!-- main block end -->
     </div>
+    <%- include('../partials/main_footer') %>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script type="module" src="/js/header.js"></script>
-  <script type="module" src="/js/home.js"></script>
+  <script type="module" src="/js/pages/main/header.js"></script>
+  <script type="module" src="/js/pages/main/home.js"></script>
   <script>
     $(document).ready(function ()
     {

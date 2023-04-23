@@ -1,10 +1,16 @@
-import { askSharedWithList } from "./api/share.js";
+import { askSharedWithList } from "../../api/share.js";
 
 // logout button
 $("#logout-btn").on("click", async function (e) {
 	e.preventDefault();
 	const logoutReq = await axios.get("/logout");
 	window.location.href = "/";
+});
+
+// profile button
+$("#profile-btn").on("click", function(e) {
+  e.preventDefault();
+  window.location.href = "/profile";
 });
 
 const sharedWith = await askSharedWithList();

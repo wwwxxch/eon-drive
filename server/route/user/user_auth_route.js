@@ -18,7 +18,7 @@ router.post("/signin", signIn);
 
 router.get("/logout", /*authentication,*/ logOut);
 
-router.get("/profile", showProfile);
+// router.get("/profile", showProfile);
 
 // router.get("/login-status", loginStatus);
 

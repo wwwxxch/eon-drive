@@ -1,5 +1,5 @@
-import { getShareFoList, downloadShareFo } from "./api/view.js";
-import { formatTime } from "./util/util.js";
+import { getShareFoList, downloadShareFo } from "../../api/view.js";
+import { formatTime } from "../../util/util.js";
 
 function showShareFoList(obj) {
 	if (obj.data.length === 0) {
@@ -10,7 +10,7 @@ function showShareFoList(obj) {
 	}
   obj.data.forEach(item => {
     const cellName = `
-      <td style="width: 50%">
+      <td style="width: 29vw">
         <div class="${item.type} ff" data-id="${item.id}">
           ${item.name}
         </div>
@@ -22,7 +22,7 @@ function showShareFoList(obj) {
         <td >
           <div class="d-flex justify-content-between">
             <div>
-              &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp--
+              --
             </div>
             
             <div>

@@ -1,4 +1,4 @@
-import { downloadShareFi } from "./api/view.js";
+import { downloadShareFi } from "../../api/view.js";
 
 // download file
 $(".fi-dl-btn").on("click", async function() {

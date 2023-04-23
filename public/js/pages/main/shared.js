@@ -1,4 +1,4 @@
-import { askSharedWithList } from "./api/share.js";
+import { askSharedWithList } from "../../api/share.js";
 // ===================================================
 function showSharedWithList(obj) {
   // if (obj.data.length === 0) {

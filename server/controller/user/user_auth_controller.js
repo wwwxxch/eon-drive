@@ -97,7 +97,7 @@ const logOut = async (req, res) => {
   // return res.json({ msg: "logout" });
   return res.redirect("/");
 };
-
+// TODO: profile page
 const showProfile = async (req, res) => {
   console.log("showProfile");
   if (!req.session.user) {
@@ -105,14 +105,6 @@ const showProfile = async (req, res) => {
   }
   return res.json({ data: { user: req.session.user } });
 };
-
-// const loginStatus = async (req, res) => {
-//   if (!req.session.user) {
-//     return res.status(401).json({ error: "Unauthorized" });
-//   }
-//   console.log("loginStatus - user.id", req.session.user.id);
-//   return res.json({ msg: "Authorized" }); 
-// };
 
 const authentication = async (req, res, next) => {
   if (!req.session.user) {

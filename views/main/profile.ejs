@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - EON Drive</title>
+  <%- include('../partials/main_stylesheet') %>
+  <%- include('../partials/main_script') %>
+  <!-- css internal -->
+  <style>
+    /* .d-flex {
+      border: 1px dashed;
+    } */
+
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <%- include('../partials/main_header') %>
+    <!-- main block start -->
+    <div class="container content-block">
+      <div class="row">
+        <!-- left  -->
+        <%- include('../partials/main_left') %>
+        <!-- right  -->
+        <div class="col-11 d-flex flex-column align-items-start">
+          <!-- TODO: to be completed - profile & current usage -->
+        </div>
+      </div>
+      <!-- main block end -->
+    </div>
+    <%- include('../partials/main_footer') %>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    $(document).ready(function ()
+    {
+      $('.dropdown-toggle').dropdown();
+    });
+  </script>
+</body>
+
+</html>

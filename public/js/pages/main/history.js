@@ -1,6 +1,6 @@
-import { getFileHistory } from "./api/list.js";
-import { restoreFile } from "./api/restore.js";
-import { formatTime } from "./util/util.js";
+import { getFileHistory } from "../../api/list.js";
+import { restoreFile } from "../../api/restore.js";
+import { formatTime } from "../../util/util.js";
 
 // ===================================================
 

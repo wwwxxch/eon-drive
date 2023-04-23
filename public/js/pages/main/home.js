@@ -1,10 +1,10 @@
-import { uploadFile } from "./api/upload.js";
-import { createFolder } from "./api/create_folder.js";
-import { getFileList } from "./api/list.js";
-import { deleteFile } from "./api/delete.js";
-import { downloadFile } from "./api/download.js";
-import { createLink, revokeLink, checkShareStatus } from "./api/share.js";
-import { formatTime, traverseDirectory } from "./util/util.js";
+import { uploadFile } from "../../api/upload.js";
+import { createFolder } from "../../api/create_folder.js";
+import { getFileList } from "../../api/list.js";
+import { deleteFile } from "../../api/delete.js";
+import { downloadFile } from "../../api/download.js";
+import { createLink, revokeLink, checkShareStatus } from "../../api/share.js";
+import { formatTime, traverseDirectory } from "../../util/util.js";
 // ==========================================================================
 
 // showList

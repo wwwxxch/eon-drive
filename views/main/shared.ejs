@@ -5,11 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shared - EON Drive</title>
-  <%- include('./partials/stylesheet') %>
-  <%- include('./partials/script') %>
+  <%- include('../partials/main_stylesheet') %>
+  <%- include('../partials/main_script') %>
   <!-- css internal -->
   <style>
-
     /* .d-flex {
       border: 1px dashed;
     } */
@@ -18,12 +17,12 @@
 
 <body>
   <div id="root">
-    <%- include('./partials/header') %>
+    <%- include('../partials/main_header') %>
     <!-- main block start -->
-    <div class="container">
+    <div class="container content-block">
       <div class="row">
         <!-- left  -->
-        <%- include('./partials/left') %>
+        <%- include('../partials/main_left') %>
         <!-- right  -->
         <div class="col-11 d-flex flex-column align-items-start">
 
@@ -54,12 +53,13 @@
       </div>
       <!-- main block end -->
     </div>
+    <%- include('../partials/main_footer') %>
   </div>
 
 
   <script src="/socket.io/socket.io.js"></script>
-  <script type="module" src="/js/header.js"></script>
-  <script type="module" src="/js/shared.js"></script>
+  <script type="module" src="/js/pages/main/header.js"></script>
+  <script type="module" src="/js/pages/main/shared.js"></script>
   <script>
     $(document).ready(function ()
     {
