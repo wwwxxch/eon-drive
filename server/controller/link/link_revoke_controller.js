@@ -7,7 +7,7 @@ const revokeLink = async (req, res) => {
 
   const revokeLinkInDB = await deleteLinkByFFId(userId, ff_id);
   console.log("revokeLinkInDB: ", revokeLinkInDB);
-  
+  // TODO: emit new link list
   return res.send("/revoke-link");
 };
 
