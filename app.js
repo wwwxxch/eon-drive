@@ -88,7 +88,7 @@ import { notification_route } from "./server/route/notification/notification_rou
 
 app.use(
 	user_auth_route,
-  user_usage_route,
+	user_usage_route,
 	file_upload_route,
 	folder_create_route,
 	file_list_route,
@@ -96,9 +96,9 @@ app.use(
 	file_download_route,
 	file_restore_route,
 	link_manage_route,
-  link_list_route,
+	link_list_route,
 	view_route,
-  notification_route
+	notification_route
 );
 
 // ---------------------------------------------------
@@ -112,15 +112,15 @@ app.get("/check", (req, res) => {
 // Errors
 app.use((req, res, next) => {
 	console.log("ERROR req.path: ", req.path);
-	const err = new Error("=====Page not found=====");
+	const err = new Error("The page you requested is not existed.");
 	err.status = 404;
 	next(err);
 });
 
 app.use((err, req, res, next) => {
-	res.status(err.status || 500).json({
-		status: err.status,
-		message: err.message,
+	res.status(err.status || 500).render("error/error", {
+		status: (err.status || 500),
+		message: (err.message || "Internal Server Error") ,
 		stack: err.stack,
 	});
 });

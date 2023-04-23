@@ -3,7 +3,7 @@ const socketConn = (io) => {
     // const session = socket.request.session;
     const { user } = socket.request.session;
     if (user) {
-      console.log(user.id);
+      // console.log(user.id);
       next();
     } else {
       next(new Error("unauthorized"));

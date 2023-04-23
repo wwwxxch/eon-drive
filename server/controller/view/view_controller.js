@@ -34,7 +34,7 @@ const shareTokenValid = async (req, res, next) => {
 	if (shareToken.length !== parseInt(process.env.SHARE_TOKEN_LENGTH)) {
 		console.log("shareToken: ", shareToken);
 		console.log("ERROR req.path: ", req.path);
-		const err = new Error("=====Page not found=====");
+		const err = new Error("The page you requested is not existed.");
 		err.status = 404;
 		return next(err);
 	}
@@ -50,7 +50,7 @@ const checkShareTarget = async (req, res, next) => {
 	// target: id, name, is_public, user_id, type
 	if (!target) {
 		console.log("ERROR req.path: ", req.path);
-		const err = new Error("=====Page not found=====");
+		const err = new Error("The page you requested is not existed.");
 		err.status = 404;
 		return next(err);
 	}
@@ -62,7 +62,7 @@ const checkShareTarget = async (req, res, next) => {
 		(target.type === "folder" && basePath !== "/view/fo/")
 	) {
 		console.log("ERROR req.path: ", req.path);
-		const err = new Error("=====Page not found=====");
+		const err = new Error("The page you requested is not existed.");
 		err.status = 404;
 		return next(err);
 	}
@@ -77,7 +77,10 @@ const checkSharePermission = async (req, res, next) => {
 	// check permission
 	if (target.is_public === 0) {
 		if (!req.session.user) {
-			return res.status(403).json({ msg: "No access" });
+      const err = new Error("You don't have the access to this resource.");
+      err.status = 403;
+      return next(err);
+			// return res.status(403).json({ msg: "No access" });
 		}
 
 		const userList = await getAccessList(target.id);
@@ -85,7 +88,9 @@ const checkSharePermission = async (req, res, next) => {
     console.log(userList);
     console.log(userId);
 		if (!userList.includes(userId) && userId !== target.user_id) {
-			return res.status(403).json({ msg: "No access" });
+			const err = new Error("You don't have the access to this resource.");
+      err.status = 403;
+      return next(err);
 		}
 	}
 	next();
