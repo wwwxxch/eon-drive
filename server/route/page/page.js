@@ -33,6 +33,7 @@ router.get(/^\/home(\/.*)?$/, pageAuth, (req, res) => {
 router.get("/history/*", pageAuth, async (req, res) => {
 	console.log(req.path);
 	const fileWholePath = req.path.replace(/^\/history\//, "");
+  console.log("/history", fileWholePath);
 	const fileName = fileWholePath.split("/").pop();
 	const userId = req.session.user.id;
 
