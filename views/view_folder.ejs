@@ -6,10 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EON Drive</title>
   <%- include('./partials/view_stylesheet') %>
+  <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Lato' type='text/css'>
+
     <%- include('./partials/view_script') %>
 
       <!-- css internal -->
       <style>
+        .footer-block {
+          position: fixed;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: white;
+        }
         .ff-row:hover .individual-dl-btn {
           display: block;
         }
@@ -42,7 +51,7 @@
   <div id="root">
     <%- include('./partials/view_header') %>
       <!-- Main Body  -->
-      <div class="container w-75">
+      <div class="container w-75 content-block">
         <div id="share-path" class="d-flex align-items-center py-2">
           <a href="/view/fo/<%= shareToken %>">
             <h3>
@@ -79,6 +88,7 @@
           </div>
         </div>
       </div>
+      <%- include('./partials/view_footer') %>
   </div>
 
   <script type="module" src="/js/view_folder.js"></script>

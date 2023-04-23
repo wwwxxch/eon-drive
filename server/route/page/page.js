@@ -15,19 +15,18 @@ import {
 import { findFileIdByPath } from "../../service/path/iter.js";
 // =====================================================================================
 router.get("/", loginRedirect, (req, res) => {
-	return res.sendFile(path.join(__dirname, "../../../views", "index.html"));
+  return res.render("index");
 });
 
 router.get("/login", loginRedirect, (req, res) => {
-	return res.sendFile(path.join(__dirname, "../../../views", "login.html"));
+  return res.render("login");
 });
 
 router.get("/register", loginRedirect, (req, res) => {
-	return res.sendFile(path.join(__dirname, "../../../views", "register.html"));
+	return res.render("register");
 });
 // =====================================================================================
 router.get(/^\/home(\/.*)?$/, pageAuth, (req, res) => {
-	// return res.sendFile(path.join(__dirname, "../../../views", "home.html"));
   return res.render("home");
 });
 
@@ -46,17 +45,14 @@ router.get("/history/*", pageAuth, async (req, res) => {
 });
 
 router.get("/trash", pageAuth, (req, res) => {
-	// return res.sendFile(path.join(__dirname, "../../../views", "trash.html"));
   return res.render("trash");
 });
 
 router.get("/shared", pageAuth, (req, res) => {
-	// return res.sendFile(path.join(__dirname, "../../../views", "shared.html"));
   return res.render("shared");
 });
 
 router.get("/links", pageAuth, (req, res) => {
-	// return res.sendFile(path.join(__dirname, "../../../views", "links.html"));
   return res.render("links");
 });
 

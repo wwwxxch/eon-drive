@@ -14,11 +14,11 @@ if (sharedWith.data.length > 0) {
   sharedWith.data.forEach(item => {
     console.log(item);
     const feed = `
-      <li>
+
         <div class="dropdown-item">
           ${item.owner} shared ${item.ff_name} with you.
         </div>
-      </li>
+
     `;
     $("#noti-ul").append(feed);
   });

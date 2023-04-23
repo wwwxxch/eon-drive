@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EON Drive - Register</title>
+  <%- include('./partials/view_stylesheet') %>
+    <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Lato' type='text/css'>
+
+    <%- include('./partials/view_script') %>
+      <link href="img/favicon.ico" rel="shortcut icon" />
+      <style>
+        * {
+          font-family: 'Lato', sans-serif !important;
+        }
+
+        /* div,
+        .nav {
+          border: 1px dashed;
+        } */
+
+        img {
+          height: 11vh;
+          max-height: 100%;
+          width: auto;
+        }
+
+        .header-btn {
+          padding: 1vh 1.7vh;
+          margin-bottom: 0.5vh;
+        }
+
+        .header-btn a {
+          color: black;
+          text-decoration: none;
+        }
+
+        .header-btn:hover {
+          background-color: #f8f5ef;
+        }
+
+        .header-btn span {
+          font-size: 1.3vw;
+        }
+
+        .login-title {
+          font-size: 2vw;
+        }
+
+        .card {
+          border: none;
+        }
+
+        .card-body {
+          padding: 1.5rem;
+        }
+
+        .form-check-input {
+          margin-right: 0.5rem;
+        }
+
+        .login-btn {
+          font-size: 1.2vw;
+          border: none;
+          background-color: #f8f5ef;
+        }
+
+        .login-btn:hover {
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .pwd-note {
+          font-size: 0.8vw;
+          color: rgb(113, 113, 113);
+        }
+
+        .note {
+          color: rgb(141, 141, 141);
+        }
+
+        .header-block {
+          background-color: white;
+          position: fixed;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 99;
+
+        }
+        .content-block {
+          padding-top: 10vh;
+          padding-bottom: 6vh;
+        }
+        .footer-block {
+          background-color: white;
+          color: rgb(141, 141, 141);
+        }
+
+        .footer-block a {
+          color: rgb(141, 141, 141);
+          text-decoration: none;
+        }
+
+        .footer-block a:hover {
+          color: rgb(105, 105, 105);
+        }
+
+        footer {
+          margin: 1vh 0;
+          padding: 1vh 0;
+        }
+      </style>
+</head>
+
+<body>
+  <div id="root">
+    <!-- header  -->
+    <div class="container w-75 header-block">
+      <header class="d-flex flex-wrap align-items-stretch justify-content-md-between border-bottom">
+        <div class="col-md-3 mb-2 mb-md-0">
+          <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+            <img src="img/header-logo.jpg">
+          </a>
+        </div>
+        <div class="col-md-2 d-flex justify-content-end align-items-end">
+          <div class="header-btn">
+            <a href="/login"><span>Login</span></a>
+          </div>
+        </div>
+      </header>
+    </div>
+    <!-- content  -->
+    <div class="content-block">
+      
+      <div class="modal fade" id="login-failed-modal" tabindex="-1" aria-labelledby="login-failed-modal-label"
+        aria-hidden="true">
+        <div class="modal-dialog w-25">
+          <div class="modal-content">
+            <div class="modal-body d-flex justify-content-center">
+              <div id="login-err-msg"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container mt-2">
+        <div class="row justify-content-center">
+          <div class="col-md-6 col-lg-5">
+            <div class="d-flex justify-content-center align-items-end mx-4 my-3">
+              <h4 class="card-title text-center"><b>Register</b></h4>
+            </div>
+            <div class="card shadow">
+              <div class="card-body">
+                <form>
+                  <div class="mb-3 d-flex">
+                    <div class="me-2 flex-fill">
+                      <label for="firstName" class="form-label">First Name<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="firstName" id="firstName" required
+                        placeholder="Enter First Name">
+                    </div>
+                    <div class="flex-fill">
+                      <label for="lastName" class="form-label">Last Name<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="lastName" id="lastName" required
+                        placeholder="Enter Last Name">
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email<span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" name="email" id="email" required placeholder="Enter Email"
+                      pattern="^[\-\w\.]+@([\-\w]+\.)+[\-\w]{2,4}$">
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="password" class="form-label">Password<span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" name="password" id="password" required
+                      placeholder="Enter Password"
+                      pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$">
+                    <div class="pwd-note px-2 mt-1">
+                      Use 8-16 characters with a mix of letters, numbers, and symbols (!@#$%^&*()_+)
+                    </div>
+                  </div>
+
+                  <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="agreeToTerms" required>
+                    <label class="form-check-label" for="agreeToTerms">
+                      I agree to the <a href="#">Terms and Conditions</a>
+                    </label>
+                  </div>
+
+                  <div class="d-flex justify-content-center pt-2 pb-3">
+                    <button type="submit" class="w-100 login-btn py-1">Continue</button>
+                  </div>
+
+                  <div class="d-flex justify-content-center py-1">
+                    <span class="note">Already have an account?&nbsp;&nbsp;
+                      <a class="my-2" href="/login">Login</a>
+                    </span>
+                  </div>
+
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- footer  -->
+    <div class="container w-75 footer-block">
+      <footer class="d-flex flex-wrap justify-content-between align-items-center border-top">
+        <ul class="nav justify-content-end">
+          <li class="nav-item"><a href="#" class="nav-link px-2">Terms and Conditions</a></li>
+          <li class="nav-item"><a href="#" class="nav-link px-2">Privacy Policy</a></li>
+          <li class="nav-item"><a href="#" class="nav-link px-2">Contact</a></li>
+        </ul>
+        <div class="d-flex align-items-center">
+          <div>© 2023 EON Drive</div>
+        </div>
+      </footer>
+    </div>
+
+</body>
+<script type="module" src="/js/register.js"></script>
+
+</html>

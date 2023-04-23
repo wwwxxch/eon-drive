@@ -8,24 +8,43 @@
     <%= name %> - EON Drive
   </title>
   <%- include('./partials/view_stylesheet') %>
+  <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Lato' type='text/css'>
+
     <%- include('./partials/view_script') %>
+  <style>
+    div {
+      /* border: 1px dashed; */
+    }
+    .footer-block {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .content {
+      width: 50vw;
+      padding-left: 10vw;
+    }
+  </style>
 </head>
 
 <body>
   <div id="root">
     <%- include('./partials/view_header') %>
       <!-- Main Body  -->
-      <div class="container w-50">
+      <div class="container content-block d-flex justify-content-center">
+        <div class="content">
         <h2 class="file-name">
           <%= name %>
         </h2>
-        <div class="row" style="height: 100px;">
-          <div class="col-2 d-flex flex-column justify-items-center pt-5 ps-3">
+
+        <div class="row pt-4 d-flex justify-content-start">
+          <div class="col-2 d-flex flex-column justify-items-center">
             <p>Size:</p>
             <p>Modified:</p>
             <p>Owner:</p>
           </div>
-          <div class="col-4 d-flex flex-column justify-items-center pt-5 ps-3">
+          <div class="col-5 d-flex flex-column justify-items-center">
             <p>
               <%= Math.ceil(size/1024) %> KB
             </p>
@@ -36,11 +55,13 @@
               <%= owner %>
             </p>
           </div>
-          <div class="col-6 d-flex align-items-center">
+          <div class="col-3 d-flex align-items-center">
             <button type="button" class="btn btn-outline-dark fi-dl-btn">Download</button>
           </div>
         </div>
       </div>
+      </div>
+    <%- include('./partials/view_footer') %>
   </div>
 
   <script type="module" src="/js/view_file.js"></script>

@@ -1,14 +1,66 @@
-<div class="container w-75">
-  <header
-    class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+<style>
+  * {
+    font-family: 'Lato', sans-serif !important;
+  }
+
+  /* div,
+  .nav {
+    border: 1px dashed;
+  } */
+
+  img {
+    height: 11vh;
+    max-height: 100%;
+    width: auto;
+  }
+
+  .header-btn {
+    padding: 1vh 1.7vh;
+    margin-bottom: 0.5vh;
+  }
+
+  .header-btn a {
+    color: black;
+    text-decoration: none;
+  }
+
+  .header-btn:hover {
+    background-color: #f8f5ef;
+  }
+
+  .header-btn span {
+    font-size: 1.3vw;
+  }
+  .header-block {
+    background-color: white;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99;
+
+  }
+
+  .content-block {
+    padding-top: 18vh;
+    padding-bottom: 6vh;
+  }
+
+</style>
+<div class="container w-75 header-block">
+  <header class="d-flex flex-wrap align-items-stretch justify-content-md-between border-bottom">
     <div class="col-md-3 mb-2 mb-md-0">
       <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
-        <h1>EON Drive</h1>
+        <img src="/img/header-logo.jpg">
       </a>
     </div>
-    <div class="col-md-3 text-end">
-      <button type="button" class="btn btn-dark me-4">Sign In</button>
-      <button type="button" class="btn btn-outline-dark">Sign Up</button>
+    <div class="col-md-2 d-flex justify-content-end align-items-end">
+      <div class="header-btn">
+        <a href="/login"><span>Login</span></a>
+      </div>
+      <div class="header-btn">
+        <a href="/register"><span>Register</span></a>
+      </div>
     </div>
   </header>
 </div>

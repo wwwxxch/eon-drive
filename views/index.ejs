@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Lato' type='text/css'>
+  <link href="img/favicon.ico" rel="shortcut icon" />
+  <title>EON Drive</title>
+  <style>
+    * {
+      margin: 0;
+      font-family: 'Lato', sans-serif !important;
+    }
+
+    /* div {
+      border: 1px dashed;
+    } */
+
+    #main-block {
+      display: flex;
+    }
+
+    #img-block {
+      margin-left: 14vw;
+    }
+
+    img {
+      padding-top: 12vh;
+      width: 35vw;
+      max-width: 100%;
+      height: auto;
+      padding-bottom: 2vh;
+    }
+
+    #title-block {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    #title {
+      font-weight: xx-large;
+      font-size: 7vw;
+    }
+
+    #start-btn {
+      display: flex;
+      justify-content: center;
+      padding-top: 6vh;
+    }
+
+    span {
+      font-size: 1.5vw;
+      letter-spacing: 2px;
+      font-family: Arial, sans-serif !important;
+    }
+
+    #start-btn a {
+      display: inline-block;
+      position: relative;
+      text-decoration: none;
+      color: #000;
+    }
+
+    #start-btn a span {
+      transition: all 0.2s ease-in-out;
+    }
+
+    #start-btn a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: #000;
+      transition: all 0.2s ease-in-out;
+    }
+
+    #start-btn a:hover::after {
+      width: 100%;
+    }
+
+    #start-btn a:hover span {
+      color: #000;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <div id="main-block">
+      <div id="img-block">
+        <img src="img/index-2.png">
+      </div>
+      <div id="title-block">
+        <h1 id="title">EON Drive</h1>
+        <div id="start-btn">
+          <a href="/login"><span>Start Now</span></a>
+        </div>
+      </div>
+    </div>
+    <!-- <style>
+      footer {
+        position: fixed;
+        bottom: 0;
+        height: 50px;
+        width: 100%;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        line-height: 50px;
+      }
+      #copy {
+        color: #fff;
+      }
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      li {
+        display: inline-block;
+        margin-right: 20px;
+      }
+
+      .footer-a {
+        color: #000;
+        text-decoration: none;
+      }
+    </style> -->
+    <!-- <footer>
+      <div id="copy"> &copy; 2023 Eon Drive </div>
+      <ul>
+        <li><a class="footer-a" href="/about">About</a></li>
+        <li><a class="footer-a" href="/privacy-policy">Privacy Policy</a></li>
+      </ul>
+    </footer> -->
+</body>
+
+</html>
