@@ -89,26 +89,14 @@
 
         }
         .content-block {
-          padding-top: 10vh;
-          padding-bottom: 4vh;
+          padding-top: 14vh;
+          padding-bottom: 16vh;
         }
         .footer-block {
-          background-color: white;
-          color: rgb(141, 141, 141);
-        }
-
-        .footer-block a {
-          color: rgb(141, 141, 141);
-          text-decoration: none;
-        }
-
-        .footer-block a:hover {
-          color: rgb(105, 105, 105);
-        }
-
-        footer {
-          margin: 1vh 0;
-          padding: 1vh 0;
+          position: fixed;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
         }
       </style>
 </head>
@@ -213,7 +201,8 @@
       </div>
     </div>
     <!-- footer  -->
-    <div class="container w-75 footer-block">
+    <%- include('../partials/view_footer') %>
+    <!-- <div class="container w-75 footer-block">
       <footer class="d-flex flex-wrap justify-content-between align-items-center">
         <ul class="nav justify-content-end">
           <li class="nav-item"><a href="/info" class="nav-link px-2">Terms and Conditions</a></li>
@@ -224,7 +213,7 @@
           <div>© 2023 EON Drive</div>
         </div>
       </footer>
-    </div>
+    </div> -->
 
 </body>
 <script type="module" src="/js/pages/view/register.js"></script>
