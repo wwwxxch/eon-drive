@@ -285,11 +285,11 @@ const getLinksSharedNoti = async(has_access, is_read, offset = 5) => {
   return row;
 };
 
-const changeNotiRead = async(has_access) => {
+const changeNotiRead = async(has_access, share_id) => {
   const [row] = await pool.query(`
     UPDATE share_link_perm SET is_read = 1 
-    WHERE has_access = ? AND is_read = 0
-  `, has_access);
+    WHERE has_access = ? AND id = ?
+  `, [has_access, share_id]);
 
   return row;
 };

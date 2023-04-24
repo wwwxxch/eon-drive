@@ -9,9 +9,9 @@ const askNoti = async () => {
 	}
 };
 
-const changeUnreadStatus = async() => {
+const changeUnreadStatus = async(shareId) => {
   try {
-		const change = await axios.get("/read");
+		const change = await axios.get(`/read?shareId=${shareId}`);
 		// console.log("change: ", change);
 		return change.data;
 	} catch (e) {

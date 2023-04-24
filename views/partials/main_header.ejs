@@ -121,11 +121,56 @@
           </svg>
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
-          <li><button class="dropdown-item" id="profile-btn">Profile</button></li>
+          <li><button class="dropdown-item" id="profile-btn" data-bs-toggle="modal" data-bs-target="#profileModal">Profile</button></li>
           <li><button class="dropdown-item" id="logout-btn">Logout</button></li>
         </ul>
       </div>
 
     </div>
   </header>
+</div>
+<!-- Profile Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title user-name" id="profileModalLabel"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-4">
+            <p class="fw-bold mb-0">Email:</p>
+          </div>
+          <div class="col-8">
+            <p class="mb-0 user-email"></p>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4">
+            <p class="fw-bold mb-0">Registered Date:</p>
+          </div>
+          <div class="col-8">
+            <p class="mb-0 user-created"></p>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4">
+            <p class="fw-bold mb-0">Plan:</p>
+          </div>
+          <div class="col-8">
+            <p class="mb-0 user-plan"></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-4">
+            <p class="fw-bold mb-0">Current Usage:</p>
+          </div>
+          <div class="col-8">
+            <p class="mb-0 user-usage"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

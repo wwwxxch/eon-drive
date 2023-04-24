@@ -23,8 +23,10 @@ router.get("/noti", authentication, async (req, res) => {
 });
 
 router.get("/read", authentication, async (req, res) => {
+  const { shareId } = req.query;
 	const userId = req.session.user.id;
-	const read = await changeNotiRead(userId);
+	const read = await changeNotiRead(userId, shareId);
+  console.log("/read: ", read);
 	return res.send("ok");
 });
 
