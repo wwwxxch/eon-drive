@@ -3,6 +3,11 @@ import { restoreFile } from "../../api/restore.js";
 import { formatTime } from "../../util/util.js";
 
 // ===================================================
+// get User's timezone
+const userTimezoneOffset = new Date().getTimezoneOffset();
+const timeZone = luxon.DateTime.local().minus({ minutes: userTimezoneOffset }).zoneName;
+console.log("timeZone: ", timeZone);
+
 
 // show history list
 function showHistoryList(obj) {
@@ -14,7 +19,8 @@ function showHistoryList(obj) {
 	// console.log(allRecords);
 	let recDiv;
 	for (const rec of allRecords) {
-		const time = formatTime(rec.operation_time);
+		// const time = formatTime(rec.operation_time);
+    const time = luxon.DateTime.fromISO(rec.operation_time).setZone(timeZone).toFormat("yyyy-MM-dd HH:mm:ss");
 		if (rec.operation === "deleted") {
 			recDiv = `
         <div style="width: 100%;" 

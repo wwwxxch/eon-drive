@@ -19,6 +19,11 @@ $("#progress-des").text(
 	} MB`
 );
 
+// get User's timezone
+const userTimezoneOffset = new Date().getTimezoneOffset();
+const timeZone = luxon.DateTime.local().minus({ minutes: userTimezoneOffset }).zoneName;
+console.log("timeZone: ", timeZone);
+
 // showList
 let table;
 function showList(obj) {
@@ -63,7 +68,9 @@ function showList(obj) {
 			{
 				data: "updated_at",
 				render: function (data, type, row, meta) {
-					const time = row.type === "folder" ? "-" : formatTime(data);
+					// const time = row.type === "folder" ? "-" : formatTime(data);
+          const time = row.type === "folder" ? "-" :
+            luxon.DateTime.fromISO(data).setZone(timeZone).toFormat("yyyy-MM-dd HH:mm:ss");
 					const div = `
             <div class="d-flex justify-content-between">
               <div>${time}</div>
@@ -230,9 +237,7 @@ $("input[name='access']").change(function () {
 	}
 });
 
-// TODO: email validation & email search ......
 $("#list-table").on("click", ".get-link", async function () {
-	// TODO: call API to show who have the access
 	const targetId = $(this).closest("tr").find(".ff_name").data("id");
 	console.log("targetId: ", targetId);
 	const shareStatus = await checkShareStatus(targetId);
@@ -287,7 +292,7 @@ $("#list-table").on("click", ".get-link", async function () {
 	console.log(parentPath);
 	console.log(targetName);
 
-	// TODO: email auto-complete
+
 	$("#recipient").on("input", function () {
 		const text = $(this).val().trim();
 
@@ -357,6 +362,7 @@ $("#list-table").on("click", ".get-link", async function () {
 			$(this).parent().remove();
 		});
 
+  // back to init state
 	$("#create-link-cancel-btn")
 		.off("click")
 		.on("click", function () {
@@ -389,8 +395,12 @@ $("#list-table").on("click", ".get-link", async function () {
 			);
 			console.log("getLink: ", getLink);
 			$("#getLinkModal").modal("hide");
+			$("#recipient").val("");
 			$(".email-list").empty();
 			$(".email-chips-container").empty();
+			$("input[id='access-anyone']").prop("checked", true);
+			$("input[id='access-user']").prop("checked", false);
+			$("#recipient").prop("disabled", true);
 
 			let inputForShareLink;
 			if (getLink.share_link) {
@@ -402,28 +412,35 @@ $("#list-table").on("click", ".get-link", async function () {
 				inputForShareLink.select();
 
 				const copyToClipboard = (text) => {
-					// navigator.clipboard
-					// 	.writeText(text)
-					// 	.then(() => {
-					// 		console.log("Text copied to clipboard");
-					// 	})
-					// 	.catch((err) => {
-					// 		console.error("Error copying text to clipboard:", err);
-					// 	});
-
-					// TODO: 跳出視窗美化、剪貼簿設計
-					const input = document.createElement("textarea");
-					input.value = text;
-					document.body.appendChild(input);
-					input.select();
-					document.execCommand("copy");
-					document.body.removeChild(input);
+					navigator.clipboard
+						.writeText(text)
+						.then(() => {
+							console.log("Text copied to clipboard");
+						})
+						.catch((err) => {
+							console.error("Error copying text to clipboard:", err);
+						});
+          
+          // // workaround when clipboard cannot be used
+					// const input = document.createElement("textarea");
+					// input.value = text;
+					// document.body.appendChild(input);
+					// input.select();
+					// document.execCommand("copy");
+					// document.body.removeChild(input);
 				};
 
 				copyToClipboard(getLink.share_link);
 				inputForShareLink.remove();
-				prompt("Here's your link: ", getLink.share_link);
-				// alert("Link has been copied");
+				// prompt("Here's your link: ", getLink.share_link);
+        $("#linkModal").on("show.bs.modal", function (event) {
+          const linkInput =  $(this).find("#linkInput");          
+          linkInput.val(getLink.share_link);
+        });
+        $("#linkModal").modal("show");
+        $("#linkModal").on("click", ".copy-link-btn", function() {
+          $("#linkModal").modal("hide");
+        });
 			}
 		});
 });

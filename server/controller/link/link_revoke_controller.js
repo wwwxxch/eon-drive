@@ -1,4 +1,5 @@
 import { deleteLinkByFFId } from "../../model/db_share.js";
+import { emitLinksYouShared } from "../../service/sync/list.js";
 // ===========================================================
 const revokeLink = async (req, res) => {
   console.log("/revokeLink: ", req.body);
@@ -7,7 +8,10 @@ const revokeLink = async (req, res) => {
 
   const revokeLinkInDB = await deleteLinkByFFId(userId, ff_id);
   console.log("revokeLinkInDB: ", revokeLinkInDB);
-  // TODO: emit new link list
+
+  // emit new link list
+  const io = req.app.get("socketio");
+  emitLinksYouShared(io, userId);
   return res.send("/revoke-link");
 };
 

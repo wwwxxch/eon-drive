@@ -1,6 +1,7 @@
 import { revokeLink, askYouSharedList } from "../../api/share.js";
 // ===================================================
 function showYouSharedList(obj) {
+  console.log("showYouSharedList: ", obj);
 	// if (obj.data.length === 0) {
 
 	// }
@@ -92,4 +93,14 @@ $(".you-shared-row").on("click", ".revoke-btn", async function () {
 			$("#revokeLinkModal").modal("hide");
 		});
 
+});
+
+
+// ==========================================================================
+// socket.io
+const socket = io();
+socket.on("linksYouSharedUpd", (data) => {
+	console.log("socket.on linksYouSharedUpd: ", data);
+  $("#links-you-shared-tbody").empty();
+  showYouSharedList(data);
 });

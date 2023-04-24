@@ -35,7 +35,9 @@ const getIsDelFileId = async(user_id, parent_id, file_name) => {
 
 const getOneLevelChildByParentId = async(user_id, parent_id, is_delete) => {
   const q_string = `
-    SELECT id, name, type, updated_at
+    SELECT 
+      id, name, type, 
+      DATE_FORMAT(updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS updated_at
     FROM ff 
     WHERE user_id =? AND parent_id = ? AND is_delete = ? AND upd_status = "done" 
   `;
@@ -55,9 +57,12 @@ const getCurrentVersionByFileId = async(file_id) => {
 
 const getVersionsByFileId = async(file_id) => {
   const [row] = await pool.query(`
-    SELECT ver, size, is_current, updated_at AS operation_time, operation 
+    SELECT 
+      ver, size, is_current, 
+      DATE_FORMAT(updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS operation_time, 
+      operation 
     FROM file_ver WHERE ff_id = ? 
-    ORDER BY is_current DESC, updated_at DESC 
+    ORDER BY is_current DESC, operation_time DESC 
   `, file_id);
 
   return row;
@@ -65,7 +70,9 @@ const getVersionsByFileId = async(file_id) => {
 
 const getDeleteRecordsByFileId = async(file_id) => {
   const [row] = await pool.query(`
-    SELECT deleted_at AS operation_time, "deleted" AS operation 
+    SELECT 
+      DATE_FORMAT(deleted_at, '%Y-%m-%dT%H:%i:%s.000Z') AS operation_time,
+      "deleted" AS operation 
     FROM ff_delete WHERE ff_id = ?
   `, file_id);
 
@@ -92,7 +99,9 @@ const getDeletedList = async(user_id) => {
     await conn.query("START TRANSACTION");
     
     const [all] = await conn.query(`
-      SELECT id, name, type, parent_id, updated_at AS deleted_at
+      SELECT 
+        id, name, type, parent_id,
+        DATE_FORMAT(updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS deleted_at
       FROM ff WHERE is_delete = 1 AND user_id = ?
     `, user_id);
     
@@ -118,7 +127,12 @@ const getDeletedList = async(user_id) => {
 
 const getFileDetail = async(ff_id) => {
   const [row] = await pool.query(`
-    SELECT a.name, b.size, a.created_at, a.updated_at, c.name as owner
+    SELECT 
+      a.name, 
+      b.size,
+      DATE_FORMAT(a.created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS created_at,
+      DATE_FORMAT(a.updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS updated_at, 
+      c.name as owner
     FROM ff AS a 
     INNER JOIN file_ver AS b ON a.id = b.ff_id
     INNER JOIN user AS c on a.user_id = c.id

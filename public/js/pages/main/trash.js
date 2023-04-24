@@ -3,6 +3,10 @@ import { restoreDelete } from "../../api/restore.js";
 import { formatTime } from "../../util/util.js";
 import { permDeleteFile } from "../../api/delete.js";
 // ==========================================================================
+// get User's timezone
+const userTimezoneOffset = new Date().getTimezoneOffset();
+const timeZone = luxon.DateTime.local().minus({ minutes: userTimezoneOffset }).zoneName;
+console.log("timeZone: ", timeZone);
 
 // show trash list
 let table;
@@ -36,7 +40,8 @@ function showTrashList(input) {
 			{
 				data: "deleted_at",
 				render: function (data) {
-					return formatTime(data);
+          const time = luxon.DateTime.fromISO(data).setZone(timeZone).toFormat("yyyy-MM-dd HH:mm:ss");
+					return time;
 				},
 			},
 		],

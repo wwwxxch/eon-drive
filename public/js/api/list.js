@@ -36,4 +36,16 @@ const getTrash = async () => {
   }
 };
 
-export { getFileList, getFileHistory, getTrash };
+const askProfile = async () => {
+  try {
+    const profile = await axios.get("/show-profile");
+    return profile.data;
+  } catch (e) {
+    console.error("profile: ", e);
+    return false;
+  }
+};
+
+
+
+export { getFileList, getFileHistory, getTrash, askProfile };
