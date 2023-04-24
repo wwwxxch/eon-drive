@@ -67,6 +67,7 @@ router.post("/view-fo-list", async (req, res) => {
 	return res.json({ data: list });
 });
 
+// TODO: middlewares 要整理一下
 router.post(
 	"/view-fo-dl",
 	viewDLvalidation,
@@ -119,7 +120,7 @@ router.post("/view-fi-dl", async(req, res) => {
   const copyS3ObjRes = await copyS3Obj(
     s3clientGeneral,
     S3_MAIN_BUCKET_NAME,
-    `user_${userId}/${key}.v${version}`,
+    encodeURIComponent(`user_${userId}/${key}.v${version}`),
     `user_${userId}/${key}`
   );
   // 3. get presigned URL for that file

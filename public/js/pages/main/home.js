@@ -102,22 +102,39 @@ function showList(obj) {
 		lengthChange: false,
 	});
 
-	$("input[name='list-checkbox']").on("change", function () {
-		const selected = $("input[name='list-checkbox']:checked");
-		const selectedVal = selected.toArray().map((item) => item.value);
-		console.log("block: ", selectedVal);
-		if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
-			$("#delete-btn-div").show();
-			$("#download-btn-div").show();
-		} else if (selected.length > 0) {
-			$("#delete-btn-div").show();
-			$("#download-btn-div").show();
-		} else {
-			$("#delete-btn-div").hide();
-			$("#download-btn-div").hide();
-		}
-	});
+	// $("input[name='list-checkbox']").on("change", function () {
+	// 	const selected = $("input[name='list-checkbox']:checked");
+	// 	const selectedVal = selected.toArray().map((item) => item.value);
+	// 	console.log("block: ", selectedVal);
+	// 	if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
+	// 		$("#delete-btn-div").show();
+	// 		$("#download-btn-div").show();
+	// 	} else if (selected.length > 0) {
+	// 		$("#delete-btn-div").show();
+	// 		$("#download-btn-div").show();
+	// 	} else {
+	// 		$("#delete-btn-div").hide();
+	// 		$("#download-btn-div").hide();
+	// 	}
+	// });
 }
+
+$("#list-table").on("change","input[name='list-checkbox']", function () {
+  const selected = $("input[name='list-checkbox']:checked");
+  const selectedVal = selected.toArray().map((item) => item.value);
+  console.log("block: ", selectedVal);
+  if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
+    $("#delete-btn-div").show();
+    $("#download-btn-div").show();
+  } else if (selected.length > 0) {
+    $("#delete-btn-div").show();
+    $("#download-btn-div").show();
+  } else {
+    $("#delete-btn-div").hide();
+    $("#download-btn-div").hide();
+  }
+});
+
 
 $(document).click(function (e) {
 	if (!$(e.target).is("input[name='list-checkbox'], #select-all")) {

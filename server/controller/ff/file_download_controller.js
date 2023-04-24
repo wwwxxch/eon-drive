@@ -55,7 +55,7 @@ const dlSingleFile = async (req, res, next) => {
 		const copyS3ObjRes = await copyS3Obj(
 			s3clientGeneral,
 			S3_MAIN_BUCKET_NAME,
-			`user_${userId}/${key}.v${version}`,
+			encodeURIComponent(`user_${userId}/${key}.v${version}`),
 			`user_${userId}/${key}`
 		);
 		// 3. get presigned URL for that file
