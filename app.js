@@ -105,7 +105,7 @@ app.use(
 // Simple check
 app.get("/check", (req, res) => {
 	console.log("/check");
-	return res.send("check");
+	return res.send("ok");
 });
 
 // ---------------------------------------------------
