@@ -22,6 +22,7 @@ import { findFileIdByPath, iterForParentId } from "../../service/path/iter.js";
 
 import { shareTokenGenerator } from "../../service/share/token_gen.js";
 import { getMultipleUserId } from "../../model/db_user.js";
+import { emitShareNoti } from "../../service/sync/list.js";
 // ============================================================
 const publicLink = async (req, res, next) => {
   
@@ -126,19 +127,16 @@ const privateLink = async (req, res) => {
     token = shareStatus.share_token;
   }
 
-  // emit notification 
-  const io = req.app.get("socketio");
-  userList.forEach(item => {
-    io.to(`user_${item}`).emit("notification", {
-      owner: userId,
-      ff: targetName
-    });
-  });
-
   const share_link = 
     type === "folder" ?
     `${HOST}/view/fo/${token}` :
     `${HOST}/view/fi/${token}`;
+  
+  // emit notification 
+  const io = req.app.get("socketio");
+  for (let i = 0; i < userList.length; i++) {
+    emitShareNoti(io, userList[i]);
+  }
 
   return res.json({ share_link });
 };

@@ -3,7 +3,7 @@
     font-family: 'Lato', sans-serif !important;
   }
 
-  div {
+  div, p {
     /* border: 1px dashed; */
   }
   header {
@@ -50,13 +50,31 @@
   #noti-ul {
     width: 25vw;
   }
+  .noti-item:hover {
+    cursor: default;
+  }
   .noti-owner {
-    color: #191c5b
+    color: #191c5b;
   }
   .noti-ff {
-    color: #1354a5
+    color: #1354a5;
   }
-
+  .noti-time {
+    font-size:small;
+    color: darkgray;
+  }
+  .new-noti {
+    background-color: rgb(255, 250, 243);
+  }
+  .badge-notification {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 0.25rem 0.4rem;
+    border-radius: 10rem;
+  }
 </style>
 <div class="container header-block">
   <header class="d-flex flex-wrap align-items-stretch justify-content-md-between border-bottom">
@@ -83,8 +101,7 @@
               d="M18,34.28A2.67,2.67,0,0,0,20.58,32H15.32A2.67,2.67,0,0,0,18,34.28Z"></path>
           </svg>
           <!-- notification  -->
-          <span class="badge rounded-pill badge-notification bg-danger d-none
-              position-absolute top-0 end-20 p-1">
+          <span class="badge rounded-pill badge-notification bg-danger position-absolute p-1 d-none">
             <span class="visually-hidden">New alerts</span>
           </span>
         </button>

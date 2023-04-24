@@ -4,6 +4,7 @@ import {
 	getVersionsByFileId,
 	getDeleteRecordsByFileId,
 } from "../../model/db_ff_r.js";
+import { getLinksSharedNoti } from "../../model/db_share.js";
 // =============================================================================
 const emitNewList = async (io, userId, parentPath) => {
 	const refresh = await getFileListByPath(userId, parentPath);
@@ -58,4 +59,21 @@ const emitUsage = async (io, userId, userInSession) => {
 	});
 };
 
-export { emitNewList, emitHistoryList, emitTrashList, emitUsage };
+const emitShareNoti = async (io, userId) => {
+  console.log("emiShareNoti: userId: ", userId);
+  const unreadNoti = await getLinksSharedNoti(userId, 0);
+	// console.log(unreadNoti);
+  // console.log(5 - unreadNoti.length);
+	
+  const readNoti =
+		unreadNoti.length < 5
+			? await getLinksSharedNoti(userId, 1, (5 - unreadNoti.length))
+			: [];
+
+	const notiToFE = [...unreadNoti, ...readNoti];
+  io.to(`user_${userId}`).emit("sharenoti", {
+		data: notiToFE, unreadNum: unreadNoti.length
+	});
+};
+
+export { emitNewList, emitHistoryList, emitTrashList, emitUsage, emitShareNoti };

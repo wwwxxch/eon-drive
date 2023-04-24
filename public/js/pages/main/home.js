@@ -41,7 +41,8 @@ function showList(obj) {
 				render: function (data, type, row, meta) {
 					const tickboxValue =
 						row.type === "folder" ? row.name + "/" : row.name;
-					const tickbox = `<input type="checkbox" name="list-checkbox" value=${tickboxValue}>`;
+          // console.log("tickboxValue: ", tickboxValue);
+					const tickbox = `<input type="checkbox" name="list-checkbox" value="${tickboxValue}">`;
 					return tickbox;
 				},
 			},
@@ -489,10 +490,6 @@ socket.on("usageupd", (data) => {
   );
 });
 
-// TODO: notification
-socket.on("notification", (data) => {
-	console.log("notification: ", data);
-});
 // =================================================================================
 // Drag & Drop
 $(function () {
