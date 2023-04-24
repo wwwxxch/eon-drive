@@ -114,7 +114,7 @@ const privateLink = async (req, res) => {
     // update ff table with is_public = 0 &
     // update share_link_perm table
     // return existed link 
-    const changeLinkRes = await changeLinkToPrivate(targetId, userList);
+    const changeLinkRes = await changeLinkToPrivate(targetId, nowTime, userList);
     console.log("changeLinkRes: ", changeLinkRes);
     token = shareStatus.share_token;
   } else if (shareStatus.is_public === 0) {
