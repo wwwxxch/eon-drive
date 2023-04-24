@@ -78,8 +78,11 @@ const getPossibleUser = async (str) => {
 
 const getProfile = async (user_id) => {
 	const [row] = await pool.query(`
-    SELECT email, name, plan, allocated, used, created_at FROM user 
-    WHERE id = ?`, user_id);
+    SELECT 
+      email, name, 
+      plan, allocated, used, 
+      DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS created_at
+    FROM user WHERE id = ?`, user_id);
 	return row[0];
 };
 
