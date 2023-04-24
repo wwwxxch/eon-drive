@@ -47,7 +47,8 @@
               <%= Math.ceil(size/1024) %> KB
             </p>
             <p>
-              <%= new Date(updated_at).toLocaleString() %>
+              <% const dateTime = DateTime.fromISO(updated_at).toLocal(); %>
+              <%= dateTime.toFormat('yyyy-MM-dd HH:mm:ss') %>
             </p>
             <p>
               <%= owner %>

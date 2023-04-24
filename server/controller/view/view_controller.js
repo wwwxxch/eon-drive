@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -107,6 +108,7 @@ const returnFileInfo = async (req, res) => {
 		size,
 		updated_at,
 		owner,
+    DateTime
 	});
 };
 
@@ -114,9 +116,6 @@ const returnFolderInfo = async (req, res) => {
 	const shareToken = req.params.shareToken;
 	const target = req.target;
 	console.log("target: ", target);
-	// // TODO:
-	// const children = await getOneLevelChildByParentId(target.user_id, target.id, 0);
-	// console.log("children: ", children);
 	const { id, name } = req.target;
 	return res.render("view/view_folder", { id, name, shareToken });
 };
