@@ -11,7 +11,8 @@ import {
   chkmail, 
   createUser,
   chkpair, 
-  getUser
+  getUser,
+  getProfile
 } from "../../model/db_user.js";
 
 import {
@@ -97,13 +98,21 @@ const logOut = async (req, res) => {
   // return res.json({ msg: "logout" });
   return res.redirect("/");
 };
-// TODO: profile page
+
 const showProfile = async (req, res) => {
   console.log("showProfile");
-  if (!req.session.user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  return res.json({ data: { user: req.session.user } });
+  const userId = req.session.user.id;
+  const profile = await getProfile(userId);
+  const { email, name, plan, allocated, used, created_at } = profile;
+  
+  // const usedNum = parseInt(used);
+  // const allocatedNum = parseInt(allocated);
+  // const percent = (usedNum / allocatedNum) * 100;
+  // const currentUse = `
+  //   ${(usedNum / (1024 * 1024)).toFixed(2)} MB / 
+  //   ${allocatedNum / (1024 * 1024)} MB (${percent.toFixed(2)}%)`;
+  
+  return res.json({ email, name, plan, allocated, used, created_at });
 };
 
 const authentication = async (req, res, next) => {

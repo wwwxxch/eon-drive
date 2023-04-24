@@ -5,7 +5,8 @@ import {
   signUp,
   signIn,
   logOut,
-  showProfile
+  showProfile,
+  authentication
 } from "../../controller/user/user_auth_controller.js";
 
 // ======================================
@@ -18,7 +19,7 @@ router.post("/signin", signIn);
 
 router.get("/logout", /*authentication,*/ logOut);
 
-// router.get("/show-profile", showProfile);
+router.get("/show-profile", authentication, showProfile);
 
 // router.get("/login-status", loginStatus);
 
