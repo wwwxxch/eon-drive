@@ -43,11 +43,10 @@ jobs:
             
             echo --- git pull origin ${{ needs.build.outputs.branch_name }} --- start
             
-            # git switch develop
-            # git branch ${{ needs.build.outputs.branch_name }}
-            
-            git pull
+            git switch develop
+            git branch ${{ needs.build.outputs.branch_name }}
             git switch ${{ needs.build.outputs.branch_name }}
+            git pull origin ${{ needs.build.outputs.branch_name }}
 
             echo --- git pull origin  ${{ needs.build.outputs.branch_name }} --- done
 
