@@ -38,8 +38,8 @@
                   </button>
                 </div>
                 <div>
-                  <button type="button" id="perm-delete-btn" class="btn btn-outline-secondary me-2"
-                    style="display: none;">
+                  <button type="button" id="perm-delete-btn" class="btn btn-outline-secondary me-2" data-bs-toggle="modal"
+                  data-bs-target="#confirmPermDeleteModal" style="display: none;">
                     Permanently Delete
                   </button>
                 </div>
@@ -61,6 +61,37 @@
               </div>
             </div>
         </div>
+        <!-- Modal for confirm perm delete  -->
+        <div class="modal fade" id="confirmPermDeleteModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-body">
+                <div id="confirm-perm-delete-msg" class="fs-5">Are you sure you want to permanently delete the file?</div>
+                <div class="pt-2">You won't be able to restore permanently deleted files.</div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" id="confirm-perm-delete-btn">
+                  Yes
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal for confirm delete end  -->
+        <!-- Modal for confirm delete noti  -->
+        <div class="modal fade" id="confirmPermDeleteNotiModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-body my-3">
+                Permanently deleted.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal for confirm delete noti end -->
         <!-- main block end -->
       </div>
       <%- include('../partials/main_footer') %>

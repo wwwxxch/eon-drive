@@ -87,7 +87,7 @@ const findParentPathByFFId = async (ffId) => {
   } else {
     parentPath = "Home/" + arr.reverse().join("/") + "/";
   }
-	console.log("findParentPathByFFId - return value:", parentPath);
+	// console.log("findParentPathByFFId - return value:", parentPath);
 	return parentPath;
 };
 

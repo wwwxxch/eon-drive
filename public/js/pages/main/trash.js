@@ -21,7 +21,7 @@ function showTrashList(input) {
 						row.type === "file"
 							? `${row.parentPath.replace(/^Home\//, "")}${row.name}`
 							: `${row.parentPath.replace(/^Home\//, "")}${row.name}/`;
-					const tickbox = `<input type="checkbox" name="trash-checkbox" value=${tickboxValue}>`;
+					const tickbox = `<input type="checkbox" name="trash-checkbox" value="${tickboxValue}">`;
 					return tickbox;
 				},
 			},
@@ -48,21 +48,32 @@ function showTrashList(input) {
 		searching: false,
 		lengthChange: false,
 	});
-	$("input[name='trash-checkbox']").on("change", function () {
-		const selected = $("input[name='trash-checkbox']:checked");
-		if (selected.length > 0) {
-			$("#restore-delete-btn").show();
-			$("#perm-delete-btn").show();
-		} else {
-			$("#restore-delete-btn").hide();
-			$("#perm-delete-btn").hide();
-		}
-	});
+	// $("input[name='trash-checkbox']").on("change", function () {
+	// 	const selected = $("input[name='trash-checkbox']:checked");
+	// 	if (selected.length > 0) {
+	// 		$("#restore-delete-btn").show();
+	// 		$("#perm-delete-btn").show();
+	// 	} else {
+	// 		$("#restore-delete-btn").hide();
+	// 		$("#perm-delete-btn").hide();
+	// 	}
+	// });
 }
 
 const trashListRes = await getTrash();
 console.log("trashListRes: ", trashListRes);
 showTrashList(trashListRes);
+
+$("#trash-table").on("change", "input[name='trash-checkbox']", function () {
+  const selected = $("input[name='trash-checkbox']:checked");
+  if (selected.length > 0) {
+    $("#restore-delete-btn").show();
+    $("#perm-delete-btn").show();
+  } else {
+    $("#restore-delete-btn").hide();
+    $("#perm-delete-btn").hide();
+  }
+});
 
 // ==========================================================================
 // socket.io
@@ -101,6 +112,7 @@ $("#select-all").on("change", function () {
 // ==========================================================================
 // restore
 $("#restore-delete-btn").click(async function () {
+  // TODO: confirm dialog for restore
 	const selected = $("input[name='trash-checkbox']:checked");
 	const toRestore = selected.toArray().map((item) => item.value);
 	console.log("toRestore: ", toRestore);
@@ -111,12 +123,24 @@ $("#restore-delete-btn").click(async function () {
 });
 
 // perm delete
-$("#perm-delete-btn").click(async function () {
+$("#perm-delete-btn").on("click", async function () {
 	const selected = $("input[name='trash-checkbox']:checked");
 	const toPermDelete = selected.toArray().map((item) => item.value);
 	console.log("toPermDelete: ", toPermDelete);
-	const askPermDelete = await permDeleteFile(toPermDelete);
-	console.log("askPermDelete: ", askPermDelete);
+  if (toPermDelete.length > 1) {
+    $("#confirm-perm-delete-msg").text("Are you sure you want to permanently delete these items?");
+  } else if (toPermDelete.length === 1) {
+    $("#confirm-perm-delete-msg").text(`Are you sure you want to permanently delete ${toPermDelete[0]}?`);
+  }
+  $("#confirm-perm-delete-btn").off("click").on("click", async function () {
+    // TODO: maybe a loading page is required - if you permanently delete many items
+    const askPermDelete = await permDeleteFile(toPermDelete);
+    console.log("askPermDelete: ", askPermDelete);
+  
+    selected.prop("checked", false);
+    $("#confirmPermDeleteModal").modal("hide");
+    $("#confirmPermDeleteNotiModal").modal("show");
+    setTimeout(() => { $("#confirmPermDeleteNotiModal").modal("hide"); }, 1500);
+  });
 
-	selected.prop("checked", false);
 });

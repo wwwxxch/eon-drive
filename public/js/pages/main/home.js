@@ -130,6 +130,8 @@ $(document).click(function (e) {
 	if (!$(e.target).is("input[name='list-checkbox'], #select-all")) {
 		$("input[name='list-checkbox']").prop("checked", false);
 		$("#select-all").prop("checked", false);
+    $("#delete-btn-div").hide();
+		$("#download-btn-div").hide();
 	}
 });
 
@@ -750,8 +752,13 @@ $("#delete-btn").on("click", async function () {
   $("#confirm-delete-btn").off("click").on("click", async function () {
     const deleteFileRes = await deleteFile(currentPath, selectedToArray);
     console.log("deleteFileRes: ", deleteFileRes);
+    
     selected.prop("checked", false);
+    
     $("#confirmDeleteModal").modal("hide");
+    $("#confirmDeleteNotiModal").modal("show");
+    setTimeout(() => {  $("#confirmDeleteNotiModal").modal("hide"); }, 1500);
+
     $("#delete-btn-div").hide();
     $("#download-btn-div").hide();
   });	
