@@ -20,14 +20,18 @@ const startUpload = async(fileName, fileWholePath, fileSize, fileSplit) => {
   }
 };
 
-const singleUpload = async(url, file) => {
+const singleUpload = async(url, file, progressBar) => {
+  progressBar.css("width", "0%");
+  progressBar.attr("aria-valuenow", 0);
   try {
     const putFile = await axios({
       url: url,
       method: "put",
       data: file,
       onUploadProgress: (progress) => {
-        console.log("progress:", (progress.loaded/file.size)*100 );
+        progressBar.css("width", `${(progress.loaded/file.size)*100}%`);
+        progressBar.attr("aria-valuenow", (progress.loaded/file.size)*100);
+        // console.log("progress:", (progress.loaded/file.size)*100 );
       }
     });
     console.log("putFile: ", putFile);
@@ -39,11 +43,14 @@ const singleUpload = async(url, file) => {
   }
 };
 
-const multiUpload = async(partUrls, completeUrl, chunkArray) => {
+const multiUpload = async(partUrls, completeUrl, chunkArray, progressBar) => {
+  progressBar.css("width", "0%");
+  progressBar.attr("aria-valuenow", 0);
   const etagArray = Array(chunkArray.length);
   const putRequests = [];
   try {
     // upload parts
+    let cumPart = 0;
     for (let i = 0; i < partUrls.length; i++) {
       const putParts = fetch(partUrls[i], {
 				method: "PUT",
@@ -55,6 +62,9 @@ const multiUpload = async(partUrls, completeUrl, chunkArray) => {
 				.then((res) => {
           console.log(`Part ${i+1} has been uploaded`);
 					etagArray[i] = res.headers.get("etag").replace(/"/g, "");
+          const percent = (cumPart + 1)/chunkArray.length*100;
+          progressBar.css("width", `${percent}%`);
+          progressBar.attr("aria-valuenow", percent);
 				})
 				.catch((err) => {
 					console.error(err);
@@ -115,7 +125,10 @@ const commitUpload = async(token, parentPath) => {
 };
 
 // ==============================================================================
-const uploadFile = async (currentDir, file) => {
+const uploadFile = async (currentDir, file, modal, progressBar, status) => {
+  
+  modal.modal("show");
+
   let fileUsed = {};
   if (file.modified) {
     fileUsed.name = file.file.name;
@@ -158,12 +171,12 @@ const uploadFile = async (currentDir, file) => {
     // 2. fetch S3 presigned URL
     let toS3Res;
     if (singleUrl) {
-      const singleUploadRes = await singleUpload(singleUrl, file);
+      const singleUploadRes = await singleUpload(singleUrl, file, progressBar);
       console.log("singleUploadRes: ", singleUploadRes);
       toS3Res = singleUploadRes.status;
     } else if (completeUrl) {
       const chunks = await splitFileIntoChunks(file, CHUNK_SIZE);
-      const multiUploadRes = await multiUpload(partUrls, completeUrl, chunks);
+      const multiUploadRes = await multiUpload(partUrls, completeUrl, chunks, progressBar);
       console.log("multiUploadRes: ", multiUploadRes);
       toS3Res = multiUploadRes.status; 
     } 
@@ -180,7 +193,12 @@ const uploadFile = async (currentDir, file) => {
       // TODO: if fetch /upload-commit failed
       return false;
     }
-    
+    progressBar.css("width", "100%");
+    progressBar.attr("aria-valuenow", 100);
+    setTimeout(() => status.text("Complete!"), 500);
+    setTimeout(() =>modal.modal("hide"), 1000);
+
+
     return true;
 
   } catch (e) {

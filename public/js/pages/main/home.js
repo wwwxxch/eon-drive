@@ -12,7 +12,8 @@ const usageRes = await axios.get("/usage");
 const usedNum = parseInt(usageRes.data.used);
 const allocatedNum = parseInt(usageRes.data.allocated);
 const percent = (usedNum / allocatedNum) * 100;
-$(".progress-bar").css("width", percent);
+$(".usage-progress").css("width", percent + "%");
+$(".usage-progress").attr("aria-valuenow", percent);
 $("#progress-des").text(
 	`${(usedNum / (1024 * 1024)).toFixed(2)} MB / ${
 		allocatedNum / (1024 * 1024)
@@ -21,7 +22,9 @@ $("#progress-des").text(
 
 // get User's timezone
 const userTimezoneOffset = new Date().getTimezoneOffset();
-const timeZone = luxon.DateTime.local().minus({ minutes: userTimezoneOffset }).zoneName;
+const timeZone = luxon.DateTime.local().minus({
+	minutes: userTimezoneOffset,
+}).zoneName;
 console.log("timeZone: ", timeZone);
 
 // showList
@@ -46,7 +49,7 @@ function showList(obj) {
 				render: function (data, type, row, meta) {
 					const tickboxValue =
 						row.type === "folder" ? row.name + "/" : row.name;
-          // console.log("tickboxValue: ", tickboxValue);
+					// console.log("tickboxValue: ", tickboxValue);
 					const tickbox = `<input type="checkbox" name="list-checkbox" value="${tickboxValue}">`;
 					return tickbox;
 				},
@@ -69,8 +72,12 @@ function showList(obj) {
 				data: "updated_at",
 				render: function (data, type, row, meta) {
 					// const time = row.type === "folder" ? "-" : formatTime(data);
-          const time = row.type === "folder" ? "-" :
-            luxon.DateTime.fromISO(data).setZone(timeZone).toFormat("yyyy-MM-dd HH:mm:ss");
+					const time =
+						row.type === "folder"
+							? "-"
+							: luxon.DateTime.fromISO(data)
+									.setZone(timeZone)
+									.toFormat("yyyy-MM-dd HH:mm:ss");
 					const div = `
             <div class="d-flex justify-content-between">
               <div>${time}</div>
@@ -101,40 +108,23 @@ function showList(obj) {
 		searching: false,
 		lengthChange: false,
 	});
-
-	// $("input[name='list-checkbox']").on("change", function () {
-	// 	const selected = $("input[name='list-checkbox']:checked");
-	// 	const selectedVal = selected.toArray().map((item) => item.value);
-	// 	console.log("block: ", selectedVal);
-	// 	if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
-	// 		$("#delete-btn-div").show();
-	// 		$("#download-btn-div").show();
-	// 	} else if (selected.length > 0) {
-	// 		$("#delete-btn-div").show();
-	// 		$("#download-btn-div").show();
-	// 	} else {
-	// 		$("#delete-btn-div").hide();
-	// 		$("#download-btn-div").hide();
-	// 	}
-	// });
 }
 
-$("#list-table").on("change","input[name='list-checkbox']", function () {
-  const selected = $("input[name='list-checkbox']:checked");
-  const selectedVal = selected.toArray().map((item) => item.value);
-  console.log("block: ", selectedVal);
-  if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
-    $("#delete-btn-div").show();
-    $("#download-btn-div").show();
-  } else if (selected.length > 0) {
-    $("#delete-btn-div").show();
-    $("#download-btn-div").show();
-  } else {
-    $("#delete-btn-div").hide();
-    $("#download-btn-div").hide();
-  }
+$("#list-table").on("change", "input[name='list-checkbox']", function () {
+	const selected = $("input[name='list-checkbox']:checked");
+	const selectedVal = selected.toArray().map((item) => item.value);
+	console.log("block: ", selectedVal);
+	if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
+		$("#delete-btn-div").show();
+		$("#download-btn-div").show();
+	} else if (selected.length > 0) {
+		$("#delete-btn-div").show();
+		$("#download-btn-div").show();
+	} else {
+		$("#delete-btn-div").hide();
+		$("#download-btn-div").hide();
+	}
 });
-
 
 $(document).click(function (e) {
 	if (!$(e.target).is("input[name='list-checkbox'], #select-all")) {
@@ -163,12 +153,14 @@ if (path !== "") {
 		const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
 		return [...prev, folder];
 	}, []);
-	// console.log("pathArray: ", pathArray);
+	console.log("pathArray: ", pathArray);
 	pathArray.forEach((item, i) => {
 		$("#whole-path").append(`
       <span class="slash"> / </span>
-      <a href="/home/${item}">
-        <h4><span class="path-text">${item.split("/").pop()}</span></h4>
+      <a href="/home/${decodeURIComponent(item)}">
+        <h4><span class="path-text">${decodeURIComponent(
+					item.split("/").pop()
+				)}</span></h4>
       </a>
     `);
 	});
@@ -309,7 +301,6 @@ $("#list-table").on("click", ".get-link", async function () {
 	console.log(parentPath);
 	console.log(targetName);
 
-
 	$("#recipient").on("input", function () {
 		const text = $(this).val().trim();
 
@@ -379,7 +370,7 @@ $("#list-table").on("click", ".get-link", async function () {
 			$(this).parent().remove();
 		});
 
-  // back to init state
+	// back to init state
 	$("#create-link-cancel-btn")
 		.off("click")
 		.on("click", function () {
@@ -437,8 +428,8 @@ $("#list-table").on("click", ".get-link", async function () {
 						.catch((err) => {
 							console.error("Error copying text to clipboard:", err);
 						});
-          
-          // // workaround when clipboard cannot be used
+
+					// // workaround when clipboard cannot be used
 					// const input = document.createElement("textarea");
 					// input.value = text;
 					// document.body.appendChild(input);
@@ -450,14 +441,14 @@ $("#list-table").on("click", ".get-link", async function () {
 				copyToClipboard(getLink.share_link);
 				inputForShareLink.remove();
 				// prompt("Here's your link: ", getLink.share_link);
-        $("#linkModal").on("show.bs.modal", function (event) {
-          const linkInput =  $(this).find("#linkInput");          
-          linkInput.val(getLink.share_link);
-        });
-        $("#linkModal").modal("show");
-        $("#linkModal").on("click", ".copy-link-btn", function() {
-          $("#linkModal").modal("hide");
-        });
+				$("#linkModal").on("show.bs.modal", function (event) {
+					const linkInput = $(this).find("#linkInput");
+					linkInput.val(getLink.share_link);
+				});
+				$("#linkModal").modal("show");
+				$("#linkModal").on("click", ".copy-link-btn", function () {
+					$("#linkModal").modal("hide");
+				});
 			}
 		});
 });
@@ -514,14 +505,15 @@ socket.on("listupd", (data) => {
 	}
 });
 socket.on("usageupd", (data) => {
-  const usedNum = parseInt(data.used);
-  const allocatedNum = parseInt(data.allocated);
-  const percent = (usedNum / allocatedNum) * 100;
-  $(".progress-bar").css("width", percent);
-  $("#progress-des").text(
-    `${(usedNum / (1024 * 1024)).toFixed(2)} MB / 
+	const usedNum = parseInt(data.used);
+	const allocatedNum = parseInt(data.allocated);
+	const percent = (usedNum / allocatedNum) * 100;
+	$(".usage-progress").css("width", percent + "%");
+	$(".usage-progress").attr("aria-valuenow", percent);
+	$("#progress-des").text(
+		`${(usedNum / (1024 * 1024)).toFixed(2)} MB / 
     ${allocatedNum / (1024 * 1024)} MB`
-  );
+	);
 });
 
 // =================================================================================
@@ -582,11 +574,45 @@ $(function () {
 			}
 		}
 		console.log("arr: ", arr);
+
+		// let uploadInterval;
+		// $("#uploadModal").modal("show");
+		const uploadModal = $("#uploadModal");
+		const uploadProgressBar = $(".upload-progress");
+		const uploadStatus = $(".upload-status");
+		// let currentValue = 0;
+		// progressBar.css("width", "0%");
+		// progressBar.attr("aria-valuenow", 0);
+		// function countUp() {
+		//   currentValue+=10;
+		//   if (currentValue > 100) {
+		//     currentValue = 0;
+		//   }
+		//   console.log(currentValue);
+		//   progressBar.css("width", `${currentValue}%`);
+		//   progressBar.attr("aria-valuenow", currentValue);
+		// }
+		// uploadInterval = setInterval(countUp, 200);
+
+		// Upload function
 		for (let element of arr) {
 			console.log(element);
-			const uploadFileRes = await uploadFile(currentPath, element);
+			const uploadFileRes = await uploadFile(
+				currentPath,
+				element,
+				uploadModal,
+				uploadProgressBar,
+				uploadStatus
+			);
 			console.log("uploadFileRes: ", uploadFileRes);
 		}
+
+		// clearInterval(uploadInterval);
+		// progressBar.css("width", "100%");
+		// progressBar.attr("aria-valuenow", 100);
+		// $(".upload-status").text("Complete!");
+		// setTimeout(() => $("#uploadModal").modal("hide"), 500);
+		// $(".upload-status").text("Uploading...");
 	});
 });
 // =================================================================================
@@ -618,8 +644,20 @@ $("#file-form").on("submit", async function (e) {
 	console.log(currentPath);
 	const fileList = $("#file-input")[0].files;
 	console.log("fileList: ", fileList);
+
+	const uploadModal = $("#uploadModal");
+	const uploadProgressBar = $(".upload-progress");
+	const uploadStatus = $(".upload-status");
+
+	// START UPLOAD
 	for (let file of fileList) {
-		const uploadFileRes = await uploadFile(currentPath, file);
+		const uploadFileRes = await uploadFile(
+			currentPath,
+			file,
+			uploadModal,
+			uploadProgressBar,
+			uploadStatus
+		);
 		console.log("uploadFileRes: ", uploadFileRes);
 	}
 
@@ -637,8 +675,19 @@ $("#folder-form").on("submit", async function (e) {
 	console.log(currentPath);
 	const fileList = $("#folder-input")[0].files;
 	console.log("fileList: ", fileList);
+
+	const uploadModal = $("#uploadModal");
+	const uploadProgressBar = $(".upload-progress");
+	const uploadStatus = $(".upload-status");
+
 	for (let file of fileList) {
-		const uploadFileRes = await uploadFile(currentPath, file);
+		const uploadFileRes = await uploadFile(
+			currentPath,
+			file,
+			uploadModal,
+			uploadProgressBar,
+			uploadStatus
+		);
 		console.log("uploadFileRes: ", uploadFileRes);
 	}
 

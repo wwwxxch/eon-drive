@@ -77,7 +77,7 @@
 
         .progress-bar-container {
           width: 100%;
-          height: 2vh;
+          height: 1.5vh;
           background-color: #f8f5ef;
           border-radius: 5px;
           overflow: hidden;
@@ -88,6 +88,12 @@
           background-color: #519cf6;
           width: 50%;
           transition: width 0.5s ease-in-out;
+        }
+        .upload-progress {
+          background-color: #1968df;
+        }
+        .upload-progress-container {
+          margin: 0 0 1vh 0;
         }
 
         .email-container {
@@ -189,7 +195,8 @@
                 <div class="mx-2" style="width: 20%;">
                   <div id="progress-des"></div>
                   <div class="progress-bar-container">
-                    <div class="progress-bar"></div>
+                    <div class="progress-bar usage-progress" role="progressbar" 
+                          aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                   </div>
                 </div>
               </div>
@@ -381,12 +388,34 @@
                       <input type="text" class="form-control" id="linkInput" value="" readonly>
                     </div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary btn-sm copy-link-btn" data-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-secondary btn-sm copy-link-btn"
+                        data-dismiss="modal">Close</button>
                     </div>
                   </div>
                 </div>
               </div>
               <!-- Modal for copy link prompt end -->
+              <!-- Modal for upload bar -->
+              <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <!-- <div class="modal-header">
+                      <h5 class="modal-title" id="uploadModalLabel">Uploading file...</h5>
+                    </div> -->
+                    <div class="modal-body">
+                      <div>
+                        <h5 class="upload-status pb-3">Uploading...</h5>
+                      </div>
+                      <div class="progress-bar-container upload-progress-container">
+                        <div class="progress-bar upload-progress" role="progressbar" style="width: 10%;"
+                          aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Modal for upload bar end  -->
             </div>
         </div>
         <!-- main block end -->
