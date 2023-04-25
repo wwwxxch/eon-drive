@@ -113,7 +113,7 @@ function showList(obj) {
 $("#list-table").on("change", "input[name='list-checkbox']", function () {
 	const selected = $("input[name='list-checkbox']:checked");
 	const selectedVal = selected.toArray().map((item) => item.value);
-	console.log("block: ", selectedVal);
+	// console.log("block: ", selectedVal);
 	if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
 		$("#delete-btn-div").show();
 		$("#download-btn-div").show();
@@ -466,7 +466,6 @@ $("#list-table").on("click", ".revoke-link", async function () {
 			console.log("askRevokeLink: ", askRevokeLink);
 			// TODO: response from backend
 			if (askRevokeLink) {
-				console.log("here");
 				$("#revokeAlertModal").modal("show");
 				setTimeout(function () {
 					$("#revokeAlertModal").modal("hide");
@@ -731,21 +730,31 @@ $("#select-all").on("change", function () {
 });
 // ===============================================================================
 // delete
-$("#delete-btn").click(async function () {
-	const currentPath = $(".path-text")
+$("#delete-btn").on("click", async function () {
+  const currentPath = $(".path-text")
 		.map(function () {
 			return $(this).text().trim();
 		})
 		.get()
 		.join("/");
-	const selected = $("input[name='list-checkbox']:checked");
+  const selected = $("input[name='list-checkbox']:checked");
+  const selectedToArray = selected.toArray().map(item => item.value);
+  console.log("selectedToArray: ", selectedToArray);
+  
+  if (selectedToArray.length > 1) {
+    $("#confirm-delete-msg").text("Are you sure you want to delete these items?");
+  } else if (selectedToArray.length === 1) {
+    $("#confirm-delete-msg").text(`Are you sure you want to delete ${selectedToArray[0]}?`);
+  }
 
-	const deleteFileRes = await deleteFile(currentPath, selected);
-	console.log("deleteFileRes: ", deleteFileRes);
-
-	selected.prop("checked", false);
-	$("#delete-btn-div").hide();
-	$("#download-btn-div").hide();
+  $("#confirm-delete-btn").off("click").on("click", async function () {
+    const deleteFileRes = await deleteFile(currentPath, selectedToArray);
+    console.log("deleteFileRes: ", deleteFileRes);
+    selected.prop("checked", false);
+    $("#confirmDeleteModal").modal("hide");
+    $("#delete-btn-div").hide();
+    $("#download-btn-div").hide();
+  });	
 });
 
 // download

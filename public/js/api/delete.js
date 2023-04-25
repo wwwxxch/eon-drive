@@ -7,11 +7,18 @@ const deleteFile = async (path, fileArray) => {
   console.log("parentPath: ", parentPath);
   // parentPath possible value: "" or "level1folder/level2folder"
 
-  const delList = fileArray.toArray().map((item) => {
+  // const delList = fileArray.toArray().map((item) => {
+  //   if (path === "Home") {
+  //     return item.value;
+  //   } else {
+  //     return `${path.replace(/^Home\//, "")}/${item.value}`;
+  //   }
+  // });
+  const delList = fileArray.map((item) => {
     if (path === "Home") {
-      return item.value;
+      return item;
     } else {
-      return `${path.replace(/^Home\//, "")}/${item.value}`;
+      return `${path.replace(/^Home\//, "")}/${item}`;
     }
   });
   console.log("delList: ", delList);
