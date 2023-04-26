@@ -59,7 +59,7 @@ const deleteDB = async (req, res) => {
 	emitNewList(io, userId, parentPath);
   emitUsage(io, userId, req.session.user);
 
-	return res.json({ msg: "delete" });
+	return res.send("ok");
 };
 
 const permDelete = async (req, res) => {

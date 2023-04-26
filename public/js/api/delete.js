@@ -26,7 +26,7 @@ const deleteFile = async (path, fileArray) => {
 
   try {
     const deleteRes = await axios.post("/delete", { parentPath, delList });
-    console.log("deleteRes.status: ", deleteRes.status);
+    // console.log("deleteRes.status: ", deleteRes.status);
     return true;
   } catch (e) {
     console.error("deleteFile: ", e);

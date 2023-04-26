@@ -171,6 +171,37 @@
           font-weight: bolder;
           background-color: #f2f2f2;
         }
+        .noty_theme__custom-theme.noty_bar {
+          background-color: #f8f5ef;
+          width: 20vw;
+          height: auto;
+          max-height: 50vh;
+          border-radius: 5px;
+          overflow-y: auto;
+          word-wrap: break-word;
+          padding: 10px;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-custom-yes {
+          background-color: #f8f5ef;
+        }
+
+        .btn-custom-yes:hover {
+          background-color: #f8f5ef;
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-custom-no:hover {
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .confirm-msg {
+          width: 100%;
+          white-space: normal;
+          word-break: break-word;
+          font-size: large;
+        }
       </style>
 </head>
 
@@ -382,9 +413,6 @@
                   <div class="modal-content">
                     <div class="modal-header">
                       <h5 class="modal-title" id="linkModalLabel">Here's your link:</h5>
-                      <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button> -->
                     </div>
                     <div class="modal-body">
                       <input type="text" class="form-control" id="linkInput" value="" readonly>
@@ -423,31 +451,20 @@
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-body">
-                      <div id="confirm-delete-msg" class="fs-5">Are you sure you want to delete the file?</div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-sm btn-secondary" id="confirm-delete-btn">
-                        Yes
-                      </button>
-                      <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
-                        No
-                      </button>
+                      <div id="confirm-delete-msg" class="text-wrap confirm-msg"></div>
+                      <div class="d-flex justify-content-end pt-3">
+                        <button type="button" class="btn btn-custom-yes ms-2" id="confirm-delete-btn">
+                          Yes
+                        </button>
+                        <button type="button" class="btn btn-custom-no ms-2" data-bs-dismiss="modal">
+                          No
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
               <!-- Modal for confirm delete end  -->
-              <!-- Modal for confirm delete noti  -->
-              <div class="modal fade" id="confirmDeleteNotiModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <div class="modal-body my-3">
-                      Done!
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- Modal for confirm delete noti end -->
             </div>
         </div>
         <!-- main block end -->
