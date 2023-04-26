@@ -5,7 +5,8 @@ const restoreFile = async (version, fileWholePath, parentPath) => {
 			fileWholePath,
 			parentPath,
 		});
-		return restoreFileRes.data;
+		// return restoreFileRes.data;
+    return true;
 	} catch (e) {
 		console.error("restoreFile: ", e);
 		return false;
@@ -15,7 +16,8 @@ const restoreFile = async (version, fileWholePath, parentPath) => {
 const restoreDelete = async (restoreList) => {
   try {
 		const restoreDeleteRes = await axios.post("/restore-deleted",{ restoreList });
-		return restoreDeleteRes;
+		// return restoreDeleteRes;
+    return true;
 	} catch (e) {
 		console.error("restoreDelete: ", e);
 		return false;

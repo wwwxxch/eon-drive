@@ -1,26 +1,20 @@
 import { getFileHistory } from "../../api/list.js";
 import { restoreFile } from "../../api/restore.js";
 import { formatTime } from "../../util/util.js";
-
 // ===================================================
-// get User's timezone
-const userTimezoneOffset = new Date().getTimezoneOffset();
-const timeZone = luxon.DateTime.local().minus({ minutes: userTimezoneOffset }).zoneName;
-console.log("timeZone: ", timeZone);
-
 
 // show history list
 function showHistoryList(obj) {
 	const allRecords = [...obj.versions, ...obj.deleteRecords];
-	// console.log(allRecords);
+
 	allRecords.sort(
 		(a, b) => new Date(b.operation_time) - new Date(a.operation_time)
 	);
-	// console.log(allRecords);
+
 	let recDiv;
 	for (const rec of allRecords) {
-		// const time = formatTime(rec.operation_time);
-    const time = luxon.DateTime.fromISO(rec.operation_time).setZone(timeZone).toFormat("yyyy-MM-dd HH:mm:ss");
+		const time = formatTime(rec.operation_time);
+
 		if (rec.operation === "deleted") {
 			recDiv = `
         <div style="width: 100%;" 
@@ -54,7 +48,7 @@ function showHistoryList(obj) {
             <div class="col-4 d-flex justify-content-between align-items-center">
               <div class="size">${showSize}</div>
               <div class="current">
-                <button class="current-btn btn btn-outline-secondary" disabled>
+                <button class="current-btn btn" disabled>
                   Current Version
                 </button>
               </div>
@@ -63,7 +57,8 @@ function showHistoryList(obj) {
         `;
 			} else {
 				const restoreDiv = `
-          <button class="restore-btn btn btn-outline-secondary" data-version="${rec.ver}">
+          <button class="restore-btn btn custom-operation-btn" data-version="${rec.ver}"
+              data-bs-toggle="modal" data-bs-target="#confirmRestoreModal">
             Restore
           </button>
         `;
@@ -86,9 +81,9 @@ function showHistoryList(obj) {
 
 const reqPath = window.location.pathname;
 const fileWholePath = reqPath.replace(/^\/history\//, "");
-console.log("fileWholePath: ", fileWholePath);
+// console.log("fileWholePath: ", fileWholePath);
+
 const history = await getFileHistory(fileWholePath);
-// console.log(history);
 showHistoryList(history);
 // ===================================================================
 // socket.io
@@ -96,7 +91,7 @@ const socket = io();
 socket.on("historyupd", (data) => {
 	console.log("socket.on historyupd: ", data);
 	const fileId = $(".file-name").data("id");
-  // console.log("fileId: ", fileId);
+	// console.log("fileId: ", fileId);
 	if (data.fileId === fileId) {
 		$("#file-history").empty();
 		showHistoryList({
@@ -108,14 +103,54 @@ socket.on("historyupd", (data) => {
 
 // ===================================================================
 // restore button
-$(".rec").on("click", ".restore-btn", async function () {
-	const version = $(this).data("version");
-	// console.log("recover version: ", version);
-	// console.log("fileWholePath: ", fileWholePath);
-	const arr = fileWholePath.split("/");
-	const parentPath = arr.slice(0, arr.length - 1).join("/");
-	console.log("parentPath: ", parentPath);
+$(".rec").on("click", ".restore-btn", function () {
+  const version = $(this).data("version");
+	
+  const fileName = $(".file-name").text();
+	const versionTime = $(this).closest(".rec").find(".operation-time").text();
+	// console.log(fileName, versionTime);
 
-	const askRestore = await restoreFile(version, fileWholePath, parentPath);
-	console.log("askRestore: ", askRestore);
+	$("#confirm-restore-msg").html(
+		`Are you sure to restore <strong>${fileName}</strong> to the version <strong>${versionTime}</strong>?`
+	);
+
+	$("#confirm-restore-btn").off("click").on("click", async function () {
+			$("#confirmRestoreModal").modal("hide");
+			
+			const arr = fileWholePath.split("/");
+			const parentPath = arr.slice(0, arr.length - 1).join("/");
+			// console.log("recover version: ", version);
+			// console.log("fileWholePath: ", fileWholePath);
+			// console.log("parentPath: ", parentPath);
+			const askRestore = await restoreFile(version, fileWholePath, parentPath);
+
+			let text;
+			if (askRestore) {
+				text = `Resotred <b>${fileName}</b>`;
+			}
+			// TODO: else if !askRestore
+
+			// console.log("text.length: ", text.length);
+			const widthPerChar = 7;
+			const minWidth = 200;
+			const additionalWidth = Math.max(text.length - 30, 0) * widthPerChar;
+			const width = Math.max(minWidth + additionalWidth, minWidth);
+			// console.log(width);
+
+			const restoreNoti = new Noty({
+				text: text,
+				layout: "bottomLeft",
+				closeWith: ["click"],
+				timeout: 1000,
+				theme: "custom-theme",
+				progressBar: false,
+				callbacks: {
+					onTemplate: function () {
+						this.barDom.style.width = `${width}px`;
+					},
+				},
+			});
+      $(window).scrollTop(0, {behavior: "instant"});
+			restoreNoti.show();
+		});
 });
