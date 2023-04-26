@@ -109,14 +109,21 @@ $("#restore-delete-btn").click(async function () {
 	const selected = $("input[name='trash-checkbox']:checked");
 	const toRestore = selected.toArray().map((item) => item.value);
 	// console.log("toRestore: ", toRestore);
-
+  let targetName;
 	if (toRestore.length > 1) {
 		$("#confirm-restore-msg").html(
 			`Are you sure you want to restore <b>these ${toRestore.length} items</b>?`
 		);
 	} else if (toRestore.length === 1) {
+    const arr = toRestore[0].split("/");
+    
+    if (toRestore[0].endsWith("/")) {
+      targetName = arr[arr.length-2];
+    } else {
+      targetName = arr.pop();
+    }
 		$("#confirm-restore-msg").html(
-			`Are you sure you want to restore <b>${toRestore[0]}</b>?`
+			`Are you sure you want to restore <b>${targetName}</b>?`
 		);
 	}
 
