@@ -2,10 +2,10 @@ import express from "express";
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
-import session, { MemoryStore } from "express-session";
+import session from "express-session";
+import path from "path";
+import { fileURLToPath } from "url";
 import { sessionConfig } from "./server/util/session.js";
-// import RedisStore from "connect-redis";
-// import { redis } from "./server/util/cache.js";
 import { socketConn } from "./server/util/socket.js";
 
 dotenv.config();
@@ -23,33 +23,12 @@ const PROTOCOL =
 
 if (process.env.NODE_ENV === "prod") {
 	app.set("trust proxy", 1);
-	// sessionConfig.cookie.secure = true; // this is for HTTPS !!!
 }
-// const sessionHour = parseInt(process.env.SESSION_HOUR);
-// let isProxy = false;
-// if (process.env.NODE_ENV === "prod") isProxy = true;
-// const sessionConfig = {
-//   secret: process.env.SESSION_SECRET,
-//   store: new MemoryStore(),
-//   resave: false,
-//   saveUninitialized: false,
-//   cookie: { SameSite: "true", maxAge: sessionHour * 60 * 60 * 1000 },
-//   proxy: isProxy,
-// };
-// const sessionStoreChange = (req, res, next) => {
-//   if (!redis || redis.status !== "ready") {
-//     console.log("sessionStoreChange - MemoryStore");
-//     sessionConfig.store = new MemoryStore();
-//     console.log(sessionConfig);
-//   } else {
-//     console.log("sessionStoreChange - redis");
-//     sessionConfig.store = new RedisStore({ client: redis, prefix: "user:" });
-//     console.log(sessionConfig);
-//   }
-//   next();
-// };
 
-// app.use(sessionStoreChange);
+if (PROTOCOL === "HTTPS") {
+  sessionConfig.cookie.secure = true; 
+}
+
 app.use(session(sessionConfig));
 
 // ------------------------------------------------------------------------------
@@ -64,6 +43,11 @@ app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+// --------------------------------------------------------------------------------
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.set("views", path.join(__dirname, "/server/view"));
 app.set("view engine", "ejs");
 
 // --------------------------------------------------------------------------------
