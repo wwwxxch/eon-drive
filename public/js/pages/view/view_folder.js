@@ -135,8 +135,20 @@ $(".fo-dl-btn").on("click", async function() {
   .join("/");
   console.log(shareToken);
   console.log(pathTexts);
+  
+  const downloadModal = $("#waitingModal");
+	const downloadStatus = $(".waiting-status");
+  downloadModal.modal("show");
+  downloadStatus.text("Downloading...");
+  $("#waiting-spinner").addClass("spinner-border");
+  $(".waiting-complete").hide();
+
   const downloadFileRes = await downloadShareFo(shareToken, pathTexts + "/");
   if (downloadFileRes.status === 200) {
+    $("#waiting-spinner").removeClass("spinner-border");
+    $(".waiting-complete").show();
+    setTimeout(() => downloadStatus.text("Complete!"), 200);
+    setTimeout(() => downloadModal.modal("hide"), 1500);
 		window.open(downloadFileRes.downloadUrl, "_self");
 	}
 });
@@ -160,8 +172,20 @@ $(".individual-dl-btn").on("click", async function() {
   } else if (targetClass.includes("folder")) {
     desired = pathTexts + "/" + target + "/";
   }
+  
+  const downloadModal = $("#waitingModal");
+	const downloadStatus = $(".waiting-status");
+  downloadModal.modal("show");
+  downloadStatus.text("Downloading...");
+  $("#waiting-spinner").addClass("spinner-border");
+  $(".waiting-complete").hide();
+
   const downloadFileRes = await downloadShareFo(shareToken, desired);
   if (downloadFileRes.status === 200) {
+    $("#waiting-spinner").removeClass("spinner-border");
+    $(".waiting-complete").show();
+    setTimeout(() => downloadStatus.text("Complete!"), 200);
+    setTimeout(() => downloadModal.modal("hide"), 1500);
 		window.open(downloadFileRes.downloadUrl, "_self");
 	}
 });

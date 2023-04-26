@@ -20,19 +20,19 @@ const startUpload = async(fileName, fileWholePath, fileSize, fileSplit) => {
   }
 };
 
-const singleUpload = async(url, file, progressBar) => {
-  progressBar.css("width", "0%");
-  progressBar.attr("aria-valuenow", 0);
+const singleUpload = async(url, file) => {
+  // progressBar.css("width", "0%");
+  // progressBar.attr("aria-valuenow", 0);
   try {
     const putFile = await axios({
       url: url,
       method: "put",
       data: file,
-      onUploadProgress: (progress) => {
-        progressBar.css("width", `${(progress.loaded/file.size)*100}%`);
-        progressBar.attr("aria-valuenow", (progress.loaded/file.size)*100);
-        // console.log("progress:", (progress.loaded/file.size)*100 );
-      }
+      // onUploadProgress: (progress) => {
+      //   progressBar.css("width", `${(progress.loaded/file.size)*100}%`);
+      //   progressBar.attr("aria-valuenow", (progress.loaded/file.size)*100);
+      //   // console.log("progress:", (progress.loaded/file.size)*100 );
+      // }
     });
     console.log("putFile: ", putFile);
     return { status: putFile.status };
@@ -43,9 +43,9 @@ const singleUpload = async(url, file, progressBar) => {
   }
 };
 
-const multiUpload = async(partUrls, completeUrl, chunkArray, progressBar) => {
-  progressBar.css("width", "0%");
-  progressBar.attr("aria-valuenow", 0);
+const multiUpload = async(partUrls, completeUrl, chunkArray) => {
+  // progressBar.css("width", "0%");
+  // progressBar.attr("aria-valuenow", 0);
   const etagArray = Array(chunkArray.length);
   const putRequests = [];
   try {
@@ -62,9 +62,9 @@ const multiUpload = async(partUrls, completeUrl, chunkArray, progressBar) => {
 				.then((res) => {
           console.log(`Part ${i+1} has been uploaded`);
 					etagArray[i] = res.headers.get("etag").replace(/"/g, "");
-          const percent = (cumPart + 1)/chunkArray.length*100;
-          progressBar.css("width", `${percent}%`);
-          progressBar.attr("aria-valuenow", percent);
+          // const percent = (cumPart + 1)/chunkArray.length*100;
+          // progressBar.css("width", `${percent}%`);
+          // progressBar.attr("aria-valuenow", percent);
 				})
 				.catch((err) => {
 					console.error(err);
@@ -125,9 +125,12 @@ const commitUpload = async(token, parentPath) => {
 };
 
 // ==============================================================================
-const uploadFile = async (currentDir, file, modal, progressBar, status) => {
+const uploadFile = async (currentDir, file, modal, status) => {
   
   modal.modal("show");
+  status.text("Uploading...");
+  $("#waiting-spinner").addClass("spinner-border");
+  $(".waiting-complete").hide();
 
   let fileUsed = {};
   if (file.modified) {
@@ -171,12 +174,12 @@ const uploadFile = async (currentDir, file, modal, progressBar, status) => {
     // 2. fetch S3 presigned URL
     let toS3Res;
     if (singleUrl) {
-      const singleUploadRes = await singleUpload(singleUrl, file, progressBar);
+      const singleUploadRes = await singleUpload(singleUrl, file);
       console.log("singleUploadRes: ", singleUploadRes);
       toS3Res = singleUploadRes.status;
     } else if (completeUrl) {
       const chunks = await splitFileIntoChunks(file, CHUNK_SIZE);
-      const multiUploadRes = await multiUpload(partUrls, completeUrl, chunks, progressBar);
+      const multiUploadRes = await multiUpload(partUrls, completeUrl, chunks);
       console.log("multiUploadRes: ", multiUploadRes);
       toS3Res = multiUploadRes.status; 
     } 
@@ -193,10 +196,14 @@ const uploadFile = async (currentDir, file, modal, progressBar, status) => {
       // TODO: if fetch /upload-commit failed
       return false;
     }
-    progressBar.css("width", "100%");
-    progressBar.attr("aria-valuenow", 100);
-    setTimeout(() => status.text("Complete!"), 500);
-    setTimeout(() =>modal.modal("hide"), 1000);
+
+    $("#waiting-spinner").removeClass("spinner-border");
+    $(".waiting-complete").show();
+    setTimeout(() => status.text("Complete!"), 200);
+    // modal.modal({backdrop: true});
+    // TODO: try to setup data-bas-backdrop to true
+    modal.data("bs-backdrop", true);
+    setTimeout(() => modal.modal("hide"), 1500);
 
 
     return true;

@@ -202,6 +202,14 @@
           word-break: break-word;
           font-size: large;
         }
+        .spinner-border {
+          width: 3rem;
+          height: 3rem;
+        }
+
+        #waiting-spinner svg {
+          transform: scale(3);
+        }
       </style>
 </head>
 
@@ -425,27 +433,31 @@
                 </div>
               </div>
               <!-- Modal for copy link prompt end -->
-              <!-- Modal for upload bar -->
-              <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel"
-                aria-hidden="true">
+              <!-- Modal for waiting -->
+              <div class="modal fade" id="waitingModal" tabindex="-1" role="dialog" aria-labelledby="waitingModalLabel"
+                aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
-                    <!-- <div class="modal-header">
-                      <h5 class="modal-title" id="uploadModalLabel">Uploading file...</h5>
-                    </div> -->
                     <div class="modal-body">
                       <div>
-                        <h5 class="upload-status pb-3">Uploading...</h5>
+                        <h5 class="waiting-status pb-3"></h5>
                       </div>
-                      <div class="progress-bar-container upload-progress-container">
-                        <div class="progress-bar upload-progress" role="progressbar" style="width: 10%;"
-                          aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                      <div class="text-center pb-3">
+                        <div id="waiting-spinner" class="spinner-border text-secondary" role="status">
+                          <span class="visually-hidden">Loading...</span>
+                          <span class="waiting-complete" style="display: none;" >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                              <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                            </svg>
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <!-- Modal for upload bar end  -->
+              <!-- Modal for waiting end  -->
               <!-- Modal for confirm delete  -->
               <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog">

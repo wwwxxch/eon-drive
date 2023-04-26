@@ -578,9 +578,8 @@ $(function () {
 
 		// let uploadInterval;
 		// $("#uploadModal").modal("show");
-		const uploadModal = $("#uploadModal");
-		const uploadProgressBar = $(".upload-progress");
-		const uploadStatus = $(".upload-status");
+		const uploadModal = $("#waitingModal");
+    const uploadStatus = $(".waiting-status");
 		// let currentValue = 0;
 		// progressBar.css("width", "0%");
 		// progressBar.attr("aria-valuenow", 0);
@@ -601,9 +600,8 @@ $(function () {
 			const uploadFileRes = await uploadFile(
 				currentPath,
 				element,
-				uploadModal,
-				uploadProgressBar,
-				uploadStatus
+        uploadModal,
+        uploadStatus
 			);
 			console.log("uploadFileRes: ", uploadFileRes);
 		}
@@ -646,9 +644,8 @@ $("#file-form").on("submit", async function (e) {
 	const fileList = $("#file-input")[0].files;
 	console.log("fileList: ", fileList);
 
-	const uploadModal = $("#uploadModal");
-	const uploadProgressBar = $(".upload-progress");
-	const uploadStatus = $(".upload-status");
+	const uploadModal = $("#waitingModal");
+	const uploadStatus = $(".waiting-status");
 
 	// START UPLOAD
 	for (let file of fileList) {
@@ -656,7 +653,6 @@ $("#file-form").on("submit", async function (e) {
 			currentPath,
 			file,
 			uploadModal,
-			uploadProgressBar,
 			uploadStatus
 		);
 		console.log("uploadFileRes: ", uploadFileRes);
@@ -677,16 +673,14 @@ $("#folder-form").on("submit", async function (e) {
 	const fileList = $("#folder-input")[0].files;
 	console.log("fileList: ", fileList);
 
-	const uploadModal = $("#uploadModal");
-	const uploadProgressBar = $(".upload-progress");
-	const uploadStatus = $(".upload-status");
+	const uploadModal = $("#waitingModal");
+	const uploadStatus = $(".waiting-status");
 
 	for (let file of fileList) {
 		const uploadFileRes = await uploadFile(
 			currentPath,
 			file,
 			uploadModal,
-			uploadProgressBar,
 			uploadStatus
 		);
 		console.log("uploadFileRes: ", uploadFileRes);
@@ -816,11 +810,21 @@ $("#download-btn").click(async function () {
 		.get()
 		.join("/");
 	const selected = $("input[name='list-checkbox']:checked");
-
+  
+  const downloadModal = $("#waitingModal");
+	const downloadStatus = $(".waiting-status");
+  downloadModal.modal("show");
+  downloadStatus.text("Downloading...");
+  $("#waiting-spinner").addClass("spinner-border");
+  $(".waiting-complete").hide();
 	const downloadFileRes = await downloadFile(currentPath, selected);
 	console.log("downloadFileRes: ", downloadFileRes);
 
 	if (downloadFileRes.status === 200) {
+    $("#waiting-spinner").removeClass("spinner-border");
+    $(".waiting-complete").show();
+    setTimeout(() => downloadStatus.text("Complete!"), 200);
+    setTimeout(() => downloadModal.modal("hide"), 1500);
 		window.open(downloadFileRes.downloadUrl, "_self");
 	}
 
