@@ -104,14 +104,7 @@ const showProfile = async (req, res) => {
   const userId = req.session.user.id;
   const profile = await getProfile(userId);
   const { email, name, plan, allocated, used, created_at } = profile;
-  
-  // const usedNum = parseInt(used);
-  // const allocatedNum = parseInt(allocated);
-  // const percent = (usedNum / allocatedNum) * 100;
-  // const currentUse = `
-  //   ${(usedNum / (1024 * 1024)).toFixed(2)} MB / 
-  //   ${allocatedNum / (1024 * 1024)} MB (${percent.toFixed(2)}%)`;
-  
+    
   return res.json({ email, name, plan, allocated, used, created_at });
 };
 
@@ -136,12 +129,13 @@ const pageAuth = async (req, res, next) => {
   next();
 };
 
+// TODO: check where to put authentication, pageAuth, loginRedirect
+
 export {
   signUp,
   signIn,
   logOut,
   showProfile,
-  // loginStatus,
   authentication,
   pageAuth,
   loginRedirect

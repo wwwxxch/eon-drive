@@ -1,6 +1,8 @@
 import express from "express";
 const router = express.Router();
 
+import { signupValid, signinValid, ValidCB } from "../../middleware/user_validator.js";
+
 import { 
   signUp,
   signIn,
@@ -11,16 +13,12 @@ import {
 
 // ======================================
 
-// TODO: missing validation
+router.post("/signup", signupValid, ValidCB, signUp);
 
-router.post("/signup", signUp);
-
-router.post("/signin", signIn);
+router.post("/signin", signinValid, ValidCB, signIn);
 
 router.get("/logout", /*authentication,*/ logOut);
 
 router.get("/show-profile", authentication, showProfile);
-
-// router.get("/login-status", loginStatus);
 
 export { router as user_auth_route };
