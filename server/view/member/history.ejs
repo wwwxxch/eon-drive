@@ -5,8 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Version History - EON Drive</title>
-  <%- include('../partials/main_stylesheet') %>
-    <%- include('../partials/main_script') %>
+  <%- include('./partial/stylesheet') %>
+    <%- include('./partial/script') %>
       <!-- css internal -->
       <style>
         .d-flex {
@@ -26,6 +26,7 @@
           opacity: 0.5;
           cursor: not-allowed;
         }
+
         .custom-operation-btn:hover {
           background-color: #f8f5ef;
           box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
@@ -67,12 +68,12 @@
 
 <body>
   <div id="root">
-    <%- include('../partials/main_header') %>
+    <%- include('./partial/header') %>
       <!-- main block start -->
       <div class="container content-block">
         <div class="row">
           <!-- left  -->
-          <%- include('../partials/main_left') %>
+          <%- include('./partial/left') %>
             <!-- right  -->
             <div class="col-11 d-flex flex-column align-items-start">
               <div class="d-flex align-items-center pb-3">
@@ -117,7 +118,7 @@
         <!-- Modal for confirm restore  -->
         <!-- main block end -->
       </div>
-      <%- include('../partials/main_footer') %>
+      <%- include('./partial/footer') %>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>

@@ -52,8 +52,12 @@ app.set("view engine", "ejs");
 
 // --------------------------------------------------------------------------------
 // Page
-import { page } from "./server/route/page/page.js";
-app.use(page);
+import { page_member } from "./server/route/page//member/member_route.js";
+import { page_visitor } from "./server/route/page/visitor/visitor_route.js";
+app.use(
+  page_member, 
+  page_visitor
+);
 
 // --------------------------------------------------------------------------------
 // API

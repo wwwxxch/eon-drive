@@ -5,13 +5,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Links - EON Drive</title>
-  <%- include('../partials/main_stylesheet') %>
-    <%- include('../partials/main_script') %>
+  <%- include('./partial/stylesheet') %>
+    <%- include('./partial/script') %>
       <!-- css internal -->
       <style>
-        /* .d-flex {
-      border: 1px dashed;
-    } */
+        .d-flex {
+          /* border: 1px dashed; */
+        }
         .user-email {
           font-size: smaller;
           color: rgb(86, 86, 86);
@@ -29,12 +29,12 @@
 
 <body>
   <div id="root">
-    <%- include('../partials/main_header') %>
+    <%- include('./partial/header') %>
       <!-- main block start -->
       <div class="container content-block">
         <div class="row">
           <!-- left  -->
-          <%- include('../partials/main_left') %>
+          <%- include('./partial/left') %>
             <!-- right  -->
             <div class="col-11 d-flex flex-column align-items-start">
 
@@ -109,7 +109,7 @@
         <!-- Modal for revoke link alert end -->
         <!-- main block end -->
       </div>
-      <%- include('../partials/main_footer') %>
+      <%- include('./partial/footer') %>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>

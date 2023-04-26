@@ -4,38 +4,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EON Drive</title>
-  <%- include('../partials/view_stylesheet') %>
-    <%- include('../partials/view_script') %>
-
-      <!-- css internal -->
+  <title>
+    <%= name %> - EON Drive
+  </title>
+  <%- include('./partial/stylesheet') %>
+    <%- include('./partial/script') %>
       <style>
-        .footer-block {
-          position: fixed;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
+        div {
+          /* border: 1px dashed; */
         }
 
-        .ff-row:hover .individual-dl-btn {
-          display: block;
-        }
-
-        .individual-dl-btn {
-          display: none;
-        }
-
-        .folder {
-          cursor: pointer;
-        }
-
-        .slash {
-          padding: 0 10px;
-          font-size: 24px;
-        }
-
-        .content-block {
-          width: 68vw;
+        .content {
+          width: 50vw;
+          padding-left: 10vw;
         }
 
         .spinner-border {
@@ -51,42 +32,36 @@
 
 <body>
   <div id="root">
-    <%- include('../partials/view_header') %>
+    <%- include('./partial/header') %>
       <!-- Main Body  -->
-      <div class="container content-block">
-        <div id="share-path" class="d-flex align-items-center py-2">
-          <a href="/view/fo/<%= shareToken %>">
-            <h3>
-              <span class="path-text">
-                <%= name %>
-              </span>
-            </h3>
-          </a>
+      <div class="container content-block d-flex justify-content-center">
+        <div class="content">
+          <h2 class="file-name">
+            <%= name %>
+          </h2>
 
-        </div>
-        <!-- Button  -->
-        <div style="width: 100%; height: 50px;" class="d-flex align-items-center justify-content-between my-2">
-          <div class="d-flex align-items-center">
-            <div>
-              <button type="button" class="btn btn-outline-secondary fo-dl-btn">
-                Download
-              </button>
+          <div class="row pt-4 d-flex justify-content-start">
+            <div class="col-2 d-flex flex-column justify-items-center">
+              <p>Size:</p>
+              <p>Modified:</p>
+              <p>Owner:</p>
             </div>
-          </div>
-        </div>
-        <div>
-          <!-- Table  -->
-          <div style="width: 100%;">
-            <table class="table table-hover" id="fo-list-table">
-              <thead id="fo-list-thaed">
-                <tr>
-                  <th scope="col">Name</th>
-                  <th scope="col">Modified</th>
-                </tr>
-              </thead>
-              <tbody id="fo-list-tbody">
-              </tbody>
-            </table>
+            <div class="col-5 d-flex flex-column justify-items-center">
+              <p>
+                <!-- TODO: size - can be MB ! -->
+                <%= Math.ceil(size/1024) %> KB
+              </p>
+              <p>
+                <% const dateTime=DateTime.fromISO(updated_at).toLocal(); %>
+                  <%= dateTime.toFormat('yyyy-MM-dd HH:mm:ss') %>
+              </p>
+              <p>
+                <%= owner %>
+              </p>
+            </div>
+            <div class="col-3 d-flex align-items-center">
+              <button type="button" class="btn btn-outline-dark fi-dl-btn">Download</button>
+            </div>
           </div>
         </div>
         <!-- Modal for waiting -->
@@ -117,10 +92,10 @@
         </div>
         <!-- Modal for waiting end  -->
       </div>
-      <%- include('../partials/view_footer') %>
+      <%- include('./partial/footer') %>
   </div>
 
-  <script type="module" src="/js/pages/view/view_folder.js"></script>
+  <script type="module" src="/js/pages/view/view_file.js"></script>
 </body>
 
 </html>

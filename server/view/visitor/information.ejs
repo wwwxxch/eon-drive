@@ -5,19 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EON Drive</title>
-  <%- include('../partials/view_stylesheet') %>
-    <%- include('../partials/view_script') %>
+  <%- include('./partial/stylesheet') %>
+    <%- include('./partial/script') %>
 
       <!-- css internal -->
       <style>
-        .footer-block {
-          position: fixed;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          background-color: white;
-        }
-
         .item-title {
           font-size: 2vw;
           font-weight: 600;
@@ -36,7 +28,7 @@
 
 <body>
   <div id="root">
-    <%- include('../partials/view_header') %>
+    <%- include('./partial/header') %>
       <!-- Main Body  -->
       <div class="w-75 container content-block d-flex align-items-center mb-5">
         <div class="d-flex flex-column">
@@ -147,7 +139,7 @@
           </div>
         </div>
       </div>
-      <%- include('../partials/view_footer') %>
+      <%- include('./partial/footer') %>
   </div>
 </body>
 

@@ -5,8 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EON Drive</title>
-  <%- include('../partials/view_stylesheet') %>
-    <%- include('../partials/view_script') %>
+  <%- include('../visitor/partial/stylesheet') %>
+    <%- include('../visitor/partial/script') %>
 
       <!-- css internal -->
       <style>
@@ -35,13 +35,13 @@
 
 <body>
   <div id="root">
-    <%- include('../partials/view_header') %>
+    <%- include('../visitor/partial/header') %>
       <!-- Main Body  -->
       <div class="container content-block">
         <h1><%= status %></h1>
         <div><%= message %></div>
       </div>
-      <%- include('../partials/view_footer') %>
+      <%- include('../visitor/partial/footer') %>
   </div>
 
   <!-- <script type="module" src="/js/pages/view/view_folder.js"></script> -->

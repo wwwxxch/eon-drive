@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EON Drive - Login</title>
-  <%- include('../partials/view_stylesheet') %>
-    <%- include('../partials/view_script') %>
+  <title>EON Drive - Register</title>
+  <%- include('./partial/stylesheet') %>
+    <%- include('./partial/script') %>
       <style>
         * {
           font-family: 'Lato', sans-serif !important;
@@ -56,10 +56,6 @@
           margin-right: 0.5rem;
         }
 
-        .form-check-label {
-          color: rgb(141, 141, 141);
-        }
-
         .login-btn {
           font-size: 1.2vw;
           border: none;
@@ -68,6 +64,11 @@
 
         .login-btn:hover {
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .pwd-note {
+          font-size: 0.8vw;
+          color: rgb(113, 113, 113);
         }
 
         .note {
@@ -86,14 +87,7 @@
 
         .content-block {
           padding-top: 10vh;
-          padding-bottom: 13vh;
-        }
-
-        .footer-block {
-          position: fixed;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
+          padding-bottom: 15vh;
         }
 
         @media screen and (min-height: 800px) {
@@ -117,13 +111,14 @@
         </div>
         <div class="col-md-2 d-flex justify-content-end align-items-end">
           <div class="header-btn">
-            <a href="/register"><span>Register</span></a>
+            <a href="/login"><span>Login</span></a>
           </div>
         </div>
       </header>
     </div>
     <!-- content  -->
     <div class="content-block">
+      
       <div class="modal fade" id="login-failed-modal" tabindex="-1" aria-labelledby="login-failed-modal-label"
         aria-hidden="true">
         <div class="modal-dialog w-25">
@@ -139,11 +134,29 @@
         <div class="row justify-content-center">
           <div class="col-md-6 col-lg-5">
             <div class="d-flex justify-content-center align-items-end mx-4 my-3">
-              <h4 class="card-title text-center"><b>Login</b></h4>
+              <h4 class="card-title text-center"><b>Register</b></h4>
             </div>
             <div class="card shadow">
               <div class="card-body">
                 <form>
+                  <!-- <div class="mb-3 d-flex">
+                    <div class="me-2 flex-fill">
+                      <label for="firstName" class="form-label">First Name<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="firstName" id="firstName" required
+                        placeholder="Enter First Name">
+                    </div>
+                    <div class="flex-fill">
+                      <label for="lastName" class="form-label">Last Name<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="lastName" id="lastName" required
+                        placeholder="Enter Last Name">
+                    </div>
+                  </div> -->
+
+                  <div class="mb-3">
+                    <label for="username" class="form-label">Name<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="username" id="username" required
+                        placeholder="Enter Name" autocomplete="off">
+                  </div>
 
                   <div class="mb-3">
                     <label for="email" class="form-label">Email<span class="text-danger">*</span></label>
@@ -154,24 +167,27 @@
                   <div class="mb-3">
                     <label for="password" class="form-label">Password<span class="text-danger">*</span></label>
                     <input type="password" class="form-control" name="password" id="password" required
-                      placeholder="Enter Password">
+                      placeholder="Enter Password"
+                      pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$">
+                    <div class="pwd-note px-2 mt-1">
+                      Use 8-16 characters with a mix of letters, numbers, and symbols (!@#$%^&*()_+)
+                    </div>
                   </div>
 
-                  <!-- <div class="mb-3 form-check d-flex justify-content-between">
-                    <div>
-                      <input type="checkbox" class="form-check-input" id="rememberMe">
-                      <label class="form-check-label" for="rememberMe">Remember me</label>
-                    </div>
-                    <a class="me-2" href="#">Forgot password</a>
-                  </div> -->
+                  <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="agreeToTerms" required>
+                    <label class="form-check-label" for="agreeToTerms">
+                      I agree to the <a href="/info">Terms and Conditions</a>
+                    </label>
+                  </div>
 
                   <div class="d-flex justify-content-center pt-2 pb-3">
                     <button type="submit" class="w-100 login-btn py-1">Continue</button>
                   </div>
 
                   <div class="d-flex justify-content-center py-1">
-                    <span class="note">Not a member?&nbsp;&nbsp;
-                      <a class="my-2" href="/register">Signup now</a>
+                    <span class="note">Already have an account?&nbsp;&nbsp;
+                      <a class="my-2" href="/login">Login</a>
                     </span>
                   </div>
 
@@ -183,8 +199,8 @@
       </div>
     </div>
     <!-- footer  -->
-    <%- include('../partials/view_footer') %>
+    <%- include('./partial/footer') %>
 </body>
-<script type="module" src="/js/pages/view/login.js"></script>
+<script type="module" src="/js/pages/view/register.js"></script>
 
 </html>

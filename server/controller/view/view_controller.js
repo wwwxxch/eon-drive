@@ -103,7 +103,7 @@ const returnFileInfo = async (req, res) => {
 	const detail = await getFileDetail(target.id);
 	console.log("detail: ", detail);
 	const { name, size, updated_at, owner } = detail;
-	return res.render("view/view_file", {
+	return res.render("visitor/view_file", {
 		name,
 		size,
 		updated_at,
@@ -117,7 +117,7 @@ const returnFolderInfo = async (req, res) => {
 	const target = req.target;
 	console.log("target: ", target);
 	const { id, name } = req.target;
-	return res.render("view/view_folder", { id, name, shareToken });
+	return res.render("visitor/view_folder", { id, name, shareToken });
 };
 
 // *************************************************************************************
