@@ -161,6 +161,7 @@ $("#restore-delete-btn").click(async function () {
 		});
 });
 
+// ==========================================================================
 // perm delete
 $("#perm-delete-btn").on("click", function () {
 	const selected = $("input[name='trash-checkbox']:checked");

@@ -13,6 +13,7 @@ async function splitFileIntoChunks(file, chunk_size) {
 	return chunks;
 }
 
+// ==========================================================================
 function formatTime(timestamp) {
   const date = new Date(timestamp);
   const year = date.getFullYear();
@@ -24,6 +25,7 @@ function formatTime(timestamp) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+// ==========================================================================
 class ModifiedFile {
   constructor(file, relativePath) {
     this.file = file;
@@ -54,23 +56,5 @@ async function traverseDirectory(directoryEntry) {
 
   return fileList;
 }
-
-// async function traverseDirectory(entry) {
-//   const files = [];
-
-//   if (entry.isFile) {
-//     files.push(await new Promise(resolve => entry.file(resolve)));
-//   } else if (entry.isDirectory) {
-//     const reader = entry.createReader();
-//     const entries = await new Promise(resolve => reader.readEntries(resolve));
-//     // console.log(entries);
-//     for (let i = 0; i < entries.length; i++) {
-//       const subFiles = await traverseDirectory(entries[i]);
-//       files.push(...subFiles);
-//     }
-//   }
-
-//   return files;
-// }
 
 export { splitFileIntoChunks, formatTime, traverseDirectory };
