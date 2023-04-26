@@ -27,9 +27,10 @@ const restoreHistory = async (req, res) => {
 	console.log("restoreHistory ", req.body);
 	const { version, fileWholePath, parentPath } = req.body;
 	const userId = req.session.user.id;
-
+  const decodeFileWholePath = decodeURIComponent(fileWholePath);
+  const decodeParentPath = decodeURIComponent(parentPath);
 	// find the fileId by path
-	const fileId = await findFileIdByPath(userId, fileWholePath);
+	const fileId = await findFileIdByPath(userId, decodeFileWholePath);
 	console.log("fileId: ", fileId);
 
 	// change table
@@ -50,7 +51,7 @@ const restoreHistory = async (req, res) => {
 		s3clientGeneral,
 		S3_MAIN_BUCKET_NAME,
 		`user_${userId}/${fileWholePath}.v${version}`,
-		`user_${userId}/${fileWholePath}.v${restore.new_ver}`
+		`user_${userId}/${decodeFileWholePath}.v${restore.new_ver}`
 	);
 	console.log("newRecordInS3: ", newRecordInS3);
 
@@ -64,7 +65,7 @@ const restoreHistory = async (req, res) => {
 
 	// emit new list
   const io = req.app.get("socketio");
-	emitNewList(io, userId, parentPath);
+	emitNewList(io, userId, decodeParentPath);
   emitHistoryList(io, userId, fileId);
   emitUsage(io, userId, req.session.user);
 
