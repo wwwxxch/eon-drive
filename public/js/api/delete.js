@@ -37,7 +37,7 @@ const deleteFile = async (path, fileArray) => {
 const permDeleteFile = async (permDeleteList) => {
   try {
 		const permDeleteRes = await axios.post("/perm-delete",{ permDeleteList });
-		return permDeleteRes;
+		return true;
 	} catch (e) {
 		console.error("permDeleteFile: ", e);
 		return false;
