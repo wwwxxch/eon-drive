@@ -217,10 +217,10 @@ $("#perm-delete-btn").on("click", function () {
 			});
 			permDeleteNoti.show();
 			let requestIsOngoing = true;
-			// const askPermDelete = await permDeleteFile(toPermDelete);
+			const askPermDelete = await permDeleteFile(toPermDelete);
 
 			// For test
-			const askPermDelete=true;
+			// const askPermDelete=true;
 
 			if (askPermDelete) {
 				requestIsOngoing = false;
