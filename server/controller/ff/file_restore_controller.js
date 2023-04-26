@@ -85,6 +85,7 @@ const restoreDeleted = async (req, res) => {
     const now = DateTime.utc();
     const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 		let key = restoreList[i];
+    let encodeKey = encodeURIComponent(restoreList[i]);
 
 		if (key.endsWith("/")) {
 			// get parentId
@@ -129,7 +130,7 @@ const restoreDeleted = async (req, res) => {
 			const newRecordInS3 = await copyS3Obj(
 				s3clientGeneral,
 				S3_MAIN_BUCKET_NAME,
-				`user_${userId}/${key}.v${restoreDeleted.cur_ver}`,
+				`user_${userId}/${encodeKey}.v${restoreDeleted.cur_ver}`,
 				`user_${userId}/${key}.v${restoreDeleted.new_ver}`
 			);
 			console.log("newRecordInS3: ", newRecordInS3);

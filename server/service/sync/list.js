@@ -21,7 +21,7 @@ const emitHistoryList = async (io, userId, fileId) => {
 	console.log("versions", versions);
 
 	const deleteRecords = await getDeleteRecordsByFileId(fileId);
-	console.log("deleteRecords: ", deleteRecords);
+	// console.log("deleteRecords: ", deleteRecords);
 
 	io.to(`user_${userId}`).emit("historyupd", {
 		fileId,

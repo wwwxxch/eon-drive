@@ -31,10 +31,10 @@ const showHistory = async(req, res) => {
   console.log("fileId: ", fileId);
   
   const versions = await getVersionsByFileId(fileId);
-  console.log("versions", versions);
+  // console.log("versions", versions);
 
   const deleteRecords = await getDeleteRecordsByFileId(fileId);
-  console.log("deleteRecords: ", deleteRecords); 
+  // console.log("deleteRecords: ", deleteRecords); 
   
   return res.json({ versions, deleteRecords });
 };
@@ -51,7 +51,7 @@ const showTrash = async(req, res) => {
   all.forEach(item => {
     if (!folderIdList.includes(item.parent_id)) trashList.push(item);
   });
-  console.log("trashList: ", trashList);
+  // console.log("trashList: ", trashList);
 
   for (let i = 0; i < trashList.length; i++) {
     const parentPath = await findParentPathByFFId(trashList[i].id);

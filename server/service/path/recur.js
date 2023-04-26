@@ -122,10 +122,13 @@ const restoreRecur = async (parentId, currentPath, time, token, userId) => {
 					);
 					console.log("restoreFileRes: ", restoreFileRes);
 					// copy new version in S3
+          const encodeParentPath = encodeURIComponent(currentPath);
+          const encodeKey = encodeURIComponent(list[i].name);
+
 					const newRecordInS3 = await copyS3Obj(
 						s3clientGeneral,
 						S3_MAIN_BUCKET_NAME,
-						`user_${userId}/${currentPath}/${list[i].name}.v${restoreFileRes.cur_ver}`,
+						`user_${userId}/${encodeParentPath}/${encodeKey}.v${restoreFileRes.cur_ver}`,
 						`user_${userId}/${currentPath}/${list[i].name}.v${restoreFileRes.new_ver}`
 					);
 					console.log("newRecordInS3: ", newRecordInS3);

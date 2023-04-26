@@ -18,7 +18,7 @@ router.get("/noti", authentication, async (req, res) => {
 			: [];
 
 	const notiToFE = [...unreadNoti, ...readNoti];
-  console.log(notiToFE);
+  // console.log(notiToFE);
 	return res.json({ data: notiToFE, unreadNum: unreadNoti.length });
 });
 
