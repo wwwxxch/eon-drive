@@ -1,4 +1,5 @@
 const registerReq = async () => {
+  $("#login-err-msg").empty();
   const name = $("#username").val();
   const email = $("#email").val();
   const password = $("#password").val();
@@ -10,9 +11,16 @@ const registerReq = async () => {
       window.location.href="/home";
     }
   } catch (err) {
-    console.error("registerReq: ", err);
+    // console.error("registerReq: ", err);
     $("#login-failed-modal").modal("show");
-    $("#login-err-msg").text(err.response.data.error);
+    if (typeof err.response.data.error === "string") {
+      $("#login-err-msg").text(err.response.data.error);
+    } else {
+
+      err.response.data.error.forEach((item) => {
+        $("#login-err-msg").append(`<div class="pb-1">${item}</div>`);
+      }); 
+    }
   }
 };
 

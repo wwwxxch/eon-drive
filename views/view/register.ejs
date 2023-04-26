@@ -12,10 +12,6 @@
           font-family: 'Lato', sans-serif !important;
         }
 
-        /* div,
-        .nav {
-          border: 1px dashed;
-        } */
         header {
           padding-top: 2vh;
         }
@@ -97,6 +93,13 @@
           bottom: 0;
           left: 50%;
           transform: translateX(-50%);
+        }
+
+        @media screen and (min-height: 800px) {
+          .content-block {
+            padding-top: 13vh;
+            padding-bottom: 13vh;
+          }
         }
       </style>
 </head>
@@ -202,19 +205,6 @@
     </div>
     <!-- footer  -->
     <%- include('../partials/view_footer') %>
-    <!-- <div class="container w-75 footer-block">
-      <footer class="d-flex flex-wrap justify-content-between align-items-center">
-        <ul class="nav justify-content-end">
-          <li class="nav-item"><a href="/info" class="nav-link px-2">Terms and Conditions</a></li>
-          <li class="nav-item"><a href="/info#privacy" class="nav-link px-2">Privacy Policy</a></li>
-          <li class="nav-item"><a href="/info#contact" class="nav-link px-2">Contact</a></li>
-        </ul>
-        <div class="d-flex align-items-center">
-          <div>© 2023 EON Drive</div>
-        </div>
-      </footer>
-    </div> -->
-
 </body>
 <script type="module" src="/js/pages/view/register.js"></script>
 
