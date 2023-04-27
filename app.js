@@ -5,8 +5,10 @@ import { Server } from "socket.io";
 import session from "express-session";
 import path from "path";
 import { fileURLToPath } from "url";
+
 import { sessionConfig } from "./server/util/session.js";
 import { socketConn } from "./server/util/socket.js";
+import * as errGroup from "./server/error/custom_error.js";
 
 dotenv.config();
 const port = process.env.PORT;
@@ -100,16 +102,13 @@ app.get("/check", (req, res) => {
 // Errors
 app.use((req, res, next) => {
 	console.log("ERROR req.path: ", req.path);
-	const err = new Error("The page you requested is not existed.");
-	err.status = 404;
-	next(err);
+	next(new errGroup.notFoundError());
 });
 
 app.use((err, req, res, next) => {
-	res.status(err.status || 500).render("error/error", {
+	return res.status(err.status || 500).render("error/error", {
 		status: (err.status || 500),
-		message: (err.message || "Internal Server Error") ,
-		stack: err.stack,
+		message: (err.message || "Internal Server Error")
 	});
 });
 
