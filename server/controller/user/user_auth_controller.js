@@ -92,7 +92,7 @@ const signIn = async (req, res) => {
   return res.json({ data: { user } });
 };
 
-const logOut = async (req, res) => {
+const logOut = (req, res) => {
   console.log("logOut");
   req.session.destroy();
   // return res.json({ msg: "logout" });
@@ -108,21 +108,21 @@ const showProfile = async (req, res) => {
   return res.json({ email, name, plan, allocated, used, created_at });
 };
 
-const authentication = async (req, res, next) => {
+const authentication = (req, res, next) => {
   if (!req.session.user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   next();
 };
 
-const loginRedirect = async (req, res, next) => {
+const loginRedirect = (req, res, next) => {
   if (req.session.user) {
     return res.redirect("/home");
   }
   next();
 };
 
-const pageAuth = async (req, res, next) => {
+const pageAuth = (req, res, next) => {
   if (!req.session.user) {
     return res.redirect("/");
   }
