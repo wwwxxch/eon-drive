@@ -1,10 +1,14 @@
 import { pool } from "./connection.js";
 // ==========================================================================
 const changeFolderDeleleStatus = async(del_status, folder_id, time) => {
-  const row = await pool.query(`
-    UPDATE ff SET is_delete = ?, updated_at = ? WHERE id = ? 
-  `, [del_status, time, folder_id]);
-  return row;
+  try {
+    const row = await pool.query(`
+      UPDATE ff SET is_delete = ?, updated_at = ? WHERE id = ? 
+    `, [del_status, time, folder_id]);
+    return row;
+  } catch (e) {
+    throw new Error(`changeFolderDeleleStatus: ${e}`);
+  }
 };
 
 const updateDeletedFile = async (del_status, token, file_id, file_size, time) => {
@@ -49,7 +53,8 @@ const updateDeletedFile = async (del_status, token, file_id, file_size, time) =>
   } catch (e) {
     await conn.query("ROLLBACK");
     console.log("ROLLBACK - error: ", e);
-    return -1;
+    // return -1;
+    throw new Error(`updateDeletedFile: ${e}`);
 
   } finally {
     await conn.release();
@@ -96,7 +101,8 @@ const updateExistedFile = async (token, file_id, file_size, time) => {
   } catch (e) {
     await conn.query("ROLLBACK");
     console.log("ROLLBACK - error: ", e);
-    return -1;
+    // return -1;
+    throw new Error(`updateExistedFile: ${e}`);
     
   } finally {
     await conn.release();
@@ -105,10 +111,14 @@ const updateExistedFile = async (token, file_id, file_size, time) => {
 };
 
 const commitMetadata = async(upd_status, token) => {
-  const [row] = await pool.query(`
-    UPDATE ff SET upd_status = ?, upd_token = NULL WHERE upd_token = ?
-  `, [upd_status, token]);
-  return row;
+  try {
+    const [row] = await pool.query(`
+      UPDATE ff SET upd_status = ?, upd_token = NULL WHERE upd_token = ?
+    `, [upd_status, token]);
+    return row;
+  } catch (e) {
+    throw new Error(`commitMetadata: ${e}`);
+  }
 };
 
 const restoreFileToPrev = async(token, file_id, version, time, user_id) => {

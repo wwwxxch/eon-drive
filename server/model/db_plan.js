@@ -17,15 +17,9 @@ const updateSpaceUsedByUser = async(user_id, time) => {
     
     const [ff] = await conn.query(q_calculateSum, user_id);
     console.log("q_calculateSum: ", ff[0].total_size);
-    if (ff.length !== 1) {
-      throw new Error("q_calculateSum - something wrong");
-    }
-    
+
     const [user] = await conn.query(q_updateUsed, [ff[0].total_size, time, user_id]);
     console.log("q_updateUsed: affectedRows: ", user.affectedRows);
-    if (user.affectedRows !== 1) {
-      throw new Error("q_updateUsed - something wrong");
-    }
     
     await conn.commit();
     console.log("COMMIT");
@@ -34,7 +28,8 @@ const updateSpaceUsedByUser = async(user_id, time) => {
   } catch (e) {
     await conn.query("ROLLBACK");
     console.log("ROLLBACK - error: ", e);
-    return -1;
+    // return -1;
+    throw new Error(`updateSpaceByUser: ${e}`);
 
   } finally {
     await conn.release();

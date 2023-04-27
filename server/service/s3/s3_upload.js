@@ -19,11 +19,16 @@ const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE * 1024 * 1024);
 
 // get the presigned URL for an entire file upload
 const getSingleSignedUrl = async (client, bucket, key, expiresIn = DEFAULT_S3_EXPIRES) => {
-	const command = new PutObjectCommand({
-		Bucket: bucket,
-		Key: key,
-	});
-	return await getSignedUrl(client, command, { expiresIn });
+	try {
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    });
+    const url = await getSignedUrl(client, command, { expiresIn });
+    return url;
+  } catch(e) {
+    throw new Error(`getSingleSignedUrl: ${e}`);
+  }
 };
 
 // get the pre-signed URL for completing a multipart upload
@@ -54,20 +59,24 @@ const getMultiSignedUrl = async (client, bucket, key, count, expiresIn = 900 ) =
 		Bucket: bucket,
 		Key: key,
 	});
-	const createMultipartUpload = await client.send(command);
-	const uploadId = createMultipartUpload.UploadId;
-  
-  // Get partUrls
-	const partUrls = await Promise.all(
-		Array.from({ length: count }, (v, k) => k + 1).map((item) =>
-			getPartUrl(client, bucket, key, uploadId, item, expiresIn)
-		)
-	);
+  try {
+    const createMultipartUpload = await client.send(command);
+    const uploadId = createMultipartUpload.UploadId;
+    
+    // Get partUrls
+    const partUrls = await Promise.all(
+      Array.from({ length: count }, (v, k) => k + 1).map((item) =>
+        getPartUrl(client, bucket, key, uploadId, item, expiresIn)
+      )
+    );
 
-  // Get completeUrl
-	const completeUrl = await getCompleteUrl(client, bucket, key, uploadId, expiresIn);
+    // Get completeUrl
+    const completeUrl = await getCompleteUrl(client, bucket, key, uploadId, expiresIn);
 
-	return { partUrls: partUrls, completeUrl: completeUrl };
+    return { partUrls: partUrls, completeUrl: completeUrl };
+  } catch (e) {
+    throw new Error(`getMultiSignedUrl: ${e}`);
+  }
 };
 
 // upload large file (zip)

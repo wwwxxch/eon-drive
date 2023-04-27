@@ -1,20 +1,27 @@
 import { pool } from "./connection.js";
 // ==========================================
 const getFolderId = async(user_id, parent_id, folder_name) => {
-  // console.log("user_id: ", user_id);
-  const [row] = await pool.query(`
-    SELECT id, is_delete FROM ff 
-    WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "folder"
-  `, [user_id, parent_id, folder_name]);
-  return row;
+  try {
+    const [row] = await pool.query(`
+      SELECT id, is_delete FROM ff 
+      WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "folder"
+    `, [user_id, parent_id, folder_name]);
+    return row;
+  } catch (e) {
+    throw new Error(`getFolderId: ${e}`);
+  }
 };
 
 const getFileId = async(user_id, parent_id, file_name) => {
-  const [row] = await pool.query(`
-    SELECT id, is_delete FROM ff 
-    WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "file"
-  `, [user_id, parent_id, file_name]);
-  return row;
+  try {
+    const [row] = await pool.query(`
+      SELECT id, is_delete FROM ff 
+      WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "file"
+    `, [user_id, parent_id, file_name]);
+    return row;
+  } catch (e) {
+    throw new Error(`getFileId: ${e}`);
+  }
 };
 
 const getNoDelFileId = async(user_id, parent_id, file_name) => {
@@ -43,6 +50,22 @@ const getOneLevelChildByParentId = async(user_id, parent_id, is_delete) => {
   `;
   const [row] = await pool.query(q_string, [user_id, parent_id, is_delete]);
   return row;
+};
+
+const getCurrentSizeByFileId = async(file_id) => {
+  try {
+    const [row] = await pool.query(`
+      SELECT size FROM file_ver WHERE ff_id = ? AND is_current = 1
+    `, file_id);
+
+    if (row.length !== 1) {
+      throw new Error("row.length !== 1");
+    }
+
+    return row[0].size;
+  } catch(e) {
+    throw new Error(`getCurrentSizeByFileId: ${e}`);
+  }
 };
 
 const getCurrentVersionByFileId = async(file_id) => {
@@ -157,6 +180,7 @@ export {
   getNoDelFileId,
   getIsDelFileId,
   getOneLevelChildByParentId,
+  getCurrentSizeByFileId,
   getCurrentVersionByFileId,
   getVersionsByFileId,
   getDeleteRecordsByFileId,

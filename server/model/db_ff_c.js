@@ -1,13 +1,17 @@
 import { pool } from "./connection.js";
 // =====================================================================
 const createFolder = async(parent_id, folder_name, user_id, token, time) => {
-  const [ff] = await pool.query(`
-    INSERT INTO ff 
-    (parent_id, name, type, user_id, upd_status, upd_token, created_at, updated_at)
-    VALUES (?, ?, "folder", ?, "pending", ?, ?, ?)
-  `, [parent_id, folder_name, user_id, token, time, time]);
-  
-  return ff.insertId;
+  try {
+    const [ff] = await pool.query(`
+      INSERT INTO ff 
+      (parent_id, name, type, user_id, upd_status, upd_token, created_at, updated_at)
+      VALUES (?, ?, "folder", ?, "pending", ?, ?, ?)
+    `, [parent_id, folder_name, user_id, token, time, time]);
+    
+    return ff.insertId;
+  } catch (e) {
+    throw new Error(`createFolder: ${e}`);
+  }
 };
 
 const createFile = async(parent_id, file_name, file_size, user_id, token, time) => {
@@ -36,8 +40,9 @@ const createFile = async(parent_id, file_name, file_size, user_id, token, time) 
   } catch (e) {
     await conn.query("ROLLBACK");
     console.log("ROLLBACK - error: ", e);
-    return -1;
-
+    throw new Error();
+    // return -1;
+  
   } finally {
     await conn.release();
     console.log("RELEASE CONNECTION");
