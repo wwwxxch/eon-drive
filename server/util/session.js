@@ -16,8 +16,9 @@ if (process.env.NODE_ENV === "prod") isProxy = true;
 const sessionConfig = {
 	secret: process.env.SESSION_SECRET,
   store: redisStore,
-	resave: false,
-	saveUninitialized: false,
+  saveUninitialized: false,
+	resave: true,
+	rolling: true,
 	cookie: { SameSite: "true", maxAge: sessionHour * 60 * 60 * 1000 },
   proxy: isProxy
 };
