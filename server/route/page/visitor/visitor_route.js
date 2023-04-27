@@ -5,6 +5,8 @@ const router = express.Router();
 import { loginRedirect } from "../../../../server/controller/user/user_auth_controller.js";
 
 // =====================================================================================
+
+// TODO: redirect or not for login member?
 router.get("/", loginRedirect, (req, res) => {
   return res.render("visitor/index");
 });
