@@ -2,13 +2,30 @@ import express from "express";
 const router = express.Router();
 
 import { wrapAsync } from "../../util/util.js";
-
+import { uploadValid, ValidCB } from "../../middleware/input_validator.js";
 import { authentication } from "../../controller/user/user_auth_controller.js";
-import { checkUsed } from "../../controller/user/user_usage_controller.js";
-import { uploadChangeDB, getS3Url, uploadCommitDB } from "../../controller/ff/file_upload_controller.js";
+import {
+  checkUsed,
+	uploadChangeDB,
+	getS3Url,
+	uploadCommitDB,
+} from "../../controller/ff/file_upload_controller.js";
 
 // --------------------------------------------------------------------------------
-router.post("/upload-start", authentication, checkUsed, uploadChangeDB, getS3Url);
+// TODO: remove below middleware when go to prod
+router.post(
+	"/upload-start",
+  authentication, 
+  (req, res, next) => {
+    console.log("/upload-start: ", req.body);
+    next();
+  },
+	uploadValid,
+	ValidCB,
+	checkUsed,
+	uploadChangeDB,
+	getS3Url
+);
 
 router.post("/upload-commit", authentication, uploadCommitDB);
 

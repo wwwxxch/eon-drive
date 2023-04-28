@@ -2,8 +2,8 @@ import express from "express";
 const router = express.Router();
 
 import { authentication } from "../../controller/user/user_auth_controller.js";
+import { downloadValid, ValidCB } from "../../middleware/input_validator.js";
 import {
-	dlValidation,
 	dlSingleFile,
 	dlMultiFileProcess,
 	dlLocalArchive,
@@ -13,7 +13,8 @@ import {
 router.post(
 	"/download-local",
 	authentication,
-	dlValidation,
+  downloadValid,
+  ValidCB,
 	dlSingleFile,
 	dlMultiFileProcess,
 	dlLocalArchive
@@ -22,7 +23,8 @@ router.post(
 router.post(
 	"/download",
 	authentication,
-	dlValidation,
+  downloadValid,
+  ValidCB,
 	dlSingleFile,
 	dlMultiFileProcess,
 	dlCallLambda
