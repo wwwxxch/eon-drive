@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import { signupValid, signinValid, ValidCB } from "../../middleware/user_validator.js";
+import { signupValid, signinValid, ValidCB } from "../../middleware/input_validator.js";
 
 import { 
   signUp,
