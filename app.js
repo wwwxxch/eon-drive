@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 
 import { sessionConfig } from "./server/util/session.js";
 import { socketConn } from "./server/util/socket.js";
-import * as errGroup from "./server/error/custom_error.js";
+import { customError } from "./server/error/custom_error.js";
 
 dotenv.config();
 const port = process.env.PORT;
@@ -102,10 +102,19 @@ app.get("/check", (req, res) => {
 // Errors
 app.use((req, res, next) => {
 	console.log("ERROR req.path: ", req.path);
-	next(new errGroup.notFoundError());
+  res.status(404);
+  res.render("error/error", {
+    status: 404,
+    message: "The page you requested is not existed."
+  });
 });
 
 app.use((err, req, res, next) => {
+  if (err instanceof customError) {
+    console.error("err.message: ", err.message);
+    return res.status(err.status).json({ error: err.message });
+  }
+  // console.error("error handler: ", err);
 	return res.status(err.status || 500).render("error/error", {
 		status: (err.status || 500),
 		message: (err.message || "Internal Server Error")
