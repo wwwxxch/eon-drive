@@ -8,14 +8,15 @@ import { createS3Folder } from "../../service/s3/s3_create.js";
 import { getFolderId } from "../../model/db_ff_r.js";
 import { createFolder } from "../../model/db_ff_c.js";
 import {
-	changeFolderDeleleStatus,
+	changeFolderDeleteStatus,
 	commitMetadata,
 } from "../../model/db_ff_u.js";
 
 import { iterForParentId } from "../../service/path/iter.js";
 import { emitNewList } from "../../service/sync/list.js";
+import { customError } from "../../error/custom_error.js";
 // ===========================================================================
-const createFolderS3AndDB = async (req, res) => {
+const createFolderS3AndDB = async (req, res, next) => {
 	console.log("createFolderS3AndDB: ", req.body);
 	const userId = req.session.user.id;
 	const { parentPath, folderName } = req.body;
@@ -27,16 +28,24 @@ const createFolderS3AndDB = async (req, res) => {
 	const folders = parentPath.split("/");
 	const parentId = await iterForParentId(userId, folders);
 	console.log("iterForParentId: parentId: ", parentId);
-
+  if (parentId === -1) {
+    return next(customError.badRequest("No such key"));
+  }
 	// check if there's same folder under the directory
 	const chkDir = await getFolderId(userId, parentId, folderName);
-	if (chkDir.length > 0 && chkDir[0].is_delete === 0) {
+	if (chkDir.length > 0 && chkDir[0].is_delete === 0 && chkDir[0].upd_status === "done") {
 		// if yes & is_delete === 0
-		return res.status(400).json({ msg: "Folder existed" });
+    return next(customError.badRequest("Folder existed"));
+
 	} else if (chkDir.length > 0 && chkDir[0].is_delete === 1) {
-		// if yes & is_delete === 1
-		const chgDelStatus = await changeFolderDeleleStatus(0, chkDir[0].id, nowTime);
+		// if yes & is_delete === 1 -> change folder delete status
+		const chgDelStatus = await changeFolderDeleteStatus(0, chkDir[0].id, nowTime);
 		console.log("chgDelStatus.affectedRows: ", chgDelStatus.affectedRows);
+    
+    if (!chgDelStatus || chgDelStatus.affectedRows !== 1) {
+      return next(customError.internalServerError());
+    }
+
 	} else {
 		// if no -> createNewDir, status = "pending"
 		token = uuidv4();
@@ -48,6 +57,9 @@ const createFolderS3AndDB = async (req, res) => {
 			nowTime
 		);
 		console.log("newDirId: ", newDirId);
+    if (newDirId === -1) {
+      return next(customError.internalServerError());
+    }
 	}
 
 	// S3
@@ -63,20 +75,28 @@ const createFolderS3AndDB = async (req, res) => {
 		key
 	);
 	console.log("createS3Res: ", createS3Res);
-	if (createS3Res["$metadata"].httpStatusCode !== 200) {
-		return res.status(500).json({ msg: "Something Wrong" });
+	if (!createS3Res) {
+		return next(customError.internalServerError());
 	}
-
+  
 	// DB
 	// update status = "done"
 	const commit = await commitMetadata("done", token);
-	console.log("commit.affectedRows: ", commit.affectedRows);
+  if (!commit) {
+    return next(customError.internalServerError());
+  }
+  // console.log("commit: ", commit);
+  console.log("commit.affectedRows: ", commit.affectedRows);
+  console.log("commit.info: ", commit.info);
+  if (commit.affectedRows !== 1) {
+    return next(customError.badRequest("Token is wrong"));
+  }
 
 	// emit new list
   const io = req.app.get("socketio");
 	emitNewList(io, userId, parentPath);
 
-	return res.json({ msg: "ok" });
+	return res.send("ok");
 };
 
 export { createFolderS3AndDB };

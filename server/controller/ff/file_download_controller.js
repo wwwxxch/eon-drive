@@ -18,56 +18,52 @@ import { findFileIdByPath } from "../../service/path/iter.js";
 import { getAllChildren } from "../../service/path/recur.js";
 
 import { deleteLocal } from "../../util/util.js";
+import { customError } from "../../error/custom_error.js";
 // ====================================================================
-const dlValidation = async (req, res, next) => {
-	console.log("dlValidation: ", req.body);
-	const { downloadList, parentPath } = req.body;
-	// req.body format -
-	//  {
-	//    "downloadList": [ "/test2/a.txt", "/test2/b.txt", "/test2/b/" ],
-	//    "parentPath": "/test2"
-	//  }
-
-	// const userId = req.session.user.id;
-
-	if (!downloadList || downloadList.length === 0 || !parentPath) {
-		return res.status(400).json({ err: "error" });
-	}
-
-	// TODO: download API - input validation - downloadList 不能是 "/"
-
-	next();
-};
-
 const dlSingleFile = async (req, res, next) => {
 	console.log("dlSingleFile: ", req.body);
 	const { downloadList } = req.body;
+  if (downloadList.length > 1 || downloadList[0].endsWith("/")) {
+    return next();
+  }
+	
+  const userId = req.session.user.id;
+  const key = downloadList[0].replace(/^\//, "").trim();
 
-	if (downloadList.length === 1 && !downloadList[0].endsWith("/")) {
-		const userId = req.session.user.id;
-		const key = downloadList[0].replace(/^\//, "").trim();
+  // 1. get current version -> giving path to obtain file id
+  const fileId = await findFileIdByPath(userId, key);
+  if (!fileId) {
+    return next(customError.badRequest("No such key"));
+  }
 
-		// 1. get current version -> giving path to obtain file id
-		const fileId = await findFileIdByPath(userId, key);
-		const version = await getCurrentVersionByFileId(fileId);
-		console.log("version: ", version);
-		// 2. copy ${key}.v<version> to ${key}
-		const copyS3ObjRes = await copyS3Obj(
-			s3clientGeneral,
-			S3_MAIN_BUCKET_NAME,
-			encodeURIComponent(`user_${userId}/${key}.v${version}`),
-			`user_${userId}/${key}`
-		);
-		// 3. get presigned URL for that file
-		const downloadUrl = await getDownloadUrl(
-			s3clientGeneral,
-			S3_MAIN_BUCKET_NAME,
-			`user_${userId}/${key}`
-		);
+  const version = await getCurrentVersionByFileId(fileId);
+  console.log("version: ", version);
+  if (version === -1) {
+    return next(customError.internalServerError());
+  }
 
-		return res.json({ downloadUrl: downloadUrl });
-	}
-	next();
+  // 2. copy ${key}.v<version> to ${key}
+  const copyS3ObjRes = await copyS3Obj(
+    s3clientGeneral,
+    S3_MAIN_BUCKET_NAME,
+    encodeURIComponent(`user_${userId}/${key}.v${version}`),
+    `user_${userId}/${key}`
+  );
+  if (!copyS3ObjRes) {
+    return next(customError.internalServerError());
+  }
+
+  // 3. get presigned URL for that file
+  const downloadUrl = await getDownloadUrl(
+    s3clientGeneral,
+    S3_MAIN_BUCKET_NAME,
+    `user_${userId}/${key}`
+  );
+  if (!downloadUrl) {
+    return next(customError.internalServerError());
+  }
+
+  return res.json({ downloadUrl: downloadUrl });
 };
 
 const dlMultiFileProcess = async (req, res, next) => {
@@ -79,6 +75,7 @@ const dlMultiFileProcess = async (req, res, next) => {
 	const m_downloadList = downloadList.map((item) => {
 		return item.replace(/^\//, "").trim();
 	});
+  console.log("downloadList: ", downloadList);
 	console.log("m_downloadList: ", m_downloadList);
 
 	// *** decide zip file name by path ***
@@ -87,7 +84,6 @@ const dlMultiFileProcess = async (req, res, next) => {
 	// 如果想要下載的檔案在第二層或更深層的目錄底下，並且不只一個檔案或資料夾要下載，壓縮檔名會是該層目錄名稱
 	let parentName = "EONDrive";
 	if (m_downloadList.length === 1 && m_downloadList[0].endsWith("/")) {
-		// parentName = m_downloadList[0].split("/").slice(-2,-1).pop();
 		parentName =
 			m_downloadList[0].split("/")[m_downloadList[0].split("/").length - 2];
 	} else if (parentPath != "/") {
@@ -110,14 +106,24 @@ const dlMultiFileProcess = async (req, res, next) => {
 			userId,
 			folders[i].slice(0, folders[i].length - 1)
 		);
+    if (allChildren.childsNoVer.length === 0 ||
+        allChildren.childsWithVer.length === 0) {
+          return next(customError.badRequest("No such key"));
+        }
 		finalListNoVer = [...finalListNoVer, ...allChildren.childsNoVer];
 		finalListWithVer = [...finalListWithVer, ...allChildren.childsWithVer];
 	}
 	for (let i = 0; i < files.length; i++) {
 		const fileId = await findFileIdByPath(userId, files[i]);
-		const version = await getCurrentVersionByFileId(fileId);
+		if (!fileId) {
+      return next(customError.badRequest("No such key"));
+    }
+    const version = await getCurrentVersionByFileId(fileId);
 		console.log("version: ", version);
-		finalListNoVer.push(files[i]);
+    if (version === -1) {
+      return next(customError.internalServerError());
+    }
+    finalListNoVer.push(files[i]);
 		finalListWithVer.push(`${files[i]}.v${version}`);
 	}
 
@@ -130,7 +136,7 @@ const dlMultiFileProcess = async (req, res, next) => {
 	next();
 };
 
-const dlCallLambda = async (req, res) => {
+const dlCallLambda = async (req, res, next) => {
 	const { finalListNoVer, finalListWithVer, parentPath, parentName } = req.body;
 	const userId = req.session.user.id;
 
@@ -141,15 +147,16 @@ const dlCallLambda = async (req, res) => {
 		parentPath,
 		parentName
 	);
-	if (toLambda.downloadUrl) {
+  if (!toLambda) {
+    return next(customError.internalServerError());
+  } else if (toLambda.downloadUrl) {
     console.log("toLambda: downloadUrl is not blank");
   } 
-	if (!toLambda.downloadUrl) {
-		return res.status(500).json({ err: "something wrong" });
-	}
+
 	return res.json({ downloadUrl: toLambda.downloadUrl });
 };
 
+// TODO: handling errors in my server ...
 const dlLocalArchive = async (req, res) => {
 	console.log("dlLocalArchive: ", req.body);
 	const { finalListNoVer, finalListWithVer, parentPath, parentName } = req.body;
@@ -190,7 +197,6 @@ const dlLocalArchive = async (req, res) => {
 };
 
 export {
-	dlValidation,
 	dlSingleFile,
 	dlMultiFileProcess,
 	dlCallLambda,
