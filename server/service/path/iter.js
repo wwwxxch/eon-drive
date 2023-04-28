@@ -36,12 +36,12 @@ const findFileIdByPath = async (userId, path) => {
   console.log("child: ", child);
 	const parentId = await iterForParentId(userId, parents);
   if (parentId === -1) {
-    return null;
+    return -1;
   }
 	const [childResult] = await getNoDelFileId(userId, parentId, child);
 	console.log("findFileIdByPath: childResult: ", childResult);
   if (!childResult) {
-    return null;
+    return -1;
   }
 	return childResult.id;
 };
@@ -51,12 +51,12 @@ const findDeletedFileIdByPath = async (userId, path) => {
 	const child = parents.pop();
 	const parentId = await iterForParentId(userId, parents);
   if (parentId === -1) {
-    return null;
+    return -1;
   }
 	const [childResult] = await getIsDelFileId(userId, parentId, child);
 	console.log("findDeletedFileIdByPath: childResult: ", childResult);
   if (!childResult) {
-    return null;
+    return -1;
   }
 	return childResult.id;
 };
