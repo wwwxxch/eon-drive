@@ -1,48 +1,31 @@
 import { DateTime } from "luxon";
-import dotenv from "dotenv";
-dotenv.config();
+import { customError } from "../../error/custom_error.js";
 
 import { getTargetByLink, getAccessList } from "../../model/db_share.js";
 import {
 	getFileDetail,
 	getOneLevelChildByParentId,
+	getCurrentVersionByFileId,
 } from "../../model/db_ff_r.js";
 
-// import path from "path";
-// import { fileURLToPath } from "url";
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-import { findParentPathByFFId, findFileIdByPath } from "../../service/path/iter.js";
+import {
+	getFileListByPath,
+	findParentPathByFFId,
+	findFileIdByPath,
+} from "../../service/path/iter.js";
 import { getAllChildren } from "../../service/path/recur.js";
-import { getCurrentVersionByFileId } from "../../model/db_ff_r.js";
 
+import dotenv from "dotenv";
+dotenv.config();
 const { S3_MAIN_BUCKET_NAME } = process.env;
 
-import {
-	s3clientGeneral
-} from "../../service/s3/s3_client.js"; 
+import { s3clientGeneral } from "../../service/s3/s3_client.js";
 
 import { copyS3Obj } from "../../service/s3/s3_copy.js";
 import { getDownloadUrl } from "../../service/s3/s3_download.js";
 import { callLambdaZip } from "../../service/lambda/lambda_invoke.js";
+
 // ===========================================================================
-const shareTokenValid = async (req, res, next) => {
-	console.log(req.path);
-	console.log(req.params);
-	const shareToken = req.params.shareToken;
-
-	// if length not correct
-	if (shareToken.length !== parseInt(process.env.SHARE_TOKEN_LENGTH)) {
-		console.log("shareToken: ", shareToken);
-		console.log("ERROR req.path: ", req.path);
-		const err = new Error("The page you requested is not existed.");
-		err.status = 404;
-		return next(err);
-	}
-
-	next();
-};
-
 const checkShareTarget = async (req, res, next) => {
 	const shareToken = req.params.shareToken;
 
@@ -50,10 +33,10 @@ const checkShareTarget = async (req, res, next) => {
 	console.log("target: ", target);
 	// target: id, name, is_public, user_id, type
 	if (!target) {
-		console.log("ERROR req.path: ", req.path);
-		const err = new Error("The page you requested is not existed.");
-		err.status = 404;
-		return next(err);
+		return res.status(404).render("error/error", {
+			status: 404,
+			message: "The page you requested is not existed.",
+		});
 	}
 
 	const basePath = req.path.split(shareToken)[0];
@@ -62,10 +45,10 @@ const checkShareTarget = async (req, res, next) => {
 		(target.type === "file" && basePath !== "/view/fi/") ||
 		(target.type === "folder" && basePath !== "/view/fo/")
 	) {
-		console.log("ERROR req.path: ", req.path);
-		const err = new Error("The page you requested is not existed.");
-		err.status = 404;
-		return next(err);
+		return res.status(404).render("error/error", {
+			status: 404,
+			message: "The page you requested is not existed.",
+		});
 	}
 
 	req.target = target;
@@ -74,26 +57,31 @@ const checkShareTarget = async (req, res, next) => {
 
 const checkSharePermission = async (req, res, next) => {
 	const target = req.target;
-  console.log(req.session.user);
-	// check permission
-	if (target.is_public === 0) {
-		if (!req.session.user) {
-      const err = new Error("You don't have the access to this resource.");
-      err.status = 403;
-      return next(err);
-			// return res.status(403).json({ msg: "No access" });
-		}
+	// console.log(req.session.user);
 
-		const userList = await getAccessList(target.id);
-		const userId = req.session.user.id;
-    console.log(userList);
-    console.log(userId);
-		if (!userList.includes(userId) && userId !== target.user_id) {
-			const err = new Error("You don't have the access to this resource.");
-      err.status = 403;
-      return next(err);
-		}
+	// check permission
+	if (target.is_public === 1) {
+		return next();
 	}
+
+	if (!req.session.user) {
+		return res.status(403).render("error/error", {
+			status: 403,
+			message: "You don't have the access.",
+		});
+	}
+
+	const userList = await getAccessList(target.id);
+	const userId = req.session.user.id;
+	console.log("userList: ", userList);
+	console.log("userId: ", userId);
+	if (!userList.includes(userId) && userId !== target.user_id) {
+		return res.status(403).render("error/error", {
+			status: 403,
+			message: "You don't have the access.",
+		});
+	}
+
 	next();
 };
 
@@ -108,7 +96,7 @@ const returnFileInfo = async (req, res) => {
 		size,
 		updated_at,
 		owner,
-    DateTime
+		DateTime,
 	});
 };
 
@@ -120,110 +108,191 @@ const returnFolderInfo = async (req, res) => {
 	return res.render("visitor/view_folder", { id, name, shareToken });
 };
 
-// *************************************************************************************
-// download
-
-const viewDLvalidation = async (req, res, next) => {
-	console.log("viewDLvalidation: ", req.body);
-	const { shareToken, desired } = req.body;
+const viewFolderList = async (req, res, next) => {
+	const { shareToken, subFolder } = req.body;
+	// find the list by token
 	const target = await getTargetByLink(shareToken);
 	if (!target) {
-		return res.status(400).send("error");
+		return res.status(404).render("error/error", {
+			status: 404,
+			message: "The page you requested is not existed.",
+		});
+	}
+	let list;
+	if (!subFolder) {
+		list = await getOneLevelChildByParentId(target.user_id, target.id, 0);
+	} else {
+		const parentParentPath = await findParentPathByFFId(target.id);
+		console.log(parentParentPath);
+		if (!parentParentPath) {
+			return next(customError.internalServerError());
+		}
+		const subWholePath = parentParentPath + target.name + "/" + subFolder;
+		console.log(subWholePath);
+		const subPathList = await getFileListByPath(
+			target.user_id,
+			subWholePath.replace(/^Home\//, "")
+		);
+
+		list = subPathList.data;
 	}
 
-	// const firstSlashIndex = desired.indexOf("/");
-	// const checkTarget = (firstSlashIndex !== -1 && desired.substring(0, firstSlashIndex) === target.name);
+	return res.json({ data: list });
+};
 
-	if (target.name !== desired.split("/")[0]) {
-		return res.status(400).send("error");
+// download
+const viewDLcheckTarget = async (req, res, next) => {
+	console.log("viewDLcheckTarget: ", req.body);
+	const { shareToken } = req.body;
+	const target = await getTargetByLink(shareToken);
+	if (!target) {
+		return next(customError.badRequest("No such key"));
 	}
-	req.body.target = target;
-  req.target = target;
+
+	if (req.path === "/view-fo-dl") {
+		const { desired } = req.body;
+		if (target.name !== desired.split("/")[0]) {
+			return next(customError.badRequest("No such key"));
+		}
+	}
+
+	req.target = target;
 	next();
 };
 
-const viewDLsingleFile = async (req, res, next) => {
-  console.log("viewDLsingleFile: ", req.body);
-	const { desired, target } = req.body;
-
-	if (desired.endsWith("/")) {
+const viewDLcheckPermission = async (req, res, next) => {
+	const { target } = req;
+	if (target.is_public === 1) {
 		return next();
 	}
 
-	const parentParentPath = await findParentPathByFFId(target.id);
-	
-  // single file download
-  const userId = target.user_id;
-	const key = (parentParentPath + desired).replace(/^Home\//, "");
-  console.log("viewDL single - key: ", key);
-  // 1. get current version -> giving path to obtain file id
-  const fileId = await findFileIdByPath(userId, key);
-  const version = await getCurrentVersionByFileId(fileId);
-  console.log("version: ", version);
-  // 2. copy ${key}.v<version> to ${key}
-  const copyS3ObjRes = await copyS3Obj(
-    s3clientGeneral,
-    S3_MAIN_BUCKET_NAME,
-    encodeURIComponent(`user_${userId}/${key}.v${version}`),
-    `user_${userId}/${key}`
-  );
-  // 3. get presigned URL for that file
-  const downloadUrl = await getDownloadUrl(
-    s3clientGeneral,
-    S3_MAIN_BUCKET_NAME,
-    `user_${userId}/${key}`
-  );
+	if (!req.session.user) {
+		return next(customError.forbidden());
+	}
+	const userList = await getAccessList(target.id);
+	const userId = req.session.user.id;
+	if (!userList.includes(userId) && userId !== target.user_id) {
+		return next(customError.forbidden());
+	}
 
-  return res.json({ downloadUrl });
+	next();
+};
+
+const viewDLfile = async (req, res, next) => {
+	console.log("viewDLFile: ", req.body);
+	const { target } = req;
+	const parentParentPath = await findParentPathByFFId(target.id);
+	if (!parentParentPath) {
+		return next(customError.internalServerError());
+	}
+	let key;
+	if (req.path === "/view-fi-dl") {
+		key = (parentParentPath + target.name).replace(/^Home\//, "");
+	} else {
+		const { desired } = req.body;
+		if (desired.endsWith("/")) {
+			return next();
+		}
+		key = (parentParentPath + desired).replace(/^Home\//, "");
+	}
+
+	console.log("viewDLfile - key: ", key);
+	const userId = target.user_id;
+
+	// 1. get current version -> find file id by given path
+	const fileId = await findFileIdByPath(userId, key);
+	console.log("fileId: ", fileId);
+	if (fileId === -1) {
+		return next(customError.badRequest("No such key"));
+	}
+	const version = await getCurrentVersionByFileId(fileId);
+	console.log("version: ", version);
+	if (version === -1) {
+		return next(customError.internalServerError());
+	}
+	// 2. copy ${key}.v<version> to ${key}
+	const copyS3ObjRes = await copyS3Obj(
+		s3clientGeneral,
+		S3_MAIN_BUCKET_NAME,
+		encodeURIComponent(`user_${userId}/${key}.v${version}`),
+		`user_${userId}/${key}`
+	);
+	if (!copyS3ObjRes) {
+		return next(customError.internalServerError());
+	}
+	// 3. get presigned URL for that file
+	const downloadUrl = await getDownloadUrl(
+		s3clientGeneral,
+		S3_MAIN_BUCKET_NAME,
+		`user_${userId}/${key}`
+	);
+	if (!downloadUrl) {
+		return next(customError.internalServerError());
+	}
+
+	return res.json({ downloadUrl });
 };
 
 const viewDLfolder = async (req, res, next) => {
-	const { desired, target } = req.body;
+	const { desired } = req.body;
+	const { target } = req;
 
 	const parentParentPath = await findParentPathByFFId(target.id);
-	const modifiedPath = 
-    `${parentParentPath}${desired.replace(/\/$/, "")}`.replace(/^Home\//, "");
+	if (!parentParentPath) {
+		return next(customError.internalServerError());
+	}
+
+	const modifiedPath = `${parentParentPath}${desired.replace(
+		/\/$/,
+		""
+	)}`.replace(/^Home\//, "");
 	console.log("modifiedPath: ", modifiedPath);
 	const children = await getAllChildren(target.user_id, modifiedPath);
+	if (
+		children.childsNoVer.length === 0 ||
+		children.childsWithVer.length === 0
+	) {
+		return next(customError.badRequest("No such key"));
+	}
 
-  req.body.finalListNoVer = children.childsNoVer;
-	req.body.finalListWithVer = children.childsWithVer;
-	req.body.parentName = desired.replace(/\/$/, "").split("/").pop();
-  req.body.parentPath = modifiedPath; 
-  next();
+	req.finalListNoVer = children.childsNoVer;
+	req.finalListWithVer = children.childsWithVer;
+	req.parentName = desired.replace(/\/$/, "").split("/").pop();
+	req.parentPath = modifiedPath;
+	next();
 };
 
 const viewDLcallLambda = async (req, res, next) => {
-  // console.log("viewDLcallLambda: ", req.body);
-  const { target, finalListNoVer, finalListWithVer, parentName, parentPath } = req.body;
-  const userId = target.user_id;
+	// console.log("viewDLcallLambda: ", req.body);
+	const { target, finalListNoVer, finalListWithVer, parentName, parentPath } =
+		req;
+	const userId = target.user_id;
 
-  const toLambda = await callLambdaZip(
+	const toLambda = await callLambdaZip(
 		userId,
 		finalListNoVer,
 		finalListWithVer,
 		parentPath,
 		parentName
 	);
-
-  if (toLambda.downloadUrl) {
-    console.log("toLambda: downloadUrl is not blank");
-  } 
-	if (!toLambda.downloadUrl) {
-		return res.status(500).json({ err: "something wrong" });
+	if (!toLambda) {
+		return next(customError.internalServerError());
+	} else if (toLambda.downloadUrl) {
+		console.log("toLambda: downloadUrl is not blank");
 	}
-  
+
 	return res.json({ downloadUrl: toLambda.downloadUrl });
 };
 
 export {
-	shareTokenValid,
 	checkShareTarget,
 	checkSharePermission,
 	returnFileInfo,
 	returnFolderInfo,
-	viewDLvalidation,
-	viewDLsingleFile,
+	viewFolderList,
+	viewDLcheckTarget,
+	viewDLcheckPermission,
+	viewDLfile,
 	viewDLfolder,
 	viewDLcallLambda,
 };

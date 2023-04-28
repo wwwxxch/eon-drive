@@ -172,7 +172,8 @@ const getTargetByLink = async (share_token) => {
     FROM ff WHERE share_token = ?
   `, share_token);
   if (row.length > 1) {
-    throw new Error("getTargetByLink - duplicated share_token in ff");
+    console.error("getTargetByLink - duplicated share_token in ff");
+    return null;
   }
   return row[0];
 };

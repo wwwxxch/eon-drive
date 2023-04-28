@@ -1,5 +1,8 @@
 import { body, validationResult } from "express-validator";
 
+import dotenv from "dotenv";
+dotenv.config();
+const SHARE_TOKEN_LENGTH = process.env.SHARE_TOKEN_LENGTH;
 // ============================================================
 const signupValid = [
 	body("name").trim().isLength({ min: 1 }).withMessage("Name is required."),
@@ -184,6 +187,18 @@ const revokeLinkValid = [
     .withMessage("id should be integer")
 ];  
 
+const viewFolderListValid = [
+  body("shareToken")
+    .matches(`[0-9a-zA-Z]{${SHARE_TOKEN_LENGTH}}`)
+    .withMessage("Share token is not valid"),
+];
+
+const viewDLValid = [
+  body("shareToken")
+    .matches(`[0-9a-zA-Z]{${SHARE_TOKEN_LENGTH}}`)
+    .withMessage("Share token is not valid"),
+];
+
 const ValidCB = async (req, res, next) => {
 	const err = validationResult(req).formatWith(({ msg }) => msg);
 	if (!err.isEmpty()) {
@@ -206,5 +221,7 @@ export {
 	restoreDeleteValid,
   createLinkValid,
   revokeLinkValid,
+  viewFolderListValid,
+  viewDLValid,
 	ValidCB,
 };
