@@ -115,6 +115,9 @@ const folderRecur = async (
 const getAllChildren = async (userId, path) => {
 	const folders = path.split("/");
 	const parentId = await iterForParentId(userId, folders);
+  if (parentId === -1) {
+    return { childsNoVer: [], childsWithVer: [] };
+  }
 	const childsNoVer = [];
 	const childsWithVer = [];
 	await folderRecur(userId, parentId, childsNoVer, childsWithVer, path);
@@ -179,36 +182,6 @@ const restoreRecur = async (parentId, currentPath, time, token, userId) => {
 		return false;
 	}
 };
-
-// // for restoring deleted folder
-// const folderRecurDeleted = async (userId, parentId, currentPath, result) => {
-// 	const arr = await getOneLevelChildByParentId(userId, parentId, 1);
-// 	for (let i = 0; i < arr.length; i++) {
-// 		if (arr[i].type === "file") {
-// 			result.push(`${currentPath}/${arr[i].name}`);
-// 		} else {
-// 			await folderRecurDeleted(
-// 				userId,
-// 				arr[i].id,
-// 				`${currentPath}/${arr[i].name}`,
-// 				result
-// 			);
-// 		}
-// 	}
-// };
-
-// // for restoring deleted folder
-// const getAllChildrenDeleted = async (userId, currentPath) => {
-// 	const folders = currentPath.split("/");
-// 	const parentId = await iterForParentId(userId, folders);
-// 	const result = [];
-// 	// find children where parent_id = parentId
-// 	// if that child is "file" => return path
-// 	// if that children is "folder" => call recur function
-// 	await folderRecurDeleted(userId, parentId, currentPath, result);
-// 	// console.log("result: ", result);
-// 	return result;
-// };
 
 export {
 	deleteRecur,

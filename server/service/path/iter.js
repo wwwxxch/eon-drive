@@ -80,27 +80,38 @@ const getFileListByPath = async (userId, path) => {
 };
 
 const findParentPathByFFId = async (ffId) => {
-	let arr = [];
-	let obj = await getParentInfoByFFId(ffId);
-	// console.log("obj.parent_id: ", obj.parent_id);
-	// console.log("obj.parent_name: ", obj.parent_name);
-	arr.push(obj.parent_name);
-	while (obj.parent_id !== 0) {
-		obj = await getParentInfoByFFId(obj.parent_id);
-		// console.log("obj.parent_id: ", obj.parent_id);
-		// console.log("obj.parent_name: ", obj.parent_name);
-		if (obj.parent_id !== 0) {
-			arr.push(obj.parent_name);
-		}
-	}
-  let parentPath;
-  if (arr.length === 1 && arr[0] === null) {
-    parentPath = "Home/";
-  } else {
-    parentPath = "Home/" + arr.reverse().join("/") + "/";
+  try {
+    let arr = [];
+    let obj = await getParentInfoByFFId(ffId);
+    if (!obj) {
+      throw new Error("getParentInfoByFFId error");
+    }
+    // console.log("obj.parent_id: ", obj.parent_id);
+    // console.log("obj.parent_name: ", obj.parent_name);
+    arr.push(obj.parent_name);
+    while (obj.parent_id !== 0) {
+      obj = await getParentInfoByFFId(obj.parent_id);
+      if (!obj) {
+        throw new Error("getParentInfoByFFId error");
+      }
+      // console.log("obj.parent_id: ", obj.parent_id);
+      // console.log("obj.parent_name: ", obj.parent_name);
+      if (obj.parent_id !== 0) {
+        arr.push(obj.parent_name);
+      }
+    }
+    let parentPath;
+    if (arr.length === 1 && arr[0] === null) {
+      parentPath = "Home/";
+    } else {
+      parentPath = "Home/" + arr.reverse().join("/") + "/";
+    }
+    // console.log("findParentPathByFFId - return value:", parentPath);
+    return parentPath;
+  } catch (e) {
+    console.error("findParentPathByFFId: ", e);
+    return null;
   }
-	// console.log("findParentPathByFFId - return value:", parentPath);
-	return parentPath;
 };
 
 export {
