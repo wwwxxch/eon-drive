@@ -1,5 +1,3 @@
-import * as errGroup from "../../server/error/custom_error.js";
-
 import { findFileIdByPath } from "../service/path/iter.js";
 // ===========================================================================
 const historyFileCheck = async (req, res, next) => {
@@ -17,7 +15,10 @@ const historyFileCheck = async (req, res, next) => {
 
 	if (!fileId) {
     console.log("historyFileCheck: ", req.path);
-    return next(new errGroup.notFoundError());
+    return res.status(404).render("error/error", {
+      status: 404,
+      message: "The page you requested is not existed."
+    });
 	}
 
   req.fileName = fileName;
