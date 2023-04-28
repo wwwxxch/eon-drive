@@ -100,8 +100,7 @@ const commitUpload = async(token, parentPath) => {
     return { status: commit.status };
   } catch (e) {
     console.error("commitUpload: ", e);
-    // TODO: find out what will be returned if there's error
-    return { status: e };
+    return { status: e.response.status };
   }
 };
 
