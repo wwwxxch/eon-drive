@@ -52,7 +52,7 @@ const deleteDB = async (req, res, next) => {
 			// DB
 			const fileId = await findFileIdByPath(userId, key);
 			console.log("fileId: ", fileId);
-      if (!fileId) {
+      if (fileId === -1) {
         return next(customError.badRequest("No such key"));
       }
 			const deleteRes = await markDeleteById(nowTime, fileId);
@@ -118,7 +118,7 @@ const permDelete = async (req, res, next) => {
 			// get fileId
 			const fileId = await findDeletedFileIdByPath(userId, key);
 			console.log("fileId: ", fileId);
-			if (!fileId) {
+			if (fileId === -1) {
         return next(customError.badRequest("No such key"));
       }
 

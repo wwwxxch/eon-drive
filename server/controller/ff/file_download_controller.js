@@ -32,7 +32,7 @@ const dlSingleFile = async (req, res, next) => {
 
   // 1. get current version -> giving path to obtain file id
   const fileId = await findFileIdByPath(userId, key);
-  if (!fileId) {
+  if (fileId === -1) {
     return next(customError.badRequest("No such key"));
   }
 
@@ -115,7 +115,7 @@ const dlMultiFileProcess = async (req, res, next) => {
 	}
 	for (let i = 0; i < files.length; i++) {
 		const fileId = await findFileIdByPath(userId, files[i]);
-		if (!fileId) {
+		if (fileId === -1) {
       return next(customError.badRequest("No such key"));
     }
     const version = await getCurrentVersionByFileId(fileId);

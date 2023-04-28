@@ -40,7 +40,7 @@ const restoreHistory = async (req, res, next) => {
 	// find the fileId by path
 	const fileId = await findFileIdByPath(userId, decodeFileWholePath);
 	console.log("fileId: ", fileId);
-	if (!fileId) {
+	if (fileId === -1) {
 		return next(customError.badRequest("No such key"));
 	}
 
@@ -133,7 +133,7 @@ const restoreDeleted = async (req, res, next) => {
 			// get fileId
 			const fileId = await findDeletedFileIdByPath(userId, key);
 			console.log("fileId: ", fileId);
-			if (!fileId) {
+			if (fileId === -1) {
 				return next(customError.badRequest("No such key"));
 			}
 

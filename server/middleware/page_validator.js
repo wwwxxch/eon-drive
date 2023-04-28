@@ -13,7 +13,7 @@ const historyFileCheck = async (req, res, next) => {
 	const fileId = await findFileIdByPath(userId, decodeFileWholePath);
 	console.log("fileId: ", fileId);
 
-	if (!fileId) {
+	if (fileId === -1) {
     console.log("historyFileCheck: ", req.path);
     return res.status(404).render("error/error", {
       status: 404,

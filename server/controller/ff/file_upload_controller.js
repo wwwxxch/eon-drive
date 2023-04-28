@@ -40,7 +40,7 @@ const checkUsed = async (req, res, next) => {
   const allocated = Number(req.session.user.allocated);
   const used = Number(req.session.user.used);
 
-  if (!fileId) {
+  if (fileId === -1) {
     if (fileSize + used > allocated) {
       return next(customError.badRequest("Not enough space"));
     }
