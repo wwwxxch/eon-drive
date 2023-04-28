@@ -10,7 +10,6 @@ import {
 	showLinksYouShared,
   showCurrentACL,
 } from "../../controller/link/link_list_controller.js";
-import { getFFShareStatus } from "../../model/db_share.js";
 
 // --------------------------------------------------------------------------------
 router.get("/links-shared-with", authentication, showLinksSharedWith);

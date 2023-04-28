@@ -1,7 +1,6 @@
 import { body, validationResult } from "express-validator";
 
 // ============================================================
-
 const signupValid = [
 	body("name").trim().isLength({ min: 1 }).withMessage("Name is required."),
 
@@ -163,6 +162,28 @@ const restoreDeleteValid = [
 	}),
 ];
 
+const createLinkValid = [
+	body("access")
+		.custom((obj) => {
+      console.log(typeof obj);
+      console.log(obj);
+			if (!obj.type || !obj.user) {
+				throw new Error("Format incorrect");
+			}
+			if (obj.type !== "public" && obj.type !== "private") {
+				throw new Error("Access type incorrect");
+			}
+			return true;
+		}),
+	body("path").trim().notEmpty().withMessage("Path cannot be empty"),
+];
+
+const revokeLinkValid = [
+  body("ff_id")
+    .isInt()
+    .withMessage("id should be integer")
+];  
+
 const ValidCB = async (req, res, next) => {
 	const err = validationResult(req).formatWith(({ msg }) => msg);
 	if (!err.isEmpty()) {
@@ -182,6 +203,8 @@ export {
 	deleteValid,
 	permDeleteValid,
 	restoreHistoryValid,
-  restoreDeleteValid,
+	restoreDeleteValid,
+  createLinkValid,
+  revokeLinkValid,
 	ValidCB,
 };

@@ -1,3 +1,4 @@
+import { customError } from "../../error/custom_error.js";
 import {
 	getLinksSharedWithYou,
 	getLinksYouShared,
@@ -52,7 +53,7 @@ const showLinksYouShared = async (req, res) => {
 	return res.json({ data: list });
 };
 
-const showCurrentACL = async(req, res) => {
+const showCurrentACL = async(req, res, next) => {
   const { fileId } = req.query;
 	const userId = req.session.user.id;
 
@@ -60,7 +61,8 @@ const showCurrentACL = async(req, res) => {
 	console.log(raw);
 
 	if (raw.length < 1) {
-		return res.status(400).json({ msg: "error" });
+		// return res.status(400).json({ msg: "error" });
+    return next(customError.badRequest("No such key"));
 	}
 
 	const share_link = raw[0].share_token
