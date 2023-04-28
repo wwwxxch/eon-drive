@@ -58,7 +58,7 @@ const windowPathName = window.location.pathname;
 const shareToken = windowPathName.split("/")[3];
 console.log(shareToken);
 const subPath = windowPathName.split("/").slice(4).join("/");
-console.log(subPath);
+console.log("subPath: ", subPath);
 
 const pathTexts = $(".path-text")
   .map(function () {
@@ -186,6 +186,6 @@ $(".individual-dl-btn").on("click", async function() {
     $(".waiting-complete").show();
     setTimeout(() => downloadStatus.text("Complete!"), 200);
     setTimeout(() => downloadModal.modal("hide"), 1500);
-		window.open(downloadFileRes.downloadUrl, "_self");
+		window.open(downloadFileRes.downloadUrl, "_blank");
 	}
 });

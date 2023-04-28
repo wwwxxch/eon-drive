@@ -8,15 +8,19 @@ $("#download-btn").click(async function () {
 		})
 		.get()
 		.join("/");
-	const selected = $("input[name='list-checkbox']:checked");
-  
+	const checkboxes = $("input[name='list-checkbox']:checked");
+  // const selected = checkboxes.map(function() {
+  //   return $(this).closest("tr").find(".ff_name").data("id");
+  // }).get();
+  // console.log("selected: ", selected);
+
   const downloadModal = $("#waitingModal");
 	const downloadStatus = $(".waiting-status");
   downloadModal.modal("show");
   downloadStatus.text("Downloading...");
   $("#waiting-spinner").addClass("spinner-border");
   $(".waiting-complete").hide();
-	const downloadFileRes = await downloadFile(currentPath, selected);
+	const downloadFileRes = await downloadFile(currentPath, checkboxes);
 	console.log("downloadFileRes: ", downloadFileRes);
 
 	if (downloadFileRes.status === 200) {
@@ -24,10 +28,10 @@ $("#download-btn").click(async function () {
     $(".waiting-complete").show();
     setTimeout(() => downloadStatus.text("Complete!"), 200);
     setTimeout(() => downloadModal.modal("hide"), 1500);
-		window.open(downloadFileRes.downloadUrl, "_self");
+		window.open(downloadFileRes.downloadUrl, "_blank");
 	}
 
-	selected.prop("checked", false);
+	checkboxes.prop("checked", false);
 	$("#delete-btn-div").hide();
 	$("#download-btn-div").hide();
 });

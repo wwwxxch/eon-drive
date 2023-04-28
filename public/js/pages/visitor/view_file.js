@@ -19,6 +19,6 @@ $(".fi-dl-btn").on("click", async function() {
     $(".waiting-complete").show();
     setTimeout(() => downloadStatus.text("Complete!"), 200);
     setTimeout(() => downloadModal.modal("hide"), 1500);
-		window.open(downloadFileRes.downloadUrl, "_self");
+		window.open(downloadFileRes.downloadUrl, "_blank");
 	}
 });
