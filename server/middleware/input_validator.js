@@ -5,23 +5,23 @@ dotenv.config();
 const SHARE_TOKEN_LENGTH = process.env.SHARE_TOKEN_LENGTH;
 // ============================================================
 const signupValid = [
-	body("name").trim().isLength({ min: 1 }).withMessage("Name is required."),
+	body("name").trim().isLength({ min: 1 }).withMessage("Name is required"),
 
 	body("email")
 		.trim()
 		.isEmail()
-		.withMessage("Email is not valid.")
+		.withMessage("Email is not valid")
 		.normalizeEmail(),
 
 	body("password")
 		.isLength({ min: 8, max: 16 })
-		.withMessage("Password should be 8-16 characters long.")
+		.withMessage("Password should be 8-16 characters long")
 		.custom((value) => {
 			const pwdregex =
 				/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
 			if (!value.match(pwdregex)) {
 				throw new Error(
-					"Password should have at least one digit, one lowercase letter or one uppercase letter, one of these characters: !@#$%^&*()_+ ."
+					"Password should have at least one digit, one lowercase letter or one uppercase letter, one of these characters: !@#$%^&*()_+"
 				);
 			}
 			return true;
@@ -46,7 +46,8 @@ const signinValid = [
 ];
 
 // ////////////////////////////////////////////////////////////////////////////
-const regexForFFName = /^[a-zA-Z0-9_\-.@%$ ]+$/;
+// const regexForFFName = /^[a-zA-Z0-9_\-.@%$ ]+$/;
+const regexForFFName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@%$ ]+$/;
 
 const uploadValid = [
 	body("fileName")
