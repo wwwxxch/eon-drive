@@ -1,13 +1,14 @@
 import { pool } from "./connection.js";
 // ==========================================================================
-const changeFolderDeleleStatus = async(del_status, folder_id, time) => {
+const changeFolderDeleteStatus = async(del_status, folder_id, time) => {
   try {
     const row = await pool.query(`
       UPDATE ff SET is_delete = ?, updated_at = ? WHERE id = ? 
     `, [del_status, time, folder_id]);
     return row;
   } catch (e) {
-    throw new Error(`changeFolderDeleleStatus: ${e}`);
+    console.error("changeFolderDeleteStatus: ", e);
+    return null;
   }
 };
 
@@ -53,8 +54,7 @@ const updateDeletedFile = async (del_status, token, file_id, file_size, time) =>
   } catch (e) {
     await conn.query("ROLLBACK");
     console.log("ROLLBACK - error: ", e);
-    // return -1;
-    throw new Error(`updateDeletedFile: ${e}`);
+    return null;
 
   } finally {
     await conn.release();
@@ -101,8 +101,7 @@ const updateExistedFile = async (token, file_id, file_size, time) => {
   } catch (e) {
     await conn.query("ROLLBACK");
     console.log("ROLLBACK - error: ", e);
-    // return -1;
-    throw new Error(`updateExistedFile: ${e}`);
+    return null;
     
   } finally {
     await conn.release();
@@ -117,7 +116,8 @@ const commitMetadata = async(upd_status, token) => {
     `, [upd_status, token]);
     return row;
   } catch (e) {
-    throw new Error(`commitMetadata: ${e}`);
+    console.error("commitMetadata: ", e);
+    return null;
   }
 };
 
@@ -166,7 +166,7 @@ const restoreFileToPrev = async(token, file_id, version, time, user_id) => {
   } catch (e) {
     await conn.query("ROLLBACK");
     console.log("ROLLBACK - error: ", e);
-    return -1;
+    return null;
     
   } finally {
     await conn.release();
@@ -222,7 +222,7 @@ const restoreDeletedFile = async(token, file_id, time, user_id) => {
   } catch (e) {
     await conn.query("ROLLBACK");
     console.log("ROLLBACK - error: ", e);
-    return -1;
+    return null;
     
   } finally {
     await conn.release();
@@ -242,7 +242,7 @@ const restoreDeletedFolder = async(token, folder_id, time ) => {
 };
 
 export {
-  changeFolderDeleleStatus,
+  changeFolderDeleteStatus,
   updateDeletedFile,
   updateExistedFile,
   commitMetadata,

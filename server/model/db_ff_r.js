@@ -1,27 +1,19 @@
 import { pool } from "./connection.js";
 // ==========================================
 const getFolderId = async(user_id, parent_id, folder_name) => {
-  try {
-    const [row] = await pool.query(`
-      SELECT id, is_delete FROM ff 
-      WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "folder"
-    `, [user_id, parent_id, folder_name]);
-    return row;
-  } catch (e) {
-    throw new Error(`getFolderId: ${e}`);
-  }
+  const [row] = await pool.query(`
+    SELECT id, is_delete, upd_status FROM ff 
+    WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "folder"
+  `, [user_id, parent_id, folder_name]);
+  return row;
 };
 
 const getFileId = async(user_id, parent_id, file_name) => {
-  try {
-    const [row] = await pool.query(`
-      SELECT id, is_delete FROM ff 
-      WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "file"
-    `, [user_id, parent_id, file_name]);
-    return row;
-  } catch (e) {
-    throw new Error(`getFileId: ${e}`);
-  }
+  const [row] = await pool.query(`
+    SELECT id, is_delete FROM ff 
+    WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "file"
+  `, [user_id, parent_id, file_name]);
+  return row;
 };
 
 const getNoDelFileId = async(user_id, parent_id, file_name) => {
@@ -53,19 +45,13 @@ const getOneLevelChildByParentId = async(user_id, parent_id, is_delete) => {
 };
 
 const getCurrentSizeByFileId = async(file_id) => {
-  try {
-    const [row] = await pool.query(`
-      SELECT size FROM file_ver WHERE ff_id = ? AND is_current = 1
-    `, file_id);
-
-    if (row.length !== 1) {
-      throw new Error("row.length !== 1");
-    }
-
-    return row[0].size;
-  } catch(e) {
-    throw new Error(`getCurrentSizeByFileId: ${e}`);
+  const [row] = await pool.query(`
+    SELECT size FROM file_ver WHERE ff_id = ? AND is_current = 1
+  `, file_id);
+  if (row.length !== 1) {
+    return -1;
   }
+  return row[0].size;
 };
 
 const getCurrentVersionByFileId = async(file_id) => {
@@ -73,7 +59,7 @@ const getCurrentVersionByFileId = async(file_id) => {
     SELECT ver FROM file_ver WHERE ff_id = ? AND is_current = 1
   `, file_id);
   if (row.length !== 1) {
-    throw new Error("getCurrentVersionByFileId: sth wrong");
+    return -1;
   }
   return row[0].ver;
 };
@@ -110,9 +96,9 @@ const getParentInfoByFFId = async(ff_id) => {
   `;
   const [parent] = await pool.query(q_string, ff_id);
   if (parent.length !== 1) {
-    return -1;
+    return null;
   }
-  return { parent_id: parent[0].parent_id, parent_name: parent[0].parent_name};
+  return { parent_id: parent[0].parent_id, parent_name: parent[0].parent_name };
 };
 
 const getDeletedList = async(user_id) => {
@@ -140,7 +126,7 @@ const getDeletedList = async(user_id) => {
   } catch (e) {
     await conn.query("ROLLBACK");
     console.log("ROLLBACK - error: ", e);
-    return -1;
+    return null;
 
   } finally {
     await conn.release();
@@ -162,7 +148,7 @@ const getFileDetail = async(ff_id) => {
     WHERE a.id = ? AND a.is_delete = 0 AND b.is_current = 1
   `, ff_id);
   if (row.length !== 1) {
-    throw new Error("getFileDetail - something wrong");
+    return null;
   }
   return row[0];
 };
@@ -171,6 +157,9 @@ const getFFInfoById = async(ff_id) => {
   const [row] = await pool.query(`
     SELECT id, name, type, user_id FROM ff WHERE id = ?
   `, ff_id);
+  if (row.length !== 1) {
+    return null;
+  }
   return row[0];
 };
 

@@ -43,10 +43,16 @@ const callLambdaZip = async (
 			parentName,
 		}),
 	});
-	const result = await lambdaClient.send(command);
-	const decoder = new TextDecoder("utf-8");
-	const payloadString = decoder.decode(result.Payload);
-	return JSON.parse(payloadString);
+  try {
+    const result = await lambdaClient.send(command);
+    const decoder = new TextDecoder("utf-8");
+    const payloadString = decoder.decode(result.Payload);
+    return JSON.parse(payloadString);
+  } catch (e) {
+    console.log("callLambdaZip: ", e);
+    return null;
+  }
+	
 };
 
 export { callLambdaZip };

@@ -8,7 +8,8 @@ const createS3Folder = async(client, bucket, key) => {
   });
   try {
     const response = await client.send(command);
-    return response;
+    // console.log("createS3Folder: response: ", response);
+    return true;
   } catch (err) {
     console.error("createFolder: ", err);
     return false;

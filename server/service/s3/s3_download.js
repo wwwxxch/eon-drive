@@ -29,7 +29,14 @@ const getDownloadUrl = async (
 		Bucket: bucket,
 		Key: fileName,
 	});
-	return await getSignedUrl(client, command, { expiresIn });
+  try {
+    const url = await getSignedUrl(client, command, { expiresIn });
+    return url;
+  } catch (e) {
+    console.error("getDownloadUrl: ", e);
+    return null;
+  }
+	
 };
 
 // download files to local

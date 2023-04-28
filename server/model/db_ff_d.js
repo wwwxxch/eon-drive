@@ -31,11 +31,12 @@ const markDeleteById = async (time, id) => {
 
 		await conn.commit();
 		console.log("COMMIT");
-		return 1;
+		return true;
 	} catch (e) {
 		await conn.query("ROLLBACK");
-		console.log("ROLLBACK - error: ", e);
-		return -1;
+		console.error("ROLLBACK - error: ", e);
+    return false;
+
 	} finally {
 		await conn.release();
 		console.log("RELEASE CONNECTION");
@@ -79,11 +80,12 @@ const permDeleteByFileId = async (file_id) => {
 
 		await conn.commit();
 		console.log("COMMIT");
-		return 1;
+		return true;
 	} catch (e) {
 		await conn.query("ROLLBACK");
-		console.log("ROLLBACK - error: ", e);
-		return -1;
+		console.error("ROLLBACK - error: ", e);
+		return false;
+
 	} finally {
 		await conn.release();
 		console.log("RELEASE CONNECTION");
@@ -120,11 +122,12 @@ const permDeleteByFolderId = async (folder_id) => {
 
 		await conn.commit();
 		console.log("COMMIT");
-		return 1;
+		return true;
 	} catch (e) {
 		await conn.query("ROLLBACK");
-		console.log("ROLLBACK - error: ", e);
-		return -1;
+		console.error("ROLLBACK - error: ", e);
+		return false;
+
 	} finally {
 		await conn.release();
 		console.log("RELEASE CONNECTION");

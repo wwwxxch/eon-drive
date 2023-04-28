@@ -8,7 +8,8 @@ const copyS3Obj = async(client, bucket, fromKey, toKey) => {
   });
   try {
     const response = await client.send(command);
-    return response;
+    // console.log("copyS3Obj: response: ", response);
+    return true;
   } catch (err) {
     console.error("copyS3Obj: ", err);
     return false;

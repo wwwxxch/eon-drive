@@ -15,6 +15,8 @@ dotenv.config();
 const DEFAULT_S3_EXPIRES = parseInt(process.env.DEFAULT_S3_EXPIRES);
 const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE * 1024 * 1024);
 
+import { customError } from "../../error/custom_error.js";
+
 // ==================================================================
 
 // get the presigned URL for an entire file upload
@@ -27,7 +29,8 @@ const getSingleSignedUrl = async (client, bucket, key, expiresIn = DEFAULT_S3_EX
     const url = await getSignedUrl(client, command, { expiresIn });
     return url;
   } catch(e) {
-    throw new Error(`getSingleSignedUrl: ${e}`);
+    console.error("getSingleSignedUrl: ", e);
+    return null;
   }
 };
 
@@ -75,7 +78,8 @@ const getMultiSignedUrl = async (client, bucket, key, count, expiresIn = 900 ) =
 
     return { partUrls: partUrls, completeUrl: completeUrl };
   } catch (e) {
-    throw new Error(`getMultiSignedUrl: ${e}`);
+    console.error("getMultiSignedUrl: ", e);
+    return null;
   }
 };
 

@@ -10,7 +10,8 @@ const createFolder = async(parent_id, folder_name, user_id, token, time) => {
     
     return ff.insertId;
   } catch (e) {
-    throw new Error(`createFolder: ${e}`);
+    console.error("createFolder: ", e);
+    return -1;
   }
 };
 
@@ -39,9 +40,8 @@ const createFile = async(parent_id, file_name, file_size, user_id, token, time) 
 
   } catch (e) {
     await conn.query("ROLLBACK");
-    console.log("ROLLBACK - error: ", e);
-    throw new Error();
-    // return -1;
+    console.error("ROLLBACK - error: ", e);
+    return null;
   
   } finally {
     await conn.release();

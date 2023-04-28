@@ -11,9 +11,10 @@ const deleteObject = async (client, bucket, key) => {
   });
   try {
     const response = await client.send(command);
-    return response;
-  } catch (err) {
-    console.error("deleteOneObject: ", err);
+    // console.log("deleteObj: response: ", response);
+    return true;
+  } catch (e) {
+    console.error("deleteOneObject: ", e);
     return false;
   }
 };
@@ -72,21 +73,6 @@ const deleteFolderAndContents = async (client, bucket, key) => {
   // delete the folder itself
   await deleteObject(client, bucket, key);
 };
-
-// const listObjectsUnderFolder = async (client, bucket, folderName) => {
-//   const command = new ListObjectsV2Command({
-//     Bucket: bucket,
-//     Prefix: folderName,
-//     StartAfter: folderName
-//   });
-//   try {
-//     const response = await client.send(command);
-//     return response;
-//   } catch (err) {
-//     console.error("listObjectsUnderFolder: ", err);
-//     return false;
-//   }
-// };
 
 export { 
   deleteObject,

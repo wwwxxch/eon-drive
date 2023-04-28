@@ -19,7 +19,7 @@ const iterForParentId = async (userId, folders) => {
       } else if (folders[i] === "") {
         continue;
       } else {
-        console.error("(fn) iterForParentId - error");
+        console.error("iterForParentId - error");
         console.error("parentId: ", parentId, " folders[i]: ", folders[i]);
         return -1;
       }
@@ -35,8 +35,14 @@ const findFileIdByPath = async (userId, path) => {
   console.log("parents: ", parents);
   console.log("child: ", child);
 	const parentId = await iterForParentId(userId, parents);
+  if (parentId === -1) {
+    return null;
+  }
 	const [childResult] = await getNoDelFileId(userId, parentId, child);
 	console.log("findFileIdByPath: childResult: ", childResult);
+  if (!childResult) {
+    return null;
+  }
 	return childResult.id;
 };
 
@@ -44,8 +50,14 @@ const findDeletedFileIdByPath = async (userId, path) => {
   const parents = path.split("/");
 	const child = parents.pop();
 	const parentId = await iterForParentId(userId, parents);
+  if (parentId === -1) {
+    return null;
+  }
 	const [childResult] = await getIsDelFileId(userId, parentId, child);
 	console.log("findDeletedFileIdByPath: childResult: ", childResult);
+  if (!childResult) {
+    return null;
+  }
 	return childResult.id;
 };
 

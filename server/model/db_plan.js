@@ -28,8 +28,7 @@ const updateSpaceUsedByUser = async(user_id, time) => {
   } catch (e) {
     await conn.query("ROLLBACK");
     console.log("ROLLBACK - error: ", e);
-    // return -1;
-    throw new Error(`updateSpaceByUser: ${e}`);
+    return -1;
 
   } finally {
     await conn.release();
