@@ -21,10 +21,10 @@ const downloadFile = async (path, fileArray) => {
 			downloadList,
 		});
 		console.log("downloadRes: ", downloadRes);
-		return { status: 200, downloadUrl: downloadRes.data.downloadUrl };
+		return { status: downloadRes.status, downloadUrl: downloadRes.data.downloadUrl };
 	} catch (e) {
 		console.error("downloadFile: ", e);
-		return false;
+		return { status: e.response.status, data: e.response.data };
 	}
 };
 

@@ -12,7 +12,7 @@ const startUpload = async(fileName, fileWholePath, fileSize, fileSplit) => {
     return start;
   } catch (e) {
     console.error("startUpload: ", e);
-    return { status: e.response.status };
+    return { status: e.response.status, data: e.response.data };
   }
 };
 
@@ -27,7 +27,7 @@ const singleUpload = async(url, file) => {
     return { status: putFile.status };
   } catch (e) {
     console.error("singleUpload: ", e);
-    return { status: e.response.status };
+    return { status: e.response.status, data: e.response.data };
   }
 };
 
@@ -82,7 +82,7 @@ const multiUpload = async(partUrls, completeUrl, chunkArray) => {
 		});
   } catch(e) {
     console.error("multiUpload: ", e);
-    return { status: e.response.status };
+    return { status: e.response.status, data: e.response.data };
   }
 };
 
@@ -100,18 +100,20 @@ const commitUpload = async(token, parentPath) => {
     return { status: commit.status };
   } catch (e) {
     console.error("commitUpload: ", e);
-    return { status: e.response.status };
+    return { status: e.response.status, data: e.response.data };
   }
 };
 
 // ==============================================================================
-const uploadFile = async (currentDir, file, modal, status) => {
+const uploadFile = async (currentDir, file, modalObj) => {
   
-  modal.modal("show");
-  status.text("Uploading...");
-  $("#waiting-spinner").addClass("spinner-border");
-  $(".waiting-complete").hide();
+  modalObj.uploadModal.modal("show");
+  modalObj.uploadStatus.text("Uploading...");
+  modalObj.uploadSpinner.addClass("spinner-border");
+  modalObj.uploadComplete.hide();
+  modalObj.uploadError.empty();
 
+  // 0. request payload
   let fileUsed = {};
   if (file.modified) {
     fileUsed.name = file.file.name;
@@ -121,7 +123,6 @@ const uploadFile = async (currentDir, file, modal, status) => {
     fileUsed = file;
   }
 
-  // 0. request payload
   let parentPath = "";
   if (currentDir !== "Home") {
     parentPath = currentDir.split("/").slice(1).join("/");
@@ -143,22 +144,35 @@ const uploadFile = async (currentDir, file, modal, status) => {
   
   try {
     // 1. fetch /upload-start
-    const getUrl = await startUpload(fileUsed.name, wholePath, fileUsed.size, splitCount);
-    console.log("getUrl.status: ", getUrl.status);
-
-    if (getUrl.status === 400) {  
-      $("#waiting-spinner").removeClass("spinner-border");
-      status.text("No enough space");
-      setTimeout(() => modal.modal("hide"), 1500);
+    const startUploadRes = await startUpload(fileUsed.name, wholePath, fileUsed.size, splitCount);
+    console.log("startUploadRes.status: ", startUploadRes.status);
+    if (startUploadRes.status !== 200 && startUploadRes.status !== 500) {
+      let modalHTML;
+      if (typeof startUploadRes.data.error === "string") {
+        modalHTML = `<span>${startUploadRes.data.error}</span>`;
+      } else {
+        modalHTML = singleUpload.data.error.map(item => {
+          return `<span>${item}</span>`;
+        }).join(" ");
+      } 
+      modalObj.uploadSpinner.removeClass("spinner-border");
+      modalObj.uploadStatus.text("");
+      modalObj.uploadError.html(modalHTML);
+      setTimeout(() => modalObj.uploadModal.modal("hide"), 2000);
+      
       return false;
-    } else if (getUrl.status !== 200) {
-      $("#waiting-spinner").removeClass("spinner-border");
-      status.text("Opps! Something went wrong");
-      setTimeout(() => modal.modal("hide"), 1500);
+    
+    } else if (startUploadRes.status === 500) {
+      
+      modalObj.uploadSpinner.removeClass("spinner-border");
+      modalObj.uploadStatus.text("");
+      modalObj.uploadError.html("<span>Opps! Something went wrong. Please try later or contact us.</span>");
+      setTimeout(() => modalObj.uploadModal.modal("hide"), 2000);
+      
       return false;
     }
 
-    const { singleUrl, partUrls, completeUrl, token } = getUrl.data;
+    const { singleUrl, partUrls, completeUrl, token } = startUploadRes.data;
     
     // 2. fetch S3 presigned URL
     let toS3Res;
@@ -172,31 +186,43 @@ const uploadFile = async (currentDir, file, modal, status) => {
       console.log("multiUploadRes: ", multiUploadRes);
       toS3Res = multiUploadRes.status; 
     } 
-
     if (toS3Res !== 200) {
       console.error("toS3Res: ", toS3Res);
-      $("#waiting-spinner").removeClass("spinner-border");
-      status.text("Opps! Something went wrong");
-      setTimeout(() => modal.modal("hide"), 1500);
+      
+      modalObj.uploadSpinner.removeClass("spinner-border");
+      modalObj.uploadStatus.text("");
+      modalObj.uploadError.html("<span>Opps! Something went wrong. Please try later or contact us.</span>");
+      setTimeout(() => modalObj.uploadModal.modal("hide"), 2000);
+      
       return false;
     }
 
     // 3. fetch /upload-commit
     const commitUploadRes = await commitUpload(token, parentPath);
-    if (commitUploadRes.status !== 200) {
-      $("#waiting-spinner").removeClass("spinner-border");
-      status.text("Opps! Something went wrong");
-      setTimeout(() => modal.modal("hide"), 1500);
+    if (commitUploadRes.status !== 200 && commitUploadRes.status !== 500) {
+      
+      modalObj.uploadSpinner.removeClass("spinner-border");
+      modalObj.uploadStatus.text("");
+      modalObj.uploadError.html(`<span>${commitUploadRes.data.error}</span>`);
+      setTimeout(() => modalObj.uploadModal.modal("hide"), 2000);
+      
+      return false;
+
+    } else if (commitUploadRes.status === 500) {
+
+      modalObj.uploadSpinner.removeClass("spinner-border");
+      modalObj.uploadStatus.text("");
+      modalObj.uploadError.html("<span>Opps! Something went wrong. Please try later or contact us.</span>");
+      setTimeout(() => modalObj.uploadModal.modal("hide"), 2000);
+      
       return false;
     }
 
-    $("#waiting-spinner").removeClass("spinner-border");
-    $(".waiting-complete").show();
-    setTimeout(() => status.text("Complete!"), 200);
-    // modal.modal({backdrop: true});
-    // TODO: try to setup data-bas-backdrop to true
-    modal.data("bs-backdrop", true);
-    setTimeout(() => modal.modal("hide"), 1500);
+    // 4. show complete message
+    modalObj.uploadSpinner.removeClass("spinner-border");
+    modalObj.uploadComplete.show();
+    setTimeout(() => modalObj.uploadStatus.text("Complete!"), 200);
+    setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
 
     return true;
 

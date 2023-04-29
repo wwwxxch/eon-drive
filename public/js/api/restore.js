@@ -5,22 +5,20 @@ const restoreFile = async (version, fileWholePath, parentPath) => {
 			fileWholePath,
 			parentPath,
 		});
-		// return restoreFileRes.data;
-    return true;
+    return { status: restoreFileRes.status };
 	} catch (e) {
 		console.error("restoreFile: ", e);
-		return false;
+		return { status: e.response.status, data: e.response.data };
 	}
 };
 
 const restoreDelete = async (restoreList) => {
   try {
 		const restoreDeleteRes = await axios.post("/restore-deleted",{ restoreList });
-		// return restoreDeleteRes;
-    return true;
+    return { status: restoreDeleteRes.status };
 	} catch (e) {
 		console.error("restoreDelete: ", e);
-		return false;
+		return { status: e.response.status, data: e.response.data };
 	}
 };
 

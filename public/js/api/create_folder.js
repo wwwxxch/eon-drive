@@ -10,10 +10,10 @@ const createFolder = async (path, folderName) => {
   try {
     const createFolderRes = await axios.post(api_destination, { parentPath, folderName });
     // console.log("createFolderRes: ", createFolderRes);
-    return true;
+    return { status: createFolderRes.status };
   } catch (e) {
     console.error("createFolder: ", e);
-    return e.response;
+    return { status: e.response.status, data: e.response.data };
   }
 };
 
