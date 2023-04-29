@@ -28,6 +28,10 @@ $("#delete-btn").on("click", async function () {
 
   $("#confirm-delete-btn").off("click").on("click", async function () {
     $("#confirmDeleteModal").modal("hide");
+    selected.prop("checked", false);
+    $("#delete-btn-div").hide();
+    $("#download-btn-div").hide();
+
     let text;
     if (toDelete.length > 1) {
       text = `Delete <b>${toDelete.length} items</b>`;
@@ -44,7 +48,7 @@ $("#delete-btn").on("click", async function () {
       text: text,
       layout: "bottomLeft",
       closeWith: ["click"],
-      timeout: 2000,
+      timeout: 10000,
       theme: "custom-theme",
       progressBar: true,
       callbacks: {
@@ -53,25 +57,32 @@ $("#delete-btn").on("click", async function () {
         },
       },
     });
-    deleteNoti.show();
-    let requestIsOngoing = true;
-    const deleteFileRes = await deleteFile(currentPath, toDelete);
-    // For test 
-    // const deleteFileRes = true;
 
-    if (deleteFileRes) {
-      requestIsOngoing = false;
-    } else {
-      // TODO: if delete failed
-      requestIsOngoing = false;
-    }
-    if (!requestIsOngoing) {
+    deleteNoti.show();
+    
+    const deleteFileRes = await deleteFile(currentPath, toDelete);
+
+    if (deleteFileRes.status === 200) {
       setTimeout(() => deleteNoti.close(), 2000);
-    }
-    
-    selected.prop("checked", false);
-    $("#delete-btn-div").hide();
-    $("#download-btn-div").hide();
-    
+    } else if (deleteFileRes.status >= 400 && deleteFileRes.status < 500) {
+      deleteNoti.close();
+      let errorHTML;
+      if (typeof deleteFileRes.data.error === "string") {
+        errorHTML = `<span>${deleteFileRes.data.error}</span>`;
+      } else {
+        errorHTML = deleteFileRes.data.error
+          .map((err) => `<span>${err}</span>`)
+          .join("");
+      }
+      $("#errorModal").modal("show");
+      $("#error-msg").html(errorHTML);
+    } else {
+      deleteNoti.close();
+      const errorHTML =
+        "<span>Opps! Something went wrong. Please try later or contact us.</span>";
+      $("#errorModal").modal("show");
+      $("#error-msg").html(errorHTML);
+    }	
+
   });	
 });

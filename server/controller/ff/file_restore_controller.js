@@ -39,6 +39,7 @@ const restoreHistory = async (req, res, next) => {
 
 	// find the fileId by path
 	const fileId = await findFileIdByPath(userId, decodeFileWholePath);
+  // const fileId = -1;
 	console.log("fileId: ", fileId);
 	if (fileId === -1) {
 		return next(customError.badRequest("No such key"));
@@ -67,6 +68,7 @@ const restoreHistory = async (req, res, next) => {
 		`user_${userId}/${fileWholePath}.v${version}`,
 		`user_${userId}/${decodeFileWholePath}.v${restore.new_ver}`
 	);
+  // const newRecordInS3 = null;
 	console.log("newRecordInS3: ", newRecordInS3);
 	if (!newRecordInS3) {
 		return next(customError.internalServerError());
@@ -132,6 +134,7 @@ const restoreDeleted = async (req, res, next) => {
 		} else {
 			// get fileId
 			const fileId = await findDeletedFileIdByPath(userId, key);
+      // const fileId = -1;
 			console.log("fileId: ", fileId);
 			if (fileId === -1) {
 				return next(customError.badRequest("No such key"));

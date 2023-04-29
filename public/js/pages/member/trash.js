@@ -133,38 +133,57 @@ $("#restore-delete-btn").click(async function () {
 			$("#confirmRestoreModal").modal("hide");
 			selected.prop("checked", false);
 
-			let text;
-			if (toRestore.length > 1) {
-				text = `Restored <b>${toRestore.length} items</b>`;
-			} else if (toRestore.length === 1) {
-				text = `Restored <b>${toRestore[0]}</b>`;
-			}
-			// console.log("text.length: ", text.length);
-			const widthPerChar = 7;
-			const minWidth = 200;
-			const additionalWidth = Math.max(text.length - 30, 0) * widthPerChar;
-			const width = Math.max(minWidth + additionalWidth, minWidth);
-			// console.log(width);
+      let text;
+      if (toRestore.length > 1) {
+        text = `Restored <b>${toRestore.length} items</b>`;
+      } else if (toRestore.length === 1) {
+        text = `Restored <b>${toRestore[0]}</b>`;
+      }
+      // console.log("text.length: ", text.length);
+      const widthPerChar = 7;
+      const minWidth = 200;
+      const additionalWidth = Math.max(text.length - 30, 0) * widthPerChar;
+      const width = Math.max(minWidth + additionalWidth, minWidth);
+      // console.log(width);
 
-			const restoreNoti = new Noty({
-				text: text,
-				layout: "bottomLeft",
-				closeWith: ["click"],
-				// timeout: 1000,
-				theme: "custom-theme",
-				progressBar: false,
-				callbacks: {
-					onTemplate: function () {
-						this.barDom.style.width = `${width}px`;
-					},
-				},
-			});
-			restoreNoti.show();
+      const restoreNoti = new Noty({
+        text: text,
+        layout: "bottomLeft",
+        closeWith: ["click"],
+        timeout: 10000,
+        theme: "custom-theme",
+        progressBar: true,
+        callbacks: {
+          onTemplate: function () {
+            this.barDom.style.width = `${width}px`;
+          },
+        },
+      });
+      restoreNoti.show();
 
-			const askRestoreDelete = await restoreDelete(toRestore);
-			// TODO: if !askRestoreDelete;
-
-			setTimeout(() => restoreNoti.close(), 1000);
+      const askRestoreDelete = await restoreDelete(toRestore);
+      
+      if (askRestoreDelete.status === 200) {
+        setTimeout(() => restoreNoti.close(), 2000);
+      } else if (askRestoreDelete.status >= 400 && askRestoreDelete.status < 500) {
+        restoreNoti.close();
+        let errorHTML;
+				if (typeof askRestoreDelete.data.error === "string") {
+					errorHTML = `<span>${askRestoreDelete.data.error}</span>`;
+				} else {
+					errorHTML = askRestoreDelete.data.error
+						.map((err) => `<span>${err}</span>`)
+						.join("");
+				}
+				$("#errorModal").modal("show");
+				$("#error-msg").html(errorHTML);
+      } else {
+        restoreNoti.close();
+				const errorHTML =
+					"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+				$("#errorModal").modal("show");
+				$("#error-msg").html(errorHTML);
+      }			
 		});
 });
 
@@ -214,7 +233,7 @@ $("#perm-delete-btn").on("click", function () {
 				text: text,
 				layout: "bottomLeft",
 				closeWith: ["click"],
-				timeout: 2000,
+				timeout: 10000,
 				theme: "custom-theme",
 				progressBar: true,
 				callbacks: {
@@ -224,20 +243,29 @@ $("#perm-delete-btn").on("click", function () {
 				},
 			});
 			permDeleteNoti.show();
-			let requestIsOngoing = true;
+
 			const askPermDelete = await permDeleteFile(toPermDelete);
 
-			// For test
-			// const askPermDelete=true;
-
-			if (askPermDelete) {
-				requestIsOngoing = false;
-			} else {
-				// TODO: if perm delete failed
-				requestIsOngoing = false;
-			}
-			if (!requestIsOngoing) {
-				setTimeout(() => permDeleteNoti.close(), 1500);
-			}
+			if (askPermDelete.status === 200) {
+        setTimeout(() => permDeleteNoti.close(), 2000);
+      } else if (askPermDelete.status >= 400 && askPermDelete.status < 500) {
+        permDeleteNoti.close();
+        let errorHTML;
+				if (typeof askPermDelete.data.error === "string") {
+					errorHTML = `<span>${askPermDelete.data.error}</span>`;
+				} else {
+					errorHTML = askPermDelete.data.error
+						.map((err) => `<span>${err}</span>`)
+						.join("");
+				}
+				$("#errorModal").modal("show");
+				$("#error-msg").html(errorHTML);
+      } else {
+        permDeleteNoti.close();
+				const errorHTML =
+					"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+				$("#errorModal").modal("show");
+				$("#error-msg").html(errorHTML);
+      }
 		});
 });

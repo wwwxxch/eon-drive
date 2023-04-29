@@ -37,11 +37,13 @@ const deleteDB = async (req, res, next) => {
 			// DB
 			const folders = key.slice(0, key.length - 1).split("/");
 			const parentId = await iterForParentId(userId, folders);
+      // const parentId = -1;
 			console.log("parentId: ", parentId);
       if (parentId === -1) {
         return next(customError.badRequest("No such key"));
       }
 			const deleteRecurRes = await deleteRecur(parentId, userId, nowTime);
+      // const deleteRecurRes = null;
 			console.log("deleteRecurRes: ", deleteRecurRes);
       if (!deleteRecurRes) {
         return next(customError.internalServerError());
@@ -51,6 +53,7 @@ const deleteDB = async (req, res, next) => {
 
 			// DB
 			const fileId = await findFileIdByPath(userId, key);
+      // const fileId = -1;
 			console.log("fileId: ", fileId);
       if (fileId === -1) {
         return next(customError.badRequest("No such key"));
@@ -102,6 +105,7 @@ const permDelete = async (req, res, next) => {
 
 			// update DB
 			const deleteDB = await permDeleteRecur(parentId, userId);
+      // const deleteDB = null;
 			console.log("deleteDB: ", deleteDB);
       if (!deleteDB) {
         return next(customError.internalServerError());
@@ -117,6 +121,7 @@ const permDelete = async (req, res, next) => {
       console.log("perm delete file - ", key);
 			// get fileId
 			const fileId = await findDeletedFileIdByPath(userId, key);
+      // const fileId = -1;
 			console.log("fileId: ", fileId);
 			if (fileId === -1) {
         return next(customError.badRequest("No such key"));
