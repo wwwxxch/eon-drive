@@ -76,7 +76,7 @@ const deleteDB = async (req, res, next) => {
   emitTrashList(io, userId);
   emitUsage(io, userId, req.session.user);
 
-	return res.send("ok");
+	return res.json({ msg: "ok" });
 };
 
 const permDelete = async (req, res, next) => {
@@ -141,7 +141,7 @@ const permDelete = async (req, res, next) => {
 
   const io = req.app.get("socketio");
   emitTrashList(io, userId);
-	return res.send("ok");
+	return res.json({ msg: "ok" });
 };
 
 export { deleteDB, permDelete };

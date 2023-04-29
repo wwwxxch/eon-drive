@@ -91,7 +91,7 @@ const restoreHistory = async (req, res, next) => {
 	emitHistoryList(io, userId, fileId);
 	emitUsage(io, userId, req.session.user);
 
-	return res.send("ok");
+	return res.json({ msg: "ok" });
 };
 
 const restoreDeleted = async (req, res, next) => {
@@ -180,7 +180,7 @@ const restoreDeleted = async (req, res, next) => {
 	emitTrashList(io, userId);
 	emitUsage(io, userId, req.session.user);
 
-	return res.send("ok");
+	return res.json({ msg: "ok" });
 };
 
 export { restoreHistory, restoreDeleted };

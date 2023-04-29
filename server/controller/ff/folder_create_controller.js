@@ -35,7 +35,7 @@ const createFolderS3AndDB = async (req, res, next) => {
 	const chkDir = await getFolderId(userId, parentId, folderName);
 	if (chkDir.length > 0 && chkDir[0].is_delete === 0 && chkDir[0].upd_status === "done") {
 		// if yes & is_delete === 0
-    return next(customError.badRequest("Folder existed"));
+    return next(customError.badRequest("Folder is already existed"));
 
 	} else if (chkDir.length > 0 && chkDir[0].is_delete === 1) {
 		// if yes & is_delete === 1 -> change folder delete status
@@ -96,7 +96,7 @@ const createFolderS3AndDB = async (req, res, next) => {
   const io = req.app.get("socketio");
 	emitNewList(io, userId, parentPath);
 
-	return res.send("ok");
+	return res.json({ msg: "ok" });
 };
 
 export { createFolderS3AndDB };

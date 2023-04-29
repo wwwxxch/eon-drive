@@ -218,7 +218,7 @@ const uploadCommitDB = async (req, res, next) => {
   emitNewList(io, userId, parentPath);
   emitUsage(io, userId, req.session.user);
 
-  return res.send("ok");
+	return res.json({ msg: "ok" });
 };
 
 export { checkUsed, uploadChangeDB, getS3Url, uploadCommitDB };
