@@ -113,10 +113,7 @@ const viewFolderList = async (req, res, next) => {
 	// find the list by token
 	const target = await getTargetByLink(shareToken);
 	if (!target) {
-		return res.status(404).render("error/error", {
-			status: 404,
-			message: "The page you requested is not existed.",
-		});
+		return next(customError.notFound("The page you requested is not existed."));
 	}
 	let list;
 	if (!subFolder) {

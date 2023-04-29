@@ -18,7 +18,7 @@ const emitNewList = async (io, userId, parentPath) => {
 
 const emitHistoryList = async (io, userId, fileId) => {
 	const versions = await getVersionsByFileId(fileId);
-	console.log("versions", versions);
+	// console.log("versions", versions);
 
 	const deleteRecords = await getDeleteRecordsByFileId(fileId);
 	// console.log("deleteRecords: ", deleteRecords);
@@ -32,6 +32,9 @@ const emitHistoryList = async (io, userId, fileId) => {
 
 const emitTrashList = async (io, userId) => {
 	const deleted = await getDeletedList(userId);
+  if (!deleted) {
+    return;
+  }
 	// console.log("deleted: ", deleted);
 
 	const { all, folders } = deleted;
