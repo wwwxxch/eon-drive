@@ -159,6 +159,7 @@ const revokeLink = async (req, res, next) => {
 	const userId = req.session.user.id;
 
 	const shareStatus = await checkLinkByFFId(ff_id);
+  // const shareStatus = null;
 	console.log("shareStatus: ", shareStatus);
 
 	if (!shareStatus) {

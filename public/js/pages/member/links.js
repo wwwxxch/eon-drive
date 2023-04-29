@@ -80,17 +80,28 @@ $(".you-shared-row").on("click", ".revoke-btn", async function () {
   $("#revoke-link-btn")
 		.off("click")
 		.on("click", async function () {
+      setTimeout(() => $("#revokeLinkModal").modal("hide"), 100);
 			const askRevokeLink = await revokeLink(ff_id);
 			console.log("askRevokeLink: ", askRevokeLink);
-			// TODO: response from backend
-			if (askRevokeLink) {
-				console.log("here");
-				$("#revokeAlertModal").modal("show");
-				setTimeout(function () {
-					$("#revokeAlertModal").modal("hide");
-				}, 2000);
-			}
-			$("#revokeLinkModal").modal("hide");
+      $("#revokeAlertModal").modal("show");
+      $("#revoke-alert-msg").empty();
+			if (askRevokeLink.status === 200) {	
+        $("#revoke-alert-msg").text("Your link has been revoked.");
+			} else if (askRevokeLink.status >= 400 && askRevokeLink.status < 500) {
+        let errorHTML;
+        if (typeof askRevokeLink.data.error === "string") {
+          errorHTML = `<span>${askRevokeLink.data.error}</span>`;
+        } else {
+          errorHTML = askRevokeLink.data.error.map((err) => `<span>${err}</span>`).join("");
+        }
+        $("#revoke-alert-msg").html(errorHTML);
+
+      } else {
+        const errorHTML = 
+          "<span>Opps! Something went wrong. Please try later or contact us.</span>";
+          $("#revoke-alert-msg").html(errorHTML);
+      }
+			setTimeout(() => $("#revokeAlertModal").modal("hide"), 3000);
 		});
 
 });
