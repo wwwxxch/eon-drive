@@ -46,7 +46,7 @@ const dlSingleFile = async (req, res, next) => {
   const copyS3ObjRes = await copyS3Obj(
     s3clientGeneral,
     S3_MAIN_BUCKET_NAME,
-    encodeURIComponent(`user_${userId}/${key}.v${version}`),
+    `user_${userId}/${encodeURIComponent(key)}.v${version}`,
     `user_${userId}/${key}`
   );
   if (!copyS3ObjRes) {
