@@ -216,7 +216,7 @@ const getLinksYouShared = async (user_id) => {
   return row;
 };
 
-const deleteLinkByFFId = async(user_id, ff_id) => {
+const deleteLinkByFFId = async(user_id, ff_id, is_public) => {
   const conn = await pool.getConnection();
   try {
     console.log("START TRANSACTION - deleteLinkByFFid");
@@ -225,11 +225,13 @@ const deleteLinkByFFId = async(user_id, ff_id) => {
     const [ff] = await conn.query(`
       UPDATE ff SET share_token = null, is_public = 0 WHERE user_id = ? AND id = ? 
     `, [user_id, ff_id]);
-
-    const [share_link_perm] = await conn.query(`
-      DELETE FROM share_link_perm WHERE ff_id = ?
-    `, [ff_id]);
-
+    
+    if (is_public === 1) {
+      const [share_link_perm] = await conn.query(`
+        DELETE FROM share_link_perm WHERE ff_id = ?
+      `, [ff_id]);
+    } 
+    
     await conn.commit();
     console.log("COMMIT");
     return true;
@@ -287,12 +289,18 @@ const getLinksSharedNoti = async(has_access, is_read, offset = 5) => {
 };
 
 const changeNotiRead = async(has_access, share_id) => {
-  const [row] = await pool.query(`
-    UPDATE share_link_perm SET is_read = 1 
-    WHERE has_access = ? AND id = ?
-  `, [has_access, share_id]);
+  try {
+    const [row] = await pool.query(`
+      UPDATE share_link_perm SET is_read = 1 
+      WHERE has_access = ? AND id = ?
+    `, [has_access, share_id]);
 
-  return row;
+    return row;
+  } catch (e) {
+    console.error("changeNotiRead: ", e);
+    return null;
+  }
+  
 };
 
 export {
