@@ -44,5 +44,5 @@ $(".fi-dl-btn").on("click", async function () {
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	}
-	setTimeout(() => downloadModal.modal("hide"), 2000);
+	setTimeout(() => downloadModal.modal("hide"), 3000);
 });

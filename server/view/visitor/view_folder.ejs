@@ -10,7 +10,6 @@
 
       <!-- css internal -->
       <style>
-
         .ff-row:hover .individual-dl-btn {
           display: block;
         }
@@ -83,18 +82,17 @@
           </div>
         </div>
         <!-- Modal for waiting -->
-        <div class="modal fade" id="waitingModal" tabindex="-1" role="dialog" aria-labelledby="waitingModalLabel"
-          aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal fade" id="waitingModal" tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-body">
                 <div>
-                  <h5 class="waiting-status pb-3"></h5>
+                  <h5 id="waiting-status" class="pb-3"></h5>
                 </div>
                 <div class="text-center pb-3">
                   <div id="waiting-spinner" class="spinner-border text-secondary" role="status">
                     <span class="visually-hidden">Loading...</span>
-                    <span class="waiting-complete" style="display: none;">
+                    <span id="waiting-complete" style="display: none;">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                         class="bi bi-check-circle" viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
@@ -103,6 +101,7 @@
                       </svg>
                     </span>
                   </div>
+                  <div id="waiting-error"></div>
                 </div>
               </div>
             </div>

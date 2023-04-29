@@ -198,6 +198,7 @@ const viewDLfile = async (req, res, next) => {
 
 	// 1. get current version -> find file id by given path
 	const fileId = await findFileIdByPath(userId, key);
+  // const fileId = -1;
 	console.log("fileId: ", fileId);
 	if (fileId === -1) {
 		return next(customError.badRequest("No such key"));
@@ -211,7 +212,7 @@ const viewDLfile = async (req, res, next) => {
 	const copyS3ObjRes = await copyS3Obj(
 		s3clientGeneral,
 		S3_MAIN_BUCKET_NAME,
-		encodeURIComponent(`user_${userId}/${key}.v${version}`),
+		`user_${userId}/${encodeURIComponent(key)}.v${version}`,
 		`user_${userId}/${key}`
 	);
 	if (!copyS3ObjRes) {
@@ -235,6 +236,7 @@ const viewDLfolder = async (req, res, next) => {
 	const { target } = req;
 
 	const parentParentPath = await findParentPathByFFId(target.id);
+  // const parentParentPath = null;
 	if (!parentParentPath) {
 		return next(customError.internalServerError());
 	}
