@@ -158,16 +158,31 @@ const revokeLink = async (req, res, next) => {
 	const { ff_id } = req.body;
 	const userId = req.session.user.id;
 
-	const revokeLinkInDB = await deleteLinkByFFId(userId, ff_id);
+	const shareStatus = await checkLinkByFFId(ff_id);
+	console.log("shareStatus: ", shareStatus);
+
+	if (!shareStatus) {
+		return next(customError.badRequest("No such key"));
+	}
+
+	if (!shareStatus.share_token) {
+		return next(customError.badRequest("No link to be revoked"));
+	}
+
+	const revokeLinkInDB = await deleteLinkByFFId(
+		userId,
+		ff_id,
+		shareStatus.is_public
+	);
 	console.log("revokeLinkInDB: ", revokeLinkInDB);
 	if (!revokeLinkInDB) {
-		return next(customError.badRequest("No such key"));
+		return next(customError.internalServerError());
 	}
 
 	// emit new link list
 	const io = req.app.get("socketio");
 	emitLinksYouShared(io, userId);
-	return res.send("ok");
+	return res.json({ msg: "ok" });
 };
 
 const userSearch = async (req, res, next) => {
