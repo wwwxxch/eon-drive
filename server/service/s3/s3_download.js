@@ -31,6 +31,7 @@ const getDownloadUrl = async (
 	});
   try {
     const url = await getSignedUrl(client, command, { expiresIn });
+    // console.log("url: ", url);
     return url;
   } catch (e) {
     console.error("getDownloadUrl: ", e);
