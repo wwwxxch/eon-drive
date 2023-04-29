@@ -35,8 +35,12 @@ const getIsDelFileId = async(user_id, parent_id, file_name) => {
 const getOneLevelChildByParentId = async(user_id, parent_id, is_delete) => {
   const q_string = `
     SELECT 
-      id, name, type, 
-      DATE_FORMAT(updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS updated_at
+      id, name, type,
+      DATE_FORMAT(updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS updated_at,
+      CASE
+        WHEN share_token IS NULL THEN 0
+        ELSE 1
+        END AS is_shared
     FROM ff 
     WHERE user_id =? AND parent_id = ? AND is_delete = ? AND upd_status = "done" 
   `;
