@@ -84,6 +84,7 @@ const fileWholePath = reqPath.replace(/^\/history\//, "");
 // console.log("fileWholePath: ", fileWholePath);
 
 const history = await getFileHistory(fileWholePath);
+console.log(history);
 showHistoryList(history);
 // ===================================================================
 // socket.io
@@ -104,9 +105,9 @@ socket.on("historyupd", (data) => {
 // ===================================================================
 // restore button
 $(".rec").on("click", ".restore-btn", function () {
-  const version = $(this).data("version");
-	
-  const fileName = $(".file-name").text();
+	const version = $(this).data("version");
+
+	const fileName = $(".file-name").text();
 	const versionTime = $(this).closest(".rec").find(".operation-time").text();
 	// console.log(fileName, versionTime);
 
@@ -114,22 +115,18 @@ $(".rec").on("click", ".restore-btn", function () {
 		`Are you sure to restore <strong>${fileName}</strong> to the version <strong>${versionTime}</strong>?`
 	);
 
-	$("#confirm-restore-btn").off("click").on("click", async function () {
+	$("#confirm-restore-btn")
+		.off("click")
+		.on("click", async function () {
 			$("#confirmRestoreModal").modal("hide");
-			
+
 			const arr = fileWholePath.split("/");
 			const parentPath = arr.slice(0, arr.length - 1).join("/");
 			// console.log("recover version: ", version);
 			// console.log("fileWholePath: ", fileWholePath);
 			// console.log("parentPath: ", parentPath);
-			const askRestore = await restoreFile(version, fileWholePath, parentPath);
 
-			let text;
-			if (askRestore) {
-				text = `Resotred <b>${fileName}</b>`;
-			}
-			// TODO: else if !askRestore
-
+			const text = `Resotred <b>${fileName}</b>`;
 			// console.log("text.length: ", text.length);
 			const widthPerChar = 7;
 			const minWidth = 200;
@@ -150,7 +147,30 @@ $(".rec").on("click", ".restore-btn", function () {
 					},
 				},
 			});
-      $(window).scrollTop(0, {behavior: "instant"});
+			$(window).scrollTop(0, { behavior: "instant" });
 			restoreNoti.show();
+      
+			const askRestore = await restoreFile(version, fileWholePath, parentPath);
+			if (askRestore.status === 200) {
+				setTimeout(() => restoreNoti.close(), 1000);
+			} else if (askRestore.status >= 400 && askRestore.status < 500) {
+				restoreNoti.close();
+				let errorHTML;
+				if (typeof askRestore.data.error === "string") {
+					errorHTML = `<span>${askRestore.data.error}</span>`;
+				} else {
+					errorHTML = askRestore.data.error
+						.map((err) => `<span>${err}</span>`)
+						.join("");
+				}
+				$("#errorModal").modal("show");
+				$("#error-msg").html(errorHTML);
+			} else {
+				restoreNoti.close();
+				const errorHTML =
+					"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+				$("#errorModal").modal("show");
+				$("#error-msg").html(errorHTML);
+			}
 		});
 });
