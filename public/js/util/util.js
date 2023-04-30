@@ -64,7 +64,7 @@ async function traverseDirectory(directoryEntry) {
 function notiCard(text, width = 270) {
 	return new Noty({
 		text: text,
-		layout: "bottomCenter",
+		layout: "bottomLeft",
 		closeWith: ["click"],
 		timeout: 1500,
 		theme: "custom-theme",

@@ -63,7 +63,7 @@ $("#delete-btn").on("click", async function () {
     const deleteFileRes = await deleteFile(currentPath, toDelete);
 
     if (deleteFileRes.status === 200) {
-      setTimeout(() => deleteNoti.close(), 2000);
+      setTimeout(() => deleteNoti.close(), 500);
     } else if (deleteFileRes.status >= 400 && deleteFileRes.status < 500) {
       deleteNoti.close();
       let errorHTML;

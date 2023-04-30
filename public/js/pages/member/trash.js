@@ -150,7 +150,7 @@ $("#restore-delete-btn").click(async function () {
         text: text,
         layout: "bottomLeft",
         closeWith: ["click"],
-        timeout: 10000,
+        timeout: 5000,
         theme: "custom-theme",
         progressBar: true,
         callbacks: {
@@ -164,7 +164,7 @@ $("#restore-delete-btn").click(async function () {
       const askRestoreDelete = await restoreDelete(toRestore);
       
       if (askRestoreDelete.status === 200) {
-        setTimeout(() => restoreNoti.close(), 2000);
+        setTimeout(() => restoreNoti.close(), 500);
       } else if (askRestoreDelete.status >= 400 && askRestoreDelete.status < 500) {
         restoreNoti.close();
         let errorHTML;
@@ -233,7 +233,7 @@ $("#perm-delete-btn").on("click", function () {
 				text: text,
 				layout: "bottomLeft",
 				closeWith: ["click"],
-				timeout: 10000,
+				timeout: 5000,
 				theme: "custom-theme",
 				progressBar: true,
 				callbacks: {
@@ -247,7 +247,7 @@ $("#perm-delete-btn").on("click", function () {
 			const askPermDelete = await permDeleteFile(toPermDelete);
 
 			if (askPermDelete.status === 200) {
-        setTimeout(() => permDeleteNoti.close(), 2000);
+        setTimeout(() => permDeleteNoti.close(), 500);
       } else if (askPermDelete.status >= 400 && askPermDelete.status < 500) {
         permDeleteNoti.close();
         let errorHTML;

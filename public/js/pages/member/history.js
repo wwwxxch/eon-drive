@@ -152,7 +152,7 @@ $(".rec").on("click", ".restore-btn", function () {
       
 			const askRestore = await restoreFile(version, fileWholePath, parentPath);
 			if (askRestore.status === 200) {
-				setTimeout(() => restoreNoti.close(), 1000);
+				setTimeout(() => restoreNoti.close(), 500);
 			} else if (askRestore.status >= 400 && askRestore.status < 500) {
 				restoreNoti.close();
 				let errorHTML;
