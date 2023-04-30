@@ -171,6 +171,7 @@
           font-weight: bolder;
           background-color: #f2f2f2;
         }
+
         .noty_theme__custom-theme.noty_bar {
           background-color: #f8f5ef;
           width: 20vw;
@@ -202,6 +203,7 @@
           word-break: break-word;
           font-size: large;
         }
+
         .spinner-border {
           width: 3rem;
           height: 3rem;
@@ -296,7 +298,8 @@
                   </div>
                   <!-- Delete Button -->
                   <div class="me-3" style="display: none;" id="delete-btn-div">
-                    <button type="button" class="btn btn-secondary" id="delete-btn" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Delete</button>
+                    <button type="button" class="btn btn-secondary" id="delete-btn" data-bs-toggle="modal"
+                      data-bs-target="#confirmDeleteModal">Delete</button>
                   </div>
                 </div>
               </div>
@@ -369,7 +372,6 @@
                 </div>
               </div>
               <!-- Modal for get link end  -->
-
               <!-- Modal for revoke link  -->
               <div class="modal fade" id="revokeLinkModal" tabindex="-1" aria-labelledby="revokeLinkModalLabel"
                 aria-hidden="true">
@@ -390,27 +392,21 @@
                       <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         No
                       </button>
-
                     </div>
                   </div>
                 </div>
               </div>
               <!-- Modal for revoke link end  -->
               <!-- Modal for revoke link alert  -->
-              <div class="modal fade" id="revokeAlertModal" tabindex="-1" aria-labelledby="revokeAlertModalLabel"
-                aria-hidden="true">
+              <div class="modal fade" id="revokeAlertModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog">
                   <div class="modal-content">
-                    <!-- <div class="modal-header">
-                    <h5 class="modal-title" id="revokeAlertModalLabel">Modal title</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div> -->
-                    <div class="modal-body my-3">
-                      Your link has been revoked.
+                    <div class="modal-body my-3" id="revoke-alert-msg">
+                      <!-- Your link has been revoked. -->
                     </div>
-                    <div class="modal-footer">
+                    <!-- <div class="modal-footer">
                       <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
               </div>
@@ -427,7 +423,7 @@
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary btn-sm copy-link-btn"
-                        data-dismiss="modal">Close</button>
+                        data-dismiss="modal">Copy</button>
                     </div>
                   </div>
                 </div>
@@ -435,24 +431,26 @@
               <!-- Modal for copy link prompt end -->
               <!-- Modal for waiting -->
               <div class="modal fade" id="waitingModal" tabindex="-1" role="dialog" aria-labelledby="waitingModalLabel"
-                aria-hidden="true" data-bs-backdrop="static">
+                aria-hidden="true">
+                <!-- note for modal: data-bs-backdrop="static" -->
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-body">
                       <div>
-                        <h5 class="waiting-status pb-3"></h5>
+                        <h5 id="waiting-status" class="pb-3"></h5>
                       </div>
                       <div class="text-center pb-3">
                         <div id="waiting-spinner" class="spinner-border text-secondary" role="status">
                           <span class="visually-hidden">Loading...</span>
-                          <span class="waiting-complete" style="display: none;" >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
-                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                              <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                          <span id="waiting-complete" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                              class="bi bi-check-circle" viewBox="0 0 16 16">
+                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                              <path
+                                d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z" />
                             </svg>
                           </span>
                         </div>
-                        <!-- TODO: to be added when uploading error  -->
                         <div id="waiting-error"></div>
                       </div>
                     </div>
@@ -479,6 +477,17 @@
                 </div>
               </div>
               <!-- Modal for confirm delete end  -->
+              <!-- Modal for error  -->
+              <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-body">
+                      <div id="error-msg" class="text-wrap"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Modal for error end  -->
             </div>
         </div>
         <!-- main block end -->

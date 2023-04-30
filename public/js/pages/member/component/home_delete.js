@@ -48,7 +48,7 @@ $("#delete-btn").on("click", async function () {
       text: text,
       layout: "bottomLeft",
       closeWith: ["click"],
-      timeout: 10000,
+      timeout: 5000,
       theme: "custom-theme",
       progressBar: true,
       callbacks: {

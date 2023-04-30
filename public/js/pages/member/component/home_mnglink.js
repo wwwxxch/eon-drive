@@ -1,7 +1,11 @@
-import { revokeLink,
-  checkShareStatus,
-  createLink
+import {
+	revokeLink,
+	checkShareStatus,
+	createLink,
+	showCandidatesByInput,
 } from "../../../api/share.js";
+
+import { copyToClipboard } from "../../../util/util.js";
 
 // get link - To public or To private
 $("input[name='access']").change(function () {
@@ -17,9 +21,31 @@ $("input[name='access']").change(function () {
 
 // get link
 $("#list-table").on("click", ".get-link", async function () {
+  const revokeLinkBtn = $(this).closest("div").find(".revoke-link");
+
 	const targetId = $(this).closest("tr").find(".ff_name").data("id");
 	console.log("targetId: ", targetId);
-	const shareStatus = await checkShareStatus(targetId);
+  
+  const targetName = $(this)
+		.closest("tr")
+		.find("input[name='list-checkbox']")
+		.val().replace(/\//g, "");
+
+  $("#getLinkModalLabel").html(`Share &nbsp${targetName}&nbsp with`);
+
+	const checkRes = await checkShareStatus(targetId);
+
+	let shareStatus;
+	if (checkRes.status !== 200) {
+		const errorHTML = `<span>${checkRes.data.error}</span>`;
+		$("#errorModal").modal("show");
+		$("#error-msg").html(errorHTML);
+		return;
+	} else if (checkRes.status === 200) {
+		shareStatus = checkRes.data;
+	}
+
+	// show current access list
 	console.log(shareStatus);
 	$("#current-access-list").empty();
 	if (!shareStatus.share_link) {
@@ -36,6 +62,7 @@ $("#list-table").on("click", ".get-link", async function () {
       </div>
     `);
 	} else if (shareStatus.acl.length > 0) {
+    $("label[for='access-user']").text("More Users");
 		const userDiv = shareStatus.acl
 			.map((item) => {
 				return `
@@ -58,46 +85,40 @@ $("#list-table").on("click", ".get-link", async function () {
       `);
 	}
 
-	const targetName = $(this)
-		.closest("tr")
-		.find("input[name='list-checkbox']")
-		.val();
-	const parentPath = $(".path-text")
-		.map(function () {
-			return $(this).text().trim();
-		})
-		.get()
-		.join("/");
-	console.log(parentPath);
-	console.log(targetName);
-
-	$("#recipient").on("input", function () {
+  // input user email
+	$("#recipient").on("input", async function () {
 		const text = $(this).val().trim();
+    if (!text) {
+      $(".email-list").hide();
+      return;
+    }
+    const askPossibleEmails = await showCandidatesByInput(text);
+    if (askPossibleEmails.status !== 200) {
+      $(".email-list").hide();
+      return;
+    }
+    const emails = askPossibleEmails.data.list;
+    if (emails.length === 0) {
+      $(".email-list").hide();
+      return;
+    }
+    $(".email-list").empty();
+    const displayedEmails = $(".email-chip .email-text")
+      .map(function () {
+        return $(this).text().trim();
+      })
+      .get();
+    const filteredEmails = emails.filter(function (email) {
+      return !displayedEmails.includes(email);
+    });
 
-		if (text) {
-			axios
-				.get(`/select-user?q=${text}`)
-				.then((res) => {
-					const emails = res.data.list;
-					if (emails.length > 0) {
-						$(".email-list").empty();
-						emails.forEach((email) => {
-							// TODO: if this email has been displayed in $(".email-chips-container"), then no need to add it into list
-							const $emailItem = $("<div class='email-item'></div>");
-							$emailItem.text(email);
-							$emailItem.appendTo($(".email-list"));
-						});
-						$(".email-list").show();
-					} else {
-						$(".email-list").hide();
-					}
-				})
-				.catch((e) => {
-					console.error("selectableEmail: ", e);
-				});
-		} else {
-			$(".email-list").hide();
-		}
+    filteredEmails.forEach((email) => {
+      const $emailItem = $("<div class='email-item'></div>");
+      $emailItem.text(email);
+      $emailItem.appendTo($(".email-list"));
+    });
+    $(".email-list").show();
+
 	});
 
 	// Hide email list when user clicks outside of it
@@ -112,16 +133,19 @@ $("#list-table").on("click", ".get-link", async function () {
 		}
 	});
 
+  const selectedEmailsSet = new Set();
+
 	$(".email-list")
 		.off("click")
 		.on("click", ".email-item", function () {
 			const email = $(this).text();
-			const $emailChip = $(
-				`<div class="email-chip">
-        <span class="email-text"></span>
-        <button class="email-remove">&times;</button>
-      </div>`
-			);
+      selectedEmailsSet.add(email);
+			const $emailChip = $(`
+        <div class="email-chip">
+          <span class="email-text"></span>
+          <button class="email-remove">&times;</button>
+        </div>
+      `);
 			$emailChip.find(".email-text").text(email);
 			$(".email-chips-container").append($emailChip);
 			$(this).remove();
@@ -132,8 +156,11 @@ $("#list-table").on("click", ".get-link", async function () {
 	$(".email-chips-container")
 		.off("click")
 		.on("click", ".email-remove", function () {
-			const $emailChip = $(this).parent(".email-chip");
-			const email = $emailChip.find(".email-text").text();
+      const email = $(this).siblings(".email-text").text();
+      selectedEmailsSet.delete(email);
+      
+			// const $emailChip = $(this).parent(".email-chip");
+			// const email = $emailChip.find(".email-text").text();
 			const $emailItem = $("<div class='email-item'></div>");
 			$emailItem.text(email);
 			$(".email-list").append($emailItem);
@@ -149,98 +176,121 @@ $("#list-table").on("click", ".get-link", async function () {
 			$(".email-chips-container").empty();
 			$("input[id='access-anyone']").prop("checked", true);
 			$("input[id='access-user']").prop("checked", false);
+      $("label[for='access-user']").text("Users");
 			$("#recipient").prop("disabled", true);
 		});
 
+  // create link
 	$("#create-link-btn")
 		.off("click")
 		.on("click", async function () {
 			const access = $("input[name='access']:checked").val();
-			const selectedEmails = [];
-			$(".email-chip")
-				.find(".email-text")
-				.each(function () {
-					selectedEmails.push($(this).text());
-				});
-
+      console.log("access: ", access);
+			const selectedEmails = [...selectedEmailsSet];
 			console.log(selectedEmails);
 
-			const getLink = await createLink(
-				parentPath,
-				targetName,
-				access,
-				selectedEmails
-			);
-			console.log("getLink: ", getLink);
-			$("#getLinkModal").modal("hide");
+      const getLinkRes = await createLink(targetId, access, selectedEmails);
+			console.log("getLinkRes: ", getLinkRes);
+
+      let share_link;
+			if (getLinkRes.status === 200) {
+        share_link = getLinkRes.share_link;
+
+      } else if (getLinkRes.status >= 400 && getLinkRes.status < 500) {
+        setTimeout(() => $("#getLinkModal").modal("hide"), 100);
+        $("#recipient").val("");
+        $(".email-list").empty();
+        $(".email-chips-container").empty();
+        $("input[id='access-anyone']").prop("checked", true);
+        $("input[id='access-user']").prop("checked", false);
+        $("label[for='access-user']").text("Users");
+        $("#recipient").prop("disabled", true);
+
+        let errorHTML;
+        if (typeof getLinkRes.data.error === "string") {
+          errorHTML = `<span>${getLinkRes.data.error}</span>`;
+        } else {
+          errorHTML = getLinkRes.data.error
+            .map((err) => `<span>${err}</span>`)
+            .join("");
+        }
+        $("#errorModal").modal("show");
+        $("#error-msg").html(errorHTML);
+        return;
+
+      } else if (getLinkRes.status === 500) {
+        setTimeout(() => $("#getLinkModal").modal("hide"), 100);
+        $("#recipient").val("");
+        $(".email-list").empty();
+        $(".email-chips-container").empty();
+        $("input[id='access-anyone']").prop("checked", true);
+        $("input[id='access-user']").prop("checked", false);
+        $("label[for='access-user']").text("Users");
+        $("#recipient").prop("disabled", true);
+
+        const errorHTML =
+        "<span>Opps! Something went wrong. Please try later or contact us.</span>";
+        $("#errorModal").modal("show");
+        $("#error-msg").html(errorHTML);
+        return;
+
+      }
+      
+      $("#linkModal").on("show.bs.modal", function (e) {
+        const linkInput = $(this).find("#linkInput");
+        linkInput.val(share_link);
+      });
+      $("#linkModal").modal("show");
+      $("#linkModal").on("click", ".copy-link-btn", function () {
+        copyToClipboard(share_link);
+        $("#linkModal").modal("hide");
+      });
+
+			revokeLinkBtn.prop("disabled", false);
+      $("#getLinkModal").modal("hide");
 			$("#recipient").val("");
 			$(".email-list").empty();
 			$(".email-chips-container").empty();
 			$("input[id='access-anyone']").prop("checked", true);
 			$("input[id='access-user']").prop("checked", false);
+      $("label[for='access-user']").text("Users");
 			$("#recipient").prop("disabled", true);
-
-			let inputForShareLink;
-			if (getLink.share_link) {
-				if (!inputForShareLink) {
-					inputForShareLink = $("<input>");
-					$("body").append(inputForShareLink);
-				}
-				inputForShareLink.val(getLink.share_link);
-				inputForShareLink.select();
-
-				const copyToClipboard = (text) => {
-					navigator.clipboard
-						.writeText(text)
-						.then(() => {
-							console.log("Text copied to clipboard");
-						})
-						.catch((err) => {
-							console.error("Error copying text to clipboard:", err);
-						});
-
-					// // workaround when clipboard cannot be used
-					// const input = document.createElement("textarea");
-					// input.value = text;
-					// document.body.appendChild(input);
-					// input.select();
-					// document.execCommand("copy");
-					// document.body.removeChild(input);
-				};
-
-				copyToClipboard(getLink.share_link);
-				inputForShareLink.remove();
-				// prompt("Here's your link: ", getLink.share_link);
-				$("#linkModal").on("show.bs.modal", function (event) {
-					const linkInput = $(this).find("#linkInput");
-					linkInput.val(getLink.share_link);
-				});
-				$("#linkModal").modal("show");
-				$("#linkModal").on("click", ".copy-link-btn", function () {
-					$("#linkModal").modal("hide");
-				});
-			}
 		});
 });
 
 // =============================================================================
 // revoke link
 $("#list-table").on("click", ".revoke-link", async function () {
+	const revokeLinkBtn = $(this);
 	const ff_id = $(this).closest("tr").find(".ff_name").data("id");
 	console.log(ff_id);
 
 	$("#revoke-link-btn")
 		.off("click")
 		.on("click", async function () {
+			setTimeout(() => $("#revokeLinkModal").modal("hide"), 100);
 			const askRevokeLink = await revokeLink(ff_id);
 			console.log("askRevokeLink: ", askRevokeLink);
-			// TODO: response from backend
-			if (askRevokeLink) {
-				$("#revokeAlertModal").modal("show");
-				setTimeout(function () {
-					$("#revokeAlertModal").modal("hide");
-				}, 2000);
+			$("#revokeAlertModal").modal("show");
+			$("#revoke-alert-msg").empty();
+			if (askRevokeLink.status === 200) {
+				$("#revoke-alert-msg").text("Your link has been revoked.");
+				revokeLinkBtn.prop("disabled", true);
+			} else if (askRevokeLink.status >= 400 && askRevokeLink.status < 500) {
+				let errorHTML;
+				if (typeof askRevokeLink.data.error === "string") {
+					errorHTML = `<span>${askRevokeLink.data.error}</span>`;
+				} else {
+					errorHTML = askRevokeLink.data.error
+						.map((err) => `<span>${err}</span>`)
+						.join("");
+				}
+				$("#revoke-alert-msg").html(errorHTML);
+			} else {
+				const errorHTML =
+					"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+				$("#revoke-alert-msg").html(errorHTML);
 			}
-			$("#revokeLinkModal").modal("hide");
+			setTimeout(() => $("#revokeAlertModal").modal("hide"), 3000);
 		});
 });

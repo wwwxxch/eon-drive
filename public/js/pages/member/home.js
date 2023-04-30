@@ -1,5 +1,13 @@
 import { getFileList } from "../../api/list.js";
 
+const threedotsSVG = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" class="bi bi-three-dots links-operation-svg"
+  viewBox="0 0 16 16">
+    <path
+      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
+  </svg>
+`;
+
 //show usage
 const usageRes = await axios.get("/usage");
 const usedNum = parseInt(usageRes.data.used);
@@ -7,6 +15,7 @@ const allocatedNum = parseInt(usageRes.data.allocated);
 const percent = (usedNum / allocatedNum) * 100;
 $(".usage-progress").css("width", percent + "%");
 $(".usage-progress").attr("aria-valuenow", percent);
+// TODO: how to show the usage
 $("#progress-des").text(
 	`${(usedNum / (1024 * 1024)).toFixed(2)} MB / ${
 		allocatedNum / (1024 * 1024)
@@ -72,25 +81,22 @@ function showList(obj) {
 							: luxon.DateTime.fromISO(data)
 									.setZone(timeZone)
 									.toFormat("yyyy-MM-dd HH:mm:ss");
+          const disabledAttr = row.is_shared === 1 ? "" : "disabled" ; 
 					const div = `
             <div class="d-flex justify-content-between">
               <div>${time}</div>
               <div class="dropdown">
                 <button class="btn btn-link links-operation"  type="button" id="linksOperationMenu"
                   data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" class="bi bi-three-dots links-operation-svg"
-                    viewBox="0 0 16 16">
-                    <path
-                      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
-                  </svg>
+                  ${threedotsSVG}
                 </button>
                 <div class="dropdown-menu" aria-labelledby="linksOperationMenu">
                   <button type="button" class="dropdown-item get-link"
                     data-bs-toggle="modal" data-bs-target="#getLinkModal">
-                    get link</button>
+                    Get Link</button>
                   <button type="button" class="dropdown-item revoke-link"
-                    data-bs-toggle="modal" data-bs-target="#revokeLinkModal">
-                    revoke link</button>
+                    data-bs-toggle="modal" data-bs-target="#revokeLinkModal" ${disabledAttr}>
+                    Revoke Link</button>
                 </div>
               </div>
             </div>
