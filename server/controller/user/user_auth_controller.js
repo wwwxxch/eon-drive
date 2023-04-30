@@ -82,7 +82,7 @@ const signIn = async (req, res, next) => {
 
 	// save user info to session
 	const getUserRes = await getUser("email", email);
-	console.log("getUserRes: ", getUserRes);
+	// console.log("getUserRes: ", getUserRes);
 	const user = {
 		id: getUserRes.id,
 		name: getUserRes.name,

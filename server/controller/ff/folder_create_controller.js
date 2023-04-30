@@ -27,6 +27,7 @@ const createFolderS3AndDB = async (req, res, next) => {
 	let token;
 	const folders = parentPath.split("/");
 	const parentId = await iterForParentId(userId, folders);
+  // const parentId = -1;
 	console.log("iterForParentId: parentId: ", parentId);
   if (parentId === -1) {
     return next(customError.badRequest("No such key"));

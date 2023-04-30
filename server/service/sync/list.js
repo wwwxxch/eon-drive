@@ -63,7 +63,6 @@ const emitUsage = async (io, userId, userInSession) => {
 };
 
 const emitShareNoti = async (io, userId) => {
-	console.log("emiShareNoti: userId: ", userId);
 	const unreadNoti = await getLinksSharedNoti(userId, 0);
 	// console.log(unreadNoti);
 	// console.log(5 - unreadNoti.length);

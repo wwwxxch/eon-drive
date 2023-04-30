@@ -198,7 +198,7 @@ const viewDLfile = async (req, res, next) => {
 
 	// 1. get current version -> find file id by given path
 	const fileId = await findFileIdByPath(userId, key);
-  // const fileId = -1;
+	// const fileId = -1;
 	console.log("fileId: ", fileId);
 	if (fileId === -1) {
 		return next(customError.badRequest("No such key"));
@@ -236,7 +236,7 @@ const viewDLfolder = async (req, res, next) => {
 	const { target } = req;
 
 	const parentParentPath = await findParentPathByFFId(target.id);
-  // const parentParentPath = null;
+	// const parentParentPath = null;
 	if (!parentParentPath) {
 		return next(customError.internalServerError());
 	}
