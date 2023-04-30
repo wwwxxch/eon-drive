@@ -10,17 +10,20 @@ const threedotsSVG = `
 
 //show usage
 const usageRes = await axios.get("/usage");
+console.log(usageRes);
 const usedNum = parseInt(usageRes.data.used);
 const allocatedNum = parseInt(usageRes.data.allocated);
 const percent = (usedNum / allocatedNum) * 100;
 $(".usage-progress").css("width", percent + "%");
 $(".usage-progress").attr("aria-valuenow", percent);
-// TODO: how to show the usage
-$("#progress-des").text(
-	`${(usedNum / (1024 * 1024)).toFixed(2)} MB / ${
-		allocatedNum / (1024 * 1024)
-	} MB`
-);
+if (percent > 50 && percent < 90) {
+	$(".progress-bar").css("background-color", "#d69f65");
+} else if (percent >= 90) {
+	$(".progress-bar").css("background-color", "#c22f2f");
+}
+const numerator = Math.round(usedNum / (1024 * 1024) * 100) / 100;
+const denominator = allocatedNum / (1024 * 1024);
+$("#progress-des").text(`${numerator} MB / ${denominator} MB`);
 
 // get User's timezone
 const userTimezoneOffset = new Date().getTimezoneOffset();
@@ -81,10 +84,12 @@ function showList(obj) {
 							: luxon.DateTime.fromISO(data)
 									.setZone(timeZone)
 									.toFormat("yyyy-MM-dd HH:mm:ss");
-          const disabledAttr = row.is_shared === 1 ? "" : "disabled" ; 
+					const disabledAttr = row.is_shared === 1 ? "" : "disabled";
 					const div = `
             <div class="d-flex justify-content-between">
-              <div>${time}</div>
+              <div class="d-flex align-items-center">
+                <div>${time}</div>
+              </div>
               <div class="dropdown">
                 <button class="btn btn-link links-operation"  type="button" id="linksOperationMenu"
                   data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -245,7 +250,7 @@ $(document).click(function (e) {
 	if (!$(e.target).is("input[name='list-checkbox'], #select-all")) {
 		$("input[name='list-checkbox']").prop("checked", false);
 		$("#select-all").prop("checked", false);
-    $("#delete-btn-div").hide();
+		$("#delete-btn-div").hide();
 		$("#download-btn-div").hide();
 	}
 });
@@ -283,11 +288,17 @@ socket.on("usageupd", (data) => {
 	const usedNum = parseInt(data.used);
 	const allocatedNum = parseInt(data.allocated);
 	const percent = (usedNum / allocatedNum) * 100;
-	$(".usage-progress").css("width", percent + "%");
-	$(".usage-progress").attr("aria-valuenow", percent);
-	$("#progress-des").text(
-		`${(usedNum / (1024 * 1024)).toFixed(2)} MB / 
-    ${allocatedNum / (1024 * 1024)} MB`
-	);
-});
+	
+  $(".usage-progress").css("width", percent + "%");
+  $(".usage-progress").attr("aria-valuenow", percent);
+  
+  if (percent > 50 && percent < 90) {
+    $(".progress-bar").css("background-color", "#d69f65");
+  } else if (percent >= 90) {
+    $(".progress-bar").css("background-color", "#c22f2f");
+  }
 
+  const numerator = Math.round(usedNum / (1024 * 1024) * 100) / 100;
+  const denominator = allocatedNum / (1024 * 1024);
+  $("#progress-des").text(`${numerator} MB / ${denominator} MB`);
+});
