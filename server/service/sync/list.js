@@ -9,7 +9,10 @@ import { getLinksSharedNoti, getLinksYouShared } from "../../model/db_share.js";
 const emitNewList = async (io, userId, parentPath) => {
 	const refresh = await getFileListByPath(userId, parentPath);
 	// console.log("refresh: ", refresh);
-
+  if (refresh.length === 0) {
+    return;
+  }
+  
 	io.to(`user_${userId}`).emit("listupd", {
 		parentPath: parentPath,
 		list: refresh,
@@ -19,7 +22,9 @@ const emitNewList = async (io, userId, parentPath) => {
 const emitHistoryList = async (io, userId, fileId) => {
 	const versions = await getVersionsByFileId(fileId);
 	// console.log("versions", versions);
-
+  if (versions.length === 0) {
+    return;
+  }
 	const deleteRecords = await getDeleteRecordsByFileId(fileId);
 	// console.log("deleteRecords: ", deleteRecords);
 
@@ -73,6 +78,7 @@ const emitShareNoti = async (io, userId) => {
 			: [];
 
 	const notiToFE = [...unreadNoti, ...readNoti];
+
 	io.to(`user_${userId}`).emit("sharenoti", {
 		data: notiToFE,
 		unreadNum: unreadNoti.length,
@@ -111,6 +117,7 @@ const emitLinksYouShared = async (io, userId) => {
 		}
 		return acc;
 	}, []);
+
 	io.to(`user_${userId}`).emit("linksYouSharedUpd", {
 		data: list
 	});

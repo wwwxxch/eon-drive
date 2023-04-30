@@ -13,6 +13,10 @@
       font-family: 'Lato', sans-serif !important;
     }
 
+    div {
+      /* border: 1px dashed lightblue; */
+    }
+
     #main-block {
       display: flex;
     }
@@ -38,6 +42,17 @@
     #title {
       font-weight: xx-large;
       font-size: 7vw;
+    }
+
+    #slogan-block {
+      text-align: right;
+    }
+
+    #slogan {
+      color: #393939;
+      font-weight: 400;
+      font-size: 1.2vw;
+      padding-left: 0.5vw;
     }
 
     #start-btn {
@@ -91,7 +106,10 @@
         <img id="index-img" src="/img/index.png">
       </div>
       <div id="title-block">
-        <h1 id="title">EON Drive</h1>
+        <div id="slogan-block">
+          <h3 id="slogan">Upload, store, and access your files from anywhere</h3>
+        </div>
+        <h1 id="title">EON Drive</h1>        
         <div id="start-btn">
           <a href="/login"><span>Start Now</span></a>
         </div>

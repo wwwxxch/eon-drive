@@ -6,8 +6,7 @@ import { loginRedirect } from "../../../../server/controller/user/user_auth_cont
 
 // =====================================================================================
 
-// TODO: redirect or not for login member?
-router.get("/", loginRedirect, (req, res) => {
+router.get("/", /*loginRedirect,*/ (req, res) => {
   return res.render("visitor/index");
 });
 
@@ -17,6 +16,10 @@ router.get("/login", loginRedirect, (req, res) => {
 
 router.get("/register", loginRedirect, (req, res) => {
 	return res.render("visitor/register");
+});
+
+router.get("/about", (req, res) => {
+  return res.render("visitor/about");
 });
 
 router.get("/info", (req, res) => {
