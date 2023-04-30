@@ -47,7 +47,7 @@ const signinValid = [
 
 // ////////////////////////////////////////////////////////////////////////////
 // const regexForFFName = /^[a-zA-Z0-9_\-.@%$ ]+$/;
-const regexForFFName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@%$ ]+$/;
+const regexForFFName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ ]+$/;
 
 const uploadValid = [
 	body("fileName")
@@ -91,11 +91,6 @@ const uploadValid = [
 ];
 
 const createFolderValid = [
-	// body("parentPath")
-	// 	.trim()
-	// 	.notEmpty()
-	// 	.withMessage("parentPath cannot be empty"),
-
 	body("folderName")
 		.trim()
 		.notEmpty()
@@ -179,7 +174,10 @@ const createLinkValid = [
 			}
 			return true;
 		}),
-	body("path").trim().notEmpty().withMessage("Path cannot be empty"),
+  body("targetId")
+    .isInt()
+    .withMessage("id should be integer")
+	// body("path").trim().notEmpty().withMessage("Path cannot be empty"),
 ];
 
 const revokeLinkValid = [
@@ -203,7 +201,7 @@ const viewDLValid = [
 const ValidCB = async (req, res, next) => {
 	const err = validationResult(req).formatWith(({ msg }) => msg);
 	if (!err.isEmpty()) {
-		console.error("ValidCB: err: ", err);
+		// console.error("ValidCB: err: ", err);
 		return res.status(400).json({ error: err.array() });
 	} else {
 		next();

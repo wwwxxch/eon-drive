@@ -1,10 +1,10 @@
 import { pool } from "./connection.js";
 // ----------------------------------------------------------
-const checkLinkByFFId = async(ff_id) => {
+const checkLinkByFFId = async(ff_id, user_id) => {
   try {
     const [row] = await pool.query(`
-      SELECT share_token, is_public FROM ff WHERE id = ?
-    `, ff_id);
+      SELECT share_token, is_public, type FROM ff WHERE id = ? AND user_id = ?
+    `, [ff_id, user_id]);
 
     if (row.length !== 1) {
       throw new Error (`checkLinkByFFId: row = ${row}`);
@@ -260,7 +260,7 @@ const getFFShareStatus = async(user_id, ff_id) => {
 };
 
 const getLinksSharedNoti = async(has_access, is_read, offset = 5) => {
-  console.log(offset);
+  // console.log(offset);
   const q_string = `
     SELECT
       a.id AS share_id,

@@ -53,24 +53,29 @@ const createUser = async (mail, pwd, name, time) => {
 	return getUser("id", insertId);
 };
 
-const getMultipleUserId = async (col, vals) => {
-	const vals_trim = vals.map((item) => item.trim());
-	const [row] = await pool.query(
-		`
-    SELECT id FROM user WHERE ${col} IN (?)`,
-		[vals_trim]
-	);
-	console.log("row: ", row.map((item) => item.id));
-	return row.map((item) => item.id);
+const getMultipleUserId = async (col, vals, exclude) => {
+  try {
+    const vals_trim = vals.map((item) => item.trim());
+    const [row] = await pool.query(
+      `
+      SELECT id FROM user WHERE ${col} IN (?) AND ${col} != ?`,
+      [vals_trim, exclude]
+    );
+    console.log("row: ", row.map((item) => item.id));
+    return row.map((item) => item.id);
+  } catch (e) {
+    console.error("getMultipleUserId: ", e);
+    return null;
+  }
 };
 
-const getPossibleUser = async (str) => {
+const getPossibleUser = async (str, self_email) => {
 	const strPlusWlidcard = str + "%";
 	const [row] = await pool.query(
 		`
-    SELECT email FROM user WHERE email LIKE ?
+    SELECT email FROM user WHERE email LIKE ? AND email != ?
   `,
-		strPlusWlidcard
+		[strPlusWlidcard, self_email]
 	);
 
 	return row.map((item) => item.email);

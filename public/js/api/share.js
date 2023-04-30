@@ -1,13 +1,5 @@
-const createLink = async (path, targetName, accessType, userList = []) => {
+const createLink = async (targetId, accessType, userList = []) => {
 	// request body
-	let parentPath = "";
-	if (path !== "Home") {
-		parentPath = path.replace(/^Home\//, "");
-	}
-	console.log("parentPath: ", parentPath);
-	const ffWholePath =
-		path === "Home" ? targetName : parentPath + "/" + targetName;
-
 	let access;
 	if (accessType === "anyone") {
 		access = {
@@ -22,14 +14,17 @@ const createLink = async (path, targetName, accessType, userList = []) => {
 	}
 	try {
 		const createLinkRes = await axios.post("/create-link", {
-			access: access,
-			path: ffWholePath,
+			access,
+			targetId,
 		});
 		console.log("createLinkRes.data: ", createLinkRes.data);
-		return createLinkRes.data;
+		return {
+			status: createLinkRes.status,
+			share_link: createLinkRes.data.share_link,
+		};
 	} catch (e) {
-		console.error("creeateLink: ", e);
-		return false;
+		console.error("createLink: ", e);
+		return { status: e.response.status, data: e.response.data };
 	}
 };
 
@@ -37,10 +32,10 @@ const revokeLink = async (ff_id) => {
 	try {
 		const revokeLinkRes = await axios.post("/revoke-link", { ff_id });
 		console.log("revokeLinkRes: ", revokeLinkRes);
-		return revokeLinkRes.data;
+		return { status: revokeLinkRes.status };
 	} catch (e) {
 		console.error("revokeLinkRes: ", e);
-		return false;
+		return { status: e.response.status, data: e.response.data };
 	}
 };
 
@@ -72,10 +67,21 @@ const checkShareStatus = async (fileId) => {
 			`/ff-link-acl?fileId=${fileId}`
 		);
 		console.log("checkShareStatusRes: ", checkShareStatusRes);
-		return checkShareStatusRes.data;
+		return checkShareStatusRes;
 	} catch (e) {
 		console.error("checkShareStatusRes: ", e);
-		return false;
+		return { status: e.response.status, data: e.response.data };
+	}
+};
+
+const showCandidatesByInput = async (input) => {
+	try {
+		const showCandidatesRes = await axios.get(`/select-user?q=${input}`);
+		console.log("showCandidatesRes: ", showCandidatesRes);
+		return showCandidatesRes;
+	} catch (e) {
+		console.error("showCandidatesByInput: ", e);
+		return { status: e.response.status, data: e.response.data };
 	}
 };
 
@@ -85,4 +91,5 @@ export {
 	askSharedWithList,
 	askYouSharedList,
 	checkShareStatus,
+	showCandidatesByInput,
 };

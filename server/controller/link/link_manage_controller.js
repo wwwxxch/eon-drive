@@ -24,8 +24,6 @@ import {
 	deleteLinkByFFId,
 } from "../../model/db_share.js";
 
-import { findFileIdByPath, iterForParentId } from "../../service/path/iter.js";
-
 import { shareTokenGenerator } from "../../service/share/token_gen.js";
 
 import { emitShareNoti, emitLinksYouShared } from "../../service/sync/list.js";
@@ -33,29 +31,14 @@ import { emitShareNoti, emitLinksYouShared } from "../../service/sync/list.js";
 // ============================================================
 const createLinkCheck = async (req, res, next) => {
 	console.log("createLinkCheck: ", req.body); // access & path
-	const { path } = req.body;
+  const { targetId } = req.body;
 	const userId = req.session.user.id;
-	const type = path.endsWith("/") ? "folder" : "file";
-	const target = type === "folder" ? path.replace(/\/$/, "") : path;
-
-	// const targetName = target.split("/").pop();
-	const targetId =
-		type === "folder"
-			? await iterForParentId(userId, target.split("/"))
-			: await findFileIdByPath(userId, target);
-	console.log("targetId: ", targetId);
-	if (targetId === -1) {
-		return next(customError.badRequest("No such key"));
-	}
-
-	const shareStatus = await checkLinkByFFId(targetId);
+	const shareStatus = await checkLinkByFFId(targetId, userId);
 	console.log("shareStatus: ", shareStatus);
 	if (!shareStatus) {
 		return next(customError.badRequest("No such key"));
 	}
 
-	req.type = type;
-	req.targetId = targetId;
 	req.shareStatus = shareStatus;
 
 	next();
@@ -65,23 +48,38 @@ const publicLink = async (req, res, next) => {
 	if (req.body.access.type === "private") {
 		return next();
 	}
-	const { type, targetId, shareStatus } = req;
-	let token;
-	if (!shareStatus.share_token) {
+  const { targetId } = req.body;
+  const { shareStatus } = req;
+  const type = shareStatus.type;
+	
+  let token;
+  if (!shareStatus.share_token) {
 		// no link ->
 		// update ff table with is_public = 1 & share_token
 		token = shareTokenGenerator();
 		const createLinkRes = await createPublicLink(targetId, token);
-		console.log("createLinkRes.affectedRows: ", createLinkRes.affectedRows);
+		console.log("createLinkRes: ", createLinkRes);
+
+    if (!createLinkRes) {
+      return next(customError.internalServerError());
+    } else if (createLinkRes.affectedRows !== 1) {
+      return next(customError.badRequest());
+    }
+
 	} else if (shareStatus.is_public === 1) {
 		// public link -> return existed link
 		token = shareStatus.share_token;
+
 	} else if (shareStatus.is_public === 0) {
 		// private link ->
 		// delete records in share_link_perm & let ff.is_public = 1
 		// return existed link
 		const changeLinkRes = await changeLinkToPublic(targetId);
 		console.log("changeLinkRes: ", changeLinkRes);
+    
+    if (!changeLinkRes) {
+      return next(customError.internalServerError());
+    }
 		token = shareStatus.share_token;
 	}
 
@@ -93,16 +91,25 @@ const publicLink = async (req, res, next) => {
 
 const privateLink = async (req, res, next) => {
 	const { access } = req.body;
-	const userList = await getMultipleUserId("email", access.user);
+  const uniqueEmails = [...new Set(access.user)];
+  const userEmail = req.session.user.email;
+  console.log("uniqueEmails: ", uniqueEmails);
+	const userList = await getMultipleUserId("email", access.user, userEmail);
 	console.log("userList: ", userList);
-	if (userList.length === 0) {
+  if (!userList) {
+    return next(customError.internalServerError());
+  }
+	if (userList.length === 0 || userList.length !== uniqueEmails.length) {
 		return next(
-			customError.badRequest("Cannot find any user by provided mail")
+			customError.badRequest("Something wrong in user list")
 		);
 	}
 
-	const { type, targetId, shareStatus } = req;
-	let token;
+  const { targetId } = req.body;
+  const { shareStatus } = req;
+  const type = shareStatus.type;
+	
+  let token;
 	const now = DateTime.utc();
 	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 	if (!shareStatus.share_token) {
@@ -118,6 +125,11 @@ const privateLink = async (req, res, next) => {
 			userList
 		);
 		console.log("createLinkRes: ", createLinkRes);
+
+    if (!createLinkRes) {
+      return next(customError.internalServerError());
+    }
+
 	} else if (shareStatus.is_public === 1) {
 		// public link -> return existed link
 		// link to user table find other users' id &
@@ -130,12 +142,19 @@ const privateLink = async (req, res, next) => {
 			userList
 		);
 		console.log("changeLinkRes: ", changeLinkRes);
+
+    if (!changeLinkRes) {
+      return next(customError.internalServerError());
+    }
+
 		token = shareStatus.share_token;
 	} else if (shareStatus.is_public === 0) {
 		// private link
 		// link to user table find other users' id =>
 		// check if this user is in share_link_perm table &
 		// update share_link_perm table
+
+    // TODO: add user ? - update instruction in FE?
 		const grantAccess = await addUserToAcessList(targetId, nowTime, userList);
 		console.log("grantAccess: ", grantAccess);
 		token = shareStatus.share_token;
@@ -158,7 +177,7 @@ const revokeLink = async (req, res, next) => {
 	const { ff_id } = req.body;
 	const userId = req.session.user.id;
 
-	const shareStatus = await checkLinkByFFId(ff_id);
+	const shareStatus = await checkLinkByFFId(ff_id, userId);
   // const shareStatus = null;
 	console.log("shareStatus: ", shareStatus);
 
@@ -191,7 +210,8 @@ const userSearch = async (req, res, next) => {
 	if (!q) {
 		return next(customError.badRequest("Query string is missing"));
 	}
-	const possibleEmail = await getPossibleUser(q);
+  const userEmail = req.session.user.email;
+	const possibleEmail = await getPossibleUser(q, userEmail);
 	return res.json({ list: possibleEmail });
 };
 
