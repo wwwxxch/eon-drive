@@ -68,6 +68,16 @@ const getCurrentVersionByFileId = async(file_id) => {
   return row[0].ver;
 };
 
+const getSizeByFileIdAndVersion = async(file_id, ver) => {
+  const [row] = await pool.query(`
+    SELECT size FROM file_ver WHERE ff_id = ? AND ver = ?
+  `, [file_id, ver]);
+  if (row.length !== 1) {
+    return -1;
+  }
+  return row[0].size;
+};
+
 const getVersionsByFileId = async(file_id) => {
   const [row] = await pool.query(`
     SELECT 
@@ -197,6 +207,7 @@ export {
   getOneLevelChildByParentId,
   getCurrentSizeByFileId,
   getCurrentVersionByFileId,
+  getSizeByFileIdAndVersion,
   getVersionsByFileId,
   getDeleteRecordsByFileId,
   getParentInfoByFFId,

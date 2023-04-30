@@ -29,6 +29,7 @@ import {
 	emitTrashList,
 	emitUsage,
 } from "../../service/sync/list.js";
+import { getCurrentSizeByFileId, getSizeByFileIdAndVersion } from "../../model/db_ff_r.js";
 // ===================================================================================
 const restoreHistory = async (req, res, next) => {
 	console.log("restoreHistory ", req.body);
@@ -45,7 +46,25 @@ const restoreHistory = async (req, res, next) => {
 		return next(customError.badRequest("No such key"));
 	}
 
-	// update DB
+	// check capacity
+  const targetSize = await getSizeByFileIdAndVersion(fileId, version);
+  if (targetSize < 0) {
+    return next(customError.badRequest("Cannot find record by this file id and version"));
+  }
+  const currentSize = await getCurrentSizeByFileId(fileId);
+  if (currentSize < 0) {
+    return next(customError.internalServerError());
+  }
+  console.log("targetSize: ", targetSize);
+  console.log("currentSize: ", currentSize);
+
+  const allocated = Number(req.session.user.allocated);
+	const used = Number(req.session.user.used);
+  if (used - currentSize + targetSize > allocated) {
+		return next(customError.badRequest("Not enough space"));
+	}
+
+  // update DB
 	const token = uuidv4();
 	const now = DateTime.utc();
 	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
@@ -125,7 +144,8 @@ const restoreDeleted = async (req, res, next) => {
 				key.replace(/\/$/, ""),
 				nowTime,
 				token,
-				userId
+				userId,
+        req.session
 			);
 			console.log("restoreRecurRes: ", restoreRecurRes);
 			if (!restoreRecurRes) {
@@ -139,6 +159,19 @@ const restoreDeleted = async (req, res, next) => {
 			if (fileId === -1) {
 				return next(customError.badRequest("No such key"));
 			}
+
+      // check capacity
+      const currentSize = await getCurrentSizeByFileId(fileId);
+      if (currentSize < 0) {
+        return next(customError.internalServerError());
+      }
+      console.log("currentSize: ", currentSize);
+      
+      const allocated = Number(req.session.user.allocated);
+      const used = Number(req.session.user.used);
+      if (used + currentSize > allocated) {
+        return next(customError.badRequest("Not enough space"));
+      }
 
 			// update DB
 			const restoreDeleted = await restoreDeletedFile(

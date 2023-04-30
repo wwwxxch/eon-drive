@@ -1,6 +1,7 @@
 import {
 	getOneLevelChildByParentId,
 	getCurrentVersionByFileId,
+  getCurrentSizeByFileId
 } from "../../model/db_ff_r.js";
 import {
 	restoreDeletedFile,
@@ -127,14 +128,25 @@ const getAllChildren = async (userId, path) => {
 };
 
 // for restoring deleted folder
-const restoreRecur = async (parentId, currentPath, time, token, userId) => {
+const restoreRecur = async (parentId, currentPath, time, token, userId, session) => {
 	try {
 		// find deleted children
 		const list = await getOneLevelChildByParentId(userId, parentId, 1);
 		if (list.length > 0) {
 			for (let i = 0; i < list.length; i++) {
 				if (list[i].type === "file") {
-					// update DB for file restore
+          // check capacity
+          const currentSize = await getCurrentSizeByFileId(list[i].id);
+          if (currentSize < 0) {
+            throw new Error("getCurrentSizeByFileId error");
+          }
+          const allocated = Number(session.user.allocated);
+          const used = Number(session.user.used);
+          if (used + currentSize > allocated) {
+            throw new Error("Not enough space");
+          }
+					
+          // update DB for file restore
 					const restoreFileRes = await restoreDeletedFile(
 						token,
 						list[i].id,
@@ -145,7 +157,8 @@ const restoreRecur = async (parentId, currentPath, time, token, userId) => {
           if (!restoreFileRes) {
             throw new Error("restoreDeletedFile error");
           }
-					// copy new version in S3
+					
+          // copy new version in S3
           const encodeParentPath = encodeURIComponent(currentPath);
           const encodeKey = encodeURIComponent(list[i].name);
 
@@ -159,13 +172,17 @@ const restoreRecur = async (parentId, currentPath, time, token, userId) => {
           if (!newRecordInS3) {
             throw new Error("newRecordInS3 error");
           }
+
+          // update usage (temporarily)
+          session.user.used = used + currentSize;
 				} else {
 					await restoreRecur(
 						list[i].id,
 						`${currentPath}/${list[i].name}`,
 						time,
 						token,
-						userId
+						userId,
+            session
 					);
 				}
 			}

@@ -159,6 +159,7 @@ const uploadChangeDB = async (req, res, next) => {
 		return next(customError.internalServerError());
 	}
 	req.session.user.used = currentUsed;
+  
 	req.token = token;
 	req.version = version;
 	next();
