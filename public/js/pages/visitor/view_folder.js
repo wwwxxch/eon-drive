@@ -21,9 +21,9 @@ function showShareFoList(obj) {
 			cellTime = `
         <td >
           <div class="d-flex justify-content-between">
-            <div>--</div>
+            <div>-</div>
             <div>
-              <button class="individual-dl-btn btn btn-outline-secondary">
+              <button class="btn individual-dl-btn custom-operation-btn">
                 Download
               </button>
             </div>
@@ -36,7 +36,7 @@ function showShareFoList(obj) {
           <div class="d-flex justify-content-between">
             <div>${formatTime(item.updated_at)}</div>
             <div>
-              <button class="individual-dl-btn btn btn-secondary">
+              <button class="btn individual-dl-btn custom-operation-btn">
                 Download
               </button>
             </div>

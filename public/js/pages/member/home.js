@@ -96,10 +96,10 @@ function showList(obj) {
                   ${threedotsSVG}
                 </button>
                 <div class="dropdown-menu" aria-labelledby="linksOperationMenu">
-                  <button type="button" class="dropdown-item get-link"
+                  <button type="button" class="dropdown-item links-item get-link"
                     data-bs-toggle="modal" data-bs-target="#getLinkModal">
                     Get Link</button>
-                  <button type="button" class="dropdown-item revoke-link"
+                  <button type="button" class="dropdown-item links-item revoke-link"
                     data-bs-toggle="modal" data-bs-target="#revokeLinkModal" ${disabledAttr}>
                     Revoke Link</button>
                 </div>

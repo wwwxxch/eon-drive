@@ -1,13 +1,13 @@
 import { revokeLink, askYouSharedList } from "../../api/share.js";
 // ===================================================
 function showYouSharedList(obj) {
-  console.log("showYouSharedList: ", obj);
+	console.log("showYouSharedList: ", obj);
 	// if (obj.data.length === 0) {
 
 	// }
 	obj.data.forEach((item) => {
 		const revokeDiv = `
-      <button class="revoke-btn btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#revokeLinkModal">
+      <button class="revoke-btn btn custom-operation-btn" data-bs-toggle="modal" data-bs-target="#revokeLinkModal">
         Revoke Link
       </button>
     `;
@@ -77,41 +77,46 @@ showYouSharedList(list);
 $(".you-shared-row").on("click", ".revoke-btn", async function () {
 	const ff_id = $(this).closest("tr").data("id");
 	console.log(ff_id);
-  $("#revoke-link-btn")
+	const ff_name = $(this).closest("tr").find(".ff").text();
+	console.log(ff_name);
+	$("#revoke-confirm-q").html(
+		`Are you sure you want to revoke the link for <b>${ff_name}</b>?`
+	);
+
+	$("#revoke-link-btn")
 		.off("click")
 		.on("click", async function () {
-      setTimeout(() => $("#revokeLinkModal").modal("hide"), 100);
+			setTimeout(() => $("#revokeLinkModal").modal("hide"), 100);
 			const askRevokeLink = await revokeLink(ff_id);
 			console.log("askRevokeLink: ", askRevokeLink);
-      $("#revokeAlertModal").modal("show");
-      $("#revoke-alert-msg").empty();
-			if (askRevokeLink.status === 200) {	
-        $("#revoke-alert-msg").text("Your link has been revoked.");
+			$("#revokeAlertModal").modal("show");
+			$("#revoke-alert-msg").empty();
+			if (askRevokeLink.status === 200) {
+				$("#revoke-alert-msg").text("Your link has been revoked.");
 			} else if (askRevokeLink.status >= 400 && askRevokeLink.status < 500) {
-        let errorHTML;
-        if (typeof askRevokeLink.data.error === "string") {
-          errorHTML = `<span>${askRevokeLink.data.error}</span>`;
-        } else {
-          errorHTML = askRevokeLink.data.error.map((err) => `<span>${err}</span>`).join("");
-        }
-        $("#revoke-alert-msg").html(errorHTML);
-
-      } else {
-        const errorHTML = 
-          "<span>Opps! Something went wrong. Please try later or contact us.</span>";
-          $("#revoke-alert-msg").html(errorHTML);
-      }
+				let errorHTML;
+				if (typeof askRevokeLink.data.error === "string") {
+					errorHTML = `<span>${askRevokeLink.data.error}</span>`;
+				} else {
+					errorHTML = askRevokeLink.data.error
+						.map((err) => `<span>${err}</span>`)
+						.join("");
+				}
+				$("#revoke-alert-msg").html(errorHTML);
+			} else {
+				const errorHTML =
+					"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+				$("#revoke-alert-msg").html(errorHTML);
+			}
 			setTimeout(() => $("#revokeAlertModal").modal("hide"), 3000);
 		});
-
 });
-
 
 // ==========================================================================
 // socket.io
 const socket = io();
 socket.on("linksYouSharedUpd", (data) => {
 	console.log("socket.on linksYouSharedUpd: ", data);
-  $("#links-you-shared-tbody").empty();
-  showYouSharedList(data);
+	$("#links-you-shared-tbody").empty();
+	showYouSharedList(data);
 });

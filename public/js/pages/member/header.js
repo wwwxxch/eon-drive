@@ -8,7 +8,7 @@ const userTimezoneOffset = new Date().getTimezoneOffset();
 const timeZone = luxon.DateTime.local().minus({
 	minutes: userTimezoneOffset,
 }).zoneName;
-console.log("timeZone: ", timeZone);
+// console.log("timeZone: ", timeZone);
 
 // logout button
 $("#logout-btn").on("click", async function (e) {
@@ -23,21 +23,26 @@ $("#profile-btn").on("click", async function (e) {
 	// window.location.href = "/profile";
 	const profile = await askProfile();
 	console.log("profile: ", profile);
+
 	$(".user-name").text(profile.name);
 	$(".user-email").text(profile.email);
-	$(".user-created").text(formatTime(profile.created_at));
+
+	const accountCreateDate = luxon.DateTime.fromISO(profile.created_at)
+		.setZone(timeZone)
+		.toFormat("yyyy-MM-dd");
+	$(".user-created").text(accountCreateDate);
 
 	const planText = profile.plan === 1 ? "Basic" : "";
 	$(".user-plan").text(planText);
 
-	const { allocated, used } = profile;
-	const percent = (used / allocated) * 100;
-	const currentUse = `
-    ${(used / (1024 * 1024)).toFixed(2)} MB / ${(
-		allocated /
-		(1024 * 1024)
-	).toFixed(2)} MB (${percent.toFixed(2)}%)
-  `;
+	const usedNum = parseInt(profile.used);
+	const allocatedNum = parseInt(profile.allocated);
+	const percent = (usedNum / allocatedNum) * 100;
+	const numerator = Math.round((usedNum / (1024 * 1024)) * 100) / 100;
+	const denominator = allocatedNum / (1024 * 1024);
+	const currentUse = `${numerator} MB / ${denominator} MB (${percent.toFixed(
+		2
+	)}%)`;
 	$(".user-usage").text(currentUse);
 });
 
@@ -60,10 +65,11 @@ function notiList(input) {
 
 		let feeds = input.data
 			.map((item) => {
-				console.log("time_shared: ", item.time_shared);
-				const dt = formatTime(item.time_shared);
-				// const dt = luxon.DateTime.fromISO(item.time_shared).setZone(timeZone).toFormat("yyyy-MM-dd HH:mm:ss");
-				console.log("dt: ", dt);
+				// console.log("time_shared: ", item.time_shared);
+				const dt = luxon.DateTime.fromISO(item.time_shared)
+					.setZone(timeZone)
+					.toFormat("yyyy-MM-dd HH:mm:ss");
+				// console.log("dt: ", dt);
 				const isReadClass = item.is_read === 0 ? "new-noti" : "";
 				return `
         <div class="dropdown-item noti-item ${isReadClass}" data-shared-id="${item.share_id}" data-read=${item.is_read} >
@@ -71,7 +77,11 @@ function notiList(input) {
             <div class="noti-text">
               <span class="noti-owner">${item.owner}</span>
               <span>shared</span>
-              <span class="noti-ff">${item.ff_name}</span>
+              <span class="noti-ff">
+                <a class="share-link" href="/${item.link}" target="_blank">
+                  ${item.ff_name}
+                </a>
+              </span>
               <span>with you.</span>
             </div>
             <div class="noti-time text-start">${dt}</div>

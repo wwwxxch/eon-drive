@@ -12,6 +12,22 @@
         .content-block {
           width: 68vw;
         }
+        div {
+          /* border: 1px dashed; */
+        }
+        h1 {
+          font-size: 4vw;
+        }
+        .btn a{
+          text-decoration: none;
+          color: #000;
+          font-size: 1.2vw;
+        }
+        .btn:hover {
+          background-color: #f8f5ef;
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
       </style>
 </head>
 
@@ -19,9 +35,10 @@
   <div id="root">
     <%- include('../visitor/partial/header') %>
       <!-- Main Body  -->
-      <div class="container content-block">
-        <h1><%= status %></h1>
-        <div><%= message %></div>
+      <div class="container content-block d-flex flex-column align-items-center">
+        <h1>Oops!</h1>
+        <h3><%= status %> - <%= message %></h3>
+        <button class="btn my-3" ><a href="/">Back to Home</a></button>
       </div>
       <%- include('../visitor/partial/footer') %>
   </div>

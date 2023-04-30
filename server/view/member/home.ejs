@@ -13,7 +13,7 @@
         div {
           /* border: 1px dashed; */
         }
-        
+
         #drag-drop-box {
           font-size: 1.5vw;
           border: 2px dashed lightgrey;
@@ -77,6 +77,10 @@
 
         .links-operation-svg:hover {
           color: darkgrey
+        }
+
+        .links-item:active {
+          background-color: darkgrey;
         }
 
         .progress-bar-container {
@@ -180,6 +184,38 @@
           box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
         }
 
+        .custom-operation-btn {
+          background-color: #f8f5ef;
+        }
+
+        .custom-operation-btn:hover {
+          border: none !important;
+          background-color: #f8f5ef;
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* .custom-operation-btn:focus,
+        .custom-operation-btn:active {
+          outline: none !important;
+          border: none !important;
+        } */
+
+        .custom-operation-strong-btn {
+          background-color: #f8f5ef;
+        }
+
+        .custom-operation-strong-btn:hover {
+          border: none !important;
+          background-color: #eee5d4;
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* .custom-operation-strong-btn:focus,
+        .custom-operation-strong-btn:active {
+          outline: none !important;
+          border: none !important;
+        } */
+
         .btn-custom-yes {
           background-color: #f8f5ef;
         }
@@ -191,6 +227,12 @@
 
         .btn-custom-no:hover {
           box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:focus,
+        .btn:active {
+          outline: none !important;
+          border: none !important;
         }
 
         .confirm-msg {
@@ -244,8 +286,9 @@
                 <div class="d-flex align-items-center">
                   <!-- Upload Buttons -->
                   <div class="dropdown me-3">
-                    <button type="button" class="btn btn-light dropdown-toggle hidden-arrow" id="dropdownMenuButton1"
-                      data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-expanded="false">
+                    <button type="button" class="btn custom-operation-btn dropdown-toggle hidden-arrow"
+                      id="dropdownMenuButton1" data-bs-toggle="dropdown" data-mdb-toggle="dropdown"
+                      aria-expanded="false">
                       Upload</button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                       <li><button class="dropdown-item" id="file-upload-btn">Upload File</button></li>
@@ -260,13 +303,13 @@
                   </div>
                   <!-- Create Folder Buttons -->
                   <div class="me-3">
-                    <button type="button" class="btn btn-light" data-bs-toggle="modal"
+                    <button type="button" class="btn custom-operation-btn" data-bs-toggle="modal"
                       data-bs-target="#createFolderModal">Create Folder</button>
                   </div>
                   <!-- Create Folder Modal -->
                   <div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel"
                     aria-hidden="true">
-                    <div class="modal-dialog">
+                    <div class="modal-dialog modal-dialog-centered">
                       <div class="modal-content">
                         <div class="modal-header">
                           <h5 class="modal-title" id="createFolderModalLabel">Create Folder</h5>
@@ -279,22 +322,26 @@
                               <input type="text" class="form-control" id="create-folder-name" name="folderName">
                             </div>
                           </form>
+                          <div class="d-flex justify-content-end pt-3">
+                            <button type="button" class="btn btn-custom-yes" id="create-btn">Create</button>
+                            <button type="button" class="btn btn-custom-no" data-bs-dismiss="modal">Cancel</button>
+                          </div>
                         </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-outline-secondary"
+                        <!-- <div class="modal-footer">
+                          <button type="button" class="btn btn-custom-yes" id="create-btn">Create</button>
+                          <button type="button" class="btn btn-custom-no"
                             data-bs-dismiss="modal">Cancel</button>
-                          <button type="button" class="btn btn-primary" id="create-btn">Create</button>
-                        </div>
+                        </div> -->
                       </div>
                     </div>
                   </div>
                   <!-- Download Button -->
                   <div class="me-3" style="display: none;" id="download-btn-div">
-                    <button type="button" class="btn btn-light" id="download-btn">Download</button>
+                    <button type="button" class="btn custom-operation-btn" id="download-btn">Download</button>
                   </div>
                   <!-- Delete Button -->
                   <div class="me-3" style="display: none;" id="delete-btn-div">
-                    <button type="button" class="btn btn-secondary" id="delete-btn" data-bs-toggle="modal"
+                    <button type="button" class="btn custom-operation-strong-btn" id="delete-btn" data-bs-toggle="modal"
                       data-bs-target="#confirmDeleteModal">Delete</button>
                   </div>
                 </div>
@@ -378,16 +425,15 @@
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                      <div>Are you sure to revoke the link?</div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-primary" id="revoke-link-btn">
-                        <!-- data-bs-toggle="modal" data-bs-target="#revokeAlertModal"> -->
-                        Yes
-                      </button>
-                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        No
-                      </button>
+                      <div id="revoke-confirm-q">Are you sure to revoke the link?</div>
+                      <div class="d-flex justify-content-end pt-4">
+                        <button type="button" class="btn btn-custom-yes ms-2" id="confirm-restore-btn">
+                          Yes
+                        </button>
+                        <button type="button" class="btn btn-custom-no ms-2" data-bs-dismiss="modal">
+                          No
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -416,11 +462,15 @@
                     </div>
                     <div class="modal-body">
                       <input type="text" class="form-control" id="linkInput" value="" readonly>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary btn-sm copy-link-btn"
+                      <div class="d-flex justify-content-end pt-3">
+                        <button type="button" class="btn btn-custom-yes btn-sm copy-link-btn"
                         data-dismiss="modal">Copy</button>
+                      </div>
                     </div>
+                    <!-- <div class="modal-footer">
+                      <button type="button" class="btn btn-custom-yes btn-sm copy-link-btn"
+                        data-dismiss="modal">Copy</button>
+                    </div> -->
                   </div>
                 </div>
               </div>

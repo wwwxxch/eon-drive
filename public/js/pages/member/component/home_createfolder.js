@@ -5,7 +5,10 @@ const folderNameLengthNoti = notiCard(
 	"Folder name should be 1 - 255 characters long",
 	343
 );
-const folderNameRegexNoti = notiCard("Folder name is invalid");
+const folderNameRegexNoti = notiCard(
+	"Folder name is invalid.<br>Only below characters are allowed: &nbsp <b>_-.@$</b>",
+	313
+);
 
 const folderCreatedNoti = notiCard("Folder created successfully", 210);
 const ffRegex = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ ]+$/;
@@ -21,7 +24,7 @@ $("#create-btn").on("click", async function () {
 	const createFolderName = $("#create-folder-name").val().trim();
 	console.log("create: ", currentPath);
 	console.log("create: ", createFolderName);
-  
+
 	if (createFolderName.length > 255 || createFolderName.length < 1) {
 		folderNameLengthNoti.show();
 		return;

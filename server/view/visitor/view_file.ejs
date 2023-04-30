@@ -16,7 +16,16 @@
 
         .content {
           width: 50vw;
-          padding-left: 10vw;
+          padding-left: 5vw;
+        }
+
+        .custom-operation-btn {
+          background-color: #f8f5ef;
+        }
+
+        .custom-operation-btn:hover {
+          background-color: #f8f5ef;
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
         }
 
         .spinner-border {
@@ -34,22 +43,30 @@
   <div id="root">
     <%- include('./partial/header') %>
       <!-- Main Body  -->
-      <div class="container content-block d-flex justify-content-center">
-        <div class="content">
-          <h2 class="file-name">
+      <div class="container content-block d-flex flex-column align-items-center">
+        <div>
+          <h3 class="file-name">
             <%= name %>
-          </h2>
-
-          <div class="row pt-4 d-flex justify-content-start">
-            <div class="col-2 d-flex flex-column justify-items-center">
+          </h3>
+        </div>
+        <div class="content">
+          <div class="row pt-4 d-flex justify-content-center">
+            <div class="col-2 d-flex flex-column justify-content-center">
               <p>Size:</p>
               <p>Modified:</p>
               <p>Owner:</p>
             </div>
-            <div class="col-5 d-flex flex-column justify-items-center">
+            <div class="col-5 d-flex flex-column justify-content-center">
               <p>
-                <!-- TODO: size - can be MB ! -->
-                <%= Math.ceil(size/1024) %> KB
+                <% if (size < 1024) { %>
+                  <%= size %> bytes
+                <% } else if (size < 1024 * 1024) { %>
+                  <%= Math.round(size / 1024 * 100) / 100 %> KB
+                <% } else if (size < 1024 * 1024 * 1024) { %>
+                  <%= Math.round(size / (1024 * 1024) * 100) / 100 %> MB
+                <% } else if (size < 1024 * 1024 * 1024 * 1024) { %>
+                  <%= Math.round(size / (1024 * 1024 * 1024) * 100) / 100 %> GB
+                <% } %>
               </p>
               <p>
                 <% const dateTime=DateTime.fromISO(updated_at).toLocal(); %>
@@ -60,7 +77,7 @@
               </p>
             </div>
             <div class="col-3 d-flex align-items-center">
-              <button type="button" class="btn btn-outline-dark fi-dl-btn">Download</button>
+              <button type="button" class="btn fi-dl-btn custom-operation-btn">Download</button>
             </div>
           </div>
         </div>

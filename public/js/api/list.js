@@ -1,18 +1,16 @@
-const api_destination = "/show-list";
-
 const getFileList = async (path) => {
   let parentPath = "";
   if (path !== "Home") {
     parentPath = path.split("/").slice(1).join("/");
   }
   try {
-    const getList = await axios.post(api_destination, { path: parentPath} );
+    const getList = await axios.post("/show-list", { path: parentPath} );
     // console.log("getList: ", getList);
     // console.log("getList.data: ", getList.data);
     return getList.data;
   } catch (e) {
     console.error("getFileList: ", e);
-    return false;
+    return null;
   }
 };
 
@@ -22,7 +20,7 @@ const getFileHistory = async (fileWholePath) => {
     return getHistory.data;
   } catch (e) {
     console.error("getFileHistory: ", e);
-    return false;
+    return null;
   }
 };
 
@@ -32,7 +30,7 @@ const getTrash = async () => {
     return trashList.data.data;
   } catch (e) {
     console.error("getTrash: ", e);
-    return false;
+    return null;
   }
 };
 
@@ -41,8 +39,8 @@ const askProfile = async () => {
     const profile = await axios.get("/show-profile");
     return profile.data;
   } catch (e) {
-    console.error("profile: ", e);
-    return false;
+    console.error("askProfile: ", e);
+    return null;
   }
 };
 

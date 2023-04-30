@@ -64,9 +64,9 @@ async function traverseDirectory(directoryEntry) {
 function notiCard(text, width = 270) {
 	return new Noty({
 		text: text,
-		layout: "bottomLeft",
+		layout: "topCenter",
 		closeWith: ["click"],
-		timeout: 1500,
+		timeout: 3000,
 		theme: "custom-theme",
 		progressBar: false,
 		callbacks: {
@@ -97,10 +97,15 @@ function copyToClipboard(text) {
 	// document.body.removeChild(input);
 }
 
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 export {
 	splitFileIntoChunks,
 	formatTime,
 	traverseDirectory,
 	notiCard,
 	copyToClipboard,
+  capitalizeFirstLetter
 };

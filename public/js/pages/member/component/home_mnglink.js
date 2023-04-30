@@ -21,17 +21,18 @@ $("input[name='access']").change(function () {
 
 // get link
 $("#list-table").on("click", ".get-link", async function () {
-  const revokeLinkBtn = $(this).closest("div").find(".revoke-link");
+	const revokeLinkBtn = $(this).closest("div").find(".revoke-link");
 
 	const targetId = $(this).closest("tr").find(".ff_name").data("id");
 	console.log("targetId: ", targetId);
-  
-  const targetName = $(this)
+
+	const targetName = $(this)
 		.closest("tr")
 		.find("input[name='list-checkbox']")
-		.val().replace(/\//g, "");
+		.val()
+		.replace(/\//g, "");
 
-  $("#getLinkModalLabel").html(`Share &nbsp${targetName}&nbsp with`);
+	$("#getLinkModalLabel").html(`Share &nbsp${targetName}&nbsp with`);
 
 	const checkRes = await checkShareStatus(targetId);
 
@@ -62,7 +63,7 @@ $("#list-table").on("click", ".get-link", async function () {
       </div>
     `);
 	} else if (shareStatus.acl.length > 0) {
-    $("label[for='access-user']").text("More Users");
+		$("label[for='access-user']").text("More Users");
 		const userDiv = shareStatus.acl
 			.map((item) => {
 				return `
@@ -85,40 +86,39 @@ $("#list-table").on("click", ".get-link", async function () {
       `);
 	}
 
-  // input user email
+	// input user email
 	$("#recipient").on("input", async function () {
 		const text = $(this).val().trim();
-    if (!text) {
-      $(".email-list").hide();
-      return;
-    }
-    const askPossibleEmails = await showCandidatesByInput(text);
-    if (askPossibleEmails.status !== 200) {
-      $(".email-list").hide();
-      return;
-    }
-    const emails = askPossibleEmails.data.list;
-    if (emails.length === 0) {
-      $(".email-list").hide();
-      return;
-    }
-    $(".email-list").empty();
-    const displayedEmails = $(".email-chip .email-text")
-      .map(function () {
-        return $(this).text().trim();
-      })
-      .get();
-    const filteredEmails = emails.filter(function (email) {
-      return !displayedEmails.includes(email);
-    });
+		if (!text) {
+			$(".email-list").hide();
+			return;
+		}
+		const askPossibleEmails = await showCandidatesByInput(text);
+		if (askPossibleEmails.status !== 200) {
+			$(".email-list").hide();
+			return;
+		}
+		const emails = askPossibleEmails.data.list;
+		if (emails.length === 0) {
+			$(".email-list").hide();
+			return;
+		}
+		$(".email-list").empty();
+		const displayedEmails = $(".email-chip .email-text")
+			.map(function () {
+				return $(this).text().trim();
+			})
+			.get();
+		const filteredEmails = emails.filter(function (email) {
+			return !displayedEmails.includes(email);
+		});
 
-    filteredEmails.forEach((email) => {
-      const $emailItem = $("<div class='email-item'></div>");
-      $emailItem.text(email);
-      $emailItem.appendTo($(".email-list"));
-    });
-    $(".email-list").show();
-
+		filteredEmails.forEach((email) => {
+			const $emailItem = $("<div class='email-item'></div>");
+			$emailItem.text(email);
+			$emailItem.appendTo($(".email-list"));
+		});
+		$(".email-list").show();
 	});
 
 	// Hide email list when user clicks outside of it
@@ -133,13 +133,13 @@ $("#list-table").on("click", ".get-link", async function () {
 		}
 	});
 
-  const selectedEmailsSet = new Set();
+	const selectedEmailsSet = new Set();
 
 	$(".email-list")
 		.off("click")
 		.on("click", ".email-item", function () {
 			const email = $(this).text();
-      selectedEmailsSet.add(email);
+			selectedEmailsSet.add(email);
 			const $emailChip = $(`
         <div class="email-chip">
           <span class="email-text"></span>
@@ -156,9 +156,9 @@ $("#list-table").on("click", ".get-link", async function () {
 	$(".email-chips-container")
 		.off("click")
 		.on("click", ".email-remove", function () {
-      const email = $(this).siblings(".email-text").text();
-      selectedEmailsSet.delete(email);
-      
+			const email = $(this).siblings(".email-text").text();
+			selectedEmailsSet.delete(email);
+
 			// const $emailChip = $(this).parent(".email-chip");
 			// const email = $emailChip.find(".email-text").text();
 			const $emailItem = $("<div class='email-item'></div>");
@@ -176,84 +176,81 @@ $("#list-table").on("click", ".get-link", async function () {
 			$(".email-chips-container").empty();
 			$("input[id='access-anyone']").prop("checked", true);
 			$("input[id='access-user']").prop("checked", false);
-      $("label[for='access-user']").text("Users");
+			$("label[for='access-user']").text("Users");
 			$("#recipient").prop("disabled", true);
 		});
 
-  // create link
+	// create link
 	$("#create-link-btn")
 		.off("click")
 		.on("click", async function () {
 			const access = $("input[name='access']:checked").val();
-      console.log("access: ", access);
+			console.log("access: ", access);
 			const selectedEmails = [...selectedEmailsSet];
 			console.log(selectedEmails);
 
-      const getLinkRes = await createLink(targetId, access, selectedEmails);
+			const getLinkRes = await createLink(targetId, access, selectedEmails);
 			console.log("getLinkRes: ", getLinkRes);
 
-      let share_link;
+			let share_link;
 			if (getLinkRes.status === 200) {
-        share_link = getLinkRes.share_link;
+				share_link = getLinkRes.share_link;
+			} else if (getLinkRes.status >= 400 && getLinkRes.status < 500) {
+				setTimeout(() => $("#getLinkModal").modal("hide"), 100);
+				$("#recipient").val("");
+				$(".email-list").empty();
+				$(".email-chips-container").empty();
+				$("input[id='access-anyone']").prop("checked", true);
+				$("input[id='access-user']").prop("checked", false);
+				$("label[for='access-user']").text("Users");
+				$("#recipient").prop("disabled", true);
 
-      } else if (getLinkRes.status >= 400 && getLinkRes.status < 500) {
-        setTimeout(() => $("#getLinkModal").modal("hide"), 100);
-        $("#recipient").val("");
-        $(".email-list").empty();
-        $(".email-chips-container").empty();
-        $("input[id='access-anyone']").prop("checked", true);
-        $("input[id='access-user']").prop("checked", false);
-        $("label[for='access-user']").text("Users");
-        $("#recipient").prop("disabled", true);
+				let errorHTML;
+				if (typeof getLinkRes.data.error === "string") {
+					errorHTML = `<span>${getLinkRes.data.error}</span>`;
+				} else {
+					errorHTML = getLinkRes.data.error
+						.map((err) => `<span>${err}</span>`)
+						.join("");
+				}
+				$("#errorModal").modal("show");
+				$("#error-msg").html(errorHTML);
+				return;
+			} else if (getLinkRes.status === 500) {
+				setTimeout(() => $("#getLinkModal").modal("hide"), 100);
+				$("#recipient").val("");
+				$(".email-list").empty();
+				$(".email-chips-container").empty();
+				$("input[id='access-anyone']").prop("checked", true);
+				$("input[id='access-user']").prop("checked", false);
+				$("label[for='access-user']").text("Users");
+				$("#recipient").prop("disabled", true);
 
-        let errorHTML;
-        if (typeof getLinkRes.data.error === "string") {
-          errorHTML = `<span>${getLinkRes.data.error}</span>`;
-        } else {
-          errorHTML = getLinkRes.data.error
-            .map((err) => `<span>${err}</span>`)
-            .join("");
-        }
-        $("#errorModal").modal("show");
-        $("#error-msg").html(errorHTML);
-        return;
+				const errorHTML =
+					"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+				$("#errorModal").modal("show");
+				$("#error-msg").html(errorHTML);
+				return;
+			}
 
-      } else if (getLinkRes.status === 500) {
-        setTimeout(() => $("#getLinkModal").modal("hide"), 100);
-        $("#recipient").val("");
-        $(".email-list").empty();
-        $(".email-chips-container").empty();
-        $("input[id='access-anyone']").prop("checked", true);
-        $("input[id='access-user']").prop("checked", false);
-        $("label[for='access-user']").text("Users");
-        $("#recipient").prop("disabled", true);
-
-        const errorHTML =
-        "<span>Opps! Something went wrong. Please try later or contact us.</span>";
-        $("#errorModal").modal("show");
-        $("#error-msg").html(errorHTML);
-        return;
-
-      }
-      
-      $("#linkModal").on("show.bs.modal", function (e) {
-        const linkInput = $(this).find("#linkInput");
-        linkInput.val(share_link);
-      });
-      $("#linkModal").modal("show");
-      $("#linkModal").on("click", ".copy-link-btn", function () {
-        copyToClipboard(share_link);
-        $("#linkModal").modal("hide");
-      });
+			$("#linkModal").on("show.bs.modal", function (e) {
+				const linkInput = $(this).find("#linkInput");
+				linkInput.val(share_link);
+			});
+			$("#linkModal").modal("show");
+			$("#linkModal").on("click", ".copy-link-btn", function () {
+				copyToClipboard(share_link);
+				$("#linkModal").modal("hide");
+			});
 
 			revokeLinkBtn.prop("disabled", false);
-      $("#getLinkModal").modal("hide");
+			$("#getLinkModal").modal("hide");
 			$("#recipient").val("");
 			$(".email-list").empty();
 			$(".email-chips-container").empty();
 			$("input[id='access-anyone']").prop("checked", true);
 			$("input[id='access-user']").prop("checked", false);
-      $("label[for='access-user']").text("Users");
+			$("label[for='access-user']").text("Users");
 			$("#recipient").prop("disabled", true);
 		});
 });
@@ -264,6 +261,11 @@ $("#list-table").on("click", ".revoke-link", async function () {
 	const revokeLinkBtn = $(this);
 	const ff_id = $(this).closest("tr").find(".ff_name").data("id");
 	console.log(ff_id);
+	const ff_name = $(this).closest("tr").find(".ff_name").text();
+	console.log(ff_name);
+	$("#revoke-confirm-q").html(
+		`Are you sure you want to revoke the link for <b>${ff_name}</b>?`
+	);
 
 	$("#revoke-link-btn")
 		.off("click")

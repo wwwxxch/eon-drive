@@ -82,20 +82,27 @@
                   <%= fileName %>
                 </h4>
               </div>
+              <div class="d-flex align-items-center pb-3">
+                <span>Restore this file to any version from the past 30 days.</span>
+              </div>
               <div class="d-flex justify-content-center" style="width: 100%;">
                 <div id="file-history" style="width: 90%;"></div>
               </div>
             </div>
         </div>
         <!-- Modal for confirm restore  -->
-        <div class="modal fade" id="confirmRestoreModal" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal fade" id="confirmRestoreModal" tabindex="-1" aria-hidden="true" aria-labelledby="confirmRestoreModalLabel">
+          <div class="modal-dialog">
             <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="confirmRestoreModalLabel">Restore to Previous Version</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
               <div class="modal-body">
                 <div class="pt-3">
                   <div id="confirm-restore-msg" class="text-wrap confirm-msg"></div>
                 </div>
-                <div class="d-flex justify-content-end pt-3">
+                <div class="d-flex justify-content-end pt-4">
                   <button type="button" class="btn btn-custom-yes ms-2" id="confirm-restore-btn">
                     Yes
                   </button>

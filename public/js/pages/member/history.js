@@ -1,6 +1,6 @@
 import { getFileHistory } from "../../api/list.js";
 import { restoreFile } from "../../api/restore.js";
-import { formatTime } from "../../util/util.js";
+import { formatTime, capitalizeFirstLetter } from "../../util/util.js";
 // ===================================================
 
 // show history list
@@ -20,7 +20,7 @@ function showHistoryList(obj) {
         <div style="width: 100%;" 
             class="rec deleted-rec d-flex justify-content-between align-items-center py-3">
           <div class="operation-time col-3">${time}</div>
-          <div class="action col-3">${rec.operation}</div>
+          <div class="action col-3">${capitalizeFirstLetter(rec.operation)}</div>
           <div class="col-4 d-flex justify-content-between align-items-center">
             <div class="size"></div>
             <div class="restore"></div>
@@ -32,11 +32,11 @@ function showHistoryList(obj) {
 			if (rec.size < 1024) {
 				showSize = `${rec.size} bytes`;
 			} else if (rec.size < 1024 * 1024) {
-				showSize = `${Math.ceil(rec.size / 1024)} KB`;
+				showSize = `${Math.round(rec.size / 1024 * 100) / 100} KB`;
 			} else if (rec.size < 1024 * 1024 * 1024) {
-				showSize = `${Math.ceil(rec.size / (1024 * 1024))} MB`;
+				showSize = `${Math.round(rec.size / (1024 * 1024) * 100) / 100} MB`;
 			} else if (rec.size < 1024 * 1024 * 1024 * 1024) {
-				showSize = `${Math.ceil(rec.size / (1024 * 1024 * 1024))} GB`;
+				showSize = `${Math.round(rec.size / (1024 * 1024 * 1024) * 100) / 100} GB`;
 			}
 
 			if (rec.is_current === 1) {
@@ -44,7 +44,7 @@ function showHistoryList(obj) {
         <div style="width: 100%;" 
             class="rec current-rec d-flex justify-content-between align-items-center py-3">
             <div class="operation-time col-3">${time}</div>
-            <div class="action col-3">${rec.operation}</div>
+            <div class="action col-3">${capitalizeFirstLetter(rec.operation)}</div>
             <div class="col-4 d-flex justify-content-between align-items-center">
               <div class="size">${showSize}</div>
               <div class="current">
@@ -66,7 +66,7 @@ function showHistoryList(obj) {
           <div style="width: 100%;" 
               class="rec previous-rec d-flex justify-content-between align-items-center py-3">
             <div class="operation-time col-3">${time}</div>
-            <div class="action col-3">${rec.operation}</div>
+            <div class="action col-3">${capitalizeFirstLetter(rec.operation)}</div>
             <div class="col-4 d-flex justify-content-between align-items-center">
               <div class="size">${showSize}</div>
               <div class="restore">${restoreDiv}</div>
@@ -112,7 +112,7 @@ $(".rec").on("click", ".restore-btn", function () {
 	// console.log(fileName, versionTime);
 
 	$("#confirm-restore-msg").html(
-		`Are you sure to restore <strong>${fileName}</strong> to the version <strong>${versionTime}</strong>?`
+		`Would you like to restore <strong>${fileName}</strong> to the version <strong>${versionTime}</strong>?`
 	);
 
 	$("#confirm-restore-btn")

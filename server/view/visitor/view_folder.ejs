@@ -18,6 +18,14 @@
           display: none;
         }
 
+        .custom-operation-btn {
+          background-color: #f8f5ef;
+        }
+        .custom-operation-btn:hover {
+          background-color: #f8f5ef;
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
         .folder {
           cursor: pointer;
         }
@@ -60,7 +68,7 @@
         <div style="width: 100%; height: 50px;" class="d-flex align-items-center justify-content-between my-2">
           <div class="d-flex align-items-center">
             <div>
-              <button type="button" class="btn btn-outline-secondary fo-dl-btn">
+              <button type="button" class="btn custom-operation-btn fo-dl-btn">
                 Download
               </button>
             </div>
@@ -69,7 +77,7 @@
         <div>
           <!-- Table  -->
           <div style="width: 100%;">
-            <table class="table table-hover" id="fo-list-table">
+            <table class="table" id="fo-list-table">
               <thead id="fo-list-thaed">
                 <tr>
                   <th scope="col">Name</th>

@@ -24,7 +24,7 @@ const registerReq = async () => {
   }
 };
 
-$(".login-btn").on("click", function (e) {
+$(".continue-btn").on("click", function (e) {
   e.preventDefault();
   registerReq();
   $("#username").val("");
