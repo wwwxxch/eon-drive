@@ -269,7 +269,11 @@ const getLinksSharedNoti = async(has_access, is_read, offset = 5) => {
         a.created_at,
         DATE_FORMAT(a.created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS time_shared,
         a.is_read,
-        b.name as ff_name, 
+        b.name as ff_name,
+        CASE 
+          WHEN b.type = "folder" THEN CONCAT ("view/fo/", b.share_token)
+          ELSE CONCAT ("view/fi/", b.share_token) 
+          END AS link, 
         c.name as owner
       FROM share_link_perm AS a 
         INNER JOIN ff AS b on a.ff_id = b.id
