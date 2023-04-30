@@ -167,6 +167,28 @@ const getFFInfoById = async(ff_id) => {
   return row[0];
 };
 
+const checkPendingFileStatus = async (user_id, token) => {
+  try {
+    const [row] = await pool.query(`
+      SELECT 
+        a.id AS ff_id,
+        b.id AS file_ver_id,
+        b.ver AS current_ver,
+        b.operation
+      FROM ff AS a INNER JOIN file_ver AS b ON a.id = b.ff_id
+      WHERE a.user_id = ? AND a.upd_token = ? 
+        AND a.upd_status = "pending" AND b.is_current = 1
+    `, [user_id, token]);
+    if (row.length !== 1) {
+      throw new Error("checkPendingFileStatus: row.length !== 1");
+    }
+    return row[0];
+  } catch (e) {
+    console.error("checkPendingFileStatus: ", e);
+    return null;
+  }
+};
+
 export {
   getFolderId,
   getFileId,
@@ -180,5 +202,6 @@ export {
   getParentInfoByFFId,
   getDeletedList,
   getFileDetail,
-  getFFInfoById
+  getFFInfoById,
+  checkPendingFileStatus
 };

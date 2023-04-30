@@ -86,6 +86,21 @@ const multiUpload = async(partUrls, completeUrl, chunkArray) => {
   }
 };
 
+const uploadFailedNoti = async(token) => {
+  try {
+    const failedNoti = await axios({
+      url: "/upload-failed",
+      method: "post",
+      data: { token }
+    });
+    console.log("failedNoti.status: ", failedNoti.status);
+    return { status: failedNoti.status };
+  } catch(e) {
+    console.error("uploadFailedNoti: ", e);
+    return { status: e.response.status, data: e.response.data };
+  }
+};
+
 const commitUpload = async(token, parentPath) => {
   try {
     const commit = await axios({
@@ -186,6 +201,7 @@ const uploadFile = async (currentDir, file, modalObj) => {
       console.log("multiUploadRes: ", multiUploadRes);
       toS3Res = multiUploadRes.status; 
     } 
+
     if (toS3Res !== 200) {
       console.error("toS3Res: ", toS3Res);
       
@@ -193,6 +209,9 @@ const uploadFile = async (currentDir, file, modalObj) => {
       modalObj.uploadStatus.text("");
       modalObj.uploadError.html("<span>Opps! Something went wrong. Please try later or contact us.</span>");
       setTimeout(() => modalObj.uploadModal.modal("hide"), 2000);
+      
+      // notify server that this upload failed
+      const uploadFailed = await uploadFailedNoti(token);
       
       return false;
     }

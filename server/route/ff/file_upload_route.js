@@ -8,6 +8,7 @@ import {
   checkUsed,
 	uploadChangeDB,
 	getS3Url,
+  uploadCleanPending,
 	uploadCommitDB,
 } from "../../controller/ff/file_upload_controller.js";
 
@@ -26,6 +27,8 @@ router.post(
 	uploadChangeDB,
 	getS3Url
 );
+
+router.post("/upload-failed", authentication, uploadCleanPending);
 
 router.post("/upload-commit", authentication, uploadCommitDB);
 
