@@ -260,32 +260,36 @@ const getFFShareStatus = async(user_id, ff_id) => {
 };
 
 const getLinksSharedNoti = async(has_access, is_read, offset = 5) => {
-  // console.log(offset);
-  const q_string = `
-    SELECT
-      a.id AS share_id,
-      a.ff_id,
-      a.has_access,
-      a.created_at,
-      DATE_FORMAT(a.created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS time_shared,
-      a.is_read,
-      b.name as ff_name, 
-      c.name as owner
-    FROM share_link_perm AS a 
-      INNER JOIN ff AS b on a.ff_id = b.id
-      INNER JOIN user AS c on b.user_id = c.id
-    WHERE a.has_access = ? AND a.is_read = ?
-    ORDER BY time_shared DESC
-  `;
-  const condition = "LIMIT ?";
+  try {
+    const q_string = `
+      SELECT
+        a.id AS share_id,
+        a.ff_id,
+        a.has_access,
+        a.created_at,
+        DATE_FORMAT(a.created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS time_shared,
+        a.is_read,
+        b.name as ff_name, 
+        c.name as owner
+      FROM share_link_perm AS a 
+        INNER JOIN ff AS b on a.ff_id = b.id
+        INNER JOIN user AS c on b.user_id = c.id
+      WHERE a.has_access = ? AND a.is_read = ?
+      ORDER BY time_shared DESC
+    `;
+    const condition = "LIMIT ?";
 
-  let row;
-  if (is_read === 0) {
-    [row] = await pool.query(q_string, [has_access, is_read]);
-  } else if (is_read === 1) {
-    [row] = await pool.query(q_string + condition, [has_access, is_read, offset]);
+    let row;
+    if (is_read === 0) {
+      [row] = await pool.query(q_string, [has_access, is_read]);
+    } else if (is_read === 1) {
+      [row] = await pool.query(q_string + condition, [has_access, is_read, offset]);
+    }
+    return row;
+  } catch (e) {
+    console.error("getLinksSharedNoti: ", e);
+    return [];
   }
-  return row;
 };
 
 const changeNotiRead = async(has_access, share_id) => {

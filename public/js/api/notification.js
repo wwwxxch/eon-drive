@@ -1,6 +1,6 @@
 const askNoti = async () => {
 	try {
-		const notiRes = await axios.get("/noti");
+		const notiRes = await axios.get("/notification");
 		// console.log("notiRes: ", notiRes);
 		return notiRes.data;
 	} catch (e) {
@@ -11,7 +11,7 @@ const askNoti = async () => {
 
 const changeUnreadStatus = async(shareId) => {
   try {
-		const change = await axios.get(`/read?shareId=${shareId}`);
+		const change = await axios.patch(`/notification/${shareId}`);
 		// console.log("change: ", change);
 		return change.data;
 	} catch (e) {
