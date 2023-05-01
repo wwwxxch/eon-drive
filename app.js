@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === "prod") {
 }
 
 if (PROTOCOL === "HTTPS") {
-  sessionConfig.cookie.secure = true; 
+	sessionConfig.cookie.secure = true;
 }
 
 app.use(session(sessionConfig));
@@ -56,10 +56,7 @@ app.set("view engine", "ejs");
 // Page
 import { page_member } from "./server/route/page//member/member_route.js";
 import { page_visitor } from "./server/route/page/visitor/visitor_route.js";
-app.use(
-  page_member, 
-  page_visitor
-);
+app.use(page_member, page_visitor);
 
 // --------------------------------------------------------------------------------
 // API
@@ -95,29 +92,56 @@ app.use(
 // Simple check
 app.get("/check", (req, res) => {
 	console.log("/check");
-	return res.send("test");
+	return res.send("ok");
+});
+
+app.get("/test", (req, res) => {
+	// console.log("req.protocol: ", req.protocol);
+	// console.log("req.headers.host: ", req.headers.host);
+	// console.log("req.hostname: ", req.hostname);
+	// console.log("req.socket.remoteAddress: ", req.socket.remoteAddress);
+	// console.log("req.headers[\"x-forwarded-for\"]: ", req.headers["x-forwarded-for"]);
+	// console.log("req.headers[\"x-real-ip\"]: ", req.headers["x-real-ip"]);
+	// console.log("req.ip: ", req.ip);
+	// console.log("req.ips: ", req.ips);
+	// console.log("req.path: ", req.path);
+	// console.log("req.originalUrl: ", req.originalUrl);
+	// console.log("req.url: ", req.url);
+	res.send(`
+  <p>req.protocol: ${req.protocol}</p>
+  <p>req.headers.host: ${req.headers.host}</p>
+  <p>req.hostname: ${req.hostname}</p>
+  <p>req.socket.remoteAddress: ${req.socket.remoteAddress}</p>
+  <p>req.headers["x-forwarded-for"]: ${req.headers["x-forwarded-for"]}</p>
+  <p>req.headers["x-real-ip"]: ${req.headers["x-real-ip"]}</p>
+  <p>req.ip: ${req.ip}</p>
+  <p>req.ips: ${req.ips}</p>
+  <p>req.path: ${req.path}</p>
+  <p>req.originalUrl: ${req.originalUrl}</p>
+  <p>req.url: ${req.url}</p>
+`);
 });
 
 // ---------------------------------------------------
 // Errors
 app.use((req, res, next) => {
 	console.log("ERROR req.path: ", req.path);
-  res.status(404);
-  res.render("error/error", {
-    status: 404,
-    message: "The page you requested is not existed."
-  });
+	res.status(404);
+	res.render("error/error", {
+		status: 404,
+		message: "The page you requested is not existed.",
+	});
 });
 
 app.use((err, req, res, next) => {
-  if (err instanceof customError) {
-    console.error("err.message: ", err.message);
-    return res.status(err.status).json({ error: err.message });
-  }
-  // console.error("error handler: ", err);
+	if (err instanceof customError) {
+		console.error("err.message: ", err.message);
+		return res.status(err.status).json({ error: err.message });
+	}
+	// console.error("error handler: ", err);
 	return res.status(err.status || 500).render("error/error", {
-		status: (err.status || 500),
-		message: (err.message || "Internal Server Error")
+		status: err.status || 500,
+		message: err.message || "Internal Server Error",
 	});
 });
 

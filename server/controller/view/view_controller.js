@@ -97,8 +97,14 @@ const returnFileInfo = async (req, res) => {
 
   const ip = req.headers["x-forwarded-for"];
   const geo = geoip.default.lookup(ip);
-  const clientTimeZone = geo.timezone;
-
+  // TODO: geo will be undefined if ip is localhost
+  let clientTimeZone;
+  if (!geo) {
+    clientTimeZone = "Asia/Taipei";
+  } else {
+    clientTimeZone = geo.timezone;
+  }
+  
 	return res.render("visitor/view_file", {
 		name,
 		size,
