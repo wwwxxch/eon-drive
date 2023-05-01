@@ -91,17 +91,24 @@ const publicLink = async (req, res, next) => {
 
 const privateLink = async (req, res, next) => {
 	const { access } = req.body;
-  const uniqueEmails = [...new Set(access.user)];
+  const uniqueSet = new Set(access.user);
+  const uniqueEmails = [...uniqueSet];
   const userEmail = req.session.user.email;
+  if (uniqueEmails.length === 0 || uniqueSet.has(userEmail)) {
+    return next(customError.badRequest("Please enter at least one email."));
+  }
+  
   console.log("uniqueEmails: ", uniqueEmails);
-	const userList = await getMultipleUserId("email", access.user, userEmail);
+  
+	const userList = await getMultipleUserId("email", uniqueEmails, userEmail);
 	console.log("userList: ", userList);
   if (!userList) {
     return next(customError.internalServerError());
   }
+
 	if (userList.length === 0 || userList.length !== uniqueEmails.length) {
 		return next(
-			customError.badRequest("Something wrong in user list")
+			customError.badRequest("Some users do not exist. Please check again.")
 		);
 	}
 

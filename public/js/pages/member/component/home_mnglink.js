@@ -5,7 +5,7 @@ import {
 	showCandidatesByInput,
 } from "../../../api/share.js";
 
-import { copyToClipboard } from "../../../util/util.js";
+import { notiCard, isValidEmail, copyToClipboard } from "../../../util/util.js";
 
 // get link - To public or To private
 $("input[name='access']").change(function () {
@@ -62,6 +62,7 @@ $("#list-table").on("click", ".get-link", async function () {
         </a>
       </div>
     `);
+		$("label[for='access-user']").text("Users");
 	} else if (shareStatus.acl.length > 0) {
 		$("label[for='access-user']").text("More Users");
 		const userDiv = shareStatus.acl
@@ -87,70 +88,49 @@ $("#list-table").on("click", ".get-link", async function () {
 	}
 
 	// input user email
-	$("#recipient").on("input", async function () {
-		const text = $(this).val().trim();
-		if (!text) {
-			$(".email-list").hide();
-			return;
-		}
-		const askPossibleEmails = await showCandidatesByInput(text);
-		if (askPossibleEmails.status !== 200) {
-			$(".email-list").hide();
-			return;
-		}
-		const emails = askPossibleEmails.data.list;
-		if (emails.length === 0) {
-			$(".email-list").hide();
-			return;
-		}
-		$(".email-list").empty();
-		const displayedEmails = $(".email-chip .email-text")
-			.map(function () {
-				return $(this).text().trim();
-			})
-			.get();
-		const filteredEmails = emails.filter(function (email) {
-			return !displayedEmails.includes(email);
-		});
-
-		filteredEmails.forEach((email) => {
-			const $emailItem = $("<div class='email-item'></div>");
-			$emailItem.text(email);
-			$emailItem.appendTo($(".email-list"));
-		});
-		$(".email-list").show();
-	});
-
-	// Hide email list when user clicks outside of it
-	$(document).on("click", function (e) {
-		if (
-			!$(".email-list").is(e.target) &&
-			!$("#recipient").is(e.target) &&
-			$(".email-list").has(e.target).length === 0
-		) {
-			$("#recipient").val("");
-			$(".email-list").hide();
-		}
-	});
-
 	const selectedEmailsSet = new Set();
 
-	$(".email-list")
-		.off("click")
-		.on("click", ".email-item", function () {
-			const email = $(this).text();
-			selectedEmailsSet.add(email);
-			const $emailChip = $(`
-        <div class="email-chip">
-          <span class="email-text"></span>
-          <button class="email-remove">&times;</button>
-        </div>
-      `);
-			$emailChip.find(".email-text").text(email);
-			$(".email-chips-container").append($emailChip);
-			$(this).remove();
-			$(".email-list").hide();
-			$("#recipient").val("");
+	$("#recipient")
+		.on("focus", function () {
+			$(".add-email-instruction").show();
+		})
+		.on("blur", function () {
+			$(".add-email-instruction").hide();
+		})
+		.off("keydown")
+		.on("keydown", async function (e) {
+			if (e.keyCode === 13) {
+				e.preventDefault();
+				const email = $(this).val().trim();
+				if (isValidEmail(email) && !selectedEmailsSet.has(email)) {
+					selectedEmailsSet.add(email);
+					const $emailChip = $(`
+          <div class="email-chip">
+            <span class="email-text">${email}</span>
+            <button class="email-remove">&times;</button>
+          </div>
+        `);
+					$(".email-chips-container").append($emailChip);
+					$(this).val("");
+					$(this).blur();
+				} else if (selectedEmailsSet.has(email)) {
+					const emailDuplicated = notiCard(
+						"Email is duplicated",
+						160,
+						"topCenter"
+					);
+					emailDuplicated.show();
+					$(this).val("");
+					$(this).blur();
+					return;
+				} else {
+					const emailInvalid = notiCard("Email is invalid", 130, "topCenter");
+					emailInvalid.show();
+					$(this).val("");
+					$(this).blur();
+					return;
+				}
+			}
 		});
 
 	$(".email-chips-container")
@@ -158,12 +138,6 @@ $("#list-table").on("click", ".get-link", async function () {
 		.on("click", ".email-remove", function () {
 			const email = $(this).siblings(".email-text").text();
 			selectedEmailsSet.delete(email);
-
-			// const $emailChip = $(this).parent(".email-chip");
-			// const email = $emailChip.find(".email-text").text();
-			const $emailItem = $("<div class='email-item'></div>");
-			$emailItem.text(email);
-			$(".email-list").append($emailItem);
 			$(this).parent().remove();
 		});
 
@@ -172,7 +146,6 @@ $("#list-table").on("click", ".get-link", async function () {
 		.off("click")
 		.on("click", function () {
 			$("#recipient").val("");
-			$(".email-list").empty();
 			$(".email-chips-container").empty();
 			$("input[id='access-anyone']").prop("checked", true);
 			$("input[id='access-user']").prop("checked", false);
@@ -188,7 +161,11 @@ $("#list-table").on("click", ".get-link", async function () {
 			console.log("access: ", access);
 			const selectedEmails = [...selectedEmailsSet];
 			console.log(selectedEmails);
-
+			if (selectedEmails.length === 0 && access === "user") {
+				const noEmail = notiCard("Please input email", 170, "topCenter");
+				noEmail.show();
+				return;
+			}
 			const getLinkRes = await createLink(targetId, access, selectedEmails);
 			console.log("getLinkRes: ", getLinkRes);
 
@@ -198,7 +175,6 @@ $("#list-table").on("click", ".get-link", async function () {
 			} else if (getLinkRes.status >= 400 && getLinkRes.status < 500) {
 				setTimeout(() => $("#getLinkModal").modal("hide"), 100);
 				$("#recipient").val("");
-				$(".email-list").empty();
 				$(".email-chips-container").empty();
 				$("input[id='access-anyone']").prop("checked", true);
 				$("input[id='access-user']").prop("checked", false);
@@ -219,7 +195,6 @@ $("#list-table").on("click", ".get-link", async function () {
 			} else if (getLinkRes.status === 500) {
 				setTimeout(() => $("#getLinkModal").modal("hide"), 100);
 				$("#recipient").val("");
-				$(".email-list").empty();
 				$(".email-chips-container").empty();
 				$("input[id='access-anyone']").prop("checked", true);
 				$("input[id='access-user']").prop("checked", false);
@@ -246,7 +221,6 @@ $("#list-table").on("click", ".get-link", async function () {
 			revokeLinkBtn.prop("disabled", false);
 			$("#getLinkModal").modal("hide");
 			$("#recipient").val("");
-			$(".email-list").empty();
 			$(".email-chips-container").empty();
 			$("input[id='access-anyone']").prop("checked", true);
 			$("input[id='access-user']").prop("checked", false);

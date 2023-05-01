@@ -61,10 +61,10 @@ async function traverseDirectory(directoryEntry) {
 }
 
 // ==========================================================================
-function notiCard(text, width = 270) {
+function notiCard(text, width = 270, layout = "topCenter") {
 	return new Noty({
 		text: text,
-		layout: "topCenter",
+		layout: layout,
 		closeWith: ["click"],
 		timeout: 2000,
 		theme: "custom-theme",
@@ -101,11 +101,19 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+// ==========================================================================
+// function to validate email addresses
+function isValidEmail(email) {
+  const re = /\S+@\S+\.\S+/;
+  return re.test(email);
+}
+
 export {
 	splitFileIntoChunks,
 	formatTime,
 	traverseDirectory,
 	notiCard,
 	copyToClipboard,
-  capitalizeFirstLetter
+  capitalizeFirstLetter,
+  isValidEmail
 };

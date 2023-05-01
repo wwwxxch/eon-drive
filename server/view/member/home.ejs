@@ -108,7 +108,7 @@
           box-shadow: none;
         }
 
-        .email-list {
+        /* .email-list {
           top: calc(100% - 0px);
           z-index: 1000;
           background-color: #fff;
@@ -116,16 +116,18 @@
           border: 1px solid #ced4da;
           border-top: none;
           padding: 0 11px;
-        }
+        } */
 
-        .email-item {
+        /* .email-item {
           padding: 2px 0;
         }
 
         .email-item:hover {
           cursor: pointer;
+        } */
+        .add-email-instruction {
+          color: rgb(101, 101, 101);
         }
-
         .email-chips-container {
           display: flex;
           flex-wrap: wrap;
@@ -364,7 +366,7 @@
               <!-- Modal for get link  -->
               <div class="modal fade" id="getLinkModal" tabindex="-1" aria-labelledby="getLinkModalLabel"
                 aria-hidden="true">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-dialog-centered">
                   <div class="modal-content">
                     <div class="modal-header">
                       <h5 class="modal-title" id="getLinkModalLabel">Share with</h5>
@@ -376,8 +378,9 @@
                           <label for="recipient" class="col-form-label">Email:</label>
                           <div class="position-relative email-container">
                             <input type="email" autocomplete="off" class="form-control" id="recipient" disabled>
-                            <div class="email-list position-absolute w-100 border rounded-top overflow-auto"
-                              style="display: none; max-height: 200px;"></div>
+                            <span class="add-email-instruction mt-1" style="display: none;">Input Email and Press Enter</span>
+                            <!-- <div class="email-list position-absolute w-100 border rounded-top overflow-auto"
+                              style="display: none; max-height: 200px;"></div> -->
                           </div>
                           <div class="email-chips-container"></div>
                         </div>
@@ -427,7 +430,7 @@
                     <div class="modal-body">
                       <div id="revoke-confirm-q">Are you sure to revoke the link?</div>
                       <div class="d-flex justify-content-end pt-4">
-                        <button type="button" class="btn btn-custom-yes ms-2" id="confirm-restore-btn">
+                        <button type="button" class="btn btn-custom-yes ms-2" id="revoke-link-btn">
                           Yes
                         </button>
                         <button type="button" class="btn btn-custom-no ms-2" data-bs-dismiss="modal">
