@@ -27,10 +27,12 @@ $("#create-btn").on("click", async function () {
 
 	if (createFolderName.length > 255 || createFolderName.length < 1) {
 		folderNameLengthNoti.show();
+    $("#create-folder-name").val("");
 		return;
 	}
 	if (!createFolderName.match(ffRegex)) {
 		folderNameRegexNoti.show();
+    $("#create-folder-name").val("");
 		return;
 	}
 	const createFolderRes = await createFolder(currentPath, createFolderName);
