@@ -69,7 +69,7 @@
                 <% } %>
               </p>
               <p>
-                <% const dateTime=DateTime.fromISO(updated_at).toLocal(); %>
+                <% const dateTime=DateTime.fromISO(updated_at).setZone(clientTimeZone); %>
                   <%= dateTime.toFormat('yyyy-MM-dd HH:mm:ss') %>
               </p>
               <p>
