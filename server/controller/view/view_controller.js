@@ -1,3 +1,4 @@
+import * as geoip from "geoip-lite";
 import { DateTime } from "luxon";
 import { customError } from "../../error/custom_error.js";
 
@@ -88,8 +89,17 @@ const checkSharePermission = async (req, res, next) => {
 const returnFileInfo = async (req, res) => {
 	const target = req.target;
   
-  const timezoneOffset = new Date().getTimezoneOffset();
-  console.log("timezoneOffset: ", timezoneOffset);
+  console.log("req.headers[\"x-forwarded-for\"]: ", req.headers["x-forwarded-for"]);
+  console.log("req.headers[\"x-real-ip\"]: ", req.headers["x-real-ip"]);  
+  console.log("req.ip: ", req.ip);
+  console.log("req.ips: ", req.ips);
+  const ip1 = req.ip;
+  const ip2 = req.headers["x-forwarded-for"];
+  // console.log(geoip);
+  const geo1 = geoip.default.lookup(ip1);
+  const geo2 = geoip.default.lookup(ip2);
+  console.log("geo1: ", geo1);
+  console.log("geo2: ", geo2);
 
 	const detail = await getFileDetail(target.id);
 	console.log("detail: ", detail);
