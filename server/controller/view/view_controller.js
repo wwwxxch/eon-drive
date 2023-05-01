@@ -87,6 +87,9 @@ const checkSharePermission = async (req, res, next) => {
 
 const returnFileInfo = async (req, res) => {
 	const target = req.target;
+  
+  const timezoneOffset = new Date().getTimezoneOffset();
+  console.log("timezoneOffset: ", timezoneOffset);
 
 	const detail = await getFileDetail(target.id);
 	console.log("detail: ", detail);
