@@ -27,9 +27,10 @@ const deleteAllVersionsForOneObject = async (client, bucket, key) => {
     });
     const listRes = await client.send(listCommand);
     const contents = listRes.Contents;
-    console.log("contents: ", contents);
+    // console.log("contents: ", contents);
     if (contents.length > 0) {
       for (let i = 0; i< contents.length; i++) {
+        console.log("contents[i].Key: ", contents[i].Key);
         await deleteObject(client, bucket, contents[i].Key);
       }
     }
