@@ -226,7 +226,7 @@ const deleteLinkByFFId = async(user_id, ff_id, is_public) => {
       UPDATE ff SET share_token = null, is_public = 0 WHERE user_id = ? AND id = ? 
     `, [user_id, ff_id]);
     
-    if (is_public === 1) {
+    if (is_public === 0) {
       const [share_link_perm] = await conn.query(`
         DELETE FROM share_link_perm WHERE ff_id = ?
       `, [ff_id]);
