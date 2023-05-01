@@ -66,7 +66,7 @@ function notiCard(text, width = 270) {
 		text: text,
 		layout: "topCenter",
 		closeWith: ["click"],
-		timeout: 3000,
+		timeout: 2000,
 		theme: "custom-theme",
 		progressBar: false,
 		callbacks: {
