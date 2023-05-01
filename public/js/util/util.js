@@ -14,15 +14,13 @@ async function splitFileIntoChunks(file, chunk_size) {
 }
 
 // ==========================================================================
-function formatTime(timestamp) {
-	const date = new Date(timestamp);
-	const year = date.getFullYear();
-	const month = (date.getMonth() + 1).toString().padStart(2, "0");
-	const day = date.getDate().toString().padStart(2, "0");
-	const hours = date.getHours().toString().padStart(2, "0");
-	const minutes = date.getMinutes().toString().padStart(2, "0");
-	const seconds = date.getSeconds().toString().padStart(2, "0");
-	return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+function formatTime(timestamp, format = "yyyy-MM-dd HH:mm:ss") {
+  // console.log("timestamp: ", timestamp);
+	const userTimezoneOffset = new Date().getTimezoneOffset();
+	const timeZone = luxon.DateTime.local().minus({
+		minutes: userTimezoneOffset,
+	}).zoneName;
+	return luxon.DateTime.fromISO(timestamp).setZone(timeZone).toFormat(format);
 }
 
 // ==========================================================================
@@ -98,14 +96,14 @@ function copyToClipboard(text) {
 }
 
 function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 // ==========================================================================
 // function to validate email addresses
 function isValidEmail(email) {
-  const re = /\S+@\S+\.\S+/;
-  return re.test(email);
+	const re = /\S+@\S+\.\S+/;
+	return re.test(email);
 }
 
 export {
@@ -114,6 +112,6 @@ export {
 	traverseDirectory,
 	notiCard,
 	copyToClipboard,
-  capitalizeFirstLetter,
-  isValidEmail
+	capitalizeFirstLetter,
+	isValidEmail,
 };

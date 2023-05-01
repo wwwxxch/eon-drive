@@ -88,23 +88,24 @@ const checkSharePermission = async (req, res, next) => {
 
 const returnFileInfo = async (req, res) => {
 	const target = req.target;
-
-	const detail = await getFileDetail(target.id);
+	
+  const detail = await getFileDetail(target.id);
 	console.log("detail: ", detail);
+
 	const { name, size, updated_at, owner } = detail;
+  
   console.log("req.headers[\"x-forwarded-for\"]: ", req.headers["x-forwarded-for"]);
   // console.log("req.ip: ", req.ip);
 
   const ip = req.headers["x-forwarded-for"];
   const geo = geoip.default.lookup(ip);
-  // TODO: geo will be undefined if ip is localhost
   let clientTimeZone;
   if (!geo) {
     clientTimeZone = "Asia/Taipei";
   } else {
     clientTimeZone = geo.timezone;
   }
-  
+
 	return res.render("visitor/view_file", {
 		name,
 		size,

@@ -57,13 +57,8 @@ console.log(shareToken);
 const subPath = windowPathName.split("/").slice(4).join("/");
 console.log("subPath: ", subPath);
 
-const pathTexts = $(".path-text")
-	.map(function () {
-		return $(this).text().trim();
-	})
-	.get()
-	.join("/");
-console.log("pathTexts: ", pathTexts);
+const target = $("#share-path").data("target-name");
+console.log("target: ", target);
 
 const res = await getShareFoList(shareToken, subPath);
 showShareFoList(res);
@@ -73,12 +68,12 @@ if (subPath) {
 		const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
 		return [...prev, folder];
 	}, []);
-	console.log(pathArray);
+	// console.log(pathArray);
 
 	$("#share-path").empty();
 	$("#share-path").append(`
     <a href="/view/fo/${shareToken}">
-      <h3><span class="path-text">${pathTexts}</span></h3>
+      <h3><span class="path-text">${target}</span></h3>
     </a>
   `);
 	pathArray.forEach((item, i) => {
@@ -93,6 +88,7 @@ if (subPath) {
 
 // show list when clicking
 $("#fo-list-table").on("click", ".folder", async function () {
+  console.log("#list-table on click");
 	const dirName = $(this).text().trim();
 	const pathTexts = $(".path-text")
 		.map(function () {
@@ -121,6 +117,43 @@ $("#fo-list-table").on("click", ".folder", async function () {
       <h3><span class="path-text">${dirName}</span></h3>
     </a>
   `);
+});
+
+$(window).on("popstate", async function () {
+	console.log("popstate");
+  const windowPathName = window.location.pathname;
+  const shareToken = windowPathName.split("/")[3];
+  console.log(shareToken);
+  const subPath = windowPathName.split("/").slice(4).join("/");
+  console.log("subPath: ", subPath);
+
+  const res = await getShareFoList(shareToken, subPath);
+  $("#fo-list-tbody").empty();
+  showShareFoList(res);
+
+  $("#share-path").empty();
+  $("#share-path").append(`
+    <a href="/view/fo/${shareToken}">
+      <h3><span class="path-text">${target}</span></h3>
+    </a>
+  `);
+
+  if (subPath) {
+    const pathArray = subPath.split("/").reduce((prev, curr, i) => {
+      const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
+      return [...prev, folder];
+    }, []);
+    // console.log(pathArray);
+
+    pathArray.forEach((item, i) => {
+      $("#share-path").append(`
+        <span class="slash"> / </span>
+        <a href="/view/fo/${shareToken}/${item}">
+          <h3><span class="path-text">${item.split("/").pop()}</span></h3>
+        </a>
+      `);
+    });
+  }
 });
 
 const downloadModal = $("#waitingModal");
@@ -229,57 +262,3 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 	}
 	setTimeout(() => downloadModal.modal("hide"), 3000);
 });
-
-// $(".individual-dl-btn").on("click", async function () {
-// 	const pathTexts = $(".path-text")
-// 		.map(function () {
-// 			return $(this).text().trim();
-// 		})
-// 		.get()
-// 		.join("/");
-// 	console.log(pathTexts);
-// 	const $tr = $(this).closest("tr");
-// 	const target = $tr.find(".ff").text().trim();
-// 	const targetClass = $tr.find(".ff").attr("class").split(" ");
-
-// 	let desired;
-// 	if (targetClass.includes("file")) {
-// 		desired = pathTexts + "/" + target;
-// 	} else if (targetClass.includes("folder")) {
-// 		desired = pathTexts + "/" + target + "/";
-// 	}
-
-// 	downloadModal.modal("show");
-// 	downloadStatus.text("Downloading...");
-// 	downloadSpinner.addClass("spinner-border");
-// 	downloadComplete.hide();
-// 	downloadError.html();
-
-// 	const downloadFileRes = await downloadShareFo(shareToken, desired);
-// 	if (downloadFileRes.status === 200) {
-// 		downloadSpinner.removeClass("spinner-border");
-// 		setTimeout(() => downloadStatus.text("Complete!"), 100);
-// 		setTimeout(() => downloadModal.modal("hide"), 200);
-// 		window.open(downloadFileRes.downloadUrl, "_self");
-// 		return;
-// 	} else if (downloadFileRes.status !== 500) {
-// 		let errorHTML;
-// 		if (typeof downloadFileRes.data.error === "string") {
-// 			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
-// 		} else {
-// 			errorHTML = downloadFileRes.data.error
-// 				.map((err) => `<span>${err}</span>`)
-// 				.join("");
-// 		}
-// 		downloadSpinner.removeClass("spinner-border");
-// 		downloadStatus.text("");
-// 		downloadError.html(errorHTML);
-// 	} else {
-// 		const errorHTML =
-// 			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
-// 		downloadSpinner.removeClass("spinner-border");
-// 		downloadStatus.text("");
-// 		downloadError.html(errorHTML);
-// 	}
-// 	setTimeout(() => downloadModal.modal("hide"), 3000);
-// });

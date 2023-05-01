@@ -3,13 +3,6 @@ import { askProfile } from "../../api/list.js";
 import { formatTime } from "../../util/util.js";
 // =============================================================================
 
-// get User's timezone
-const userTimezoneOffset = new Date().getTimezoneOffset();
-const timeZone = luxon.DateTime.local().minus({
-	minutes: userTimezoneOffset,
-}).zoneName;
-// console.log("timeZone: ", timeZone);
-
 // logout button
 $("#logout-btn").on("click", async function (e) {
 	e.preventDefault();
@@ -27,9 +20,7 @@ $("#profile-btn").on("click", async function (e) {
 	$(".user-name").text(profile.name);
 	$(".user-email").text(profile.email);
 
-	const accountCreateDate = luxon.DateTime.fromISO(profile.created_at)
-		.setZone(timeZone)
-		.toFormat("yyyy-MM-dd");
+  const accountCreateDate = formatTime(profile.created_at, "yyyy-MM-dd");
 	$(".user-created").text(accountCreateDate);
 
 	const planText = profile.plan === 1 ? "Basic" : "";
@@ -40,9 +31,9 @@ $("#profile-btn").on("click", async function (e) {
 	const percent = (usedNum / allocatedNum) * 100;
 	const numerator = Math.round((usedNum / (1024 * 1024)) * 100) / 100;
 	const denominator = allocatedNum / (1024 * 1024);
-	const currentUse = `${numerator} MB / ${denominator} MB (${percent.toFixed(
-		2
-	)}%)`;
+	const currentUse = `
+    ${numerator} MB / ${denominator} MB (${percent.toFixed(2)}%)
+  `;
 	$(".user-usage").text(currentUse);
 });
 
@@ -66,28 +57,25 @@ function notiList(input) {
 		let feeds = input.data
 			.map((item) => {
 				// console.log("time_shared: ", item.time_shared);
-				const dt = luxon.DateTime.fromISO(item.time_shared)
-					.setZone(timeZone)
-					.toFormat("yyyy-MM-dd HH:mm:ss");
-				// console.log("dt: ", dt);
+        const dt = formatTime(item.time_shared);
 				const isReadClass = item.is_read === 0 ? "new-noti" : "";
 				return `
-        <div class="dropdown-item noti-item ${isReadClass}" data-shared-id="${item.share_id}" data-read=${item.is_read} >
-          <div class="text-wrap">
-            <div class="noti-text">
-              <span class="noti-owner">${item.owner}</span>
-              <span>shared</span>
-              <span class="noti-ff">
-                <a class="share-link" href="/${item.link}" target="_blank">
-                  ${item.ff_name}
-                </a>
-              </span>
-              <span>with you.</span>
+          <div class="dropdown-item noti-item ${isReadClass}" data-shared-id="${item.share_id}" data-read=${item.is_read} >
+            <div class="text-wrap">
+              <div class="noti-text">
+                <span class="noti-owner">${item.owner}</span>
+                <span>shared</span>
+                <span class="noti-ff">
+                  <a class="share-link" href="/${item.link}" target="_blank">
+                    ${item.ff_name}
+                  </a>
+                </span>
+                <span>with you.</span>
+              </div>
+              <div class="noti-time text-start">${dt}</div>
             </div>
-            <div class="noti-time text-start">${dt}</div>
           </div>
-        </div>
-      `;
+        `;
 			})
 			.join("");
 

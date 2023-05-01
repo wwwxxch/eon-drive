@@ -7,7 +7,8 @@ function showYouSharedList(obj) {
 	// }
 	obj.data.forEach((item) => {
 		const revokeDiv = `
-      <button class="revoke-btn btn custom-operation-btn" data-bs-toggle="modal" data-bs-target="#revokeLinkModal">
+      <button class="revoke-btn btn custom-operation-btn" data-bs-toggle="modal" 
+        data-bs-target="#revokeLinkModal">
         Revoke Link
       </button>
     `;

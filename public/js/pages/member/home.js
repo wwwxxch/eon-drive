@@ -1,4 +1,5 @@
 import { getFileList } from "../../api/list.js";
+import { formatTime } from "../../util/util.js";
 
 const threedotsSVG = `
   <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" class="bi bi-three-dots links-operation-svg"
@@ -21,30 +22,25 @@ if (percent > 50 && percent < 90) {
 } else if (percent >= 90) {
 	$(".progress-bar").css("background-color", "#c22f2f");
 }
-const numerator = Math.round(usedNum / (1024 * 1024) * 100) / 100;
+const numerator = Math.round((usedNum / (1024 * 1024)) * 100) / 100;
 const denominator = allocatedNum / (1024 * 1024);
 $("#progress-des").text(`${numerator} MB / ${denominator} MB`);
-
-// get User's timezone
-const userTimezoneOffset = new Date().getTimezoneOffset();
-const timeZone = luxon.DateTime.local().minus({
-	minutes: userTimezoneOffset,
-}).zoneName;
-console.log("timeZone: ", timeZone);
 
 // =====================================================================================
 // showList function
 let table;
 function showList(obj) {
 	console.log("showList: ", obj);
-	if (obj.data.length === 0) {
-		console.log("obj.data.length === 0");
-		$("#list-table").hide();
-		return;
-	} else {
-		console.log("obj.data.length !== 0");
-		$("#list-table").show();
-	}
+	// if (obj.data.length === 0) {
+	// 	console.log("obj.data.length === 0");
+	// 	$("#list-table").hide();
+	//   $("#no-data").text("Blank folder");
+	// 	return;
+	// } else {
+	// 	console.log("obj.data.length !== 0");
+	// 	$("#list-table").show();
+	//   $("#no-data").text("");
+	// }
 	const path = window.location.pathname.split("/").slice(2).join("/");
 	// console.log(path);
 	table = $("#list-table").DataTable({
@@ -77,13 +73,7 @@ function showList(obj) {
 			{
 				data: "updated_at",
 				render: function (data, type, row, meta) {
-					// const time = row.type === "folder" ? "-" : formatTime(data);
-					const time =
-						row.type === "folder"
-							? "-"
-							: luxon.DateTime.fromISO(data)
-									.setZone(timeZone)
-									.toFormat("yyyy-MM-dd HH:mm:ss");
+					const time = row.type === "folder" ? "-" : formatTime(data);
 					const disabledAttr = row.is_shared === 1 ? "" : "disabled";
 					const div = `
             <div class="d-flex justify-content-between">
@@ -116,43 +106,89 @@ function showList(obj) {
 }
 
 // =================================================================================
-// show file list under root folder
+// show file list on page load (new request)
+console.log("window.location.pathname: ", window.location.pathname);
+const path = window.location.pathname.split("/").slice(2).join("/");
+const list = await getFileList(path === "" ? "Home" : "Home/" + path);
+showList(list);
 
-// add root path
-// TODO: why render by js?
 $("#whole-path").append(`
   <a href="/home">
     <h4><span class="path-text">Home</span></h4>
   </a>
 `);
 
-const path = window.location.pathname.split("/").slice(2).join("/");
-console.log("window.location.pathname: ", window.location.pathname);
-console.log("path: ", path);
-const list = await getFileList(path === "" ? "Home" : "Home/" + path);
-showList(list);
-
 if (path !== "") {
 	const pathArray = path.split("/").reduce((prev, curr, i) => {
 		const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
 		return [...prev, folder];
 	}, []);
-	console.log("pathArray: ", pathArray);
-	pathArray.forEach((item, i) => {
+	// console.log("pathArray: ", pathArray);
+	pathArray.forEach((item) => {
 		$("#whole-path").append(`
       <span class="slash"> / </span>
       <a href="/home/${decodeURIComponent(item)}">
-        <h4><span class="path-text">${decodeURIComponent(
-					item.split("/").pop()
-				)}</span></h4>
+        <h4>
+          <span class="path-text">
+            ${decodeURIComponent(item.split("/").pop())}
+          </span>
+        </h4>
       </a>
     `);
 	});
 }
+// ==========================================================================
+// socket.io
+const socket = io();
 
+socket.on("listupd", (data) => {
+	console.log("socket.on listupd: ", data);
+	// console.log("In socket.on(\"listupd\")");
+
+	const pathTexts = $(".path-text")
+		.map(function () {
+			return $(this).text().trim();
+		})
+		.get()
+		.join("/");
+
+	let currentPath = "";
+	if (pathTexts !== "Home") {
+		currentPath = pathTexts.replace(/^Home\//, "");
+	}
+	console.log("currentPath: ", currentPath);
+	console.log("pathTexts: ", pathTexts);
+
+	if (currentPath === data.parentPath) {
+		if ($("#list-table").is(":visible")) {
+			table.destroy();
+		}
+		showList(data.list);
+	}
+});
+
+socket.on("usageupd", (data) => {
+	const usedNum = parseInt(data.used);
+	const allocatedNum = parseInt(data.allocated);
+	const percent = (usedNum / allocatedNum) * 100;
+
+	$(".usage-progress").css("width", percent + "%");
+	$(".usage-progress").attr("aria-valuenow", percent);
+
+	if (percent > 50 && percent < 90) {
+		$(".progress-bar").css("background-color", "#d69f65");
+	} else if (percent >= 90) {
+		$(".progress-bar").css("background-color", "#c22f2f");
+	}
+
+	const numerator = Math.round((usedNum / (1024 * 1024)) * 100) / 100;
+	const denominator = allocatedNum / (1024 * 1024);
+	$("#progress-des").text(`${numerator} MB / ${denominator} MB`);
+});
 // =================================================================================
 // click folder --> show lists under that folder
 $("#list-table").on("click", ".folder", async function () {
+  console.log("#list-table on click");
 	const dirName = $(this).text();
 	const pathTexts = $(".path-text")
 		.map(function () {
@@ -189,10 +225,17 @@ $("#list-table").on("click", ".folder", async function () {
 });
 
 $(window).on("popstate", async function () {
+	console.log("popstate");
 	const path = window.location.pathname.split("/").slice(2).join("/");
 	const list = await getFileList(path === "" ? "Home" : "Home/" + path);
 	table.destroy();
 	showList(list);
+
+	$("#whole-path").empty().append(`
+      <a href="/home">
+        <h4><span class="path-text">Home</span></h4>
+      </a>
+    `);
 
 	if (path !== "") {
 		const pathArray = path.split("/").reduce((prev, curr, i) => {
@@ -201,16 +244,15 @@ $(window).on("popstate", async function () {
 		}, []);
 		// console.log("pathArray: ", pathArray);
 
-		$("#whole-path").empty().append(`
-      <a href="/home">
-        <h4><span class="path-text">Home</span></h4>
-      </a>
-    `);
-		pathArray.forEach((item, i) => {
+		pathArray.forEach((item) => {
 			$("#whole-path").append(`
         <span class="slash"> / </span>
-        <a href="/home/${item}">
-          <h4><span class="path-text">${item.split("/").pop()}</span></h4>
+        <a href="/home/${decodeURIComponent(item)}">
+          <h4>
+            <span class="path-text">
+              ${decodeURIComponent(item).split("/").pop()}
+            </span>
+          </h4>
         </a>
       `);
 		});
@@ -254,51 +296,4 @@ $(document).click(function (e) {
 		$("#download-btn-div").hide();
 	}
 });
-// ==========================================================================
-// socket.io
-const socket = io();
 
-socket.on("listupd", (data) => {
-	console.log("socket.on listupd: ", data);
-	// console.log("In socket.on(\"listupd\")");
-
-	const pathTexts = $(".path-text")
-		.map(function () {
-			return $(this).text().trim();
-		})
-		.get()
-		.join("/");
-
-	let currentPath = "";
-	if (pathTexts !== "Home") {
-		currentPath = pathTexts.replace(/^Home\//, "");
-	}
-	console.log("currentPath: ", currentPath);
-	console.log("pathTexts: ", pathTexts);
-
-	if (currentPath === data.parentPath) {
-		if ($("#list-table").is(":visible")) {
-			table.destroy();
-		}
-		showList(data.list);
-	}
-});
-
-socket.on("usageupd", (data) => {
-	const usedNum = parseInt(data.used);
-	const allocatedNum = parseInt(data.allocated);
-	const percent = (usedNum / allocatedNum) * 100;
-	
-  $(".usage-progress").css("width", percent + "%");
-  $(".usage-progress").attr("aria-valuenow", percent);
-  
-  if (percent > 50 && percent < 90) {
-    $(".progress-bar").css("background-color", "#d69f65");
-  } else if (percent >= 90) {
-    $(".progress-bar").css("background-color", "#c22f2f");
-  }
-
-  const numerator = Math.round(usedNum / (1024 * 1024) * 100) / 100;
-  const denominator = allocatedNum / (1024 * 1024);
-  $("#progress-des").text(`${numerator} MB / ${denominator} MB`);
-});
