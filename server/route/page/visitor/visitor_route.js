@@ -22,8 +22,16 @@ router.get("/about", (req, res) => {
   return res.render("visitor/about");
 });
 
-router.get("/info", (req, res) => {
-  return res.render("visitor/information");
+router.get("/terms", (req, res) => {
+  return res.render("visitor/terms");
+});
+
+router.get("/privacy", (req, res) => {
+  return res.render("visitor/privacy");
+});
+
+router.get("/contact", (req, res) => {
+  return res.render("visitor/contact");
 });
 
 export { router as page_visitor };

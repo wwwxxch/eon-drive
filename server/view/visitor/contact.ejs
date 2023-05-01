@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EON Drive</title>
+  <%- include('./partial/stylesheet') %>
+    <%- include('./partial/script') %>
+
+      <!-- css internal -->
+      <style>
+        .item-title {
+          font-size: 2vw;
+          font-weight: 600;
+        }
+
+        span,
+        li {
+          line-height: 2.5;
+        }
+
+        div {
+          /* border: 1px dashed; */
+        }
+      </style>
+</head>
+
+<body>
+  <div id="root">
+    <%- include('./partial/header') %>
+      <!-- Main Body  -->
+      <div class="w-75 container content-block d-flex align-items-center mb-5">
+        <div class="d-flex flex-column">
+          <div id="terms">
+          
+          <div id="contact">
+            <div class="item-title">Contact</div>
+            <div class="px-2">
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <%- include('./partial/footer') %>
+  </div>
+</body>
+
+</html>

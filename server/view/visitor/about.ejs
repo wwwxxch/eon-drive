@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EON Drive</title>
+  <title>EON Drive - About</title>
   <%- include('./partial/stylesheet') %>
     <%- include('./partial/script') %>
 
@@ -12,6 +12,17 @@
       <style>
         div {
           /* border: 1px dashed; */
+        }
+        .about-items {
+          margin: 1vh 0;
+        }
+        .description-text {
+          font-size: 1.1rem;
+          line-height: 35px;
+        }
+        #user-flow-img {
+          max-width: 90%;
+          height: auto;
         }
       </style>
 </head>
@@ -21,8 +32,50 @@
     <%- include('./partial/header') %>
       <!-- Main Body  -->
       <div class="w-75 container content-block d-flex flex-column mb-5">
-        <div>
-          <h3>System Design</h3>
+        <h1><strong>About</strong></h1>
+        <div class="description-text">
+          <div>
+            Welcome to EON Drive &#x1F642; !
+          </div>
+          <div class="mb-3">
+            This cloud storage web app is to provide a simple and efficient way for users to store and manage their files in the cloud.
+            The goal is to make it easy for you to access your files anywhere, anytime, and share them with others.
+          </div>
+        </div>
+        <div class="about-items">
+          <h3><strong>Features</strong></h3>
+        </div>
+        <div class="description-text">
+          <div>You can: </div>
+          <ul>
+            <li>Upload files to the cloud</li>
+            <li>Manage files through user interface</li>
+            <li>Update, download, delete files</li>
+            <li>Keep versions of files within 30 days</li>
+            <li>Restore deleted files within 30 days</li>
+            <li>Share files to others through links</li>
+          </ul>
+          <div class="d-flex justify-content-center">
+            <img id="user-flow-img" src="/img/userflow.png">
+          </div>
+        </div>
+        <div class="about-items">
+          <h3><strong>Technologies</strong></h3>
+        </div>
+        <div class="description-text">
+          <ul>
+            <li>Backend server built with Node.js Express</li>
+            <li>Frontend created with HTML, CSS, Javascript, jQuery, Bootstrap</li>
+            <li>Session-Cookie Authentication</li>
+            <li>MySQL for saving metadata</li>
+            <li>AWS S3 for file storage</li>
+            <li>AWS Lambda for file archiving</li>
+            <li>AWS EC2 hosting with Application Load Balancer for scalability</li>
+            <li>SSL certification to enable HTTPS</li>
+          </ul>
+        </div>
+        <div class="about-items">
+          <h3><strong>System Architecture Diagram</strong></h3>
         </div>
         <div class="d-flex justify-content-center" style="width: 100%;">          
           <div>
