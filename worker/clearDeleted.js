@@ -1,6 +1,6 @@
 import { DateTime, Duration } from "luxon";
 import { getExpiredDeleted } from "../server/model/db_expiration.js";
-import { getFFInfoById } from "../server/model/db_ff_r.js";
+import { getDeletedFFInfoById } from "../server/model/db_ff_r.js";
 import { findParentPathByFFId } from "../server/service/path/iter.js";
 import {
 	permDeleteByFileId,
@@ -15,8 +15,8 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
 const { EXPIRATION_DAY, EXPIRATION_MIN, S3_MAIN_BUCKET_NAME } = process.env;
-const DUR = parseInt(EXPIRATION_MIN) * 60; // min to sec
-// const DUR = parseInt(EXPIRATION_DAY) * 24 * 60 * 60 // day to sec
+// const DUR = parseInt(EXPIRATION_MIN) * 60; // min to sec
+const DUR = parseInt(EXPIRATION_DAY) * 24 * 60 * 60; // day to sec
 
 import { s3clientGeneral } from "../server/service/s3/s3_client.js";
 import { deleteAllVersionsForOneObject } from "../server/service/s3/s3_delete.js";
@@ -35,7 +35,7 @@ const clearDeleted = async () => {
       console.log("no expired deleted file/folder");
       return;
     }
-
+    console.log("expiredDeletedList: ", expiredDeletedList);
     let expiredFiles = [];
     let expireFolders = [];
     for (const element of expiredDeletedList) {
@@ -44,7 +44,7 @@ const clearDeleted = async () => {
       // remove file first
       // remove folder (no need to recursively find children under folder)
 
-      const info = await getFFInfoById(element);
+      const info = await getDeletedFFInfoById(element);
       // info.id info.name, info.type, info.user_id
 
       if (info.type === "folder") expireFolders.push(info);
@@ -53,6 +53,7 @@ const clearDeleted = async () => {
 
     // file
     for (const element of expiredFiles) {
+      console.log("file: element: ", element);
       const parentPath = await findParentPathByFFId(element.id);
       const fullPath = parentPath.replace(/^Home\//, "") + element.name;
       // remove file from DB
@@ -69,6 +70,7 @@ const clearDeleted = async () => {
 
     // folder
     for (const element of expireFolders) {
+      console.log("folder: element: ", element);
       const parentPath = await findParentPathByFFId(element.id);
       const fullPath = parentPath.replace(/^Home\//, "") + element.name;
       // remove folder from DB

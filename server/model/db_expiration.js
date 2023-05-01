@@ -4,7 +4,9 @@ import { pool } from "./connection.js";
 const getExpiredDeleted = async (expiredDT) => {
 	const [row] = await pool.query(
 		`
-    SELECT ff_id FROM ff_delete WHERE deleted_at < ?
+    SELECT DISTINCT a.ff_id 
+    FROM ff_delete AS a INNER JOIN ff AS b ON a.ff_id = b.id  
+    WHERE a.deleted_at < ? AND b.is_delete = 1
   `,
 		expiredDT
 	);
@@ -19,7 +21,7 @@ const getFileIdWithVersionsExpired = async (expiredDT) => {
       a.id AS ff_id, a.name, a.user_id
     FROM ff AS a INNER JOIN file_ver AS b
     ON a.id = b.ff_id
-    WHERE b.is_current = 0 AND b.updated_at < ?
+    WHERE a.is_delete = 0 AND b.is_current = 0 AND b.updated_at < ?
   `,
 		expiredDT
 	);

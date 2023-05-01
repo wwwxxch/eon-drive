@@ -167,9 +167,9 @@ const getFileDetail = async(ff_id) => {
   return row[0];
 };
 
-const getFFInfoById = async(ff_id) => {
+const getDeletedFFInfoById = async(ff_id) => {
   const [row] = await pool.query(`
-    SELECT id, name, type, user_id FROM ff WHERE id = ?
+    SELECT id, name, type, user_id FROM ff WHERE id = ? AND is_delete = 1
   `, ff_id);
   if (row.length !== 1) {
     return null;
@@ -213,6 +213,6 @@ export {
   getParentInfoByFFId,
   getDeletedList,
   getFileDetail,
-  getFFInfoById,
+  getDeletedFFInfoById,
   checkPendingFileStatus
 };

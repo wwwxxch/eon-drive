@@ -18,8 +18,8 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
 const { EXPIRATION_DAY, EXPIRATION_MIN, S3_MAIN_BUCKET_NAME } = process.env;
-const DUR = parseInt(EXPIRATION_MIN) * 60; // min to sec
-// const DUR = parseInt(EXPIRATION_DAY) * 24 * 60 * 60 // day to sec
+// const DUR = parseInt(EXPIRATION_MIN) * 60; // min to sec
+const DUR = parseInt(EXPIRATION_DAY) * 24 * 60 * 60; // day to sec
 
 import { s3clientGeneral } from "../server/service/s3/s3_client.js";
 import { deleteObject } from "../server/service/s3/s3_delete.js";
@@ -75,7 +75,7 @@ const clearVersions = async () => {
     }
 
     // 2.
-		// expired deleted records
+		// expired deleted records in DB
 		const expiredDeletedRec = await getExpiredDeletedRec(expiredDT);
     console.log("expiredDeletedRec: ", expiredDeletedRec);
     
