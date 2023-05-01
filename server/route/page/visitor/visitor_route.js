@@ -6,7 +6,7 @@ import { loginRedirect } from "../../../../server/controller/user/user_auth_cont
 
 // =====================================================================================
 
-router.get("/", /*loginRedirect,*/ (req, res) => {
+router.get("/", loginRedirect, (req, res) => {
   return res.render("visitor/index");
 });
 
