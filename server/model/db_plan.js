@@ -16,14 +16,20 @@ const updateSpaceUsedByUser = async(user_id, time) => {
     await conn.query("START TRANSACTION");
     
     const [ff] = await conn.query(q_calculateSum, user_id);
-    console.log("q_calculateSum: ", ff[0].total_size);
+    let total_size;
+    if (ff.length === 0) {
+      total_size = 0;
+    } else {
+      total_size = ff[0].total_size;
+    }
+    // console.log("q_calculateSum: ", ff[0].total_size);
 
-    const [user] = await conn.query(q_updateUsed, [ff[0].total_size, time, user_id]);
+    const [user] = await conn.query(q_updateUsed, [total_size, time, user_id]);
     console.log("q_updateUsed: affectedRows: ", user.affectedRows);
     
     await conn.commit();
     console.log("COMMIT");
-    return ff[0].total_size;
+    return total_size;
 
   } catch (e) {
     await conn.query("ROLLBACK");
