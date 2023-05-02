@@ -18,11 +18,14 @@ import { s3clientGeneral } from "../../service/s3/s3_client.js";
 
 import { createS3Folder } from "../../service/s3/s3_create.js";
 
+import { preventXSS } from "../../util/util.js";
 // ====================================================================
 const signUp = async (req, res, next) => {
 	console.log("signUp");
 
-	const { name, email, password } = req.body;
+	const { name , email, password } = req.body;
+
+  const modifiedName = preventXSS(name);
 
 	// check if the email has been registered
 	const getmail = await chkmail(email);
@@ -35,7 +38,7 @@ const signUp = async (req, res, next) => {
 	const now = DateTime.utc();
 	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 
-	const createUserRes = await createUser(email, password, name, nowTime);
+	const createUserRes = await createUser(email, password, modifiedName, nowTime);
 
 	// save user info to session
 	const user = {

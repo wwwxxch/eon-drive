@@ -13,6 +13,18 @@ const wrapAsync = (fn) => {
   };
 };
 
+function preventXSS(input) {
+  if (!input) {
+    return "";
+  }
+  const htmlEscape = {
+      "<": "&lt;",
+      ">": "&gt;",
+      "&": "&amp;"
+  };
+  const re = new RegExp(Object.keys(htmlEscape).join("|"), "gi");
+  return input.replace(re, (matched) => { return htmlEscape[matched]; });
+}
 
 const deleteLocal = async (localPath) => {
   try {
@@ -26,5 +38,6 @@ const deleteLocal = async (localPath) => {
 
 export {
   wrapAsync,
-  deleteLocal
+  deleteLocal,
+  preventXSS
 };
