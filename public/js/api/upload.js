@@ -174,7 +174,8 @@ const uploadFile = async (currentDir, file, modalObj) => {
       modalObj.uploadStatus.text("");
       modalObj.uploadError.html(modalHTML);
       setTimeout(() => modalObj.uploadModal.modal("hide"), 2000);
-      
+      // notify server that this upload failed
+      const uploadFailed = await uploadFailedNoti(token);
       return false;
     
     } else if (startUploadRes.status === 500) {
@@ -183,7 +184,8 @@ const uploadFile = async (currentDir, file, modalObj) => {
       modalObj.uploadStatus.text("");
       modalObj.uploadError.html("<span>Opps! Something went wrong. Please try later or contact us.</span>");
       setTimeout(() => modalObj.uploadModal.modal("hide"), 2000);
-      
+      // notify server that this upload failed
+      const uploadFailed = await uploadFailedNoti(token);
       return false;
     }
 
@@ -224,7 +226,8 @@ const uploadFile = async (currentDir, file, modalObj) => {
       modalObj.uploadStatus.text("");
       modalObj.uploadError.html(`<span>${commitUploadRes.data.error}</span>`);
       setTimeout(() => modalObj.uploadModal.modal("hide"), 2000);
-      
+      // notify server that this upload failed
+      const uploadFailed = await uploadFailedNoti(token);
       return false;
 
     } else if (commitUploadRes.status === 500) {
@@ -233,7 +236,8 @@ const uploadFile = async (currentDir, file, modalObj) => {
       modalObj.uploadStatus.text("");
       modalObj.uploadError.html("<span>Opps! Something went wrong. Please try later or contact us.</span>");
       setTimeout(() => modalObj.uploadModal.modal("hide"), 2000);
-      
+      // notify server that this upload failed
+      const uploadFailed = await uploadFailedNoti(token);
       return false;
     }
 
