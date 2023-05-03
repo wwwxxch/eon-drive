@@ -2,14 +2,14 @@ import {
 	getFileListByPath,
 	findFileIdByPath,
 	findParentPathByFFId,
-  findTargetFolderId,
+	findTargetFolderId,
 } from "../../service/path/iter.js";
 
 import {
 	getDeletedList,
 	getVersionsByFileId,
 	getDeleteRecordsByFileId,
-  getOneLevelChildByParentId,
+	getOneLevelChildByParentId,
 } from "../../model/db_ff_r.js";
 import { customError } from "../../error/custom_error.js";
 
@@ -22,49 +22,43 @@ const showList = async (req, res, next) => {
 	// req.body = { "path": "" }
 	const { path } = req.body;
 	const userId = req.session.user.id;
+
 	const decodePath = decodeURI(path);
-	// console.log("doecodePath: ", decodePath);
-  
-  const targetFolderId = await findTargetFolderId(userId, decodePath);
-  console.log("targetFolderId: ", targetFolderId);
-  if (targetFolderId === -1) {
+	console.log("doecodePath: ", decodePath);
+
+	const getFileListRes = await getFileListByPath(userId, decodePath);
+  if (!getFileListRes.data) {
     return next(customError.badRequest("Invalid path"));
   }
 
-  const list = await getOneLevelChildByParentId(userId, targetFolderId, 0);
-  return res.json({ data: list });
+	return res.json({ data: getFileListRes.data });
 };
 
 const showHistory = async (req, res) => {
 	console.log("showHistory: ", req.body);
 
-	const { fileWholePath } = req.body;
+	const { fileId } = req.body;
 	const userId = req.session.user.id;
-	const decodeFileWholePath = decodeURI(fileWholePath);
-	console.log("decodeFileWholePath: ", decodeFileWholePath);
 
-	const fileId = await findFileIdByPath(userId, decodeFileWholePath);
-	console.log("fileId: ", fileId);
-
-	const versions = await getVersionsByFileId(fileId);
+	const versions = await getVersionsByFileId(userId, fileId);
 	// console.log("versions", versions);
 
-	const deleteRecords = await getDeleteRecordsByFileId(fileId);
+	const deleteRecords = await getDeleteRecordsByFileId(userId, fileId);
 	// console.log("deleteRecords: ", deleteRecords);
-  
-  // versions & deleteRecords will be [] if no matched
+
+	// versions & deleteRecords will be [] if no matched
 	return res.json({ versions, deleteRecords });
 };
 
 const showTrash = async (req, res, next) => {
 	console.log("showTrash");
-  
+
 	const userId = req.session.user.id;
 	const deleted = await getDeletedList(userId);
 	// console.log("deleted: ", deleted);
-  if (!deleted) {
-    return next(customError.internalServerError());
-  }
+	if (!deleted) {
+		return next(customError.internalServerError());
+	}
 
 	const { all, folders } = deleted;
 	const folderIdList = folders.map((item) => item.id);

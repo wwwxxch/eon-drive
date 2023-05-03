@@ -70,14 +70,15 @@ const uploadChangeDB = async (req, res, next) => {
 	console.log("uploadChangeDB: req.body: ", req.body);
 	const { fileName, fileWholePath, fileSize } = req.body;
 	const userId = req.session.user.id;
-
+  // TODO: save parent path in DB
 	const folders = fileWholePath.split("/");
 	folders.pop();
 	console.log("folders: ", folders);
 	const now = DateTime.utc();
 	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 
-	// get parentId
+	// get parentId -> 
+  // TODO: query all folders at once (as show list), is_delete info is also required !
 	let parentId = 0;
 	const token = uuidv4();
 	if (folders.length > 0) {

@@ -82,8 +82,8 @@ function showHistoryList(obj) {
 const reqPath = window.location.pathname;
 const fileWholePath = reqPath.replace(/^\/history\//, "");
 // console.log("fileWholePath: ", fileWholePath);
-
-const history = await getFileHistory(fileWholePath);
+const fileId = $(".file-name").data("id");
+const history = await getFileHistory(fileId);
 console.log(history);
 showHistoryList(history);
 // ===================================================================

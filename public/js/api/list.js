@@ -14,9 +14,9 @@ const getFileList = async (path) => {
   }
 };
 
-const getFileHistory = async (fileWholePath) => {
+const getFileHistory = async (fileId) => {
   try {
-    const getHistory = await axios.post("/show-history", { fileWholePath });
+    const getHistory = await axios.post("/show-history", { fileId });
     return getHistory.data;
   } catch (e) {
     console.error("getFileHistory: ", e);

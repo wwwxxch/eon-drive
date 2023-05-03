@@ -35,10 +35,12 @@ const findFileIdByPath = async (userId, path) => {
 	const child = parents.pop();
 	console.log("parents: ", parents);
 	console.log("child: ", child);
-	const parentId = await iterForParentId(userId, parents);
-	if (parentId === -1) {
-		return -1;
-	}
+
+  const parentId = await findTargetFolderId(userId, parents);
+  if (parentId === -1) {
+    return -1;
+  }
+
 	const [childResult] = await getNoDelFileId(userId, parentId, child);
 	console.log("findFileIdByPath: childResult: ", childResult);
 	if (!childResult) {
@@ -68,13 +70,10 @@ const getFileListByPath = async (userId, path) => {
 		const folders = path.split("/");
 		console.log("folders: ", folders);
 
-		for (let i = 0; i < folders.length; i++) {
-			const chkDir = await getFolderId(userId, parentId, folders[i]);
-			if (chkDir.length === 0) {
-				return { data: null };
-			}
-			parentId = chkDir[0].id;
-		}
+    parentId = await findTargetFolderId(userId, folders);
+    if (parentId === -1) {
+      return { data: null };
+    }
 	}
 	const list = await getOneLevelChildByParentId(userId, parentId, 0);
 	return { data: list };
@@ -115,30 +114,34 @@ const findParentPathByFFId = async (ffId) => {
 	}
 };
 
-const findTargetFolderId = async (userId, path) => {
+const findTargetFolderId = async (userId, folders) => {
+  // sprint 5  
 	try {
 		let parentId = 0;
-		if (path === "") {
+		if (folders.length === 0) {
 			return parentId;
 		}
 
-		const folders = path.split("/");
-		console.log("folders: ", folders);
-
-		const raw = await getFoldersInfoByPath(folders, userId);
-		console.log("raw: ", raw);
-		if (raw.length === 0) {
+		const foldersPool = await getFoldersInfoByPath(folders, userId);
+		console.log("findTargetFolderId: foldersPool: ", foldersPool);
+		if (foldersPool.length === 0) {
 			return -1;
-		} else if (!raw) {
+		} else if (!foldersPool) {
       throw new Error ("getFoldersInfoByPath error");
     }
 
 		for (let i = 0; i < folders.length; i++) {
-			for (let j = 0; j < raw.length; j++) {
-				if (folders[i] === raw[j].name && parentId === raw[j].parent_id) {
-					parentId = raw[j].id;
-				}
+      let found = false;
+			for (let j = 0; j < foldersPool.length; j++) {
+				if (folders[i] === foldersPool[j].name && parentId === foldersPool[j].parent_id) {
+					parentId = foldersPool[j].id;
+          found = true;
+          break;
+				} 
 			}
+      if (!found) {
+        return -1;
+      }
 		}
 		return parentId;
 

@@ -78,26 +78,30 @@ const getSizeByFileIdAndVersion = async(file_id, ver) => {
   return row[0].size;
 };
 
-const getVersionsByFileId = async(file_id) => {
+const getVersionsByFileId = async(user_id, file_id) => {
   const [row] = await pool.query(`
     SELECT 
-      ver, size, is_current, 
-      DATE_FORMAT(updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS operation_time, 
-      operation 
-    FROM file_ver WHERE ff_id = ? 
+      a.ver, a.size, a.is_current, 
+      DATE_FORMAT(a.updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS operation_time, 
+      a.operation
+    FROM file_ver AS a INNER JOIN ff AS b 
+    ON a.ff_id = b.id 
+    WHERE b.user_id = ? AND a.ff_id = ? 
     ORDER BY is_current DESC, operation_time DESC 
-  `, file_id);
+  `, [user_id, file_id]);
 
   return row;
 };
 
-const getDeleteRecordsByFileId = async(file_id) => {
+const getDeleteRecordsByFileId = async(user_id, file_id) => {
   const [row] = await pool.query(`
     SELECT 
-      DATE_FORMAT(deleted_at, '%Y-%m-%dT%H:%i:%s.000Z') AS operation_time,
+      DATE_FORMAT(a.deleted_at, '%Y-%m-%dT%H:%i:%s.000Z') AS operation_time,
       "deleted" AS operation 
-    FROM ff_delete WHERE ff_id = ?
-  `, file_id);
+    FROM ff_delete AS a INNER JOIN ff AS b 
+    ON a.ff_id = b.id 
+    WHERE b.user_id = ? AND a.ff_id = ?
+  `, [user_id, file_id]);
 
   return row;
 };
@@ -200,6 +204,7 @@ const checkPendingFileStatus = async (user_id, token) => {
 };
 
 const getFoldersInfoByPath = async(folders, user_id) => {
+  // sprint 5
   try {
     const [row] = await pool.query(`
       SELECT id, parent_id, name FROM ff 

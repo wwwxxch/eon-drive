@@ -20,12 +20,12 @@ const emitNewList = async (io, userId, parentPath) => {
 };
 
 const emitHistoryList = async (io, userId, fileId) => {
-	const versions = await getVersionsByFileId(fileId);
+	const versions = await getVersionsByFileId(userId, fileId);
 	// console.log("versions", versions);
   if (versions.length === 0) {
     return;
   }
-	const deleteRecords = await getDeleteRecordsByFileId(fileId);
+	const deleteRecords = await getDeleteRecordsByFileId(userId, fileId);
 	// console.log("deleteRecords: ", deleteRecords);
 
 	io.to(`user_${userId}`).emit("historyupd", {
