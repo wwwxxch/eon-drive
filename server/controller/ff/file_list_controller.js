@@ -2,17 +2,19 @@ import {
 	getFileListByPath,
 	findFileIdByPath,
 	findParentPathByFFId,
+  findTargetFolderId,
 } from "../../service/path/iter.js";
 
 import {
 	getDeletedList,
 	getVersionsByFileId,
 	getDeleteRecordsByFileId,
+  getOneLevelChildByParentId,
 } from "../../model/db_ff_r.js";
 import { customError } from "../../error/custom_error.js";
 
 // ==============================================================================
-const showList = async (req, res) => {
+const showList = async (req, res, next) => {
 	console.log("showList: ", req.body);
 
 	// note: no slash after the folder
@@ -21,11 +23,16 @@ const showList = async (req, res) => {
 	const { path } = req.body;
 	const userId = req.session.user.id;
 	const decodePath = decodeURI(path);
-	console.log("doecodePath: ", decodePath);
+	// console.log("doecodePath: ", decodePath);
   
-	const getFileListRes = await getFileListByPath(userId, decodePath);
-	
-  return res.json({ data: getFileListRes.data });
+  const targetFolderId = await findTargetFolderId(userId, decodePath);
+  console.log("targetFolderId: ", targetFolderId);
+  if (targetFolderId === -1) {
+    return next(customError.badRequest("Invalid path"));
+  }
+
+  const list = await getOneLevelChildByParentId(userId, targetFolderId, 0);
+  return res.json({ data: list });
 };
 
 const showHistory = async (req, res) => {

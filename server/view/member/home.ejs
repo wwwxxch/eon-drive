@@ -287,7 +287,7 @@
               <div style="width: 100%; height: 50px;" class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
                   <!-- Upload Buttons -->
-                  <div class="dropdown me-3">
+                  <div class="dropdown me-3" id="upload-dropdown">
                     <button type="button" class="btn custom-operation-btn dropdown-toggle hidden-arrow"
                       id="dropdownMenuButton1" data-bs-toggle="dropdown" data-mdb-toggle="dropdown"
                       aria-expanded="false">
@@ -305,7 +305,7 @@
                   </div>
                   <!-- Create Folder Buttons -->
                   <div class="me-3">
-                    <button type="button" class="btn custom-operation-btn" data-bs-toggle="modal"
+                    <button id="create-folder" type="button" class="btn custom-operation-btn" data-bs-toggle="modal"
                       data-bs-target="#createFolderModal">Create Folder</button>
                   </div>
                   <!-- Create Folder Modal -->
@@ -348,6 +348,10 @@
                   </div>
                 </div>
               </div>
+              <!-- No data Message  -->
+              <div class="d-flex align-items-center">
+                <div id="no-data"></div>
+              </div>
               <!-- LIST TABLE -->
               <div id="list-and-info" class="d-flex align-items-start mb-4" style="width: 100%;">
                 <!-- table  -->
@@ -363,9 +367,6 @@
                   </table>
                 </div>
               </div>
-              <!-- <div class="d-flex align-items-center">
-                <div id="no-data"></div>
-              </div> -->
               <!-- Modal for get link  -->
               <div class="modal fade" id="getLinkModal" tabindex="-1" aria-labelledby="getLinkModalLabel"
                 aria-hidden="true">

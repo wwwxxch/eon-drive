@@ -110,6 +110,17 @@ function showList(obj) {
 console.log("window.location.pathname: ", window.location.pathname);
 const path = window.location.pathname.split("/").slice(2).join("/");
 const list = await getFileList(path === "" ? "Home" : "Home/" + path);
+if (!list) {
+  $("#list-table").hide();
+  $("#upload-dropdown").hide();
+  $("#create-folder").hide();
+  $("#drag-drop-box").css("color", "grey");
+  $("#drag-drop-zone").off("dragenter");
+  $("#drag-drop-zone").off("dragover");
+  $("#drag-drop-zone").off("dragleave");
+  $("#drag-drop-zone").off("dragdrop");
+  $("#no-data").append(`<h3>Invalid Path</h3>`);
+}
 showList(list);
 
 $("#whole-path").append(`

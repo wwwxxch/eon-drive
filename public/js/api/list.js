@@ -4,7 +4,7 @@ const getFileList = async (path) => {
     parentPath = path.split("/").slice(1).join("/");
   }
   try {
-    const getList = await axios.post("/show-list", { path: parentPath} );
+    const getList = await axios.post("/show-list", { path: parentPath } );
     // console.log("getList: ", getList);
     // console.log("getList.data: ", getList.data);
     return getList.data;

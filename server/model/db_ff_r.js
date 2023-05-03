@@ -199,6 +199,20 @@ const checkPendingFileStatus = async (user_id, token) => {
   }
 };
 
+const getFoldersInfoByPath = async(folders, user_id) => {
+  try {
+    const [row] = await pool.query(`
+      SELECT id, parent_id, name FROM ff 
+      WHERE name IN (?) AND type = "folder" AND is_delete = 0 AND user_id = ? 
+    `, [folders, user_id]);
+
+    return row;
+  } catch (e) {
+    console.error("getFoldersInfoByPath: ", e);
+    return null;
+  }
+};
+
 export {
   getFolderId,
   getFileId,
@@ -214,5 +228,6 @@ export {
   getDeletedList,
   getFileDetail,
   getDeletedFFInfoById,
-  checkPendingFileStatus
+  checkPendingFileStatus,
+  getFoldersInfoByPath
 };
