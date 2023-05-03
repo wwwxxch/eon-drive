@@ -27,6 +27,6 @@ const loginReq = async () => {
 $(".continue-btn").on("click", function (e) {
   e.preventDefault();
   loginReq();
-  $("#email").val("");
-  $("#password").val("");
+  // $("#email").val("");
+  // $("#password").val("");
 });

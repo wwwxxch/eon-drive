@@ -27,7 +27,7 @@ const registerReq = async () => {
 $(".continue-btn").on("click", function (e) {
   e.preventDefault();
   registerReq();
-  $("#username").val("");
-  $("#email").val("");
-  $("#password").val("");
+  // $("#username").val("");
+  // $("#email").val("");
+  // $("#password").val("");
 });
