@@ -33,12 +33,14 @@
         }
 
         .header-btn:hover {
-          /* background-color: #f8f5ef; */
           font-weight: bolder;
+          /* background-color: #f8f5ef;
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2); */
         }
 
         .header-btn span {
           font-size: 1.3vw;
+          line-height: 2.5;
         }
 
         .login-title {
@@ -103,26 +105,23 @@
 <body>
   <div id="root">
     <!-- header  -->
-    <div class="container w-75 header-block">
+    <div class="container header-block">
       <header class="d-flex flex-wrap align-items-stretch justify-content-md-between border-bottom">
         <div class="col-md-3 mb-2 mb-md-0">
           <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
-            <img src="img/header-logo.jpg">
+            <img class="header-logo" src="img/header-logo.jpg">
           </a>
         </div>
         <div class="col-md-2 d-flex justify-content-end align-items-end">
-          <!-- <div class="header-btn">
+          <div class="header-btn">
             <a href="/login"><span>Login</span></a>
-          </div> -->
-          <button class="btn header-btn">
-            <a href="/login"><span>Login</span></a>
-          </button>
+          </div>
         </div>
       </header>
     </div>
     <!-- content  -->
-    <div class="content-block">
-      
+    <div class="container content-block d-flex align-items-center mb-5">
+
       <div class="modal fade" id="login-failed-modal" tabindex="-1" aria-labelledby="login-failed-modal-label"
         aria-hidden="true">
         <div class="modal-dialog w-25">
@@ -158,8 +157,8 @@
 
                   <div class="mb-3">
                     <label for="username" class="form-label">Name<span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" name="username" id="username" required
-                        placeholder="Enter Name" autocomplete="off">
+                    <input type="text" class="form-control" name="username" id="username" required
+                      placeholder="Enter Name" autocomplete="off">
                   </div>
 
                   <div class="mb-3">
@@ -202,9 +201,8 @@
         </div>
       </div>
     </div>
-    <!-- footer  -->
     <%- include('./partial/footer') %>
+  </div>
+  <script type="module" src="/js/pages/visitor/register.js"></script>
 </body>
-<script type="module" src="/js/pages/visitor/register.js"></script>
-
 </html>

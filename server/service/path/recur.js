@@ -143,7 +143,7 @@ const restoreRecur = async (parentId, currentPath, time, token, userId, session)
           const allocated = Number(session.user.allocated);
           const used = Number(session.user.used);
           if (used + currentSize > allocated) {
-            throw new Error("Not enough space");
+            throw new Error("Youd don't have enough space.");
           }
 					
           // update DB for file restore

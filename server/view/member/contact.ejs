@@ -29,8 +29,8 @@
           color: #519cf6
         }
 
-        span,
-        li {
+        .description-text span,
+        .description-text li {
           line-height: 2.5;
         }
 
@@ -106,6 +106,8 @@
       </div>
       <%- include('./partial/footer') %>
   </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/pages/member/header.js"></script>
 </body>
 
 </html>

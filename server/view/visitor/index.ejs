@@ -48,11 +48,12 @@
       text-align: right;
     }
 
-    #slogan {
-      color: #393939;
+    .slogan {
+      color: #525252;
       font-weight: 400;
       font-size: 1.2vw;
       padding-left: 0.5vw;
+      line-height: 3vh;
     }
 
     #start-btn {
@@ -96,6 +97,13 @@
     #start-btn a:hover span {
       color: #000;
     }
+
+    @media screen and (max-width: 1500px) {
+      .slogan {
+        font-size: 1.3vw;
+        line-height: 3.6vh;
+      }
+    }
   </style>
 </head>
 
@@ -107,9 +115,10 @@
       </div>
       <div id="title-block">
         <div id="slogan-block">
-          <h3 id="slogan">Upload, store, and access your files from anywhere</h3>
+          <h3 class="slogan">Free personal cloud storage web application</h3>
+          <h3 class="slogan">Upload, store, and access your files from anywhere</h3>
         </div>
-        <h1 id="title">EON Drive</h1>        
+        <h1 id="title">EON Drive</h1>
         <div id="start-btn">
           <a href="/login"><span>Start Now</span></a>
         </div>

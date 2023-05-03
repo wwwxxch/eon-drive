@@ -19,8 +19,8 @@
           margin: 1.5vh 0;
         }
 
-        span,
-        li {
+        .privacy-items span,
+        .privacy-items li {
           line-height: 2.5;
         }
 
@@ -38,7 +38,7 @@
         <div class="d-flex flex-column">
           <div id="privacy">
             <div class="item-title">Privacy Policy</div>
-            <div>
+            <div class="privacy-items">
               <div class="description">
                 <span>We take your privacy seriously. This policy outlines the types of personal information we collect
                   when you use our website, as well as how we use and protect that information.</span>
@@ -87,6 +87,8 @@
       </div>
       <%- include('./partial/footer') %>
   </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/pages/member/header.js"></script>
 </body>
 
 </html>

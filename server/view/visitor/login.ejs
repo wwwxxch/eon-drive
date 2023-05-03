@@ -33,12 +33,14 @@
         }
 
         .header-btn:hover {
-          /* background-color: #f8f5ef; */
           font-weight: bolder;
+          /* background-color: #f8f5ef;
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2); */
         }
 
         .header-btn span {
           font-size: 1.3vw;
+          line-height: 2.5;
         }
 
         .login-title {
@@ -90,6 +92,10 @@
           padding-bottom: 13vh;
         }
 
+        div {
+          /* border: 1px dashed; */
+        }
+
         @media screen and (min-height: 800px) {
           .content-block {
             padding-top: 13vh;
@@ -102,7 +108,7 @@
 <body>
   <div id="root">
     <!-- header  -->
-    <div class="container w-75 header-block">
+    <div class="container header-block">
       <header class="d-flex flex-wrap align-items-stretch justify-content-md-between border-bottom">
         <div class="col-md-3 mb-2 mb-md-0">
           <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
@@ -110,17 +116,14 @@
           </a>
         </div>
         <div class="col-md-2 d-flex justify-content-end align-items-end">
-          <!-- <div class="header-btn">
+          <div class="header-btn">
             <a href="/register"><span>Register</span></a>
-          </div> -->
-          <button class="btn header-btn">
-            <a href="/register"><span>Register</span></a>
-          </button>
+          </div>
         </div>
       </header>
     </div>
     <!-- content  -->
-    <div class="content-block">
+    <div class="container content-block d-flex align-items-center mb-5">
       <div class="modal fade" id="login-failed-modal" tabindex="-1" aria-labelledby="login-failed-modal-label"
         aria-hidden="true">
         <div class="modal-dialog w-25">
@@ -181,7 +184,8 @@
     </div>
     <!-- footer  -->
     <%- include('./partial/footer') %>
+  </div>
+  <script type="module" src="/js/pages/visitor/login.js"></script>
 </body>
-<script type="module" src="/js/pages/visitor/login.js"></script>
 
 </html>

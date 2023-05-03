@@ -50,7 +50,7 @@ const checkUsed = async (req, res, next) => {
 
 	if (fileId === -1) {
 		if (fileSize + used > allocated) {
-			return next(customError.badRequest("Not enough space"));
+			return next(customError.badRequest("You don't have enough space."));
 		}
 		return next();
 	}
@@ -60,7 +60,7 @@ const checkUsed = async (req, res, next) => {
 		return next(customError.internalServerError());
 	}
 	if (used - currentSize + fileSize > allocated) {
-		return next(customError.badRequest("Not enough space"));
+		return next(customError.badRequest("You don't have enough space."));
 	}
 
 	next();

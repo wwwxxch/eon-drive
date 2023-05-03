@@ -19,8 +19,8 @@
           margin: 1.5vh 0;
         }
 
-        span,
-        li {
+        .terms span,
+        .terms li {
           line-height: 2.5;
         }
 
@@ -38,7 +38,7 @@
         <div class="d-flex flex-column">
           <div id="terms">
             <div class="item-title">Terms and Conditions</div>
-            <div>
+            <div class="terms-items">
               <div class="description">
                 <span>By using this website, you agree to the following terms and conditions:</span>
               </div>
@@ -96,6 +96,8 @@
       </div>
       <%- include('./partial/footer') %>
   </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/pages/member/header.js"></script>
 </body>
 
 </html>

@@ -19,19 +19,31 @@ router.get("/register", loginRedirect, (req, res) => {
 });
 
 router.get("/about", (req, res) => {
-  return res.render("visitor/about");
+  if (!req.session.user) {
+    return res.render("visitor/about");
+  }
+  return res.render("member/about");
 });
 
 router.get("/terms", (req, res) => {
-  return res.render("visitor/terms");
+  if (!req.session.user) {
+    return res.render("visitor/terms");
+  }
+  return res.render("member/terms");
 });
 
 router.get("/privacy", (req, res) => {
-  return res.render("visitor/privacy");
+  if (!req.session.user) {
+    return res.render("visitor/privacy");
+  }
+  return res.render("member/privacy");
 });
 
 router.get("/contact", (req, res) => {
-  return res.render("visitor/contact");
+  if (!req.session.user) {
+    return res.render("visitor/contact");
+  }
+  return res.render("member/contact");
 });
 
 export { router as page_visitor };

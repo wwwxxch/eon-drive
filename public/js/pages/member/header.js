@@ -23,7 +23,7 @@ $("#profile-btn").on("click", async function (e) {
   const accountCreateDate = formatTime(profile.created_at, "yyyy-MM-dd");
 	$(".user-created").text(accountCreateDate);
 
-	const planText = profile.plan === 1 ? "Basic" : "";
+	const planText = profile.plan === 1 ? "Free" : "";
 	$(".user-plan").text(planText);
 
 	const usedNum = parseInt(profile.used);

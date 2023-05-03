@@ -106,7 +106,17 @@ const returnFileInfo = async (req, res) => {
     clientTimeZone = geo.timezone;
   }
 
-	return res.render("visitor/view_file", {
+  if (!req.session.user) {
+    return res.render("visitor/view_file", {
+      name,
+      size,
+      updated_at,
+      owner,
+      DateTime,
+      clientTimeZone
+    });
+  }
+	return res.render("member/view_file", {
 		name,
 		size,
 		updated_at,
@@ -121,7 +131,11 @@ const returnFolderInfo = async (req, res) => {
 	const target = req.target;
 	console.log("target: ", target);
 	const { id, name } = req.target;
-	return res.render("visitor/view_folder", { id, name, shareToken });
+  
+  if (!req.session.user) {
+    return res.render("visitor/view_folder", { id, name, shareToken });
+  }
+	return res.render("member/view_folder", { id, name, shareToken });
 };
 
 const viewFolderList = async (req, res, next) => {

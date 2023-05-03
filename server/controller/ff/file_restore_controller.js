@@ -61,7 +61,7 @@ const restoreHistory = async (req, res, next) => {
   const allocated = Number(req.session.user.allocated);
 	const used = Number(req.session.user.used);
   if (used - currentSize + targetSize > allocated) {
-		return next(customError.badRequest("Not enough space"));
+		return next(customError.badRequest("You don't have enough space."));
 	}
 
   // update DB
@@ -170,7 +170,7 @@ const restoreDeleted = async (req, res, next) => {
       const allocated = Number(req.session.user.allocated);
       const used = Number(req.session.user.used);
       if (used + currentSize > allocated) {
-        return next(customError.badRequest("Not enough space"));
+        return next(customError.badRequest("You don't have enough space."));
       }
 
 			// update DB
