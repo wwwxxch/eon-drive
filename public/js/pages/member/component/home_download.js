@@ -33,7 +33,7 @@ $("#download-btn").click(async function () {
     downloadSpinner.removeClass("spinner-border");
 		// setTimeout(() => downloadStatus.text("Complete!"), 100);
 		setTimeout(() => downloadModal.modal("hide"), 200);
-		window.open(downloadFileRes.downloadUrl, "_self");
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 100);
     return;
 
 	} else if (downloadFileRes.status !== 500) {
