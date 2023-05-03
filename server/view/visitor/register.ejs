@@ -99,6 +99,11 @@
             padding-bottom: 13vh;
           }
         }
+        @media screen and (max-width: 1500px) {
+          .pwd-note {
+            font-size: 1.1vw;
+          }
+        }
       </style>
 </head>
 
@@ -173,7 +178,7 @@
                       placeholder="Enter Password"
                       pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$">
                     <div class="pwd-note px-2 mt-1">
-                      Use 8-16 characters with a mix of letters, numbers, and symbols (!@#$%^&*()_+)
+                      Use 8-16 characters with a mix of letters, numbers, and one of below symbols (!@#$%^&*()_+)
                     </div>
                   </div>
 
