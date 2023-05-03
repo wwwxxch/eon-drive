@@ -21,7 +21,7 @@ $(".fi-dl-btn").on("click", async function () {
 	const downloadFileRes = await downloadShareFi(shareToken);
 	if (downloadFileRes.status === 200) {
 		downloadSpinner.removeClass("spinner-border");
-		setTimeout(() => downloadStatus.text("Complete!"), 100);
+		// setTimeout(() => downloadStatus.text("Complete!"), 100);
 		setTimeout(() => downloadModal.modal("hide"), 200);
 		window.open(downloadFileRes.downloadUrl, "_self");
 		return;

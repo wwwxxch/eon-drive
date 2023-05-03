@@ -182,7 +182,7 @@ $(".fo-dl-btn").on("click", async function () {
 	const downloadFileRes = await downloadShareFo(shareToken, pathTexts + "/");
 	if (downloadFileRes.status === 200) {
 		downloadSpinner.removeClass("spinner-border");
-		setTimeout(() => downloadStatus.text("Complete!"), 100);
+		// setTimeout(() => downloadStatus.text("Complete!"), 100);
 		setTimeout(() => downloadModal.modal("hide"), 200);
 		window.open(downloadFileRes.downloadUrl, "_self");
 		return;
@@ -237,7 +237,7 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 	const downloadFileRes = await downloadShareFo(shareToken, desired);
 	if (downloadFileRes.status === 200) {
 		downloadSpinner.removeClass("spinner-border");
-		setTimeout(() => downloadStatus.text("Complete!"), 100);
+		// setTimeout(() => downloadStatus.text("Complete!"), 100);
 		setTimeout(() => downloadModal.modal("hide"), 200);
 		window.open(downloadFileRes.downloadUrl, "_self");
 		return;
