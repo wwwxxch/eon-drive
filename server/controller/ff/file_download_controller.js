@@ -106,10 +106,10 @@ const dlMultiFileProcess = async (req, res, next) => {
 			userId,
 			folders[i].slice(0, folders[i].length - 1)
 		);
-    if (allChildren.childsNoVer.length === 0 ||
-        allChildren.childsWithVer.length === 0) {
-          return next(customError.badRequest("No such key"));
-        }
+    // if (allChildren.childsNoVer.length === 0 ||
+    //     allChildren.childsWithVer.length === 0) {
+    //       return next(customError.badRequest("No such key"));
+    //     }
 		finalListNoVer = [...finalListNoVer, ...allChildren.childsNoVer];
 		finalListWithVer = [...finalListWithVer, ...allChildren.childsWithVer];
 	}

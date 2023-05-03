@@ -89,6 +89,7 @@ const folderRecur = async (
 	currentPath
 ) => {
 	const arr = await getOneLevelChildByParentId(userId, parentId, 0);
+  console.log("arr.length: ", arr.length);
 	for (let i = 0; i < arr.length; i++) {
 		if (arr[i].type === "file") {
 			arrNoVer.push(`${currentPath}/${arr[i].name}`);
