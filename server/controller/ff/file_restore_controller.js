@@ -20,6 +20,7 @@ import {
 	iterForParentId,
 	findFileIdByPath,
 	findDeletedFileIdByPath,
+  findTargetFolderId,
 } from "../../service/path/iter.js";
 import { restoreRecur } from "../../service/path/recur.js";
 
@@ -132,7 +133,8 @@ const restoreDeleted = async (req, res, next) => {
 		if (key.endsWith("/")) {
 			// get parentId
 			const folders = key.slice(0, key.length - 1).split("/");
-			const parentId = await iterForParentId(userId, folders);
+			// const parentId = await iterForParentId(userId, folders);
+      const parentId = await findTargetFolderId(userId, folders);
 			console.log("parentId: ", parentId);
 			if (parentId === -1) {
 				return next(customError.badRequest("No such key"));

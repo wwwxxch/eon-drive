@@ -186,11 +186,15 @@ const restoreDeletedFile = async(token, file_id, time, user_id) => {
     await conn.query("START TRANSACTION");
 
     // change upd_status, token, updated_at
-    const ff = await conn.query(`
+    const [ff] = await conn.query(`
       UPDATE ff 
       SET upd_status = "pending", upd_token = ?, updated_at = ?, is_delete = 0 
-      WHERE id = ? 
-    `, [token, time, file_id]);
+      WHERE id = ? AND user_id = ?
+    `, [token, time, file_id, user_id]);
+
+    if (ff.affectedRows !== 1) {
+      throw new Error("ff.affectedRows !== 1");
+    }
 
     // find the largest version
     const [max_ver] = await conn.query(`

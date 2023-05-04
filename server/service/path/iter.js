@@ -52,7 +52,8 @@ const findFileIdByPath = async (userId, path) => {
 const findDeletedFileIdByPath = async (userId, path) => {
 	const parents = path.split("/");
 	const child = parents.pop();
-	const parentId = await iterForParentId(userId, parents);
+	// const parentId = await iterForParentId(userId, parents);
+  const parentId = await findTargetFolderId(userId, parents);
 	if (parentId === -1) {
 		return -1;
 	}
