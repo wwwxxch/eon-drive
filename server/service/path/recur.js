@@ -12,7 +12,7 @@ import {
 	permDeleteByFileId,
 	permDeleteByFolderId,
 } from "../../model/db_ff_d.js";
-import { iterForParentId } from "./iter.js";
+import { findTargetFolderId, iterForParentId } from "./iter.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -116,7 +116,8 @@ const folderRecur = async (
 // input path should be "test1/folderintest1/level2", not starting with "/" nor ending with "/"
 const getAllChildren = async (userId, path) => {
 	const folders = path.split("/");
-	const parentId = await iterForParentId(userId, folders);
+	// const parentId = await iterForParentId(userId, folders);
+  const parentId = await findTargetFolderId(userId, folders);
   if (parentId === -1) {
     return { childsNoVer: [], childsWithVer: [] };
   }

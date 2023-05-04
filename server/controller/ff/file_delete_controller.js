@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { iterForParentId, findFileIdByPath } from "../../service/path/iter.js";
+import { findFileIdByPath, findTargetFolderId } from "../../service/path/iter.js";
 import { deleteRecur, permDeleteRecur } from "../../service/path/recur.js";
 import { markDeleteById } from "../../model/db_ff_d.js";
 import { updateSpaceUsedByUser } from "../../model/db_plan.js";
@@ -36,7 +36,8 @@ const deleteDB = async (req, res, next) => {
 
 			// DB
 			const folders = key.slice(0, key.length - 1).split("/");
-			const parentId = await iterForParentId(userId, folders);
+			// const parentId = await iterForParentId(userId, folders);
+      const parentId = await findTargetFolderId(userId, folders);
       // const parentId = -1;
 			console.log("parentId: ", parentId);
       if (parentId === -1) {
@@ -97,7 +98,8 @@ const permDelete = async (req, res, next) => {
       console.log("perm delete folder - ", key);
 			// get parentId
 			const folders = key.slice(0, key.length - 1).split("/");
-			const parentId = await iterForParentId(userId, folders);
+			// const parentId = await iterForParentId(userId, folders);
+      const parentId = await findTargetFolderId(userId, folders);
 			console.log("parentId: ", parentId);
       if (parentId === -1) {
         return next(customError.badRequest("No such key"));

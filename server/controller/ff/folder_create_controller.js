@@ -12,7 +12,7 @@ import {
 	commitMetadata,
 } from "../../model/db_ff_u.js";
 
-import { iterForParentId } from "../../service/path/iter.js";
+import { findTargetFolderId, iterForParentId } from "../../service/path/iter.js";
 import { emitNewList } from "../../service/sync/list.js";
 import { customError } from "../../error/custom_error.js";
 // ===========================================================================
@@ -26,9 +26,10 @@ const createFolderS3AndDB = async (req, res, next) => {
 	// DB
 	let token;
 	const folders = parentPath.split("/");
-	const parentId = await iterForParentId(userId, folders);
+	// const parentId = await iterForParentId(userId, folders);
+  const parentId = await findTargetFolderId(userId, folders);
   // const parentId = -1;
-	console.log("iterForParentId: parentId: ", parentId);
+	console.log("findTargetFolderId: parentId: ", parentId);
   if (parentId === -1) {
     return next(customError.badRequest("No such key"));
   }

@@ -17,7 +17,6 @@ import {
 } from "../../model/db_ff_u.js";
 import { updateSpaceUsedByUser } from "../../model/db_plan.js";
 import {
-	iterForParentId,
 	findFileIdByPath,
 	findDeletedFileIdByPath,
   findTargetFolderId,
