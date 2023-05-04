@@ -29,13 +29,17 @@ $("#download-btn").click(async function () {
 	$("#delete-btn-div").hide();
 	$("#download-btn-div").hide();
   
-	if (downloadFileRes.status === 200) {
+	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
     downloadSpinner.removeClass("spinner-border");
 		// setTimeout(() => downloadStatus.text("Complete!"), 100);
 		setTimeout(() => downloadModal.modal("hide"), 200);
 		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 100);
     return;
-
+  } else if ( !downloadFileRes.downloadUrl ) {
+    downloadSpinner.removeClass("spinner-border");
+		downloadStatus.text("");
+    downloadError.html(
+      "<span>Opps! Something went wrong. Please try later or contact us.</span>");
 	} else if (downloadFileRes.status !== 500) {
 		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {

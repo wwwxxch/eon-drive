@@ -48,6 +48,11 @@
           border-color: darkgray;
         }
 
+        .type-icon {
+          margin-right: 1vw;
+          margin-left: 0.3vw;
+        }
+
         .folder {
           cursor: pointer;
         }
@@ -79,9 +84,13 @@
           color: darkgrey
         }
 
-        .links-item:active {
-          background-color: darkgrey;
+        .links-item {
+          color: black;
         }
+        
+        /* .links-item:active {
+          background-color: darkgrey;
+        } */
 
         .progress-bar-container {
           width: 100%;
@@ -98,14 +107,21 @@
           transition: width 0.5s ease-in-out;
         }
 
-        .email-container {
+        /* .email-container {
           display: flex;
           flex-direction: column;
-        }
+        } */
 
         .form-control:focus {
           border-color: #ced4da;
           box-shadow: none;
+        }
+
+        #add-email-btn,
+        #add-email-btn:focus,
+        #add-email-btn:active {
+          border-color: #ced4da;
+          text-decoration: none;
         }
 
         /* .email-list {
@@ -128,6 +144,7 @@
         .add-email-instruction {
           color: rgb(101, 101, 101);
         }
+
         .email-chips-container {
           display: flex;
           flex-wrap: wrap;
@@ -380,11 +397,11 @@
                       <form>
                         <div class="mb-3">
                           <label for="recipient" class="col-form-label">Email:</label>
-                          <div class="position-relative email-container">
+                          <div class="email-container input-group">
                             <input type="email" autocomplete="off" class="form-control" id="recipient" disabled>
-                            <span class="add-email-instruction mt-1" style="display: none;">Input Email and Press Enter</span>
-                            <!-- <div class="email-list position-absolute w-100 border rounded-top overflow-auto"
-                              style="display: none; max-height: 200px;"></div> -->
+                            <button class="btn btn-link" type="button" id="add-email-btn" disabled>Add Email</button>
+                            <!-- <span class="add-email-instruction mt-1" style="display: none;">Input Email and Press
+                              Enter</span> -->
                           </div>
                           <div class="email-chips-container"></div>
                         </div>
@@ -471,7 +488,7 @@
                       <input type="text" class="form-control" id="linkInput" value="" readonly>
                       <div class="d-flex justify-content-end pt-3">
                         <button type="button" class="btn btn-custom-yes btn-sm copy-link-btn"
-                        data-dismiss="modal">Copy</button>
+                          data-dismiss="modal">Copy</button>
                       </div>
                     </div>
                     <!-- <div class="modal-footer">

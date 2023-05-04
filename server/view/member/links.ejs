@@ -9,7 +9,7 @@
     <%- include('./partial/script') %>
       <!-- css internal -->
       <style>
-        .d-flex {
+        div {
           /* border: 1px dashed; */
         }
 
@@ -17,15 +17,17 @@
           font-size: smaller;
           color: rgb(86, 86, 86);
         }
-
-        .you-shared-row:hover .revoke-btn {
+        td {
+          vertical-align: middle;
+        }
+        /* .you-shared-row:hover .revoke-btn {
           display: block;
         }
 
         .revoke-btn {
           display: none;
-        }
-
+        } */
+        
         .custom-operation-btn:hover {
           background-color: #f8f5ef;
           box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
@@ -66,7 +68,7 @@
               <div class="col-12 d-flex flex-column align-items-center mt-3">
                 <!-- table  -->
                 <div style="width: 100%;">
-                  <table class="table" id="links-you-shared-table">
+                  <table class="table table-hover" id="links-you-shared-table">
                     <thead class="table-header">
                       <tr>
                         <th scope="col">File / Folder</th>

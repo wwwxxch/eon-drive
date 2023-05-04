@@ -11,8 +11,10 @@ import { notiCard, isValidEmail, copyToClipboard } from "../../../util/util.js";
 $("input[name='access']").change(function () {
 	if ($(this).attr("id") == "access-user") {
 		$("#recipient").prop("disabled", false);
+    $("#add-email-btn").prop("disabled", false);
 	} else {
 		$("#recipient").prop("disabled", true);
+    $("#add-email-btn").prop("disabled", true);
 		$("#recipient").val("");
 		$(".email-list").empty();
 		$(".email-chips-container").empty();
@@ -89,16 +91,52 @@ $("#list-table").on("click", ".get-link", async function () {
 
 	// input user email
 	const selectedEmailsSet = new Set();
+  $("#add-email-btn").off("click").on("click", function (e) {
+    e.preventDefault();
+    const email = $("#recipient").val().trim();
+    if (isValidEmail(email) && !selectedEmailsSet.has(email)) {
+      selectedEmailsSet.add(email);
+      const $emailChip = $(`
+      <div class="email-chip">
+        <span class="email-text">${email}</span>
+        <button class="email-remove">&times;</button>
+      </div>
+    `);
+      $(".email-chips-container").append($emailChip);
+      $("#recipient").val("");
+      $("#recipient").blur();
+      $(this).blur();
+    } else if (selectedEmailsSet.has(email)) {
+      const emailDuplicated = notiCard(
+        "Email is duplicated",
+        160,
+        "topCenter"
+      );
+      emailDuplicated.show();
+      $("#recipient").val("");
+      $("#recipient").blur();
+      $(this).blur();
+      return;
+    } else {
+      const emailInvalid = notiCard("Email is invalid", 130, "topCenter");
+      emailInvalid.show();
 
+      $("#recipient").val("");
+      $("#recipient").blur();
+      $(this).blur();
+      return;
+    }
+  });
 	$("#recipient")
-		.on("focus", function () {
-			$(".add-email-instruction").show();
-		})
-		.on("blur", function () {
-			$(".add-email-instruction").hide();
-		})
+		// .on("focus", function () {
+		// 	$(".add-email-instruction").show();
+		// })
+		// .on("blur", function () {
+		// 	$(".add-email-instruction").hide();
+		// })
 		.off("keydown")
 		.on("keydown", async function (e) {
+      
 			if (e.keyCode === 13) {
 				e.preventDefault();
 				const email = $(this).val().trim();
@@ -151,6 +189,7 @@ $("#list-table").on("click", ".get-link", async function () {
 			$("input[id='access-user']").prop("checked", false);
 			$("label[for='access-user']").text("Users");
 			$("#recipient").prop("disabled", true);
+      $("#add-email-btn").prop("disabled", true);
 		});
 
 	// create link
@@ -180,6 +219,7 @@ $("#list-table").on("click", ".get-link", async function () {
 				$("input[id='access-user']").prop("checked", false);
 				$("label[for='access-user']").text("Users");
 				$("#recipient").prop("disabled", true);
+        $("#add-email-btn").prop("disabled", true);
 
 				let errorHTML;
 				if (typeof getLinkRes.data.error === "string") {
@@ -200,6 +240,7 @@ $("#list-table").on("click", ".get-link", async function () {
 				$("input[id='access-user']").prop("checked", false);
 				$("label[for='access-user']").text("Users");
 				$("#recipient").prop("disabled", true);
+        $("#add-email-btn").prop("disabled", true);
 
 				const errorHTML =
 					"<span>Opps! Something went wrong. Please try later or contact us.</span>";
@@ -226,6 +267,7 @@ $("#list-table").on("click", ".get-link", async function () {
 			$("input[id='access-user']").prop("checked", false);
 			$("label[for='access-user']").text("Users");
 			$("#recipient").prop("disabled", true);
+      $("#add-email-btn").prop("disabled", true);
 		});
 });
 
