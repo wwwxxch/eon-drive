@@ -28,4 +28,22 @@ const downloadFile = async (path, fileArray) => {
 	}
 };
 
-export { downloadFile };
+const singleDownloadFile = async (parentPath, downloadList) => {
+	// request body
+	console.log("parentPath: ", parentPath);
+  console.log("downloadList: ", downloadList);
+
+	try {
+		const downloadRes = await axios.post(api_destination, {
+			parentPath,
+			downloadList,
+		});
+		console.log("downloadRes: ", downloadRes);
+		return { status: downloadRes.status, downloadUrl: downloadRes.data.downloadUrl };
+	} catch (e) {
+		console.error("downloadFile: ", e);
+		return { status: e.response.status, data: e.response.data };
+	}
+};
+
+export { downloadFile, singleDownloadFile };

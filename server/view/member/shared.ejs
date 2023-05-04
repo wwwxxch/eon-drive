@@ -7,53 +7,57 @@
   <title>Shared - EON Drive</title>
   <%- include('./partial/stylesheet') %>
     <%- include('./partial/script') %>
-  <!-- css internal -->
-  <style>
-    /* .d-flex {
-      border: 1px dashed;
-    } */
-  </style>
+      <!-- css internal -->
+      <style>
+        div {
+          /* border: 1px dashed; */
+        }
+        
+        td {
+          vertical-align: middle;
+        }
+      </style>
 </head>
 
 <body>
   <div id="root">
     <%- include('./partial/header') %>
-    <!-- main block start -->
-    <div class="container content-block">
-      <div class="row">
-        <!-- left  -->
-        <%- include('./partial/left') %>
-        <!-- right  -->
-        <div class="col-11 d-flex flex-column align-items-start">
+      <!-- main block start -->
+      <div class="container content-block">
+        <div class="row">
+          <!-- left  -->
+          <%- include('./partial/left') %>
+            <!-- right  -->
+            <div class="col-11 d-flex flex-column align-items-start">
 
-          <div class="d-flex align-items-center justify-content-md-between my-2" style="width: 100%;">
-            <div>
-              <h4>Shared with You</h4>
-            </div>
-          </div>
+              <div class="d-flex align-items-center justify-content-md-between my-2" style="width: 100%;">
+                <div>
+                  <h4>Shared with You</h4>
+                </div>
+              </div>
 
-          <!-- sub -->
-          <div class="col-12 d-flex flex-column align-items-center mt-3">
-            <!-- table  -->
-            <div style="width: 100%;">
-              <table class="table table-hover" id="shared-with-list-table">
-                <thead class="table-header">
-                  <tr>
-                    <th scope="col">File / Folder</th>
-                    <th scope="col">Owner</th>
-                    <th scope="col">Link</th>
-                  </tr>
-                </thead>
-                <tbody id="shared-with-list-tbody">
-                </tbody>
-              </table>
+              <!-- sub -->
+              <div class="col-12 d-flex flex-column align-items-center mt-3">
+                <!-- table  -->
+                <div style="width: 100%;">
+                  <table class="table table-hover" id="shared-with-list-table">
+                    <thead class="table-header">
+                      <tr>
+                        <th scope="col">File / Folder</th>
+                        <th scope="col">Owner</th>
+                        <th scope="col">Link</th>
+                      </tr>
+                    </thead>
+                    <tbody id="shared-with-list-tbody">
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-          </div>
         </div>
+        <!-- main block end -->
       </div>
-      <!-- main block end -->
-    </div>
-    <%- include('./partial/footer') %>
+      <%- include('./partial/footer') %>
   </div>
 
 

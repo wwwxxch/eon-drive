@@ -9,8 +9,12 @@
     <%- include('./partial/script') %>
       <!-- css internal -->
       <style>
-        .d-flex {
+        div {
           /* border: 1px dashed; */
+        }
+
+        .rec:hover {
+          background-color: rgb(248, 248, 248);
         }
 
         .rec:hover .restore-btn {
@@ -63,6 +67,21 @@
           word-break: break-word;
           font-size: large;
         }
+
+        /* #go-back-link {
+          padding: 2px;
+          color: black;
+        } */
+        #go-back-link {
+          text-decoration: none;
+          color: black;
+        }
+        #go-back-link:hover {
+          cursor: pointer;
+        }
+        #go-back-link .bi:hover {
+          filter: drop-shadow(2px 2px 2px #919191);
+        }
       </style>
 </head>
 
@@ -77,21 +96,36 @@
             <!-- right  -->
             <div class="col-11 d-flex flex-column align-items-start">
               <div class="d-flex align-items-center pb-3">
-                <h4>Version history : </h4>
-                <h4 class="ps-2 file-name" data-id="<%= fileId %>" style="color: grey;">
-                  <%= fileName %>
-                </h4>
+                <a id="go-back-link" href="javascript:history.back()">
+                <!-- <div id="go-back-link"> -->
+                  <svg xmlns="http://www.w3.org/2000/svg" height="20" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                  </svg>
+                <!-- </div> -->
+                </a>
+              </div>
+              <div class="d-flex justify-content-between pb-3" style="width: 100%;">
+                <div class="d-flex ">
+                  <h4>Version history : </h4>
+                  <h4 class="ps-2 file-name" data-id="<%= fileId %>" style="color: grey;">
+                    <%= fileName %>
+                  </h4>
+                </div>
+                <div class="me-5">
+                  <button class="btn custom-operation-btn" id="history-download">Download</button>
+                </div>
               </div>
               <div class="d-flex align-items-center pb-3">
                 <span>Restore this file to any version from the past 30 days.</span>
               </div>
               <div class="d-flex justify-content-center" style="width: 100%;">
-                <div id="file-history" style="width: 90%;"></div>
+                <div id="file-history" style="width: 100%;"></div>
               </div>
             </div>
         </div>
         <!-- Modal for confirm restore  -->
-        <div class="modal fade" id="confirmRestoreModal" tabindex="-1" aria-hidden="true" aria-labelledby="confirmRestoreModalLabel">
+        <div class="modal fade" id="confirmRestoreModal" tabindex="-1" aria-hidden="true"
+          aria-labelledby="confirmRestoreModalLabel">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
@@ -134,6 +168,35 @@
           </div>
         </div>
         <!-- Modal for reminder end  -->
+        <!-- Modal for waiting -->
+        <div class="modal fade" id="waitingModal" tabindex="-1" role="dialog" aria-labelledby="waitingModalLabel"
+          data-bs-backdrop="static" aria-hidden="true">
+          <!-- note for modal: data-bs-backdrop="static" -->
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-body">
+                <div>
+                  <h5 id="waiting-status" class="pb-3"></h5>
+                </div>
+                <div class="text-center pb-3">
+                  <div id="waiting-spinner" class="spinner-border text-secondary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                    <span id="waiting-complete" style="display: none;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-check-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                        <path
+                          d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z" />
+                      </svg>
+                    </span>
+                  </div>
+                  <div id="waiting-error"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal for waiting end  -->
         <!-- main block end -->
       </div>
       <%- include('./partial/footer') %>

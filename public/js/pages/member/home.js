@@ -295,6 +295,8 @@ $("#list-table").on("click", ".folder", async function () {
 	console.log("pathTexts: ", pathTexts);
 	console.log("uri: ", uri);
 	history.pushState({}, "", `/home/${uri}`);
+  // history.replaceState({}, "", `/home/${uri}`);
+
 
 	// clear file list and get file list under current folder
 	const newPath = `${pathTexts}/${dirName}`;

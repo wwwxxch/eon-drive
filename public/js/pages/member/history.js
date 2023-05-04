@@ -1,5 +1,6 @@
 import { getFileHistory } from "../../api/list.js";
 import { restoreFile } from "../../api/restore.js";
+import { singleDownloadFile } from "../../api/download.js";
 import { formatTime, capitalizeFirstLetter } from "../../util/util.js";
 // ===================================================
 
@@ -19,8 +20,10 @@ function showHistoryList(obj) {
 			recDiv = `
         <div style="width: 100%;" 
             class="rec deleted-rec d-flex justify-content-between align-items-center py-3">
-          <div class="operation-time col-3">${time}</div>
-          <div class="action col-3">${capitalizeFirstLetter(rec.operation)}</div>
+          <div class="operation-time col-3 ms-3">${time}</div>
+          <div class="action col-3">${capitalizeFirstLetter(
+						rec.operation
+					)}</div>
           <div class="col-4 d-flex justify-content-between align-items-center">
             <div class="size"></div>
             <div class="restore"></div>
@@ -32,19 +35,23 @@ function showHistoryList(obj) {
 			if (rec.size < 1024) {
 				showSize = `${rec.size} bytes`;
 			} else if (rec.size < 1024 * 1024) {
-				showSize = `${Math.round(rec.size / 1024 * 100) / 100} KB`;
+				showSize = `${Math.round((rec.size / 1024) * 100) / 100} KB`;
 			} else if (rec.size < 1024 * 1024 * 1024) {
-				showSize = `${Math.round(rec.size / (1024 * 1024) * 100) / 100} MB`;
+				showSize = `${Math.round((rec.size / (1024 * 1024)) * 100) / 100} MB`;
 			} else if (rec.size < 1024 * 1024 * 1024 * 1024) {
-				showSize = `${Math.round(rec.size / (1024 * 1024 * 1024) * 100) / 100} GB`;
+				showSize = `${
+					Math.round((rec.size / (1024 * 1024 * 1024)) * 100) / 100
+				} GB`;
 			}
 
 			if (rec.is_current === 1) {
 				recDiv = `
         <div style="width: 100%;" 
             class="rec current-rec d-flex justify-content-between align-items-center py-3">
-            <div class="operation-time col-3">${time}</div>
-            <div class="action col-3">${capitalizeFirstLetter(rec.operation)}</div>
+            <div class="operation-time col-3 ms-3">${time}</div>
+            <div class="action col-3">${capitalizeFirstLetter(
+							rec.operation
+						)}</div>
             <div class="col-4 d-flex justify-content-between align-items-center">
               <div class="size">${showSize}</div>
               <div class="current">
@@ -65,8 +72,10 @@ function showHistoryList(obj) {
 				recDiv = `
           <div style="width: 100%;" 
               class="rec previous-rec d-flex justify-content-between align-items-center py-3">
-            <div class="operation-time col-3">${time}</div>
-            <div class="action col-3">${capitalizeFirstLetter(rec.operation)}</div>
+            <div class="operation-time col-3 ms-3">${time}</div>
+            <div class="action col-3">${capitalizeFirstLetter(
+							rec.operation
+						)}</div>
             <div class="col-4 d-flex justify-content-between align-items-center">
               <div class="size">${showSize}</div>
               <div class="restore">${restoreDiv}</div>
@@ -81,11 +90,15 @@ function showHistoryList(obj) {
 
 const reqPath = window.location.pathname;
 const fileWholePath = reqPath.replace(/^\/history\//, "");
-// console.log("fileWholePath: ", fileWholePath);
 const fileId = $(".file-name").data("id");
 const history = await getFileHistory(fileId);
 console.log(history);
 showHistoryList(history);
+
+const arr = fileWholePath.split("/");
+const rawParentPath = arr.slice(0, arr.length - 1).join("/");
+console.log("fileWholePath: ", fileWholePath);  
+console.log("rawParentPath: ", rawParentPath);
 // ===================================================================
 // socket.io
 const socket = io();
@@ -100,6 +113,13 @@ socket.on("historyupd", (data) => {
 			deleteRecords: data.deleteRecords,
 		});
 	}
+});
+// ===================================================================
+// go back link
+$("#go-back-link").on("click", function (e) {
+  e.preventDefault();
+  // console.log("here");
+  window.location.href = `/home/${rawParentPath}`;
 });
 
 // ===================================================================
@@ -149,7 +169,7 @@ $(".rec").on("click", ".restore-btn", function () {
 			});
 			$(window).scrollTop(0, { behavior: "instant" });
 			restoreNoti.show();
-      
+
 			const askRestore = await restoreFile(version, fileWholePath, parentPath);
 			if (askRestore.status === 200) {
 				setTimeout(() => restoreNoti.close(), 500);
@@ -173,4 +193,57 @@ $(".rec").on("click", ".restore-btn", function () {
 				$("#error-msg").html(errorHTML);
 			}
 		});
+});
+// ===================================================================
+// download
+// TODO: add download button
+$("#history-download").on("click", async function () {
+  const parentPath = rawParentPath === "" ? "/" : rawParentPath;
+
+	const downloadModal = $("#waitingModal");
+	const downloadStatus = $("#waiting-status");
+	const downloadSpinner = $("#waiting-spinner");
+	const downloadComplete = $("#waiting-complete");
+	const downloadError = $("#waiting-error");
+
+	downloadModal.modal("show");
+	downloadStatus.text("Downloading...");
+	downloadSpinner.addClass("spinner-border");
+	downloadComplete.hide();
+	downloadError.html();
+
+	const downloadFileRes = await singleDownloadFile(parentPath, [fileWholePath]);
+	console.log("downloadFileRes: ", downloadFileRes);
+
+	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
+		downloadSpinner.removeClass("spinner-border");
+		setTimeout(() => downloadModal.modal("hide"), 200);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 100);
+		return;
+	} else if (!downloadFileRes.downloadUrl) {
+		downloadSpinner.removeClass("spinner-border");
+		downloadStatus.text("");
+		downloadError.html(
+			"<span>Opps! Something went wrong. Please try later or contact us.</span>"
+		);
+	} else if (downloadFileRes.status !== 500) {
+		let errorHTML;
+		if (typeof downloadFileRes.data.error === "string") {
+			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
+		} else {
+			errorHTML = downloadFileRes.data.error
+				.map((err) => `<span>${err}</span>`)
+				.join("");
+		}
+		downloadSpinner.removeClass("spinner-border");
+		downloadStatus.text("");
+		downloadError.html(errorHTML);
+	} else {
+		downloadSpinner.removeClass("spinner-border");
+		downloadStatus.text("");
+		downloadError.html(
+			"<span>Opps! Something went wrong. Please try later or contact us.</span>"
+		);
+	}
+	setTimeout(() => downloadModal.modal("hide"), 2000);
 });

@@ -47,7 +47,9 @@ const signinValid = [
 
 // ////////////////////////////////////////////////////////////////////////////
 // const regexForFFName = /^[a-zA-Z0-9_\-.@%$ ]+$/;
-const regexForFFName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ ]+$/;
+// const regexForFFName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ ]+$/;
+const regexForFFName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ \[\]\(\)\+]+$/;
+
 
 const uploadValid = [
 	body("fileName")
