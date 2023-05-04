@@ -151,7 +151,9 @@ const dlCallLambda = async (req, res, next) => {
     return next(customError.internalServerError());
   } else if (toLambda.downloadUrl) {
     console.log("toLambda: downloadUrl is not blank");
-  } 
+  } else if (!toLambda.downloadUrl) {
+    console.log("toLambda: downloadUrl is null");
+  }
 
 	return res.json({ downloadUrl: toLambda.downloadUrl });
 };
