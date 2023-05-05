@@ -111,9 +111,20 @@ $(function () {
 				fileNameLengthNoti.show();
 				break;
 			}
+      $(window).on("beforeunload", function () {
+        return "Uploading will be interrupted";
+      });
 			const uploadFileRes = await uploadFile(currentPath, element, modalObj);
 			console.log("uploadFileRes: ", uploadFileRes);
 		}
+    // After all files are uploaded, showing the complete message
+    modalObj.uploadSpinner.removeClass("spinner-border");
+		modalObj.uploadComplete.show();
+		setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
+		setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
+    
+    $(window).off("beforeunload");
+    return;
 	});
 });
 
@@ -184,11 +195,16 @@ async function submitForm(form, input) {
 				fileNameLengthNoti.show();
 				break;
 			}
+      $(window).on("beforeunload", function () {
+        return "Uploading will be interrupted";
+      });
 			const uploadFileRes = await uploadFile(currentPath, file, modalObj);
 			console.log("uploadFileRes: ", uploadFileRes);
 		}
 
 		input.val("");
+    $(window).off("beforeunload");
+    return;
 	});
 }
 
