@@ -1,4 +1,5 @@
 import { revokeLink, askYouSharedList } from "../../api/share.js";
+import { socket } from "../../util/socket.js";
 // ===================================================
 const unlinkSVG = `
   <svg xmlns="http://www.w3.org/2000/svg" height="20" fill="currentColor" class="bi" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"
@@ -140,7 +141,7 @@ $(".you-shared-row").on("click", ".revoke-btn", async function () {
 
 // ==========================================================================
 // socket.io
-const socket = io();
+// const socket = io();
 socket.on("linksYouSharedUpd", (data) => {
 	console.log("socket.on linksYouSharedUpd: ", data);
 	$("#links-you-shared-tbody").empty();

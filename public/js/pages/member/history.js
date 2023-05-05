@@ -2,6 +2,7 @@ import { getFileHistory } from "../../api/list.js";
 import { restoreFile } from "../../api/restore.js";
 import { singleDownloadFile } from "../../api/download.js";
 import { formatTime, capitalizeFirstLetter } from "../../util/util.js";
+import { socket } from "../../util/socket.js";
 // ===================================================
 
 // show history list
@@ -101,7 +102,7 @@ console.log("fileWholePath: ", fileWholePath);
 console.log("rawParentPath: ", rawParentPath);
 // ===================================================================
 // socket.io
-const socket = io();
+// const socket = io();
 socket.on("historyupd", (data) => {
 	console.log("socket.on historyupd: ", data);
 	const fileId = $(".file-name").data("id");

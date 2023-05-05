@@ -1,5 +1,6 @@
 import { getFileList } from "../../api/list.js";
 import { formatTime } from "../../util/util.js";
+import { socket } from "../../util/socket.js";
 
 const threedotsSVG = `
   <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" class="bi bi-three-dots links-operation-svg"
@@ -231,7 +232,7 @@ if (path !== "") {
 }
 // ==========================================================================
 // socket.io
-const socket = io();
+// const socket = io();
 
 socket.on("listupd", (data) => {
 	console.log("socket.on listupd: ", data);

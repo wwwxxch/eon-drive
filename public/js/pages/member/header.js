@@ -1,6 +1,7 @@
 import { askNoti, changeUnreadStatus } from "../../api/notification.js";
 import { askProfile } from "../../api/list.js";
 import { formatTime } from "../../util/util.js";
+import { socket } from "../../util/socket.js";
 // =============================================================================
 
 // logout button
@@ -99,7 +100,7 @@ $("#noti-ul").on("mouseenter", ".noti-item.new-noti", async function () {
 	}
 });
 
-const socket = io();
+// const socket = io();
 socket.on("sharenoti", (data) => {
 	console.log("sharenoti: ", data);
 	$("#noti-ul").empty();

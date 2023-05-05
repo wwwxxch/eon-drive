@@ -13,11 +13,11 @@ const socketConn = (io) => {
 
   io.on("connection", (socket) => {  
     const { user } = socket.request.session;
-    // console.log(`User ${socket.id} connected`);
+    console.log(`User ${socket.id} connected`);
     socket.join("user_" + user.id);
 
     socket.on("disconnect", () => {
-      // console.log(`User ${socket.id} disconnected`);
+      console.log(`User ${socket.id} disconnected`);
     });
 
   });

@@ -2,6 +2,7 @@ import { getTrash } from "../../api/list.js";
 import { restoreDelete } from "../../api/restore.js";
 import { formatTime } from "../../util/util.js";
 import { permDeleteFile } from "../../api/delete.js";
+import { socket } from "../../util/socket.js";
 // ==========================================================================
 // show trash list
 let table;
@@ -61,7 +62,7 @@ $("#trash-table").on("change", "input[name='trash-checkbox']", function () {
 
 // ==========================================================================
 // socket.io
-const socket = io();
+// const socket = io();
 socket.on("trashupd", (data) => {
 	console.log("socket.on trashupd: ", data);
 	table.destroy();
