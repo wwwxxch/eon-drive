@@ -94,7 +94,7 @@ const restoreHistory = async (req, res, next) => {
 	}
 
 	// commit metadata
-	const commit = await commitMetadata("done", token);
+	const commit = await commitMetadata("done", token, userId);
 	if (!commit) {
 		return next(customError.internalServerError());
 	}
@@ -133,6 +133,7 @@ const restoreDeleted = async (req, res, next) => {
 			// get parentId
 			const folders = key.slice(0, key.length - 1).split("/");
 			// const parentId = await iterForParentId(userId, folders);
+      // TODO: ??
       const parentId = await findTargetFolderId(userId, folders);
 			console.log("parentId: ", parentId);
 			if (parentId === -1) {
@@ -200,7 +201,7 @@ const restoreDeleted = async (req, res, next) => {
 		}
 	}
 
-	const commit = await commitMetadata("done", token);
+	const commit = await commitMetadata("done", token, userId);
 	if (!commit) {
 		return next(customError.internalServerError());
 	}

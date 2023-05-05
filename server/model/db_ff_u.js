@@ -109,11 +109,12 @@ const updateExistedFile = async (token, file_id, file_size, time) => {
   }
 };
 
-const commitMetadata = async(upd_status, token) => {
+const commitMetadata = async(upd_status, token, user_id) => {
   try {
     const [row] = await pool.query(`
-      UPDATE ff SET upd_status = ?, upd_token = NULL WHERE upd_token = ?
-    `, [upd_status, token]);
+      UPDATE ff SET upd_status = ?, upd_token = NULL 
+      WHERE upd_token = ? AND user_id = ?
+    `, [upd_status, token, user_id]);
     return row;
   } catch (e) {
     console.error("commitMetadata: ", e);
@@ -133,9 +134,10 @@ const restoreFileToPrev = async(token, file_id, version, time, user_id) => {
     await conn.query("START TRANSACTION");
 
     // change upd_status, token, updated_at
-    const ff = await conn.query(`
-      UPDATE ff SET upd_status = "pending", upd_token = ?, updated_at = ? WHERE id = ? 
-    `, [token, time, file_id]);
+    const [ff] = await conn.query(`
+      UPDATE ff SET upd_status = "pending", upd_token = ?, updated_at = ? 
+      WHERE id = ? AND user_id = ?
+    `, [token, time, file_id, user_id]);
 
     // find the largest version
     const [max_ver] = await conn.query(`
@@ -234,14 +236,14 @@ const restoreDeletedFile = async(token, file_id, time, user_id) => {
   }
 };
 
-const restoreDeletedFolder = async(token, folder_id, time ) => {
+const restoreDeletedFolder = async(token, folder_id, time, user_id) => {
   // only need to update ff table, let is_delete = 0
   const q_string = `
     UPDATE ff  
     SET upd_status = "pending", upd_token = ?, updated_at = ?, is_delete = 0 
-    WHERE id = ?
+    WHERE id = ? AND user_id = ?
   `;
-  const [row] = await pool.query(q_string, [token, time, folder_id]);
+  const [row] = await pool.query(q_string, [token, time, folder_id, user_id]);
   return row;
 };
 

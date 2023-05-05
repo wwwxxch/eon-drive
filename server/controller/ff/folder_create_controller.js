@@ -26,6 +26,7 @@ const createFolderS3AndDB = async (req, res, next) => {
 	// DB
 	let token;
 	const folders = parentPath.split("/");
+  console.log("folders: ", folders);
 	// const parentId = await iterForParentId(userId, folders);
   const parentId = await findTargetFolderId(userId, folders);
   // const parentId = -1;
@@ -83,7 +84,7 @@ const createFolderS3AndDB = async (req, res, next) => {
   
 	// DB
 	// update status = "done"
-	const commit = await commitMetadata("done", token);
+	const commit = await commitMetadata("done", token, userId);
   if (!commit) {
     return next(customError.internalServerError());
   }

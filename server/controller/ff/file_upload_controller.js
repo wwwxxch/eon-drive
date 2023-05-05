@@ -154,11 +154,11 @@ const uploadChangeDB = async (req, res, next) => {
 	version = chgDBres.new_ver;
 
 	// update usage of an user
-	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
-	if (currentUsed === -1) {
-		return next(customError.internalServerError());
-	}
-	req.session.user.used = currentUsed;
+	// const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
+	// if (currentUsed === -1) {
+	// 	return next(customError.internalServerError());
+	// }
+	// req.session.user.used = currentUsed;
   
 	req.token = token;
 	req.version = version;
@@ -242,7 +242,7 @@ const uploadCommitDB = async (req, res, next) => {
 	const { token, parentPath } = req.body;
 	const userId = req.session.user.id;
 
-	const commit = await commitMetadata("done", token);
+	const commit = await commitMetadata("done", token, userId);
 	if (!commit) {
 		return next(customError.internalServerError());
 	}
@@ -252,6 +252,15 @@ const uploadCommitDB = async (req, res, next) => {
 	if (commit.affectedRows < 1) {
 		return next(customError.badRequest("Token is wrong"));
 	}
+
+  const now = DateTime.utc();
+	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
+  const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
+	if (currentUsed === -1) {
+		return next(customError.internalServerError());
+	}
+	req.session.user.used = currentUsed;
+
 	const io = req.app.get("socketio");
 	emitNewList(io, userId, parentPath);
 	emitUsage(io, userId, req.session.user);
