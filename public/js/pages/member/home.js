@@ -69,7 +69,9 @@ const allocatedNum = parseInt(usageRes.data.allocated);
 const percent = (usedNum / allocatedNum) * 100;
 $(".usage-progress").css("width", percent + "%");
 $(".usage-progress").attr("aria-valuenow", percent);
-if (percent > 50 && percent < 90) {
+if (percent <= 50) {
+  $(".progress-bar").css("background-color", "#519cf6");
+} else if (percent > 50 && percent < 90) {
 	$(".progress-bar").css("background-color", "#d69f65");
 } else if (percent >= 90) {
 	$(".progress-bar").css("background-color", "#c22f2f");
@@ -258,18 +260,22 @@ socket.on("listupd", (data) => {
 });
 
 socket.on("usageupd", (data) => {
+  console.log("socket.on usageupd: ", data);
 	const usedNum = parseInt(data.used);
 	const allocatedNum = parseInt(data.allocated);
 	const percent = (usedNum / allocatedNum) * 100;
+  console.log("percent: ", percent);
 
 	$(".usage-progress").css("width", percent + "%");
 	$(".usage-progress").attr("aria-valuenow", percent);
 
-	if (percent > 50 && percent < 90) {
-		$(".progress-bar").css("background-color", "#d69f65");
-	} else if (percent >= 90) {
-		$(".progress-bar").css("background-color", "#c22f2f");
-	}
+  if (percent <= 50) {
+    $(".progress-bar").css("background-color", "#519cf6");
+  } else if (percent > 50 && percent < 90) {
+    $(".progress-bar").css("background-color", "#d69f65");
+  } else if (percent >= 90) {
+    $(".progress-bar").css("background-color", "#c22f2f");
+  }
 
 	const numerator = Math.round((usedNum / (1024 * 1024)) * 100) / 100;
 	const denominator = allocatedNum / (1024 * 1024);

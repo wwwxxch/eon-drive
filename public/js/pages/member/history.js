@@ -158,7 +158,7 @@ $(".rec").on("click", ".restore-btn", function () {
 				text: text,
 				layout: "bottomLeft",
 				closeWith: ["click"],
-				timeout: 1000,
+				timeout: 3000,
 				theme: "custom-theme",
 				progressBar: false,
 				callbacks: {
@@ -172,7 +172,7 @@ $(".rec").on("click", ".restore-btn", function () {
 
 			const askRestore = await restoreFile(version, fileWholePath, parentPath);
 			if (askRestore.status === 200) {
-				setTimeout(() => restoreNoti.close(), 500);
+				setTimeout(() => restoreNoti.close(), 2000);
 			} else if (askRestore.status >= 400 && askRestore.status < 500) {
 				restoreNoti.close();
 				let errorHTML;
@@ -196,7 +196,6 @@ $(".rec").on("click", ".restore-btn", function () {
 });
 // ===================================================================
 // download
-// TODO: add download button
 $("#history-download").on("click", async function () {
   const parentPath = rawParentPath === "" ? "/" : rawParentPath;
 
@@ -215,17 +214,24 @@ $("#history-download").on("click", async function () {
 	const downloadFileRes = await singleDownloadFile(parentPath, [fileWholePath]);
 	console.log("downloadFileRes: ", downloadFileRes);
 
+  $(window).on("beforeunload", function () {
+    return "Downloading will be interrupted";
+  });
+
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-		setTimeout(() => downloadModal.modal("hide"), 200);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 100);
+		setTimeout(() => downloadModal.modal("hide"), 100);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 200);
+    $(window).off("beforeunload");
 		return;
+
 	} else if (!downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>"
 		);
+
 	} else if (downloadFileRes.status !== 500) {
 		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {
@@ -238,6 +244,7 @@ $("#history-download").on("click", async function () {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
+
 	} else {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
@@ -245,5 +252,8 @@ $("#history-download").on("click", async function () {
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>"
 		);
 	}
+  
 	setTimeout(() => downloadModal.modal("hide"), 2000);
+  $(window).off("beforeunload");
+  return;
 });

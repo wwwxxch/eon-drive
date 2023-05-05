@@ -127,7 +127,7 @@ $("#restore-delete-btn").click(async function () {
       if (toRestore.length > 1) {
         text = `Restored <b>${toRestore.length} items</b>`;
       } else if (toRestore.length === 1) {
-        text = `Restored <b>${toRestore[0]}</b>`;
+        text = `Restored <b>${targetName}</b>`;
       }
       // console.log("text.length: ", text.length);
       const widthPerChar = 7;
@@ -140,9 +140,9 @@ $("#restore-delete-btn").click(async function () {
         text: text,
         layout: "bottomLeft",
         closeWith: ["click"],
-        timeout: 5000,
+        // timeout: 5000,
         theme: "custom-theme",
-        progressBar: true,
+        progressBar: false,
         callbacks: {
           onTemplate: function () {
             this.barDom.style.width = `${width}px`;
@@ -154,7 +154,8 @@ $("#restore-delete-btn").click(async function () {
       const askRestoreDelete = await restoreDelete(toRestore);
       
       if (askRestoreDelete.status === 200) {
-        setTimeout(() => restoreNoti.close(), 500);
+        setTimeout(() => restoreNoti.close(), 2000);
+        return;
       } else if (askRestoreDelete.status >= 400 && askRestoreDelete.status < 500) {
         restoreNoti.close();
         let errorHTML;
@@ -174,6 +175,7 @@ $("#restore-delete-btn").click(async function () {
 				$("#errorModal").modal("show");
 				$("#error-msg").html(errorHTML);
       }			
+      return;
 		});
 });
 
@@ -223,9 +225,9 @@ $("#perm-delete-btn").on("click", function () {
 				text: text,
 				layout: "bottomLeft",
 				closeWith: ["click"],
-				timeout: 5000,
+				// timeout: 5000,
 				theme: "custom-theme",
-				progressBar: true,
+				progressBar: false,
 				callbacks: {
 					onTemplate: function () {
 						this.barDom.style.width = `${width}px`;
@@ -237,7 +239,8 @@ $("#perm-delete-btn").on("click", function () {
 			const askPermDelete = await permDeleteFile(toPermDelete);
 
 			if (askPermDelete.status === 200) {
-        setTimeout(() => permDeleteNoti.close(), 500);
+        setTimeout(() => permDeleteNoti.close(), 2000);
+        return;
       } else if (askPermDelete.status >= 400 && askPermDelete.status < 500) {
         permDeleteNoti.close();
         let errorHTML;
@@ -257,5 +260,6 @@ $("#perm-delete-btn").on("click", function () {
 				$("#errorModal").modal("show");
 				$("#error-msg").html(errorHTML);
       }
+      return;
 		});
 });

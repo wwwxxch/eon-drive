@@ -19,12 +19,16 @@ $(".fi-dl-btn").on("click", async function () {
   downloadError.html();
 
 	const downloadFileRes = await downloadShareFi(shareToken);
+  $(window).on("beforeunload", function () {
+    return "Downloading will be interrupted";
+  });
 	if (downloadFileRes.status === 200) {
 		downloadSpinner.removeClass("spinner-border");
-		// setTimeout(() => downloadStatus.text("Complete!"), 100);
-		setTimeout(() => downloadModal.modal("hide"), 200);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 100);
+		setTimeout(() => downloadModal.modal("hide"), 100);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 200);
+    $(window).off("beforeunload");
 		return;
+
 	} else if (downloadFileRes.status !== 500) {
 		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {
@@ -37,6 +41,7 @@ $(".fi-dl-btn").on("click", async function () {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
+
 	} else {
 		const errorHTML =
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
@@ -44,5 +49,8 @@ $(".fi-dl-btn").on("click", async function () {
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	}
-	setTimeout(() => downloadModal.modal("hide"), 3000);
+  
+	setTimeout(() => downloadModal.modal("hide"), 2000);
+  $(window).off("beforeunload");
+  return;
 });

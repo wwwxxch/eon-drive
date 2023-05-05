@@ -48,6 +48,13 @@
         .btn-custom-no:hover {
           box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
         }
+
+        .confirm-msg {
+          width: 100%;
+          white-space: normal;
+          word-break: break-word;
+          font-size: large;
+        }
       </style>
 </head>
 
@@ -96,7 +103,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <div id="revoke-confirm-q" >Are you sure to revoke the link?</div>
+              <div id="revoke-confirm-q" class="text-wrap confirm-msg">Are you sure to revoke the link?</div>
               <div class="d-flex justify-content-end pt-4">
                 <button type="button" class="btn btn-custom-yes ms-2" id="revoke-link-btn">
                   Yes

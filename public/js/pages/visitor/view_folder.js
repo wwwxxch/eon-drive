@@ -156,6 +156,7 @@ $(window).on("popstate", async function () {
   }
 });
 
+// ================================================================================
 const downloadModal = $("#waitingModal");
 const downloadStatus = $("#waiting-status");
 const downloadSpinner = $("#waiting-spinner");
@@ -180,11 +181,14 @@ $(".fo-dl-btn").on("click", async function () {
 	downloadError.html();
 
 	const downloadFileRes = await downloadShareFo(shareToken, pathTexts + "/");
+  $(window).on("beforeunload", function () {
+    return "Downloading will be interrupted";
+  });
+
 	if (downloadFileRes.status === 200) {
 		downloadSpinner.removeClass("spinner-border");
-		// setTimeout(() => downloadStatus.text("Complete!"), 100);
-		setTimeout(() => downloadModal.modal("hide"), 200);
-    setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 100);
+		setTimeout(() => downloadModal.modal("hide"), 100);
+    setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 200);
 		return;
 	} else if (downloadFileRes.status !== 500) {
 		let errorHTML;
@@ -235,12 +239,17 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 	downloadError.html();
 
 	const downloadFileRes = await downloadShareFo(shareToken, desired);
+  $(window).on("beforeunload", function () {
+    return "Downloading will be interrupted";
+  });
+
 	if (downloadFileRes.status === 200) {
 		downloadSpinner.removeClass("spinner-border");
-		// setTimeout(() => downloadStatus.text("Complete!"), 100);
-		setTimeout(() => downloadModal.modal("hide"), 200);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 100);
+		setTimeout(() => downloadModal.modal("hide"), 100);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 200);
+    $(window).off("beforeunload");
 		return;
+
 	} else if (downloadFileRes.status !== 500) {
 		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {
@@ -253,6 +262,7 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
+
 	} else {
 		const errorHTML =
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
@@ -260,5 +270,8 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	}
-	setTimeout(() => downloadModal.modal("hide"), 3000);
+
+	setTimeout(() => downloadModal.modal("hide"), 2000);
+  $(window).off("beforeunload");
+  return;
 });

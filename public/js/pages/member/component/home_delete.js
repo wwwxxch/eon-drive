@@ -50,7 +50,7 @@ $("#delete-btn").on("click", async function () {
       closeWith: ["click"],
       timeout: 5000,
       theme: "custom-theme",
-      progressBar: true,
+      progressBar: false,
       callbacks: {
         onTemplate: function () {
           this.barDom.style.width = `${width}px`;
@@ -63,7 +63,8 @@ $("#delete-btn").on("click", async function () {
     const deleteFileRes = await deleteFile(currentPath, toDelete);
 
     if (deleteFileRes.status === 200) {
-      setTimeout(() => deleteNoti.close(), 500);
+      setTimeout(() => deleteNoti.close(), 2000);
+      return;
     } else if (deleteFileRes.status >= 400 && deleteFileRes.status < 500) {
       deleteNoti.close();
       let errorHTML;
@@ -83,6 +84,6 @@ $("#delete-btn").on("click", async function () {
       $("#errorModal").modal("show");
       $("#error-msg").html(errorHTML);
     }	
-
+    return;
   });	
 });
