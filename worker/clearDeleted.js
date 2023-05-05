@@ -57,7 +57,7 @@ const clearDeleted = async () => {
       const parentPath = await findParentPathByFFId(element.id);
       const fullPath = parentPath.replace(/^Home\//, "") + element.name;
       // remove file from DB
-      const deleteDB = await permDeleteByFileId(element.id);
+      const deleteDB = await permDeleteByFileId(element.id, element.user_id);
       console.log("deleteDB: ", deleteDB);
       // remove file from S3
       const deleteS3 = await deleteAllVersionsForOneObject(
@@ -74,7 +74,7 @@ const clearDeleted = async () => {
       const parentPath = await findParentPathByFFId(element.id);
       const fullPath = parentPath.replace(/^Home\//, "") + element.name;
       // remove folder from DB
-      const deleteDB = await permDeleteByFolderId(element.id);
+      const deleteDB = await permDeleteByFolderId(element.id, element.user_id);
       console.log("deleteDB: ", deleteDB);
       // remove folder from S3
       const deleteS3 = await deleteObject(
