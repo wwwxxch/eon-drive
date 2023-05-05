@@ -1,4 +1,3 @@
-// TODO: + size;
 async function splitFileIntoChunks(file, fileSize, chunk_size) {
 	const chunks = [];
 
