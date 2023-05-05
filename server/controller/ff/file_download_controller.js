@@ -28,7 +28,7 @@ const dlSingleFile = async (req, res, next) => {
   }
 	
   const userId = req.session.user.id;
-  const key = downloadList[0].replace(/^\//, "").trim();
+  const key = decodeURIComponent(downloadList[0].replace(/^\//, "").trim());
 
   // 1. get current version -> giving path to obtain file id
   const fileId = await findFileIdByPath(userId, key);
