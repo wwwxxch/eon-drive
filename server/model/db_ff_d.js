@@ -1,19 +1,22 @@
 import { pool } from "./connection.js";
 // ==========================================
-const markDeleteById = async (time, id) => {
+const markDeleteById = async (time, id, user_id) => {
 	const conn = await pool.getConnection();
 	try {
 		console.log("START TRANSACTION - markDeleteById");
 		await conn.query("START TRANSACTION");
 
-		const ff = await conn.query(
+		const [ff] = await conn.query(
 			`
       UPDATE ff 
       SET is_delete = 1, share_token = null, is_public = 0, updated_at = ? 
-      WHERE id = ?
+      WHERE id = ? AND user_id = ?
     `,
-			[time, id]
+			[time, id, user_id]
 		);
+    if (ff.affectedRows !== 1) {
+      throw new Error ("ff.affectedRows !== 1");
+    }
 
 		const [share_link_perm] = await conn.query(
 			`
@@ -22,7 +25,7 @@ const markDeleteById = async (time, id) => {
 			id
 		);
 
-		const delete_rec = await conn.query(
+		const [delete_rec] = await conn.query(
 			`
       INSERT INTO ff_delete (ff_id, deleted_at) VALUES (?, ?)
     `,
@@ -43,35 +46,44 @@ const markDeleteById = async (time, id) => {
 	}
 };
 
-const permDeleteByFileId = async (file_id) => {
+const permDeleteByFileId = async (file_id, user_id) => {
 	const conn = await pool.getConnection();
 	try {
 		console.log("START TRANSACTION - permDeleteByFileId");
 		await conn.query("START TRANSACTION");
 
+    // confirm the delete request is from the owner
+    const [checkOwner] = await conn.query(`
+      SELECT id FROM ff WHERE id = ? AND user_id = ? AND type = "file"
+    `, [file_id, user_id]);
+
+    if (checkOwner.length !== 1) {
+      throw new Error("checkOwner.length !== 1");
+    }
+
 		// share_link_perm, file_ver, ff_delete, ff
-		const delete_link = await conn.query(
+		const [delete_link] = await conn.query(
 			`
       DELETE FROM share_link_perm WHERE ff_id = ?
     `,
 			file_id
 		);
 
-		const delete_file_ver = await conn.query(
+		const [delete_file_ver] = await conn.query(
 			`
       DELETE FROM file_ver WHERE ff_id = ?
     `,
 			file_id
 		);
 
-		const delete_ff_delete = await conn.query(
+		const [delete_ff_delete] = await conn.query(
 			`
       DELETE FROM ff_delete WHERE ff_id = ?
     `,
 			file_id
 		);
 
-		const delete_ff = await conn.query(
+		const [delete_ff] = await conn.query(
 			`
       DELETE FROM ff WHERE id = ?
     `,
@@ -92,28 +104,37 @@ const permDeleteByFileId = async (file_id) => {
 	}
 };
 
-const permDeleteByFolderId = async (folder_id) => {
+const permDeleteByFolderId = async (folder_id, user_id) => {
 	const conn = await pool.getConnection();
 	try {
 		console.log("START TRANSACTION - permDeleteByFolderId");
 		await conn.query("START TRANSACTION");
 
+    // confirm the delete request is from the owner
+    const [checkOwner] = await conn.query(`
+      SELECT id FROM ff WHERE id = ? AND user_id = ? AND type = "folder"
+    `, [folder_id, user_id]);
+
+    if (checkOwner.length !== 1) {
+      throw new Error("checkOwner.length !== 1");
+    }
+
 		// share_link_perm, ff_delete, ff
-		const delete_link = await conn.query(
+		const [delete_link] = await conn.query(
 			`
       DELETE FROM share_link_perm WHERE ff_id = ?
     `,
 			folder_id
 		);
 
-		const delete_ff_delete = await conn.query(
+		const [delete_ff_delete] = await conn.query(
 			`
       DELETE FROM ff_delete WHERE ff_id = ?
     `,
 			folder_id
 		);
 
-		const delete_ff = await conn.query(
+		const [delete_ff] = await conn.query(
 			`
       DELETE FROM ff WHERE id = ?
     `,
