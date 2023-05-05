@@ -4,7 +4,7 @@ const updateSpaceUsedByUser = async(user_id, time) => {
   const q_calculateSum = `
     SELECT SUM(b.size) AS total_size 
     FROM ff AS a INNER JOIN file_ver AS b ON a.id = b.ff_id
-    WHERE a.is_delete = 0 AND b.is_current = 1 AND a.user_id = ?
+    WHERE a.upd_status = "done" AND a.is_delete = 0 AND b.is_current = 1 AND a.user_id = ?
     GROUP BY user_id
   `;
   const q_updateUsed = `
@@ -42,6 +42,30 @@ const updateSpaceUsedByUser = async(user_id, time) => {
   }
 };
 
+const checkUsedByUser = async(user_id) => {
+  const q_calculateSum = `
+    SELECT SUM(b.size) AS total_size 
+    FROM ff AS a INNER JOIN file_ver AS b ON a.id = b.ff_id
+    WHERE a.upd_status = "done" AND a.is_delete = 0 AND b.is_current = 1 AND a.user_id = ?
+    GROUP BY user_id
+  `;
+  const [row] = await pool.query(q_calculateSum, user_id);
+  if (row.length === 0) {
+    return 0;
+  }
+  return row[0].total_size;
+};
+
+const updateUsedByUser = async(user_id, used, time) => {
+  const q_updateUsed = `
+    UPDATE user SET used = ?, updated_at = ? WHERE id = ?
+  `;
+  const [row] = await pool.query(q_updateUsed, [used, time, user_id]);
+  return row.affectedRows;
+};
+
 export { 
-  updateSpaceUsedByUser
+  updateSpaceUsedByUser,
+  checkUsedByUser,
+  updateUsedByUser
 };
