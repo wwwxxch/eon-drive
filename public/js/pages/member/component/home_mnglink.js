@@ -55,6 +55,7 @@ $("#list-table").on("click", ".get-link", async function () {
 		$("#current-access-list").append(`
       <div>Only you</div>
     `);
+    $("label[for='access-user']").text("Users");
 	} else if (shareStatus.is_public === 1) {
 		$("#current-access-list").append(`
       <div>Anyone knows the link</div>
@@ -66,7 +67,6 @@ $("#list-table").on("click", ".get-link", async function () {
     `);
 		$("label[for='access-user']").text("Users");
 	} else if (shareStatus.acl.length > 0) {
-		$("label[for='access-user']").text("More Users");
 		const userDiv = shareStatus.acl
 			.map((item) => {
 				return `
@@ -87,6 +87,7 @@ $("#list-table").on("click", ".get-link", async function () {
           </a>
         </div>
       `);
+    $("label[for='access-user']").text("More Users");
 	}
 
 	// input user email
