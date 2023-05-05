@@ -134,12 +134,15 @@ const uploadFile = async (currentDir, file, modalObj) => {
 
 	// 0. request payload
 	let fileUsed = {};
+  let fileItself;
 	if (file.modified) {
 		fileUsed.name = file.file.name;
 		fileUsed.size = file.file.size;
 		fileUsed.webkitRelativePath = file.webkitRelativePath;
+    fileItself = file.file;
 	} else {
 		fileUsed = file;
+    fileItself = file;
 	}
 
 	let parentPath = "";
@@ -215,7 +218,7 @@ const uploadFile = async (currentDir, file, modalObj) => {
 			console.log("singleUploadRes: ", singleUploadRes);
 			toS3Res = singleUploadRes.status;
 		} else if (completeUrl) {
-			const chunks = await splitFileIntoChunks(file, CHUNK_SIZE);
+			const chunks = await splitFileIntoChunks(fileItself, fileUsed.size, CHUNK_SIZE);
 			const multiUploadRes = await multiUpload(partUrls, completeUrl, chunks);
 			console.log("multiUploadRes: ", multiUploadRes);
 			toS3Res = multiUploadRes.status;

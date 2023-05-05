@@ -201,6 +201,7 @@ const getS3Url = async (req, res, next) => {
 };
 
 const uploadCleanPending = async (req, res, next) => {
+  console.log("upload-failed", req.body);
   const { token } = req.body;
   const userId = req.session.user.id;
 

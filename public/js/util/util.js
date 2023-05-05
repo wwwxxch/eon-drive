@@ -1,9 +1,10 @@
-async function splitFileIntoChunks(file, chunk_size) {
+// TODO: + size;
+async function splitFileIntoChunks(file, fileSize, chunk_size) {
 	const chunks = [];
 
 	let start = 0;
 	let end = chunk_size;
-	while (start < file.size) {
+	while (start < fileSize) {
 		const chunk = file.slice(start, end);
 		chunks.push(chunk);
 		start = end;

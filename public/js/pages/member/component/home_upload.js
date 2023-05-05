@@ -90,6 +90,7 @@ $(function () {
 		};
 
 		// 4. start upload
+    
 		for (let element of arr) {
 			let fileUsed = {};
 			if (element.modified) {
@@ -116,8 +117,13 @@ $(function () {
       });
 			const uploadFileRes = await uploadFile(currentPath, element, modalObj);
 			console.log("uploadFileRes: ", uploadFileRes);
+      if (uploadFileRes === false) {
+        $(window).off("beforeunload");
+        return;
+      }
 		}
     // After all files are uploaded, showing the complete message
+    console.log("check");
     modalObj.uploadSpinner.removeClass("spinner-border");
 		modalObj.uploadComplete.show();
 		setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
@@ -200,9 +206,19 @@ async function submitForm(form, input) {
       });
 			const uploadFileRes = await uploadFile(currentPath, file, modalObj);
 			console.log("uploadFileRes: ", uploadFileRes);
+      if (uploadFileRes === false) {
+        $(window).off("beforeunload");
+        return;
+      }
 		}
 
-		input.val("");
+		// After all files are uploaded, showing the complete message
+    console.log("check");
+    modalObj.uploadSpinner.removeClass("spinner-border");
+		modalObj.uploadComplete.show();
+		setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
+		setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
+    
     $(window).off("beforeunload");
     return;
 	});
