@@ -7,12 +7,13 @@ import {
 import { getLinksSharedNoti, getLinksYouShared } from "../../model/db_share.js";
 // =============================================================================
 const emitNewList = async (io, userId, parentPath) => {
+	console.log("emitNewList");
 	const refresh = await getFileListByPath(userId, parentPath);
-	// console.log("refresh: ", refresh);
-  if (refresh.length === 0) {
-    return;
-  }
-  
+	// console.log("refresh.data.length: ", refresh.data.length);
+	// if (refresh.data.length === 0) {
+	// 	return;
+	// }
+
 	io.to(`user_${userId}`).emit("listupd", {
 		parentPath: parentPath,
 		list: refresh,
@@ -22,9 +23,9 @@ const emitNewList = async (io, userId, parentPath) => {
 const emitHistoryList = async (io, userId, fileId) => {
 	const versions = await getVersionsByFileId(userId, fileId);
 	// console.log("versions", versions);
-  if (versions.length === 0) {
-    return;
-  }
+	if (versions.length === 0) {
+		return;
+	}
 	const deleteRecords = await getDeleteRecordsByFileId(userId, fileId);
 	// console.log("deleteRecords: ", deleteRecords);
 
@@ -37,9 +38,9 @@ const emitHistoryList = async (io, userId, fileId) => {
 
 const emitTrashList = async (io, userId) => {
 	const deleted = await getDeletedList(userId);
-  if (!deleted) {
-    return;
-  }
+	if (!deleted) {
+		return;
+	}
 	// console.log("deleted: ", deleted);
 
 	const { all, folders } = deleted;
@@ -61,10 +62,15 @@ const emitTrashList = async (io, userId) => {
 };
 
 const emitUsage = async (io, userId, userInSession) => {
+	console.log("emitUsage");
+
+	const allocated = userInSession.allocated;
+	const used = userInSession.used;
 	io.to(`user_${userId}`).emit("usageupd", {
-		allocated: userInSession.allocated,
-		used: userInSession.used,
+		allocated,
+		used,
 	});
+	return;
 };
 
 const emitShareNoti = async (io, userId) => {
@@ -119,7 +125,7 @@ const emitLinksYouShared = async (io, userId) => {
 	}, []);
 
 	io.to(`user_${userId}`).emit("linksYouSharedUpd", {
-		data: list
+		data: list,
 	});
 };
 
@@ -129,5 +135,5 @@ export {
 	emitTrashList,
 	emitUsage,
 	emitShareNoti,
-  emitLinksYouShared
+	emitLinksYouShared,
 };
