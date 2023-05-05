@@ -115,22 +115,22 @@ const findParentPathByFFId = async (ffId) => {
 	}
 };
 
-const findTargetFolderId = async (userId, folders) => {
+const findTargetFolderId = async (userId, folders/*, delete_status*/) => {
   // sprint 5  
 	try {
 		let parentId = 0;
-		if (folders.length === 0) {
+		if (folders.length === 0 || (folders.length === 1 && folders[0] === "") ) {
 			return parentId;
 		}
 
-		const foldersPool = await getFoldersInfoByPath(folders, userId);
+		const foldersPool = await getFoldersInfoByPath(folders, userId/*, delete_status*/);
 		console.log("findTargetFolderId: foldersPool: ", foldersPool);
 		if (foldersPool.length === 0) {
 			return -1;
 		} else if (!foldersPool) {
       throw new Error ("getFoldersInfoByPath error");
     }
-
+    console.log("folders: ", folders);
 		for (let i = 0; i < folders.length; i++) {
       let found = false;
 			for (let j = 0; j < foldersPool.length; j++) {

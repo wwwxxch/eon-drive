@@ -28,7 +28,7 @@ const deleteRecur = async (parentId, userId, time) => {
 		if (list.length > 0) {
 			for (let i = 0; i < list.length; i++) {
 				if (list[i].type === "file") {
-					const deleteFileRes = await markDeleteById(time, list[i].id);
+					const deleteFileRes = await markDeleteById(time, list[i].id, userId);
 					console.log("deleteFileRes: ", deleteFileRes);
           if (!deleteFileRes) {
             throw new Error("markDeleteById error");
@@ -39,7 +39,7 @@ const deleteRecur = async (parentId, userId, time) => {
 			}
 		}
 		// delete folder itself
-		const deleteFolderRes = await markDeleteById(time, parentId);
+		const deleteFolderRes = await markDeleteById(time, parentId, userId);
     console.log("deleteFolderRes: ", deleteFolderRes);
     if (!deleteFolderRes) {
       throw new Error("markDeleteById error");
@@ -58,7 +58,7 @@ const permDeleteRecur = async (parentId, userId) => {
 		if (list.length > 0) {
 			for (let i = 0; i < list.length; i++) {
 				if (list[i].type === "file") {
-					const permDeleteFileRes = await permDeleteByFileId(list[i].id);
+					const permDeleteFileRes = await permDeleteByFileId(list[i].id, userId);
 					console.log("permDeleteFileRes: ", permDeleteFileRes);
           if (!permDeleteFileRes) {
             throw new Error("permDeleteByFileId error");
@@ -69,7 +69,7 @@ const permDeleteRecur = async (parentId, userId) => {
 			}
 		}
 		// delete folder itself
-		const deleteFolderRes = await permDeleteByFolderId(parentId);
+		const deleteFolderRes = await permDeleteByFolderId(parentId, userId);
 		console.log("deleteFolderRes: ", deleteFolderRes);
     if (!deleteFolderRes) {
       throw new Error("permDeleteByFolderId error");
@@ -190,7 +190,7 @@ const restoreRecur = async (parentId, currentPath, time, token, userId, session)
 			}
 		}
 		// update DB for folder restore
-		const restoreFolderRes = await restoreDeletedFolder(token, parentId, time);
+		const restoreFolderRes = await restoreDeletedFolder(token, parentId, time, userId);
 		console.log("restoreFolderRes: ", restoreFolderRes);
     if (restoreFolderRes.affectedRows !== 1) {
       throw new Error("restoreDeletedFolder error");

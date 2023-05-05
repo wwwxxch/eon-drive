@@ -63,8 +63,8 @@ const deleteFolderAndContents = async (client, bucket, key) => {
   for (let i = 0; i < contents.length; i++) {
     // if the item is a file, delete it
     if (contents[i].Key !== key && !contents[i].Key.endsWith("/")) {
-      const res = await deleteAllVersionsForOneObject(client, bucket, contents[i].Key);
-      console.log("deleteAllVersionsForOneObject: res: ", res);
+      const res = await deleteObject(client, bucket, contents[i].Key);
+      console.log("deleteObject: res: ", res);
     }
     // if the item is a folder, call the same function recursively to delete its contents
     else if (contents[i].Key.endsWith("/")) {
