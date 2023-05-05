@@ -107,7 +107,7 @@ function showList(obj) {
 					const tickboxValue =
 						row.type === "folder" ? row.name + "/" : row.name;
 					// console.log("tickboxValue: ", tickboxValue);
-					const tickbox = `<input type="checkbox" name="list-checkbox" value="${tickboxValue}">`;
+					const tickbox = `<input type="checkbox" name="list-checkbox" class="list-checkbox" value="${tickboxValue}">`;
 					return tickbox;
 				},
 			},
@@ -128,7 +128,7 @@ function showList(obj) {
                     `;
 					}
           return `
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center ff_name-div">
               <div>${icon}</div>
               <div>${ffSpan}</div>
             </div>

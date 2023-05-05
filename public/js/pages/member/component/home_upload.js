@@ -225,6 +225,7 @@ async function submitForm(form, input) {
 }
 
 showInputTag($fileUploadBtn, $fileInput);
+showInputTag($("#drag-drop-box"), $fileInput);
 triggerSubmit($fileInput, $fileForm);
 submitForm($fileForm, $fileInput);
 showInputTag($folderUploadBtn, $folderInput);

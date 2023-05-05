@@ -24,7 +24,9 @@
           justify-content: center;
           align-items: center;
         }
-
+        #drag-drop-box:hover {
+          cursor: pointer;
+        }
         #drag-drop-zone.drag-over {
           border: 2px dashed rgb(13, 110, 253);
           border-radius: 10px;
@@ -34,7 +36,10 @@
           border: 2px dashed rgb(13, 110, 253);
           background-color: rgb(245, 245, 245);
         }
-
+        #upload-box-click {
+          color: grey;
+          font-size: medium;
+        }
         .slash {
           padding: 0 6px 3px;
           font-size: larger;
@@ -47,6 +52,10 @@
         .form-check-input {
           border-color: darkgray;
         }
+        /* .list-checkbox, #select-all {
+          width: 12px;
+          height: 12px;
+        } */
 
         .type-icon {
           margin-right: 1vw;
@@ -283,8 +292,9 @@
             <!-- right  -->
             <div class="col-11 d-flex flex-column align-items-center" id="drag-drop-zone">
               <!-- Drag Box -->
-              <div style="width: 98%;" id="drag-drop-box">
-                Drop files here to upload
+              <div style="width: 98%;" id="drag-drop-box" class="d-flex flex-column">
+                <div>Drop files here to upload</div>
+                <div id="upload-box-click">or <strong>click</strong> to upload</div>
               </div>
               <!-- PATH & USAGE -->
               <div class="d-flex align-items-center justify-content-md-between my-2" style="width: 100%;">

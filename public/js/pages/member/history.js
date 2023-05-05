@@ -98,7 +98,7 @@ showHistoryList(history);
 
 const arr = fileWholePath.split("/");
 const rawParentPath = arr.slice(0, arr.length - 1).join("/");
-console.log("fileWholePath: ", fileWholePath);  
+console.log("fileWholePath: ", fileWholePath);
 console.log("rawParentPath: ", rawParentPath);
 // ===================================================================
 // socket.io
@@ -118,9 +118,9 @@ socket.on("historyupd", (data) => {
 // ===================================================================
 // go back link
 $("#go-back-link").on("click", function (e) {
-  e.preventDefault();
-  // console.log("here");
-  window.location.href = `/home/${rawParentPath}`;
+	e.preventDefault();
+	// console.log("here");
+	window.location.href = `/home/${rawParentPath}`;
 });
 
 // ===================================================================
@@ -198,7 +198,7 @@ $(".rec").on("click", ".restore-btn", function () {
 // ===================================================================
 // download
 $("#history-download").on("click", async function () {
-  const parentPath = rawParentPath === "" ? "/" : rawParentPath;
+	const parentPath = rawParentPath === "" ? "/" : rawParentPath;
 
 	const downloadModal = $("#waitingModal");
 	const downloadStatus = $("#waiting-status");
@@ -215,24 +215,28 @@ $("#history-download").on("click", async function () {
 	const downloadFileRes = await singleDownloadFile(parentPath, [fileWholePath]);
 	console.log("downloadFileRes: ", downloadFileRes);
 
-  $(window).on("beforeunload", function () {
-    return "Downloading will be interrupted";
-  });
+	$(window).on("beforeunload", function () {
+		return "Downloading will be interrupted";
+	});
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
 		setTimeout(() => downloadModal.modal("hide"), 100);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 200);
-    $(window).off("beforeunload");
+		// function closeModal(modal) {
+		// 	modal.on("shown.bs.modal", function (e) {
+		// 		modal.modal("hide");
+		// 	});
+		// }
+    // setTimeout(() => closeModal(downloadModal), 100);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
+		$(window).off("beforeunload");
 		return;
-
 	} else if (!downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>"
 		);
-
 	} else if (downloadFileRes.status !== 500) {
 		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {
@@ -245,7 +249,6 @@ $("#history-download").on("click", async function () {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
-
 	} else {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
@@ -253,8 +256,8 @@ $("#history-download").on("click", async function () {
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>"
 		);
 	}
-  
+
 	setTimeout(() => downloadModal.modal("hide"), 2000);
-  $(window).off("beforeunload");
-  return;
+	$(window).off("beforeunload");
+	return;
 });

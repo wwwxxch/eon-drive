@@ -25,7 +25,7 @@ $(".fi-dl-btn").on("click", async function () {
 	if (downloadFileRes.status === 200) {
 		downloadSpinner.removeClass("spinner-border");
 		setTimeout(() => downloadModal.modal("hide"), 100);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_self"), 200);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
     $(window).off("beforeunload");
 		return;
 
