@@ -21,6 +21,7 @@ const emitNewList = async (io, userId, parentPath) => {
 };
 
 const emitHistoryList = async (io, userId, fileId) => {
+  console.log("emitHistoryList");
 	const versions = await getVersionsByFileId(userId, fileId);
 	// console.log("versions", versions);
 	if (versions.length === 0) {
@@ -37,6 +38,7 @@ const emitHistoryList = async (io, userId, fileId) => {
 };
 
 const emitTrashList = async (io, userId) => {
+  console.log("emitTrashList");
 	const deleted = await getDeletedList(userId);
 	if (!deleted) {
 		return;
@@ -74,6 +76,7 @@ const emitUsage = async (io, userId, userInSession) => {
 };
 
 const emitShareNoti = async (io, userId) => {
+  console.log("emitShareNoti");
 	const unreadNoti = await getLinksSharedNoti(userId, 0);
 	// console.log(unreadNoti);
 	// console.log(5 - unreadNoti.length);
@@ -92,6 +95,7 @@ const emitShareNoti = async (io, userId) => {
 };
 
 const emitLinksYouShared = async (io, userId) => {
+  console.log("emitLinksYouShared");
 	const raw = await getLinksYouShared(userId);
 
 	const list = raw.reduce((acc, cur) => {
