@@ -161,7 +161,6 @@ const privateLink = async (req, res, next) => {
 		// check if this user is in share_link_perm table &
 		// update share_link_perm table
 
-    // TODO: add user ? - update instruction in FE?
 		const grantAccess = await addUserToAcessList(targetId, nowTime, userList);
 		console.log("grantAccess: ", grantAccess);
 		token = shareStatus.share_token;
