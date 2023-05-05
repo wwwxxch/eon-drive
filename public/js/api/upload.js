@@ -24,6 +24,9 @@ const singleUpload = async (url, file) => {
 			url: url,
 			method: "put",
 			data: file,
+      headers: {
+        "Content-Type": "application/octet-stream"
+      }
 		});
 		console.log("putFile: ", putFile);
 		return { status: putFile.status };
