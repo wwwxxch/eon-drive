@@ -16,8 +16,19 @@ const socketConn = (io) => {
     console.log(`User ${socket.id} connected`);
     socket.join("user_" + user.id);
 
-    socket.on("disconnect", () => {
-      console.log(`User ${socket.id} disconnected`);
+    socket.on("disconnect", (reason) => {
+      console.log(`User ${socket.id} disconnected due to ${reason}`);
+      /*
+        possible reasons:
+        "io server disconnect"
+        "io client disconnect"
+        "ping timeout"
+        "transport close"
+        "transport error"
+      */
+      if (reason === "ping timeout") {  
+        socket.connect();
+    }
     });
 
   });
