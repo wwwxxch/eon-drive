@@ -147,7 +147,12 @@ const dlCallLambda = async (req, res, next) => {
 		parentPath,
 		parentName
 	);
+  
   if (!toLambda) {
+    return next(customError.internalServerError());
+  } else if (toLambda.status === 500 && toLambda.error === "file size exceeds 4 GB") {
+    return next(customError.badRequest("file size exceeds 4 GB"));
+  } else if (toLambda.status === 500) {
     return next(customError.internalServerError());
   } else if (toLambda.downloadUrl) {
     console.log("toLambda: downloadUrl is not blank");

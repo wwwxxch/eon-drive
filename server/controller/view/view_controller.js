@@ -305,10 +305,16 @@ const viewDLcallLambda = async (req, res, next) => {
 		parentName
 	);
 	if (!toLambda) {
-		return next(customError.internalServerError());
-	} else if (toLambda.downloadUrl) {
-		console.log("toLambda: downloadUrl is not blank");
-	}
+    return next(customError.internalServerError());
+  } else if (toLambda.status === 500 && toLambda.error === "file size exceeds 4 GB") {
+    return next(customError.badRequest("file size exceeds 4 GB"));
+  } else if (toLambda.status === 500) {
+    return next(customError.internalServerError());
+  } else if (toLambda.downloadUrl) {
+    console.log("toLambda: downloadUrl is not blank");
+  } else if (!toLambda.downloadUrl) {
+    console.log("toLambda: downloadUrl is null");
+  }
 
 	return res.json({ downloadUrl: toLambda.downloadUrl });
 };
