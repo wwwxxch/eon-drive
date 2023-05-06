@@ -45,7 +45,6 @@ app.set("socketio", io);
 io.adapter(createAdapter(pub, sub));
 socketConn(io);
 
-
 // --------------------------------------------------------------------------------
 app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
