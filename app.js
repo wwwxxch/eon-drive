@@ -96,17 +96,6 @@ app.get("/check", (req, res) => {
 });
 
 app.get("/test", (req, res) => {
-	// console.log("req.protocol: ", req.protocol);
-	// console.log("req.headers.host: ", req.headers.host);
-	// console.log("req.hostname: ", req.hostname);
-	// console.log("req.socket.remoteAddress: ", req.socket.remoteAddress);
-	// console.log("req.headers[\"x-forwarded-for\"]: ", req.headers["x-forwarded-for"]);
-	// console.log("req.headers[\"x-real-ip\"]: ", req.headers["x-real-ip"]);
-	// console.log("req.ip: ", req.ip);
-	// console.log("req.ips: ", req.ips);
-	// console.log("req.path: ", req.path);
-	// console.log("req.originalUrl: ", req.originalUrl);
-	// console.log("req.url: ", req.url);
 	res.send(`
   <p>req.protocol: ${req.protocol}</p>
   <p>req.headers.host: ${req.headers.host}</p>
