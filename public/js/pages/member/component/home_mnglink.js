@@ -34,7 +34,7 @@ $("#list-table").on("click", ".get-link", async function () {
 		.val()
 		.replace(/\//g, "");
 
-	$("#getLinkModalLabel").html(`Share &nbsp${targetName}&nbsp with`);
+	$("#getLinkModalLabel").html(`Share <b>${targetName}</b> with`);
 
 	const checkRes = await checkShareStatus(targetId);
 

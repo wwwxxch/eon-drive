@@ -130,7 +130,7 @@ function showList(obj) {
           return `
             <div class="d-flex align-items-center ff_name-div">
               <div>${icon}</div>
-              <div>${ffSpan}</div>
+              <div class="text-break">${ffSpan}</div>
             </div>
           `;
 				},
