@@ -80,4 +80,14 @@ redis.on("error", (err) => {
 	}
 });
 
-export { redis };
+const pub = redis.duplicate();
+const sub = redis.duplicate();
+
+pub.on("connect", () => { console.log("pub connect"); });
+sub.on("connect", () => { console.log("sub connect"); });
+
+pub.on("error", (err) => { console.error(`pub error: ${err}`); });
+sub.on("error", (err) => { console.error(`sub error: ${err}`); });
+
+
+export { redis, pub, sub };

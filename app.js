@@ -5,9 +5,13 @@ import { Server } from "socket.io";
 import session from "express-session";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createAdapter } from "@socket.io/redis-adapter";
 
 import { sessionConfig } from "./server/util/session.js";
 import { socketConn } from "./server/util/socket.js";
+
+import { pub, sub } from "./server/util/cache.js";
+
 import { customError } from "./server/error/custom_error.js";
 
 dotenv.config();
@@ -38,7 +42,9 @@ app.use(session(sessionConfig));
 const io = new Server(server);
 io.engine.use(session(sessionConfig));
 app.set("socketio", io);
+io.adapter(createAdapter(pub, sub));
 socketConn(io);
+
 
 // --------------------------------------------------------------------------------
 app.use(express.static("./public"));
