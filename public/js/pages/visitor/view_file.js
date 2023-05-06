@@ -1,4 +1,5 @@
 import { downloadShareFi } from "../../api/view.js";
+import { delay } from "../../util/util.js";
 
 // download file
 $(".fi-dl-btn").on("click", async function () {
@@ -16,20 +17,26 @@ $(".fi-dl-btn").on("click", async function () {
 	downloadStatus.text("Downloading...");
 	downloadSpinner.addClass("spinner-border");
 	downloadComplete.hide();
-  downloadError.html();
+	downloadError.html();
 
 	const downloadFileRes = await downloadShareFi(shareToken);
-  $(window).on("beforeunload", function () {
-    return "Downloading will be interrupted";
-  });
-	if (downloadFileRes.status === 200) {
-		downloadSpinner.removeClass("spinner-border");
-		setTimeout(() => downloadModal.modal("hide"), 100);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
-    $(window).off("beforeunload");
-		return;
+	console.log("downloadFileRes: ", downloadFileRes);
 
-	} else if (downloadFileRes.status !== 500) {
+	$(window).on("beforeunload", function () {
+		return "Downloading will be interrupted";
+	});
+
+	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
+		downloadSpinner.removeClass("spinner-border");
+
+		await delay(100);
+		downloadModal.modal("hide");
+		await delay(100);
+		window.open(downloadFileRes.downloadUrl, "_blank");
+
+		$(window).off("beforeunload");
+		return;
+	} else if (downloadFileRes.status !== 200 && downloadFileRes.status !== 500) {
 		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {
 			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
@@ -41,16 +48,15 @@ $(".fi-dl-btn").on("click", async function () {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
-
 	} else {
 		const errorHTML =
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
-		downloadSpinner.removeClass("spinner-border");
+    downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	}
-  
+
 	setTimeout(() => downloadModal.modal("hide"), 2000);
-  $(window).off("beforeunload");
-  return;
+	$(window).off("beforeunload");
+	return;
 });

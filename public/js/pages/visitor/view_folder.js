@@ -1,5 +1,5 @@
 import { getShareFoList, downloadShareFo } from "../../api/view.js";
-import { formatTime } from "../../util/util.js";
+import { formatTime, delay } from "../../util/util.js";
 
 function showShareFoList(obj) {
 	if (obj.data.length === 0) {
@@ -88,7 +88,7 @@ if (subPath) {
 
 // show list when clicking
 $("#fo-list-table").on("click", ".folder", async function () {
-  console.log("#list-table on click");
+	console.log("#list-table on click");
 	const dirName = $(this).text().trim();
 	const pathTexts = $(".path-text")
 		.map(function () {
@@ -121,39 +121,39 @@ $("#fo-list-table").on("click", ".folder", async function () {
 
 $(window).on("popstate", async function () {
 	console.log("popstate");
-  const windowPathName = window.location.pathname;
-  const shareToken = windowPathName.split("/")[3];
-  console.log(shareToken);
-  const subPath = windowPathName.split("/").slice(4).join("/");
-  console.log("subPath: ", subPath);
+	const windowPathName = window.location.pathname;
+	const shareToken = windowPathName.split("/")[3];
+	console.log(shareToken);
+	const subPath = windowPathName.split("/").slice(4).join("/");
+	console.log("subPath: ", subPath);
 
-  const res = await getShareFoList(shareToken, subPath);
-  $("#fo-list-tbody").empty();
-  showShareFoList(res);
+	const res = await getShareFoList(shareToken, subPath);
+	$("#fo-list-tbody").empty();
+	showShareFoList(res);
 
-  $("#share-path").empty();
-  $("#share-path").append(`
+	$("#share-path").empty();
+	$("#share-path").append(`
     <a href="/view/fo/${shareToken}">
       <h3><span class="path-text">${target}</span></h3>
     </a>
   `);
 
-  if (subPath) {
-    const pathArray = subPath.split("/").reduce((prev, curr, i) => {
-      const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
-      return [...prev, folder];
-    }, []);
-    // console.log(pathArray);
+	if (subPath) {
+		const pathArray = subPath.split("/").reduce((prev, curr, i) => {
+			const folder = i === 0 ? curr : `${prev[i - 1]}/${curr}`;
+			return [...prev, folder];
+		}, []);
+		// console.log(pathArray);
 
-    pathArray.forEach((item, i) => {
-      $("#share-path").append(`
+		pathArray.forEach((item, i) => {
+			$("#share-path").append(`
         <span class="slash"> / </span>
         <a href="/view/fo/${shareToken}/${item}">
           <h3><span class="path-text">${item.split("/").pop()}</span></h3>
         </a>
       `);
-    });
-  }
+		});
+	}
 });
 
 // ================================================================================
@@ -181,16 +181,21 @@ $(".fo-dl-btn").on("click", async function () {
 	downloadError.html();
 
 	const downloadFileRes = await downloadShareFo(shareToken, pathTexts + "/");
-  $(window).on("beforeunload", function () {
-    return "Downloading will be interrupted";
-  });
+	$(window).on("beforeunload", function () {
+		return "Downloading will be interrupted";
+	});
 
-	if (downloadFileRes.status === 200) {
+	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-		setTimeout(() => downloadModal.modal("hide"), 100);
-    setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
+
+		await delay(100);
+		downloadModal.modal("hide");
+		await delay(100);
+		window.open(downloadFileRes.downloadUrl, "_blank");
+
+		$(window).off("beforeunload");
 		return;
-	} else if (downloadFileRes.status !== 500) {
+	} else if (downloadFileRes.status !== 200 && downloadFileRes.status !== 500) {
 		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {
 			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
@@ -205,16 +210,19 @@ $(".fo-dl-btn").on("click", async function () {
 	} else {
 		const errorHTML =
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
-		downloadSpinner.removeClass("spinner-border");
+    downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	}
-	setTimeout(() => downloadModal.modal("hide"), 3000);
+
+	setTimeout(() => downloadModal.modal("hide"), 2000);
+	$(window).off("beforeunload");
+	return;
 });
 
 // download individual file/folder
 $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
-  const pathTexts = $(".path-text")
+	const pathTexts = $(".path-text")
 		.map(function () {
 			return $(this).text().trim();
 		})
@@ -239,18 +247,21 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 	downloadError.html();
 
 	const downloadFileRes = await downloadShareFo(shareToken, desired);
-  $(window).on("beforeunload", function () {
-    return "Downloading will be interrupted";
-  });
+	$(window).on("beforeunload", function () {
+		return "Downloading will be interrupted";
+	});
 
-	if (downloadFileRes.status === 200) {
+	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-		setTimeout(() => downloadModal.modal("hide"), 100);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
-    $(window).off("beforeunload");
-		return;
 
-	} else if (downloadFileRes.status !== 500) {
+		await delay(100);
+		downloadModal.modal("hide");
+		await delay(100);
+		window.open(downloadFileRes.downloadUrl, "_blank");
+
+		$(window).off("beforeunload");
+		return;
+	} else if (downloadFileRes.status !== 200 && downloadFileRes.status !== 500) {
 		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {
 			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
@@ -262,7 +273,6 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
-
 	} else {
 		const errorHTML =
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
@@ -272,6 +282,6 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 	}
 
 	setTimeout(() => downloadModal.modal("hide"), 2000);
-  $(window).off("beforeunload");
-  return;
+	$(window).off("beforeunload");
+	return;
 });

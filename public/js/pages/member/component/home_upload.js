@@ -1,5 +1,5 @@
 import { uploadFile } from "../../../api/upload.js";
-import { traverseDirectory, notiCard } from "../../../util/util.js";
+import { delay, traverseDirectory, notiCard } from "../../../util/util.js";
 
 const blankNoti = notiCard("Cannot upload empty file or folder", 265);
 const fileNameLengthNoti = notiCard(
@@ -126,8 +126,12 @@ $(function () {
     console.log("check");
     modalObj.uploadSpinner.removeClass("spinner-border");
 		modalObj.uploadComplete.show();
-		setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
-		setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
+		// setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
+		// setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
+    await delay(100);
+    modalObj.uploadStatus.text("Complete!");
+    await delay(1500);
+    modalObj.uploadModal.modal("hide");
     
     $(window).off("beforeunload");
     return;
@@ -216,8 +220,12 @@ async function submitForm(form, input) {
     console.log("check");
     modalObj.uploadSpinner.removeClass("spinner-border");
 		modalObj.uploadComplete.show();
-		setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
-		setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
+		// setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
+		// setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
+    await delay(100);
+    modalObj.uploadStatus.text("Complete!");
+    await delay(1500);
+    modalObj.uploadModal.modal("hide");
     
     $(window).off("beforeunload");
     return;

@@ -1,7 +1,7 @@
 import { getFileHistory } from "../../api/list.js";
 import { restoreFile } from "../../api/restore.js";
 import { singleDownloadFile } from "../../api/download.js";
-import { formatTime, capitalizeFirstLetter } from "../../util/util.js";
+import { formatTime, delay, capitalizeFirstLetter } from "../../util/util.js";
 import { socket } from "../../util/socket.js";
 // ===================================================
 
@@ -221,24 +221,16 @@ $("#history-download").on("click", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-		setTimeout(() => downloadModal.modal("hide"), 100);
-		// function closeModal(modal) {
-		// 	modal.on("shown.bs.modal", function (e) {
-		// 		modal.modal("hide");
-		// 	});
-		// }
-    // setTimeout(() => closeModal(downloadModal), 100);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
+    
+    await delay(100);
+    downloadModal.modal("hide");
+		await delay(100);
+		window.open(downloadFileRes.downloadUrl, "_blank");
+
 		$(window).off("beforeunload");
 		return;
-	} else if (!downloadFileRes.downloadUrl) {
-		downloadSpinner.removeClass("spinner-border");
-		downloadStatus.text("");
-		downloadError.html(
-			"<span>Opps! Something went wrong. Please try later or contact us.</span>"
-		);
-	} else if (downloadFileRes.status !== 500) {
-		let errorHTML;
+	} else if (downloadFileRes.status !== 200 && downloadFileRes.status !== 500) {
+    let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {
 			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
 		} else {
