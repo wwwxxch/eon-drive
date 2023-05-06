@@ -203,13 +203,13 @@ const checkPendingFileStatus = async (user_id, token) => {
   }
 };
 
-const getFoldersInfoByPath = async(folders, user_id) => {
+const getFoldersInfoByPath = async(folders, user_id/*, delete_status*/) => {
   // sprint 5
   try {
     const [row] = await pool.query(`
       SELECT id, parent_id, name FROM ff 
-      WHERE name IN (?) AND type = "folder" AND is_delete = 0 AND user_id = ? 
-    `, [folders, user_id]);
+      WHERE name IN (?) AND type = "folder" AND user_id = ?
+    `, [folders, user_id/*, delete_status*/]);
 
     return row;
   } catch (e) {

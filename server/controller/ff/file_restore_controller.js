@@ -215,6 +215,7 @@ const restoreDeleted = async (req, res, next) => {
 
 	// emit new list
 	const io = req.app.get("socketio");
+  // TODO: main list can also be updated?
 	emitTrashList(io, userId);
 	emitUsage(io, userId, req.session.user);
 

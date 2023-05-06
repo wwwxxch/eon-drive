@@ -40,6 +40,7 @@ const getDownloadUrl = async (
 	
 };
 
+// TODO: update for download feature (as lambda)
 // download files to local
 const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
 	try {
@@ -141,51 +142,56 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 
 	const fileSize = fs.statSync(localZip).size;
 	console.log("fileSize: ", fileSize);
+	try {
+		// upload zip to S3
+		if (fileSize < CHUNK_SIZE) {
+			console.log("zipToS3 - one zip general upload");
+			const putcommand = new PutObjectCommand({
+				Body: fs.createReadStream(localZip),
+				Bucket: bucket,
+				Key: key,
+			});
+			const putZip = await client.send(putcommand);
+			console.log("putZip: ", putZip);
+		} else {
+			console.log("zipToS3 - one zip multipart upload");
+			const largeUploadRes = await largeUpload(
+				client,
+				bucket,
+				key,
+				localZip,
+				fileSize
+			);
+			console.log("largeUploadRes: ", largeUploadRes);
+		}
 
-	// upload zip to S3
-	if (fileSize < CHUNK_SIZE) {
-    console.log("zipToS3 - one zip general upload");
-		const putcommand = new PutObjectCommand({
-			Body: fs.createReadStream(localZip),
+		// add Tag
+		// const puttaggingcommand = new PutObjectTaggingCommand({
+		// 	Bucket: bucket,
+		// 	Key: key,
+		// 	Tagging: {
+		// 		TagSet: [
+		// 			{
+		// 				Key: "zip",
+		// 				Value: "download",
+		// 			},
+		// 		],
+		// 	},
+		// });
+		// const putZipTag = await client.send(puttaggingcommand);
+		// console.log("putZipTag: ", putZipTag);
+
+		// get URL to download
+		const getcommand = new GetObjectCommand({
 			Bucket: bucket,
 			Key: key,
 		});
-		const putZip = await client.send(putcommand);
-		console.log("putZip: ", putZip);
-	} else {
-    console.log("zipToS3 - one zip multipart upload");
-		const largeUploadRes = await largeUpload(
-			client,
-			bucket,
-			key,
-			localZip,
-			fileSize
-		);
-		console.log("largeUploadRes: ", largeUploadRes);
-	}
-  
-  // add Tag
-  const puttaggingcommand = new PutObjectTaggingCommand({
-    Bucket: bucket,
-    Key: key,
-    Tagging: {
-      TagSet: [
-        {
-          Key: "zip",
-          Value: "download"
-        }
-      ]
-    }
-  });
-  const putZipTag = await client.send(puttaggingcommand);
-  console.log("putZipTag: ", putZipTag);
-
-	// get URL to download
-	const getcommand = new GetObjectCommand({
-		Bucket: bucket,
-		Key: key,
-	});
-	return await getSignedUrl(client, getcommand, 300);
+    const url = await getSignedUrl(client, getcommand, 300);
+		return url;
+	} catch (e) {
+    console.error("zipToS3: ", e);
+    return null;
+  }
 };
 
 export { getDownloadUrl, getObjSave, zipFiles, zipToS3 };
