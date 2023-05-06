@@ -12,7 +12,12 @@
         div {
           /* border: 1px dashed; */
         }
-
+        .h4.file-name {
+          color: grey;
+          width: 70%;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
         .rec:hover {
           background-color: rgb(248, 248, 248);
         }
@@ -104,15 +109,17 @@
                 <!-- </div> -->
                 </a>
               </div>
-              <div class="d-flex justify-content-between pb-3" style="width: 100%;">
-                <div class="d-flex ">
+              <div class="d-flex justify-content-between pb-3">
+                <div class="d-flex" style="width: 70vw;">
                   <h4>Version history : </h4>
-                  <h4 class="ps-2 file-name" data-id="<%= fileId %>" style="color: grey;">
+                  <div class="h4 ps-2 file-name" data-id="<%= fileId %>">
                     <%= fileName %>
-                  </h4>
+                  </div>
                 </div>
                 <div class="me-5">
-                  <button class="btn custom-operation-btn" id="history-download">Download</button>
+                  <button class="btn custom-operation-btn" id="history-download">
+                    Download
+                  </button>
                 </div>
               </div>
               <div class="d-flex align-items-center pb-3">
