@@ -106,3 +106,18 @@ socket.on("sharenoti", (data) => {
 	$("#noti-ul").empty();
 	notiList(data);
 });
+
+
+// const place = window.location.pathname.split("/")[1];
+// console.log("place: ", place);
+
+// // left sidebar
+// if (place === "home") {
+//   $(".bi-folder").addClass("left-svg-active");
+// } else if (place === "shared") {
+//   $(".bi-people").addClass("left-svg-active");
+// } else if (place === "links") {
+//   $(".bi-link-45deg").addClass("left-svg-active");
+// } else if (place === "trash") {
+//   $(".bi-trash").addClass("left-svg-active");
+// }
