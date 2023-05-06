@@ -27,7 +27,7 @@ exports.handler = async (event) => {
 			(item) => `user_${userId}/${item}`
 		);
 
-		// save objects
+		// 1. save objects
 		const saveToLocal = await getObjSave(
 			s3clientGeneral,
 			S3_MAIN_BUCKET_NAME,
@@ -35,12 +35,18 @@ exports.handler = async (event) => {
 			finalListNoVer
 		);
 		console.log("saveToLocal: ", saveToLocal);
+		if (!saveToLocal) {
+			throw new Error("getObjSave error");
+		}
 
-		// create zip
+		// 2. create zip
 		const createZip = await zipFiles(finalListNoVer, parentPath, parentName);
 		console.log("createZip: ", createZip);
+		if (!createZip) {
+			throw new Error("zipFiles error");
+		}
 
-		// upload zip to S3 and get the presigned URL
+		// 3. upload zip to S3 and get the presigned URL
 		const getZipUrl = await zipToS3(
 			userId,
 			s3clientDownload,
@@ -48,8 +54,11 @@ exports.handler = async (event) => {
 			parentName
 		);
 		console.log("getZipUrl: ", getZipUrl);
+		if (getZipUrl.status !== 200) {
+			throw new Error(getZipUrl.error);
+		}
 
-		// delete files
+		// 4. delete files
 		for (let i = 0; i < finalListNoVer.length; i++) {
 			const deletefile = await deleteLocal(
 				`/tmp/${finalListNoVer[i].split("/").join("_")}`
@@ -58,9 +67,10 @@ exports.handler = async (event) => {
 		}
 		const deleteZip = await deleteLocal(`/tmp/${parentName}.zip`);
 		console.log(deleteZip);
-		return { downloadUrl: getZipUrl };
+
+		return { status: 200, downloadUrl: getZipUrl.url };
 	} catch (e) {
 		console.error("lambda zipfiles: ", e);
-		return { err: "something wrong" };
+		return { status: 500, error: e };
 	}
 };

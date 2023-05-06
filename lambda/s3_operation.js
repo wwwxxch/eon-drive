@@ -37,18 +37,22 @@ const getCompleteUrl = async (
 
 // upload large file (zip)
 const largeUpload = async (client, bucket, key, localPath, fileSize) => {
-	// Create Multipart Upload & Get uploadId
-	const cmdCreateMultipartUpload = new CreateMultipartUploadCommand({
-		Bucket: bucket,
-		Key: key,
-	});
-	const multipartUpload = await client.send(cmdCreateMultipartUpload);
-	console.log("largeUpload: multipartUpload: ", multipartUpload);
-	// Upload Parts
-	const uploadId = multipartUpload.UploadId;
+	console.log("check: largeUpload: ", bucket, key, localPath, fileSize);
 	try {
+		// Create Multipart Upload & Get uploadId
+		const cmdCreateMultipartUpload = new CreateMultipartUploadCommand({
+			Bucket: bucket,
+			Key: key,
+		});
+
+		const multipartUpload = await client.send(cmdCreateMultipartUpload);
+		console.log("largeUpload: multipartUpload: ", multipartUpload);
+
+		// Upload Parts
+		const uploadId = multipartUpload.UploadId;
 		const uploadPromises = [];
 		const partCount = Math.ceil(fileSize / parseInt(CHUNK_SIZE));
+
 		for (let i = 0; i < partCount; i++) {
 			const start = i * parseInt(CHUNK_SIZE);
 			const end = Math.min(start + parseInt(CHUNK_SIZE), fileSize);
@@ -96,25 +100,26 @@ const largeUpload = async (client, bucket, key, localPath, fileSize) => {
 			headers: { "Content-Type": "application/xml" },
 			body: xmlBody,
 		});
-		// console.log(completeMulripart);
+		console.log("completeMultipart: ", completeMultipart);
 		return completeMultipart.status;
 	} catch (e) {
 		console.error("largeUpload: ", e);
 
 		// Abort Multipart
-		if (uploadId) {
-			const abortCommand = new AbortMultipartUploadCommand({
-				Bucket: bucket,
-				Key: key,
-				UploadId: uploadId,
-			});
-			const abort = await client.send(abortCommand);
-			console.log("abort: ", abort);
-		}
+		// if (uploadId) {
+		// 	const abortCommand = new AbortMultipartUploadCommand({
+		// 		Bucket: bucket,
+		// 		Key: key,
+		// 		UploadId: uploadId,
+		// 	});
+		// 	const abort = await client.send(abortCommand);
+		// 	console.log("abort: ", abort);
+		// }
+		return e["$metadata"].httpStatusCode;
 	}
 };
 
-// download files to local
+// step 1. getObjSave - download files to local
 const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
 	try {
 		let tmpLocalName;
@@ -143,10 +148,10 @@ const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
 							resolve();
 						})
 						.on("error", (err) => {
-							console.error(
-								`get S3 object to local ${tmpDir}/${tmpLocalName} error occurred`
+							reject(
+								`get S3 object to local ${tmpDir}/${tmpLocalName} error: ${err}`
 							);
-							reject(err);
+							// reject(err);
 						});
 				})
 			);
@@ -160,18 +165,19 @@ const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
 	}
 };
 
-// archive local files
+// step 2. zipFiles - archive local files
 const zipFiles = async (fileArray, parentPath, parentName) => {
 	try {
+		// 1. create zip file & write stream
 		const archive = archiver("zip", { zlib: { level: 9 } });
 		const output = fs.createWriteStream(`${tmpDir}/${parentName}.zip`);
 		archive.on("error", (err) => {
-			throw err;
+			throw new Error(`archive error: ${err}`);
 		});
 		archive.pipe(output);
 		const parentPathModified = parentPath.replace(/\/$/, "").replace(/^\//, "");
 		const appendPromises = [];
-		// append files
+		// 2. read stream & append files
 		for (let i = 0; i < fileArray.length; i++) {
 			let pathInZip;
 			if (parentPathModified === "") {
@@ -179,10 +185,13 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 			} else {
 				pathInZip = fileArray[i].slice(parentPathModified.length + 1);
 			}
-			const promise = new Promise((resolve) => {
+			const promise = new Promise((resolve, reject) => {
 				const stream = fs.createReadStream(
 					`${tmpDir}/${fileArray[i].split("/").join("_")}`
 				);
+				stream.on("error", (err) => {
+					reject(`Error reading file ${fileArray[i]}: ${err}`);
+				});
 				stream.on("close", () => {
 					console.log(`File ${pathInZip} appended to archive`);
 					resolve();
@@ -191,8 +200,11 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 			});
 			appendPromises.push(promise);
 		}
-		// finish zip
-		const zipPromise = new Promise((resolve) => {
+		// 3. finish zip
+		const zipPromise = new Promise((resolve, reject) => {
+			output.on("error", (err) => {
+				reject(`Error creating zip file: ${err}`);
+			});
 			output.on("finish", () => {
 				console.log("Archive finished");
 				resolve();
@@ -208,58 +220,70 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 	}
 };
 
-// send zip file to S3
+// step 3. zipToS3 - send zip file to S3
 const zipToS3 = async (userId, client, bucket, parentName) => {
 	const localZip = `${tmpDir}/${parentName}.zip`;
 	const key = `user_${userId}/${parentName}.zip`;
 
 	const fileSize = fs.statSync(localZip).size;
-	console.log("fileSize: ", fileSize);
+	console.log("fileSize: ", fileSize, " bytes");
+	if (fileSize > 4 * 1024 * 1024 * 1024) {
+		throw new Error("file size exceeds 4 GB");
+	}
 
-	// upload zip to S3
-	if (fileSize < CHUNK_SIZE) {
-		console.log("zipToS3 - one zip general upload");
-		const putcommand = new PutObjectCommand({
-			Body: fs.createReadStream(localZip),
+	try {
+		// upload zip to S3
+		if (fileSize < CHUNK_SIZE) {
+			console.log("zipToS3 - single upload");
+			const putcommand = new PutObjectCommand({
+				Body: fs.createReadStream(localZip),
+				Bucket: bucket,
+				Key: key,
+			});
+			const putZip = await client.send(putcommand);
+			console.log("putZip: ", putZip);
+		} else {
+			console.log("zipToS3 - multipart upload");
+			const largeUploadRes = await largeUpload(
+				client,
+				bucket,
+				key,
+				localZip,
+				fileSize
+			);
+			console.log("largeUploadRes: ", largeUploadRes);
+			if (largeUploadRes !== 200) {
+				throw new Error("largeUpload failed");
+			}
+		}
+
+		// add Tag
+		// const puttaggingcommand = new PutObjectTaggingCommand({
+		// 	Bucket: bucket,
+		// 	Key: key,
+		// 	Tagging: {
+		// 		TagSet: [
+		// 			{
+		// 				Key: "zip",
+		// 				Value: "download",
+		// 			},
+		// 		],
+		// 	},
+		// });
+		// const putZipTag = await client.send(puttaggingcommand);
+		// console.log("putZipTag: ", putZipTag);
+
+		// get URL to download
+		const getcommand = new GetObjectCommand({
 			Bucket: bucket,
 			Key: key,
 		});
-		const putZip = await client.send(putcommand);
-		console.log("putZip: ", putZip);
-	} else {
-		console.log("zipToS3 - one zip multipart upload");
-		const largeUploadRes = await largeUpload(
-			client,
-			bucket,
-			key,
-			localZip,
-			fileSize
-		);
-		console.log("largeUploadRes: ", largeUploadRes);
+		const url = await getSignedUrl(client, getcommand, 300);
+		return { status: 200, url };
+	} catch (e) {
+		console.error("zipToS3: ", e);
+		return { status: 500, error: e };
 	}
-
-	// add Tag
-	const puttaggingcommand = new PutObjectTaggingCommand({
-		Bucket: bucket,
-		Key: key,
-		Tagging: {
-			TagSet: [
-				{
-					Key: "zip",
-					Value: "download",
-				},
-			],
-		},
-	});
-	const putZipTag = await client.send(puttaggingcommand);
-	console.log("putZipTag: ", putZipTag);
-
-	// get URL to download
-	const getcommand = new GetObjectCommand({
-		Bucket: bucket,
-		Key: key,
-	});
-	return await getSignedUrl(client, getcommand, 300);
 };
 
 module.exports = { getObjSave, zipFiles, zipToS3 };
