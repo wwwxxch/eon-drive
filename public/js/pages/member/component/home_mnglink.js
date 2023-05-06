@@ -55,7 +55,7 @@ $("#list-table").on("click", ".get-link", async function () {
 		$("#current-access-list").append(`
       <div>Only you</div>
     `);
-    $("label[for='access-user']").text("Users");
+    $("label[for='access-user']").text("Eon Drive Users");
 	} else if (shareStatus.is_public === 1) {
 		$("#current-access-list").append(`
       <div>Anyone knows the link</div>
@@ -65,7 +65,7 @@ $("#list-table").on("click", ".get-link", async function () {
         </a>
       </div>
     `);
-		$("label[for='access-user']").text("Users");
+		$("label[for='access-user']").text("Eon Drive Users");
 	} else if (shareStatus.acl.length > 0) {
 		const userDiv = shareStatus.acl
 			.map((item) => {
@@ -87,7 +87,7 @@ $("#list-table").on("click", ".get-link", async function () {
           </a>
         </div>
       `);
-    $("label[for='access-user']").text("More Users");
+    $("label[for='access-user']").text("More Eon Drive Users");
 	}
 
 	// input user email
