@@ -24,6 +24,11 @@ function formatTime(timestamp, format = "yyyy-MM-dd HH:mm:ss") {
 }
 
 // ==========================================================================
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ==========================================================================
 class ModifiedFile {
 	constructor(file, relativePath) {
 		this.file = file;
@@ -109,6 +114,7 @@ function isValidEmail(email) {
 export {
 	splitFileIntoChunks,
 	formatTime,
+  delay,
 	traverseDirectory,
 	notiCard,
 	copyToClipboard,
