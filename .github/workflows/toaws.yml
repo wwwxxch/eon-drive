@@ -8,6 +8,7 @@ on:
       - 'feature_*'
       - 'fix_*'
       - 'demo_*'
+      - 'testing_*'
       - 'develop'
 
 jobs:

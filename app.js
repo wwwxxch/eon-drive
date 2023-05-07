@@ -96,7 +96,9 @@ app.use(
 // ---------------------------------------------------
 // Simple check
 app.get("/check", (req, res) => {
-	console.log("/check");
+  if (Date.now() % 10 === 0) {
+    console.log("/check");
+  }
 	return res.send("ok");
 });
 

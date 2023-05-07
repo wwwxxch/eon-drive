@@ -27,7 +27,8 @@ const socketConn = (io) => {
       */
       // TODO: errors may occur
 			if (reason === "ping timeout") {
-				socket.socket.reconnect();
+				// socket.socket.reconnect();
+        
 			}
 		});
 	});
