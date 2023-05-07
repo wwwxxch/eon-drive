@@ -103,6 +103,17 @@ const createFolderValid = [
 		.withMessage("Folder name is not valid"),
 ];
 
+const renameValid = [
+  body("newName")
+    .trim()
+    .notEmpty()
+		.withMessage("Name cannot be empty")
+		.isLength({ max: 255 })
+		.withMessage("Length cannot exceed 255 characters")
+		.matches(regexForFFName)
+		.withMessage("Name is not valid"),
+];
+
 const downloadValid = [
 	body("parentPath")
 		.trim()
@@ -215,6 +226,7 @@ export {
 	signinValid,
 	uploadValid,
 	createFolderValid,
+  renameValid,
 	downloadValid,
 	deleteValid,
 	permDeleteValid,

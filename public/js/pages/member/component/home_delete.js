@@ -31,6 +31,7 @@ $("#delete-btn").on("click", async function () {
     selected.prop("checked", false);
     $("#delete-btn-div").hide();
     $("#download-btn-div").hide();
+    $("#rename-btn-div").hide();
 
     let text;
     if (toDelete.length > 1) {

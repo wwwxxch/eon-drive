@@ -24,9 +24,11 @@
           justify-content: center;
           align-items: center;
         }
+
         #drag-drop-box:hover {
           cursor: pointer;
         }
+
         #drag-drop-zone.drag-over {
           border: 2px dashed rgb(13, 110, 253);
           border-radius: 10px;
@@ -36,10 +38,12 @@
           border: 2px dashed rgb(13, 110, 253);
           background-color: rgb(245, 245, 245);
         }
+
         #upload-box-click {
           color: grey;
           font-size: medium;
         }
+
         .slash {
           padding: 0 6px 3px;
           font-size: larger;
@@ -52,6 +56,7 @@
         .form-check-input {
           border-color: darkgray;
         }
+
         /* .list-checkbox, #select-all {
           width: 12px;
           height: 12px;
@@ -96,7 +101,7 @@
         .links-item {
           color: black;
         }
-        
+
         /* .links-item:active {
           background-color: darkgrey;
         } */
@@ -364,6 +369,35 @@
                       </div>
                     </div>
                   </div>
+                  <!-- Rename Button -->
+                  <div class="me-3" style="display: none;" id="rename-btn-div">
+                    <button id="rename" type="button" class="btn custom-operation-btn" data-bs-toggle="modal"
+                      data-bs-target="#renameModal">Rename</button>
+                  </div>
+                  <!-- Rename Modal -->
+                  <div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-body">
+                          <div class="d-flex justify-content-between mb-4">
+                            <h5 class="modal-title" id="renameModalLabel">Rename</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <form id="rename-form">
+                            <div class="mb-3">
+                              <input type="text" class="form-control" id="rename-ff-name" name="renameFF">
+                            </div>
+                            <input type="hidden" id="checkboxValue">
+                          </form>
+                          <div class="d-flex justify-content-end pt-3">
+                            <button type="button" class="btn btn-custom-yes ms-2" id="rename-btn">Rename</button>
+                            <button type="button" class="btn btn-custom-no ms-2" data-bs-dismiss="modal">Cancel</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <!-- Download Button -->
                   <div class="me-3" style="display: none;" id="download-btn-div">
                     <button type="button" class="btn custom-operation-btn" id="download-btn">Download</button>
@@ -508,13 +542,17 @@
               </div>
               <!-- Modal for copy link prompt end -->
               <!-- Modal for waiting -->
-              <div class="modal fade" id="waitingModal" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static">
+              <div class="modal fade" id="waitingModal" tabindex="-1" role="dialog" aria-hidden="true"
+                data-bs-backdrop="static">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-body">
                       <div class="d-flex justify-content-between">
-                        <div><h5 id="waiting-status" class="pb-3"></h5></div>
-                        <button type="button" id="waiting-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div>
+                          <h5 id="waiting-status" class="pb-3"></h5>
+                        </div>
+                        <button type="button" id="waiting-close" class="btn-close" data-bs-dismiss="modal"
+                          aria-label="Close"></button>
                       </div>
                       <div class="text-center pb-3">
                         <div id="waiting-spinner" class="spinner-border text-secondary" role="status">
@@ -577,6 +615,7 @@
   <script type="module" src="/js/pages/member/home.js"></script>
   <script type="module" src="/js/pages/member/component/home_download.js"></script>
   <script type="module" src="/js/pages/member/component/home_delete.js"></script>
+  <!-- <script type="module" src="/js/pages/member/component/home_rename.js"></script> -->
   <script type="module" src="/js/pages/member/component/home_upload.js"></script>
   <script type="module" src="/js/pages/member/component/home_createfolder.js"></script>
   <script type="module" src="/js/pages/member/component/home_mnglink.js"></script>

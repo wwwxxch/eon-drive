@@ -31,6 +31,7 @@ $("#download-btn").click(async function () {
 	checkboxes.prop("checked", false);
 	$("#delete-btn-div").hide();
 	$("#download-btn-div").hide();
+  $("#rename-btn-div").hide();
 
 	$(window).on("beforeunload", function () {
 		return "Downloading will be interrupted";

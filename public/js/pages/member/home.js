@@ -1,6 +1,8 @@
 import { getFileList } from "../../api/list.js";
 import { formatTime } from "../../util/util.js";
 import { socket } from "../../util/socket.js";
+import { renameFF } from "../../api/rename.js";
+import { notiCard } from "../../util/util.js";
 
 const threedotsSVG = `
   <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" class="bi bi-three-dots links-operation-svg"
@@ -71,7 +73,7 @@ const percent = (usedNum / allocatedNum) * 100;
 $(".usage-progress").css("width", percent + "%");
 $(".usage-progress").attr("aria-valuenow", percent);
 if (percent <= 50) {
-  $(".progress-bar").css("background-color", "#519cf6");
+	$(".progress-bar").css("background-color", "#519cf6");
 } else if (percent > 50 && percent < 90) {
 	$(".progress-bar").css("background-color", "#d69f65");
 } else if (percent >= 90) {
@@ -114,20 +116,20 @@ function showList(obj) {
 			{
 				data: "name",
 				render: function (data, type, row, meta) {
-          let icon;
-          let ffSpan;
+					let icon;
+					let ffSpan;
 					if (row.type === "folder") {
-            icon = folderSVG;
+						icon = folderSVG;
 						ffSpan = `<span class="${row.type} ff_name" data-id="${row.id}">${data}</span>`;
 					} else {
-            icon = fileSVG;
+						icon = fileSVG;
 						const uri = path === "" ? data : `${path}/${data}`;
 						ffSpan = `<a class="file-link" href="/history/${uri}">
                       <span class="${row.type} ff_name" data-id="${row.id}">${data}</span>
                       </a>
                     `;
 					}
-          return `
+					return `
             <div class="d-flex align-items-center ff_name-div">
               <div>${icon}</div>
               <div class="text-break">${ffSpan}</div>
@@ -140,7 +142,7 @@ function showList(obj) {
 				render: function (data, type, row, meta) {
 					const time = row.type === "folder" ? "-" : formatTime(data);
 					const disabledAttr = row.is_shared === 1 ? "" : "disabled";
-          const div = `
+					const div = `
             <div class="d-flex justify-content-between">
               <div class="d-flex align-items-center">
                 <div>${time}</div>
@@ -158,26 +160,26 @@ function showList(obj) {
             </div>
           `;
 					// const div = `
-          //   <div class="d-flex justify-content-between">
-          //     <div class="d-flex align-items-center">
-          //       <div>${time}</div>
-          //     </div>
-          //     <div class="dropdown">
-          //       <button class="btn btn-link links-operation"  type="button" id="linksOperationMenu"
-          //         data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          //         ${threedotsSVG}
-          //       </button>
-          //       <div class="dropdown-menu" aria-labelledby="linksOperationMenu">
-          //         <button type="button" class="dropdown-item links-item get-link"
-          //           data-bs-toggle="modal" data-bs-target="#getLinkModal">
-          //           Get Link</button>
-          //         <button type="button" class="dropdown-item links-item revoke-link"
-          //           data-bs-toggle="modal" data-bs-target="#revokeLinkModal" ${disabledAttr}>
-          //           Revoke Link</button>
-          //       </div>
-          //     </div>
-          //   </div>
-          // `;
+					//   <div class="d-flex justify-content-between">
+					//     <div class="d-flex align-items-center">
+					//       <div>${time}</div>
+					//     </div>
+					//     <div class="dropdown">
+					//       <button class="btn btn-link links-operation"  type="button" id="linksOperationMenu"
+					//         data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					//         ${threedotsSVG}
+					//       </button>
+					//       <div class="dropdown-menu" aria-labelledby="linksOperationMenu">
+					//         <button type="button" class="dropdown-item links-item get-link"
+					//           data-bs-toggle="modal" data-bs-target="#getLinkModal">
+					//           Get Link</button>
+					//         <button type="button" class="dropdown-item links-item revoke-link"
+					//           data-bs-toggle="modal" data-bs-target="#revokeLinkModal" ${disabledAttr}>
+					//           Revoke Link</button>
+					//       </div>
+					//     </div>
+					//   </div>
+					// `;
 					return div;
 				},
 			},
@@ -261,22 +263,22 @@ socket.on("listupd", (data) => {
 });
 
 socket.on("usageupd", (data) => {
-  console.log("socket.on usageupd: ", data);
+	console.log("socket.on usageupd: ", data);
 	const usedNum = parseInt(data.used);
 	const allocatedNum = parseInt(data.allocated);
 	const percent = (usedNum / allocatedNum) * 100;
-  console.log("percent: ", percent);
+	console.log("percent: ", percent);
 
 	$(".usage-progress").css("width", percent + "%");
 	$(".usage-progress").attr("aria-valuenow", percent);
 
-  if (percent <= 50) {
-    $(".progress-bar").css("background-color", "#519cf6");
-  } else if (percent > 50 && percent < 90) {
-    $(".progress-bar").css("background-color", "#d69f65");
-  } else if (percent >= 90) {
-    $(".progress-bar").css("background-color", "#c22f2f");
-  }
+	if (percent <= 50) {
+		$(".progress-bar").css("background-color", "#519cf6");
+	} else if (percent > 50 && percent < 90) {
+		$(".progress-bar").css("background-color", "#d69f65");
+	} else if (percent >= 90) {
+		$(".progress-bar").css("background-color", "#c22f2f");
+	}
 
 	const numerator = Math.round((usedNum / (1024 * 1024)) * 100) / 100;
 	const denominator = allocatedNum / (1024 * 1024);
@@ -302,8 +304,7 @@ $("#list-table").on("click", ".folder", async function () {
 	console.log("pathTexts: ", pathTexts);
 	console.log("uri: ", uri);
 	history.pushState({}, "", `/home/${uri}`);
-  // history.replaceState({}, "", `/home/${uri}`);
-
+	// history.replaceState({}, "", `/home/${uri}`);
 
 	// clear file list and get file list under current folder
 	const newPath = `${pathTexts}/${dirName}`;
@@ -361,17 +362,86 @@ $(window).on("popstate", async function () {
 // checkbox
 $("#list-table").on("change", "input[name='list-checkbox']", function () {
 	const selected = $("input[name='list-checkbox']:checked");
-	const selectedVal = selected.toArray().map((item) => item.value);
-	// console.log("block: ", selectedVal);
-	if (selected.length === 1 && !selectedVal[0].endsWith("/")) {
+	// const selectedVal = selected.toArray().map((item) => item.value);
+	// console.log("selectedVal: ", selectedVal);
+	if (selected.length === 1 /*&& !selectedVal[0].endsWith("/")*/) {
 		$("#delete-btn-div").show();
 		$("#download-btn-div").show();
+		$("#rename-btn-div").show();
+    console.log("selected: ", selected);
+    const ff_id = selected
+				.closest("tr")
+				.find(".ff_name")
+				.data("id");
+    console.log("ff_id: ", ff_id);
+
+		const ffNameLengthNoti = notiCard(
+			"Name should be 1 - 255 characters long",
+			343
+		);
+		const ffNameRegexNoti = notiCard(
+			"Name is invalid.<br>Only below characters are allowed: &nbsp <b>_-.@$</b>",
+			313
+		);
+
+		const renameSuccessNoti = notiCard("Renamed successfully", 210);
+		const ffRegex = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ ]+$/;
+
+		// Rename
+		$("#rename-btn").on("click", async function () {
+			const currentPath = $(".path-text")
+				.map(function () {
+					return $(this).text().trim();
+				})
+				.get()
+				.join("/");
+			const renameName = $("#rename-ff-name").val().trim();
+			console.log("rename currentPath: ", currentPath);
+			console.log("rename ff_id: ", ff_id);
+			console.log("rename renameName: ", renameName);
+
+			if (renameName.length > 255 || renameName.length < 1) {
+				ffNameLengthNoti.show();
+				$("#create-folder-name").val("");
+				return;
+			}
+			if (!renameName.match(ffRegex)) {
+				ffNameRegexNoti.show();
+				$("#create-folder-name").val("");
+				return;
+			}
+
+			// const renameRes = await renameFF(currentPath, renameName);
+			// console.log("renameRes: ", renameRes);
+			// if (renameRes.status !== 200) {
+			// 	$("#renameModal").modal("hide");
+			// 	$("#rename-ff-name").val("");
+			// 	let errorHTML;
+			// 	if (typeof renameRes.data.error === "string") {
+			// 		errorHTML = `<span>${renameRes.data.error}</span>`;
+			// 	} else {
+			// 		errorHTML = renameRes.data.error
+			// 			.map((err) => `<span>${err}</span>`)
+			// 			.join("");
+			// 	}
+			// 	$("#errorModal").modal("show");
+			// 	$("#error-msg").html(errorHTML);
+			// 	return;
+			// }
+			// $("#renameModal").modal("hide");
+			// $("#rename-ff-name").val("");
+
+			// renameSuccessNoti.show();
+		});
+
 	} else if (selected.length > 0) {
 		$("#delete-btn-div").show();
 		$("#download-btn-div").show();
+		$("#rename-btn-div").hide();
 	} else {
 		$("#delete-btn-div").hide();
 		$("#download-btn-div").hide();
+		$("#rename-btn-div").hide();
 	}
 });
 
@@ -380,10 +450,12 @@ $("#select-all").on("change", function () {
 		$("input[name='list-checkbox']").prop("checked", true);
 		$("#delete-btn-div").show();
 		$("#download-btn-div").show();
+		$("#rename-btn-div").hide();
 	} else {
 		$("input[name='list-checkbox']").prop("checked", false);
 		$("#delete-btn-div").hide();
 		$("#download-btn-div").hide();
+		$("#rename-btn-div").hide();
 	}
 });
 
@@ -393,5 +465,6 @@ $(document).click(function (e) {
 		$("#select-all").prop("checked", false);
 		$("#delete-btn-div").hide();
 		$("#download-btn-div").hide();
+		$("#rename-btn-div").hide();
 	}
 });
