@@ -35,7 +35,7 @@ $(".fi-dl-btn").on("click", async function () {
 		// window.open(downloadFileRes.downloadUrl, "_blank");
 
     downloadModal.modal("hide");
-
+    console.log("close modal outside");
     downloadModal.on("hidden.bs.modal", function () {
       console.log("close modal");
       window.open(downloadFileRes.downloadUrl, "_blank");
