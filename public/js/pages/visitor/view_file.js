@@ -28,22 +28,20 @@ $(".fi-dl-btn").on("click", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-    function hideModalAndOpenFile(downloadFileRes) {
-      return new Promise((resolve, reject) => {
-        try {
-          downloadModal.modal("hide");
-          window.open(downloadFileRes.downloadUrl, "_blank");
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      });
-    }
+
 		// await delay(100);
 		// downloadModal.modal("hide");
 		// await delay(100);
 		// window.open(downloadFileRes.downloadUrl, "_blank");
-    await hideModalAndOpenFile(downloadFileRes);
+
+    const promise = new Promise ((resolve, reject) => {
+      downloadModal.modal("hide");
+      resolve();
+    }).then(() => {
+      setTimeout(() => {}, 500);
+      window.open(downloadFileRes.downloadUrl, "_blank");
+    });
+
 
 		$(window).off("beforeunload");
 		return;

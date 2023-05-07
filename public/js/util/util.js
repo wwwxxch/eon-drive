@@ -25,7 +25,7 @@ function formatTime(timestamp, format = "yyyy-MM-dd HH:mm:ss") {
 
 // ==========================================================================
 function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve(), ms));
 }
 
 // ==========================================================================
