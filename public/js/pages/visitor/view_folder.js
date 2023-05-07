@@ -193,7 +193,7 @@ $(".fo-dl-btn").on("click", async function () {
     downloadStatus.text("Complete!");
     uploadClose.show();
 
-    setTimeout(() => downloadModal.modal("hide"), 100);
+    setTimeout(() => downloadModal.modal("hide"), 500);
 		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
 
 		// await delay(100);
@@ -266,7 +266,7 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
     downloadStatus.text("Complete!");
     uploadClose.show();
 
-    setTimeout(() => downloadModal.modal("hide"), 100);
+    setTimeout(() => downloadModal.modal("hide"), 500);
 		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
 
 		// await delay(100);
