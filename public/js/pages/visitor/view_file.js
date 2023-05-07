@@ -35,10 +35,13 @@ $(".fi-dl-btn").on("click", async function () {
 		// window.open(downloadFileRes.downloadUrl, "_blank");
 
     downloadModal.modal("hide");
+
     downloadModal.on("hidden.bs.modal", function () {
       console.log("close modal");
       window.open(downloadFileRes.downloadUrl, "_blank");
     });
+
+    
 
 		$(window).off("beforeunload");
 		return;

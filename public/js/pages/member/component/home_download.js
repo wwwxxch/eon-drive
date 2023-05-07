@@ -33,16 +33,24 @@ $("#download-btn").click(async function () {
 	$(window).on("beforeunload", function () {
 		return "Downloading will be interrupted";
 	});
-
+  
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
 
-		// setTimeout(() => downloadModal.modal("hide"), 100);
-		// setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
-    await delay(100);
-    downloadModal.modal("hide");
-		await delay(100);
-		window.open(downloadFileRes.downloadUrl, "_blank");
+		setTimeout(() => downloadModal.modal("hide"), 100);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
+
+    // await delay(100);
+    // downloadModal.modal("hide");
+		// await delay(200);
+		// window.open(downloadFileRes.downloadUrl, "_blank");
+
+    // downloadModal.modal("hide");
+
+    // downloadModal.on("hidden.bs.modal", function () {
+    //   console.log("close modal");
+    //   window.open(downloadFileRes.downloadUrl, "_blank");
+    // });
 
 		$(window).off("beforeunload");
 		return;
