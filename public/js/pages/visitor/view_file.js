@@ -34,15 +34,11 @@ $(".fi-dl-btn").on("click", async function () {
 		// await delay(100);
 		// window.open(downloadFileRes.downloadUrl, "_blank");
 
-    const promise = new Promise ((resolve, reject) => {
-      downloadModal.modal("hide");
-      resolve();
-    }).then(() => {
-      setTimeout(() => {
-        window.open(downloadFileRes.downloadUrl, "_blank");
-      }, 500);
+    downloadModal.modal("hide");
+    downloadModal.on("hidden.bs.modal", function () {
+      console.log("close modal");
+      window.open(downloadFileRes.downloadUrl, "_blank");
     });
-
 
 		$(window).off("beforeunload");
 		return;
