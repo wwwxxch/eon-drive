@@ -36,21 +36,24 @@ $("#download-btn").click(async function () {
   
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
+    
+    // v1
+		// setTimeout(() => downloadModal.modal("hide"), 100);
+		// setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
 
-		setTimeout(() => downloadModal.modal("hide"), 100);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
-
+    // v2
     // await delay(100);
     // downloadModal.modal("hide");
 		// await delay(200);
 		// window.open(downloadFileRes.downloadUrl, "_blank");
 
-    // downloadModal.modal("hide");
 
-    // downloadModal.on("hidden.bs.modal", function () {
-    //   console.log("close modal");
-    //   window.open(downloadFileRes.downloadUrl, "_blank");
-    // });
+    // v3
+    downloadModal.modal("hide");
+    downloadModal.on("hidden.bs.modal", function () {
+      console.log("close modal");
+      window.open(downloadFileRes.downloadUrl, "_blank");
+    });
 
 		$(window).off("beforeunload");
 		return;
