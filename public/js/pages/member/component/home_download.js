@@ -42,7 +42,7 @@ $("#download-btn").click(async function () {
     downloadStatus.text("Complete!");
     uploadClose.show();
     // v1
-		setTimeout(() => downloadModal.modal("hide"), 100);
+		setTimeout(() => downloadModal.modal("hide"), 500);
 		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
 
     // v2

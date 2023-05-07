@@ -9,10 +9,10 @@
     <%- include('./partial/script') %>
       <!-- css internal -->
       <style>
-        div {
+        div, h4 {
           /* border: 1px dashed; */
         }
-        .h4.file-name {
+        .file-name {
           color: grey;
           width: 80%;
           word-wrap: break-word;
@@ -36,7 +36,16 @@
           cursor: not-allowed;
         }
 
+        /* .custom-operation-btn:hover {
+          background-color: #f8f5ef;
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        } */
+        .custom-operation-btn {
+          background-color: #f8f5ef;
+        }
+
         .custom-operation-btn:hover {
+          border: none !important;
           background-color: #f8f5ef;
           box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
         }
@@ -87,6 +96,10 @@
         #go-back-link .bi:hover {
           filter: drop-shadow(2px 2px 2px #919191);
         }
+
+        #waiting-spinner svg {
+          transform: scale(3);
+        }
       </style>
 </head>
 
@@ -109,14 +122,14 @@
                 <!-- </div> -->
                 </a>
               </div>
-              <div class="d-flex justify-content-between pb-3">
-                <div class="d-flex" style="width: 70vw;">
-                  <h4>Version history : </h4>
+              <div class="d-flex justify-content-between pb-3" style="width: 100%;">
+                <div class="d-flex" style="width: 88%;">
+                  <div style="width: 20%;"><h4>Version history : </h4></div>
                   <div class="h4 ps-2 file-name" data-id="<%= fileId %>">
                     <%= fileName %>
                   </div>
                 </div>
-                <div class="me-5">
+                <div >
                   <button class="btn custom-operation-btn" id="history-download">
                     Download
                   </button>
@@ -171,8 +184,9 @@
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-body">
-                <div>
-                  <h5 id="waiting-status" class="pb-3"></h5>
+                <div class="d-flex justify-content-between">
+                  <div><h5 id="waiting-status" class="pb-3"></h5></div>
+                  <button type="button" id="waiting-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="text-center pb-3">
                   <div id="waiting-spinner" class="spinner-border text-secondary" role="status">
