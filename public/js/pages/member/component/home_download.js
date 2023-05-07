@@ -25,7 +25,7 @@ $("#download-btn").click(async function () {
 
 	const downloadFileRes = await downloadFile(currentPath, checkboxes);
 	console.log("downloadFileRes: ", downloadFileRes);
-  downloadModal.modal("hide");
+  // downloadModal.modal("hide");
 	checkboxes.prop("checked", false);
 	$("#delete-btn-div").hide();
 	$("#download-btn-div").hide();
@@ -49,21 +49,21 @@ $("#download-btn").click(async function () {
 
 
     // v3
-    // downloadModal.modal("hide");
-    // downloadModal.on("hidden.bs.modal", function () {
-    //   console.log("close modal");
-    //   window.open(downloadFileRes.downloadUrl, "_blank");
-    // });
-
-    Swal.fire({
-      position: 'top-end',
-      icon: false,
-      title: 'download success',
-      showConfirmButton: false,
-      timer: 1500
-    }).then(() => {
+    downloadModal.modal("hide");
+    downloadModal.on("hidden.bs.modal", function () {
+      console.log("close modal");
       window.open(downloadFileRes.downloadUrl, "_blank");
     });
+
+    // Swal.fire({
+    //   position: 'top-end',
+    //   icon: false,
+    //   title: 'download success',
+    //   showConfirmButton: false,
+    //   timer: 1500
+    // }).then(() => {
+    //   window.open(downloadFileRes.downloadUrl, "_blank");
+    // });
 
 
 		$(window).off("beforeunload");
