@@ -81,6 +81,9 @@ $(function () {
 		const uploadComplete = $("#waiting-complete");
 		const uploadError = $("#waiting-error");
 
+    const uploadClose = $("#waiting-close");
+    uploadClose.hide();
+
 		const modalObj = {
 			uploadModal,
 			uploadStatus,
@@ -126,12 +129,12 @@ $(function () {
     console.log("check");
     modalObj.uploadSpinner.removeClass("spinner-border");
 		modalObj.uploadComplete.show();
-		// setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
-		// setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
-    await delay(100);
-    modalObj.uploadStatus.text("Complete!");
-    await delay(1500);
-    modalObj.uploadModal.modal("hide");
+		setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
+		setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
+    // await delay(100);
+    // modalObj.uploadStatus.text("Complete!");
+    // await delay(1500);
+    // modalObj.uploadModal.modal("hide");
     
     $(window).off("beforeunload");
     return;
@@ -179,6 +182,9 @@ async function submitForm(form, input) {
 		const uploadComplete = $("#waiting-complete");
 		const uploadError = $("#waiting-error");
 
+    const uploadClose = $("#waiting-close");
+    uploadClose.hide();
+
 		const modalObj = {
 			uploadModal,
 			uploadStatus,
@@ -217,15 +223,15 @@ async function submitForm(form, input) {
 		}
 
 		// After all files are uploaded, showing the complete message
-    console.log("check");
+    console.log("upload complete");
     modalObj.uploadSpinner.removeClass("spinner-border");
 		modalObj.uploadComplete.show();
-		// setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
-		// setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
-    await delay(100);
-    modalObj.uploadStatus.text("Complete!");
-    await delay(1500);
-    modalObj.uploadModal.modal("hide");
+		setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
+		setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
+    // await delay(100);
+    // modalObj.uploadStatus.text("Complete!");
+    // await delay(1500);
+    // modalObj.uploadModal.modal("hide");
     
     $(window).off("beforeunload");
     return;

@@ -205,12 +205,14 @@ $("#history-download").on("click", async function () {
 	const downloadSpinner = $("#waiting-spinner");
 	const downloadComplete = $("#waiting-complete");
 	const downloadError = $("#waiting-error");
+  const uploadClose = $("#waiting-close");
 
 	downloadModal.modal("show");
 	downloadStatus.text("Downloading...");
 	downloadSpinner.addClass("spinner-border");
 	downloadComplete.hide();
 	downloadError.html();
+  uploadClose.hide();
 
 	const downloadFileRes = await singleDownloadFile(parentPath, [fileWholePath]);
 	console.log("downloadFileRes: ", downloadFileRes);
@@ -221,11 +223,17 @@ $("#history-download").on("click", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
+    downloadComplete.show();
+    downloadStatus.text("Complete!");
+    uploadClose.show();
     
-    await delay(100);
-    downloadModal.modal("hide");
-		await delay(100);
-		window.open(downloadFileRes.downloadUrl, "_blank");
+    setTimeout(() => downloadModal.modal("hide"), 100);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
+
+    // await delay(100);
+    // downloadModal.modal("hide");
+		// await delay(100);
+		// window.open(downloadFileRes.downloadUrl, "_blank");
 
 		$(window).off("beforeunload");
 		return;

@@ -162,6 +162,7 @@ const downloadStatus = $("#waiting-status");
 const downloadSpinner = $("#waiting-spinner");
 const downloadComplete = $("#waiting-complete");
 const downloadError = $("#waiting-error");
+const uploadClose = $("#waiting-close");
 
 // download folder
 $(".fo-dl-btn").on("click", async function () {
@@ -179,6 +180,7 @@ $(".fo-dl-btn").on("click", async function () {
 	downloadSpinner.addClass("spinner-border");
 	downloadComplete.hide();
 	downloadError.html();
+  uploadClose.hide();
 
 	const downloadFileRes = await downloadShareFo(shareToken, pathTexts + "/");
 	$(window).on("beforeunload", function () {
@@ -187,11 +189,17 @@ $(".fo-dl-btn").on("click", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
+    downloadComplete.show();
+    downloadStatus.text("Complete!");
+    uploadClose.show();
 
-		await delay(100);
-		downloadModal.modal("hide");
-		await delay(100);
-		window.open(downloadFileRes.downloadUrl, "_blank");
+    setTimeout(() => downloadModal.modal("hide"), 100);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
+
+		// await delay(100);
+		// downloadModal.modal("hide");
+		// await delay(100);
+		// window.open(downloadFileRes.downloadUrl, "_blank");
 
 		$(window).off("beforeunload");
 		return;
@@ -245,6 +253,7 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 	downloadSpinner.addClass("spinner-border");
 	downloadComplete.hide();
 	downloadError.html();
+  uploadClose.hide();
 
 	const downloadFileRes = await downloadShareFo(shareToken, desired);
 	$(window).on("beforeunload", function () {
@@ -253,14 +262,21 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
+    downloadComplete.show();
+    downloadStatus.text("Complete!");
+    uploadClose.show();
 
-		await delay(100);
-		downloadModal.modal("hide");
-		await delay(100);
-		window.open(downloadFileRes.downloadUrl, "_blank");
+    setTimeout(() => downloadModal.modal("hide"), 100);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
+
+		// await delay(100);
+		// downloadModal.modal("hide");
+		// await delay(100);
+		// window.open(downloadFileRes.downloadUrl, "_blank");
 
 		$(window).off("beforeunload");
 		return;
+
 	} else if (downloadFileRes.status !== 200 && downloadFileRes.status !== 500) {
 		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {

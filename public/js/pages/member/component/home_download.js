@@ -16,16 +16,18 @@ $("#download-btn").click(async function () {
 	const downloadSpinner = $("#waiting-spinner");
 	const downloadComplete = $("#waiting-complete");
 	const downloadError = $("#waiting-error");
+  const uploadClose = $("#waiting-close");
 
 	downloadModal.modal("show");
 	downloadStatus.text("Downloading...");
 	downloadSpinner.addClass("spinner-border");
 	downloadComplete.hide();
 	downloadError.html();
+  uploadClose.hide();
 
 	const downloadFileRes = await downloadFile(currentPath, checkboxes);
 	console.log("downloadFileRes: ", downloadFileRes);
-  // downloadModal.modal("hide");
+
 	checkboxes.prop("checked", false);
 	$("#delete-btn-div").hide();
 	$("#download-btn-div").hide();
@@ -36,10 +38,12 @@ $("#download-btn").click(async function () {
   
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-    
+    downloadComplete.show();
+    downloadStatus.text("Complete!");
+    uploadClose.show();
     // v1
-		// setTimeout(() => downloadModal.modal("hide"), 100);
-		// setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
+		setTimeout(() => downloadModal.modal("hide"), 100);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
 
     // v2
     // await delay(100);
@@ -49,22 +53,11 @@ $("#download-btn").click(async function () {
 
 
     // v3
-    downloadModal.modal("hide");
-    downloadModal.on("hidden.bs.modal", function () {
-      console.log("close modal");
-      window.open(downloadFileRes.downloadUrl, "_blank");
-    });
-
-    // Swal.fire({
-    //   position: 'top-end',
-    //   icon: false,
-    //   title: 'download success',
-    //   showConfirmButton: false,
-    //   timer: 1500
-    // }).then(() => {
+    // downloadModal.modal("hide");
+    // downloadModal.on("hidden.bs.modal", function () {
+    //   console.log("close modal");
     //   window.open(downloadFileRes.downloadUrl, "_blank");
     // });
-
 
 		$(window).off("beforeunload");
 		return;

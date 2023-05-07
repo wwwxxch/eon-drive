@@ -12,12 +12,14 @@ $(".fi-dl-btn").on("click", async function () {
 	const downloadSpinner = $("#waiting-spinner");
 	const downloadComplete = $("#waiting-complete");
 	const downloadError = $("#waiting-error");
+  const uploadClose = $("#waiting-close");
 
 	downloadModal.modal("show");
 	downloadStatus.text("Downloading...");
 	downloadSpinner.addClass("spinner-border");
 	downloadComplete.hide();
 	downloadError.html();
+  uploadClose.hide();
 
 	const downloadFileRes = await downloadShareFi(shareToken);
 	console.log("downloadFileRes: ", downloadFileRes);
@@ -28,20 +30,16 @@ $(".fi-dl-btn").on("click", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
+    downloadComplete.show();
+    downloadStatus.text("Complete!");
+    uploadClose.show();
 
+    setTimeout(() => downloadModal.modal("hide"), 100);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
 		// await delay(100);
 		// downloadModal.modal("hide");
 		// await delay(100);
 		// window.open(downloadFileRes.downloadUrl, "_blank");
-
-    downloadModal.modal("hide");
-    console.log("close modal outside");
-    downloadModal.on("hidden.bs.modal", function () {
-      console.log("close modal");
-      window.open(downloadFileRes.downloadUrl, "_blank");
-    });
-
-    
 
 		$(window).off("beforeunload");
 		return;
