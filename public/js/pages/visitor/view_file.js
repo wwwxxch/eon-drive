@@ -28,11 +28,22 @@ $(".fi-dl-btn").on("click", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-
-		await delay(100);
-		downloadModal.modal("hide");
-		await delay(100);
-		window.open(downloadFileRes.downloadUrl, "_blank");
+    function hideModalAndOpenFile(downloadFileRes) {
+      return new Promise((resolve, reject) => {
+        try {
+          downloadModal.modal("hide");
+          window.open(downloadFileRes.downloadUrl, "_blank");
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+		// await delay(100);
+		// downloadModal.modal("hide");
+		// await delay(100);
+		// window.open(downloadFileRes.downloadUrl, "_blank");
+    await hideModalAndOpenFile(downloadFileRes);
 
 		$(window).off("beforeunload");
 		return;
@@ -51,7 +62,7 @@ $(".fi-dl-btn").on("click", async function () {
 	} else {
 		const errorHTML =
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
-    downloadSpinner.removeClass("spinner-border");
+		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	}
