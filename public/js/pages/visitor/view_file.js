@@ -38,8 +38,9 @@ $(".fi-dl-btn").on("click", async function () {
       downloadModal.modal("hide");
       resolve();
     }).then(() => {
-      setTimeout(() => {}, 500);
-      window.open(downloadFileRes.downloadUrl, "_blank");
+      setTimeout(() => {
+        window.open(downloadFileRes.downloadUrl, "_blank");
+      }, 500);
     });
 
 
