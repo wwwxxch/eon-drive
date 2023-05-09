@@ -101,6 +101,7 @@ const uploadChangeDB = async (req, res, next) => {
 				const chgFolderStatus = await changeFolderDeleteStatus(
 					0,
 					chkDir[0].id,
+          token,
 					nowTime
 				);
 				if (!chgFolderStatus) {
@@ -152,7 +153,8 @@ const uploadChangeDB = async (req, res, next) => {
 		return next(customError.internalServerError());
 	}
 	version = chgDBres.new_ver;
-
+  // TODO: 20230509 1034 - db schema v4 - pending to review (above updates)
+  
 	// update usage of an user
 	// const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	// if (currentUsed === -1) {

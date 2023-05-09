@@ -1,10 +1,15 @@
 import { pool } from "./connection.js";
 // ==========================================================================
-const changeFolderDeleteStatus = async(del_status, folder_id, time) => {
+const changeFolderDeleteStatus = async(del_status, folder_id, token, time) => {
   try {
     const row = await pool.query(`
-      UPDATE ff SET is_delete = ?, updated_at = ? WHERE id = ? 
-    `, [del_status, time, folder_id]);
+      UPDATE ff SET 
+        is_delete = ?, 
+        ff_upd_status = ?, 
+        upd_token = ?, 
+        updated_at = ? 
+      WHERE id = ? 
+    `, [del_status, "del_upload", token, time, folder_id]);
     return row;
   } catch (e) {
     console.error("changeFolderDeleteStatus: ", e);
@@ -21,7 +26,7 @@ const updateDeletedFile = async (del_status, token, file_id, file_size, time) =>
     // change is_delete, upd_status, token
     const ff = await conn.query(`
       UPDATE ff 
-      SET is_delete = ?, upd_status = "pending", upd_token = ?, updated_at = ? 
+      SET is_delete = ?, ff_upd_status = "ex_upload", upd_token = ?, updated_at = ? 
       WHERE id = ? 
     `, [del_status, token, time, file_id]);
     
@@ -32,17 +37,18 @@ const updateDeletedFile = async (del_status, token, file_id, file_size, time) =>
 
     // get current version
     const [cur_ver] = await conn.query(`
-      SELECT ver FROM file_ver WHERE ff_id = ? AND is_current = 1
+      SELECT ver FROM file_ver WHERE ff_id = ? AND is_current = 1 AND ver_upd_status = "done"
     `, file_id);
     
     // set ver = largest version + 1  
-    const new_rec = await conn.query(`
-      INSERT INTO file_ver (ff_id, ver, size, updated_at, is_current,  operation) 
-      VALUES (?, ?, ?, ?, 1, "added")
-    `, [file_id, max_ver[0].max_ver + 1, file_size, time]);
+    const [new_rec] = await conn.query(`
+      INSERT INTO file_ver (ff_id, ver, ver_upd_status, upd_token, size, 
+        updated_at, is_current,  operation) 
+      VALUES (?, ?, "new_upload", ?, ?, ?, 1, "added")
+    `, [file_id, max_ver[0].max_ver + 1, token, file_size, time]);
 
     // set is_current = 0 for current version
-    const chg_is_cur = await conn.query(`
+    const [chg_is_cur] = await conn.query(`
       UPDATE file_ver SET is_current = 0 WHERE ff_id = ? AND ver = ?
     `, [file_id, cur_ver[0].ver]);
     
@@ -69,8 +75,8 @@ const updateExistedFile = async (token, file_id, file_size, time) => {
     await conn.query("START TRANSACTION");
 
     // change upd_status, token
-    const ff = await conn.query(`
-      UPDATE ff SET upd_status = "pending", upd_token = ?, updated_at = ? WHERE id = ? 
+    const [ff] = await conn.query(`
+      UPDATE ff SET ff_upd_status = "ex_upload", upd_token = ?, updated_at = ? WHERE id = ? 
     `, [token, time, file_id]);
 
     // find the largest version
@@ -80,17 +86,18 @@ const updateExistedFile = async (token, file_id, file_size, time) => {
 
     // get current version
     const [cur_ver] = await conn.query(`
-      SELECT ver FROM file_ver WHERE ff_id = ? AND is_current = 1
+      SELECT ver FROM file_ver WHERE ff_id = ? AND is_current = 1 AND ver_upd_status = "done"
     `, file_id);
 
     // set ver = largest version + 1  
-    const new_rec = await conn.query(`
-      INSERT INTO file_ver (ff_id, ver, size, updated_at, is_current, operation) 
-      VALUES (?, ?, ?, ?, 1, "updated")
-    `, [file_id, max_ver[0].max_ver + 1, file_size, time]);
+    const [new_rec] = await conn.query(`
+      INSERT INTO file_ver (ff_id, ver, ver_upd_status, upd_token, size, 
+        updated_at, is_current, operation) 
+      VALUES (?, ?, "ex_upload",?, ?, ?, 1, "updated")
+    `, [file_id, max_ver[0].max_ver + 1, token, file_size, time]);
 
      // set is_current = 0 for current version
-    const chg_is_cur = await conn.query(`
+    const [chg_is_cur] = await conn.query(`
       UPDATE file_ver SET is_current = 0 WHERE ff_id = ? AND ver = ?
     `, [file_id, cur_ver[0].ver]);
     
@@ -110,15 +117,34 @@ const updateExistedFile = async (token, file_id, file_size, time) => {
 };
 
 const commitMetadata = async(upd_status, token, user_id) => {
+  const conn = await pool.getConnection();
   try {
-    const [row] = await pool.query(`
-      UPDATE ff SET upd_status = ?, upd_token = NULL 
+    console.log("START TRANSACTION");
+    await conn.query("START TRANSACTION");
+
+    const [row_ff] = await pool.query(`
+      UPDATE ff SET ff_upd_status = ?, upd_token = NULL 
       WHERE upd_token = ? AND user_id = ?
     `, [upd_status, token, user_id]);
-    return row;
+    
+    // TODO: user_id ?
+    const [row_file_ver] = await pool.query(`
+      UPDATE file_ver SET ver_upd_status = ?, upd_token = NULL
+      WHERE upd_token = ?
+    `);
+    
+    await conn.commit();
+    console.log("COMMIT");
+    return { row_ff, row_file_ver };
+
   } catch (e) {
-    console.error("commitMetadata: ", e);
+    await conn.query("ROLLBACK");
+    console.log("ROLLBACK - error: ", e);
     return null;
+    
+  } finally {
+    await conn.release();
+    console.log("RELEASE CONNECTION");
   }
 };
 
@@ -135,7 +161,7 @@ const restoreFileToPrev = async(token, file_id, version, time, user_id) => {
 
     // change upd_status, token, updated_at
     const [ff] = await conn.query(`
-      UPDATE ff SET upd_status = "pending", upd_token = ?, updated_at = ? 
+      UPDATE ff SET ff_upd_status = "pending", upd_token = ?, updated_at = ? 
       WHERE id = ? AND user_id = ?
     `, [token, time, file_id, user_id]);
 

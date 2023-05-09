@@ -18,22 +18,26 @@ router.get("/usage", authentication, async (req, res, next) => {
 	const used = req.session.user.used;
 
   // TODO: error handling not yet
-	const currentUsed = await checkUsedByUser(userId);
-	if (currentUsed === used) {
-		return res.json({
-			allocated,
-			used,
-		});
-	}
+	// const currentUsed = await checkUsedByUser(userId);
+	// if (currentUsed === used) {
+	// 	return res.json({
+	// 		allocated,
+	// 		used,
+	// 	});
+	// }
 
-	const now = DateTime.utc();
-	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
-	await updateUsedByUser(userId, currentUsed, nowTime);
-	req.session.user.used = currentUsed;
-	return res.json({
-		allocated,
-		used: currentUsed,
-	});
+	// const now = DateTime.utc();
+	// const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
+	// await updateUsedByUser(userId, currentUsed, nowTime);
+	// req.session.user.used = currentUsed;
+	// return res.json({
+	// 	allocated,
+	// 	used: currentUsed,
+	// });
+  return res.json({
+    allocated,
+    used
+  });
 });
 
 export { router as user_usage_route };

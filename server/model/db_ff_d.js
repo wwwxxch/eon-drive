@@ -186,7 +186,7 @@ const cleanUploadDeletedPending = async (token, ff_id, file_ver_id, current_ver)
     `, ff_id);
 
     await conn.query(`
-      UPDATE ff SET upd_token = null, upd_status = "done", updated_at = ?, is_delete = 1 
+      UPDATE ff SET upd_token = null, ff_upd_status = "done", updated_at = ?, is_delete = 1 
       WHERE upd_token = ?
     `, [previous_time[0].deleted_at, token]);
 
@@ -224,7 +224,7 @@ const cleanUploadExistedPending = async (token, ff_id, file_ver_id, current_ver)
     `, [ff_id, current_ver - 1]);
 
     await conn.query(`
-      UPDATE ff SET upd_token = null, upd_status = "done", updated_at = ? 
+      UPDATE ff SET upd_token = null, ff_upd_status = "done", updated_at = ? 
       WHERE upd_token = ?
     `, [previous_time[0].updated_at, token]);
 

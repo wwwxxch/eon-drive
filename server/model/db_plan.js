@@ -4,7 +4,8 @@ const updateSpaceUsedByUser = async(user_id, time) => {
   const q_calculateSum = `
     SELECT SUM(b.size) AS total_size 
     FROM ff AS a INNER JOIN file_ver AS b ON a.id = b.ff_id
-    WHERE a.upd_status = "done" AND a.is_delete = 0 AND b.is_current = 1 AND a.user_id = ?
+    WHERE a.ff_upd_status = "done" AND a.is_delete = 0 AND b.is_current = 1 
+      AND b.ver_upd_status = "done" AND a.user_id = ?
     GROUP BY user_id
   `;
   const q_updateUsed = `

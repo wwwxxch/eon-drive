@@ -23,7 +23,7 @@ router.post(
   },
 	uploadValid,
 	ValidCB,
-	checkUsed,
+	// checkUsed,
 	uploadChangeDB,
 	getS3Url
 );
