@@ -28,7 +28,7 @@ const createFile = async(parent_id, file_name, file_size, user_id, token, time) 
     `, [parent_id, file_name, user_id, token, time, time]);
     const ff_id = ff.insertId;
 
-    const file_ver = await conn.query(`
+    const [file_ver] = await conn.query(`
       INSERT INTO file_ver 
       (ff_id, ver_upd_status, upd_token, ver, size, is_current, updated_at, operation) 
       VALUES (?, "new_upload", ?, ?, ?, ?, ?, ?)

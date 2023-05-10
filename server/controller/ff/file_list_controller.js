@@ -1,7 +1,4 @@
-import {
-	getFileListByPath,
-	findParentPathByFFId,
-} from "../../service/path/iter.js";
+import { getFileListByPath, findParentPathByFFId } from "../../service/path/iter.js";
 
 import {
 	getDeletedList,
@@ -24,9 +21,9 @@ const showList = async (req, res, next) => {
 	console.log("doecodePath: ", decodePath);
 
 	const getFileListRes = await getFileListByPath(userId, decodePath);
-  if (!getFileListRes.data) {
-    return next(customError.badRequest("Invalid path"));
-  }
+	if (!getFileListRes.data) {
+		return next(customError.badRequest("Invalid path"));
+	}
 
 	return res.json({ data: getFileListRes.data });
 };

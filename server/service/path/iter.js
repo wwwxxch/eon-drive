@@ -36,10 +36,10 @@ const findFileIdByPath = async (userId, path) => {
 	console.log("parents: ", parents);
 	console.log("child: ", child);
 
-  const parentId = await findTargetFolderId(userId, parents);
-  if (parentId === -1) {
-    return -1;
-  }
+	const parentId = await findTargetFolderId(userId, parents);
+	if (parentId === -1) {
+		return -1;
+	}
 
 	const [childResult] = await getNoDelFileId(userId, parentId, child);
 	console.log("findFileIdByPath: childResult: ", childResult);
@@ -52,8 +52,8 @@ const findFileIdByPath = async (userId, path) => {
 const findDeletedFileIdByPath = async (userId, path) => {
 	const parents = path.split("/");
 	const child = parents.pop();
-	
-  const parentId = await findTargetFolderId(userId, parents);
+
+	const parentId = await findTargetFolderId(userId, parents);
 	if (parentId === -1) {
 		return -1;
 	}
@@ -71,10 +71,10 @@ const getFileListByPath = async (userId, path) => {
 		const folders = path.split("/");
 		console.log("folders: ", folders);
 
-    parentId = await findTargetFolderId(userId, folders);
-    if (parentId === -1) {
-      return { data: null };
-    }
+		parentId = await findTargetFolderId(userId, folders);
+		if (parentId === -1) {
+			return { data: null };
+		}
 	}
 	const list = await getOneLevelChildByParentId(userId, parentId, 0);
 	return { data: list };
@@ -115,37 +115,42 @@ const findParentPathByFFId = async (ffId) => {
 	}
 };
 
-const findTargetFolderId = async (userId, folders/*, delete_status*/) => {
-  // sprint 5  
+const findTargetFolderId = async (userId, folders /*, delete_status*/) => {
+	// sprint 5
 	try {
 		let parentId = 0;
-		if (folders.length === 0 || (folders.length === 1 && folders[0] === "") ) {
+		if (folders.length === 0 || (folders.length === 1 && folders[0] === "")) {
 			return parentId;
 		}
 
-		const foldersPool = await getFoldersInfoByPath(folders, userId/*, delete_status*/);
+		const foldersPool = await getFoldersInfoByPath(
+			folders,
+			userId /*, delete_status*/
+		);
 		console.log("findTargetFolderId: foldersPool: ", foldersPool);
 		if (foldersPool.length === 0) {
 			return -1;
 		} else if (!foldersPool) {
-      throw new Error ("getFoldersInfoByPath error");
-    }
-    console.log("folders: ", folders);
+			throw new Error("getFoldersInfoByPath error");
+		}
+		console.log("folders: ", folders);
 		for (let i = 0; i < folders.length; i++) {
-      let found = false;
+			let found = false;
 			for (let j = 0; j < foldersPool.length; j++) {
-				if (folders[i] === foldersPool[j].name && parentId === foldersPool[j].parent_id) {
+				if (
+					folders[i] === foldersPool[j].name &&
+					parentId === foldersPool[j].parent_id
+				) {
 					parentId = foldersPool[j].id;
-          found = true;
-          break;
-				} 
+					found = true;
+					break;
+				}
 			}
-      if (!found) {
-        return -1;
-      }
+			if (!found) {
+				return -1;
+			}
 		}
 		return parentId;
-
 	} catch (e) {
 		console.error("findTargetFolderId: ", e);
 		return -1;
