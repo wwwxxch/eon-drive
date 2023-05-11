@@ -7,18 +7,13 @@ const SHARE_TOKEN_LENGTH = process.env.SHARE_TOKEN_LENGTH;
 const signupValid = [
 	body("name").trim().isLength({ min: 1 }).withMessage("Name is required"),
 
-	body("email")
-		.trim()
-		.isEmail()
-		.withMessage("Email is not valid")
-		.normalizeEmail(),
+	body("email").trim().isEmail().withMessage("Email is not valid").normalizeEmail(),
 
 	body("password")
 		.isLength({ min: 8, max: 16 })
 		.withMessage("Password should be 8-16 characters long")
 		.custom((value) => {
-			const pwdregex =
-				/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
+			const pwdregex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
 			if (!value.match(pwdregex)) {
 				throw new Error(
 					"Password should have at least one digit, one lowercase letter or one uppercase letter, one of these characters: !@#$%^&*()_+"
@@ -29,11 +24,7 @@ const signupValid = [
 ];
 
 const signinValid = [
-	body("email")
-		.trim()
-		.isEmail()
-		.withMessage("Email is not valid.")
-		.normalizeEmail(),
+	body("email").trim().isEmail().withMessage("Email is not valid.").normalizeEmail(),
 
 	// TODO: use this validation rule when production
 	// body("password").custom((value) => {
@@ -46,10 +37,9 @@ const signinValid = [
 ];
 
 // ////////////////////////////////////////////////////////////////////////////
-// const regexForFFName = /^[a-zA-Z0-9_\-.@%$ ]+$/;
-// const regexForFFName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ ]+$/;
-const regexForFFName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ \[\]\(\)\+]+$/;
-
+// const regexForFilesName = /^[a-zA-Z0-9_\-.@%$ ]+$/;
+// const regexForFilesName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ ]+$/;
+const regexForFilesName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ \[\]\(\)\+]+$/;
 
 const uploadValid = [
 	body("fileName")
@@ -58,7 +48,7 @@ const uploadValid = [
 		.withMessage("File name cannot be empty")
 		.isLength({ max: 255 })
 		.withMessage("File name length cannot exceed 255 characters")
-		.matches(regexForFFName)
+		.matches(regexForFilesName)
 		.withMessage("File name is not valid"),
 
 	body("fileWholePath")
@@ -68,7 +58,7 @@ const uploadValid = [
 		.custom((input) => {
 			const arr = input.split("/");
 			arr.forEach((item) => {
-				if (!item.match(regexForFFName)) {
+				if (!item.match(regexForFilesName)) {
 					throw new Error("Folder or File name is not valid");
 				}
 			});
@@ -99,15 +89,12 @@ const createFolderValid = [
 		.withMessage("Folder name cannot be empty")
 		.isLength({ max: 255 })
 		.withMessage("Folder name length cannot exceed 255 characters")
-		.matches(regexForFFName)
+		.matches(regexForFilesName)
 		.withMessage("Folder name is not valid"),
 ];
 
 const downloadValid = [
-	body("parentPath")
-		.trim()
-		.notEmpty()
-		.withMessage("parentPath cannot be empty"),
+	body("parentPath").trim().notEmpty().withMessage("parentPath cannot be empty"),
 
 	body("downloadList").custom((arr) => {
 		if (!arr || arr.length === 0) {
@@ -148,10 +135,7 @@ const restoreHistoryValid = [
 		}
 		return true;
 	}),
-	body("fileWholePath")
-		.trim()
-		.notEmpty()
-		.withMessage("File whole path cannot be empty"),
+	body("fileWholePath").trim().notEmpty().withMessage("File whole path cannot be empty"),
 ];
 
 const restoreDeleteValid = [
@@ -164,40 +148,33 @@ const restoreDeleteValid = [
 ];
 
 const createLinkValid = [
-	body("access")
-		.custom((obj) => {
-      console.log(typeof obj);
-      console.log(obj);
-			if (!obj.type || !obj.user) {
-				throw new Error("Format incorrect");
-			}
-			if (obj.type !== "public" && obj.type !== "private") {
-				throw new Error("Access type incorrect");
-			}
-			return true;
-		}),
-  body("targetId")
-    .isInt()
-    .withMessage("id should be integer")
+	body("access").custom((obj) => {
+		console.log(typeof obj);
+		console.log(obj);
+		if (!obj.type || !obj.user) {
+			throw new Error("Format incorrect");
+		}
+		if (obj.type !== "public" && obj.type !== "private") {
+			throw new Error("Access type incorrect");
+		}
+		return true;
+	}),
+	body("targetId").isInt().withMessage("id should be integer"),
 	// body("path").trim().notEmpty().withMessage("Path cannot be empty"),
 ];
 
-const revokeLinkValid = [
-  body("ff_id")
-    .isInt()
-    .withMessage("id should be integer")
-];  
+const revokeLinkValid = [body("files_id").isInt().withMessage("id should be integer")];
 
 const viewFolderListValid = [
-  body("shareToken")
-    .matches(`[0-9a-zA-Z]{${SHARE_TOKEN_LENGTH}}`)
-    .withMessage("Share token is not valid"),
+	body("shareToken")
+		.matches(`[0-9a-zA-Z]{${SHARE_TOKEN_LENGTH}}`)
+		.withMessage("Share token is not valid"),
 ];
 
 const viewDLValid = [
-  body("shareToken")
-    .matches(`[0-9a-zA-Z]{${SHARE_TOKEN_LENGTH}}`)
-    .withMessage("Share token is not valid"),
+	body("shareToken")
+		.matches(`[0-9a-zA-Z]{${SHARE_TOKEN_LENGTH}}`)
+		.withMessage("Share token is not valid"),
 ];
 
 const ValidCB = async (req, res, next) => {
@@ -220,9 +197,9 @@ export {
 	permDeleteValid,
 	restoreHistoryValid,
 	restoreDeleteValid,
-  createLinkValid,
-  revokeLinkValid,
-  viewFolderListValid,
-  viewDLValid,
+	createLinkValid,
+	revokeLinkValid,
+	viewFolderListValid,
+	viewDLValid,
 	ValidCB,
 };

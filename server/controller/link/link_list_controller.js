@@ -18,9 +18,9 @@ const showLinksYouShared = async (req, res) => {
 
 	const list = raw.reduce((acc, cur) => {
 		// acc - accumulated array, start from []
-		// check if there's element.ff_id equals to acc element.ff_id
+		// check if there's element.files_id equals to acc element.files_id
 		// return: The first element in the array that satisfies the provided testing function
-		const existed = acc.find((item) => item.ff_id === cur.ff_id);
+		const existed = acc.find((item) => item.files_id === cur.files_id);
 		// console.log(existed); // undefined or that element (object)
 		if (existed) {
 			if (cur.user_name && cur.user_email) {
@@ -31,8 +31,8 @@ const showLinksYouShared = async (req, res) => {
 			}
 		} else {
 			const newObject = {
-				ff_id: cur.ff_id,
-				ff_name: cur.ff_name,
+				files_id: cur.files_id,
+				files_name: cur.files_name,
 				link: cur.link,
 				access: {
 					is_public: cur.is_public,
@@ -54,14 +54,13 @@ const showLinksYouShared = async (req, res) => {
 };
 
 const showCurrentACL = async (req, res, next) => {
-	const { fileId } = req.query;
+	const { filesId } = req.query;
 	const userId = req.session.user.id;
 
-	const raw = await getFilesShareStatus(userId, fileId);
+	const raw = await getFilesShareStatus(userId, filesId);
 	console.log(raw);
 
 	if (raw.length < 1) {
-		// return res.status(400).json({ msg: "error" });
 		return next(customError.badRequest("This file/folder may not exist."));
 	}
 

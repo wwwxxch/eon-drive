@@ -3,7 +3,7 @@ import express from "express";
 const router = express.Router();
 
 import { historyFileCheck } from "../../../middleware/page_validator.js";
-import {pageAuth} from "../../../middleware/auth_check.js";
+import { pageAuth } from "../../../middleware/auth_check.js";
 // =====================================================================================
 router.get(/^\/home(\/.*)?$/, pageAuth, (req, res) => {
 	return res.render("member/home");

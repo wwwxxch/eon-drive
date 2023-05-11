@@ -27,7 +27,7 @@ const markDeleteById = async (time, id, user_id) => {
 
 		const [delete_rec] = await conn.query(
 			`
-      INSERT INTO ff_delete (files_id, deleted_at) VALUES (?, ?)
+      INSERT INTO files_delete (files_id, deleted_at) VALUES (?, ?)
     `,
 			[id, time]
 		);

@@ -3,11 +3,8 @@ const router = express.Router();
 
 import { wrapAsync } from "../../util/util.js";
 
-import {
-	createLinkValid,
-	revokeLinkValid,
-	ValidCB,
-} from "../../middleware/input_validator.js";
+import { createLinkValid, revokeLinkValid, ValidCB } from "../../middleware/input_validator.js";
+
 import {
 	createLinkCheck,
 	privateLink,
@@ -15,8 +12,8 @@ import {
 	revokeLink,
 	userSearch,
 } from "../../controller/link/link_manage_controller.js";
-import {authentication} from "../../middleware/auth_check.js";
 
+import { authentication } from "../../middleware/auth_check.js";
 // --------------------------------------------------------------------------------
 router.post(
 	"/create-link",
@@ -28,13 +25,7 @@ router.post(
 	privateLink
 );
 
-router.post(
-	"/revoke-link",
-	authentication,
-	revokeLinkValid,
-	ValidCB,
-	revokeLink
-);
+router.post("/revoke-link", authentication, revokeLinkValid, ValidCB, revokeLink);
 
 router.get("/select-user", authentication, userSearch);
 

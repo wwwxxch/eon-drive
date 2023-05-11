@@ -3,13 +3,8 @@ const router = express.Router();
 
 import { signupValid, signinValid, ValidCB } from "../../middleware/input_validator.js";
 
-import { 
-  signUp,
-  signIn,
-  logOut,
-  showProfile
-} from "../../controller/user/user_auth_controller.js";
-import {authentication} from "../../middleware/auth_check.js";
+import { signUp, signIn, logOut, showProfile } from "../../controller/user/user_auth_controller.js";
+import { authentication } from "../../middleware/auth_check.js";
 
 // ======================================
 

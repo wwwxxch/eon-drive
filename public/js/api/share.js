@@ -28,9 +28,9 @@ const createLink = async (targetId, accessType, userList = []) => {
 	}
 };
 
-const revokeLink = async (ff_id) => {
+const revokeLink = async (files_id) => {
 	try {
-		const revokeLinkRes = await axios.post("/revoke-link", { ff_id });
+		const revokeLinkRes = await axios.post("/revoke-link", { files_id });
 		console.log("revokeLinkRes: ", revokeLinkRes);
 		return { status: revokeLinkRes.status };
 	} catch (e) {
@@ -61,11 +61,9 @@ const askYouSharedList = async () => {
 	}
 };
 
-const checkShareStatus = async (fileId) => {
+const checkShareStatus = async (filesId) => {
 	try {
-		const checkShareStatusRes = await axios.get(
-			`/ff-link-acl?fileId=${fileId}`
-		);
+		const checkShareStatusRes = await axios.get(`/files-link-acl?filesId=${filesId}`);
 		console.log("checkShareStatusRes: ", checkShareStatusRes);
 		return checkShareStatusRes;
 	} catch (e) {

@@ -36,8 +36,8 @@ const clearDeleted = async () => {
 		let expiredFiles = [];
 		let expireFolders = [];
 		for (const element of expiredDeletedList) {
-			// get user_id & type & name & id by ff_id
-			// get file/folder full path by ff_id
+			// get user_id & type & name & id by files_id
+			// get file/folder full path by files_id
 			// remove file first
 			// remove folder (no need to recursively find children under folder)
 

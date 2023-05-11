@@ -152,7 +152,7 @@ const viewFolderList = async (req, res, next) => {
 		const parentParentPath = await findParentPathByFilesId(target.id);
 		console.log(parentParentPath);
 		if (!parentParentPath) {
-			return next(customError.internalServerError());
+			return next(customError.internalServerError("(fn) findParentPathByFilesId Error"));
 		}
 		const subWholePath = parentParentPath + target.name + "/" + subFolder;
 		console.log(subWholePath);
@@ -210,7 +210,7 @@ const viewDLfile = async (req, res, next) => {
 	const { target } = req;
 	const parentParentPath = await findParentPathByFilesId(target.id);
 	if (!parentParentPath) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) findParentPathByFilesId Error"));
 	}
 	let key;
 	if (req.path === "/view-fi-dl") {
@@ -236,7 +236,7 @@ const viewDLfile = async (req, res, next) => {
 	const version = await getCurrentVersionByFileId(fileId);
 	console.log("version: ", version);
 	if (version === -1) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) getCurrentVersionByFileId Error"));
 	}
 	// 2. copy ${key}.v<version> to ${key}
 	const copyS3ObjRes = await copyS3Obj(
@@ -246,7 +246,7 @@ const viewDLfile = async (req, res, next) => {
 		`user_${userId}/${key}`
 	);
 	if (!copyS3ObjRes) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) copyS3Obj Error"));
 	}
 	// 3. get presigned URL for that file
 	const downloadUrl = await getDownloadUrl(
@@ -255,7 +255,7 @@ const viewDLfile = async (req, res, next) => {
 		`user_${userId}/${key}`
 	);
 	if (!downloadUrl) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) getDownloadUrl Error"));
 	}
 
 	return res.json({ downloadUrl });
@@ -298,11 +298,11 @@ const viewDLcallLambda = async (req, res, next) => {
 		parentName
 	);
 	if (!toLambda) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) callLambdaZip Error"));
 	} else if (toLambda.status === 500 && toLambda.error === "file size exceeds 4 GB") {
 		return next(customError.badRequest("file size exceeds 4 GB"));
 	} else if (toLambda.status === 500) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("callLambdaZip returns 500 status"));
 	} else if (toLambda.downloadUrl) {
 		console.log("toLambda: downloadUrl is not blank");
 	} else if (!toLambda.downloadUrl) {

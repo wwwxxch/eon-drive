@@ -6,15 +6,15 @@ import { wrapAsync } from "../../util/util.js";
 import {
 	showLinksSharedWith,
 	showLinksYouShared,
-  showCurrentACL,
+	showCurrentACL,
 } from "../../controller/link/link_list_controller.js";
-import {authentication} from "../../middleware/auth_check.js";
 
+import { authentication } from "../../middleware/auth_check.js";
 // --------------------------------------------------------------------------------
 router.get("/links-shared-with", authentication, showLinksSharedWith);
 
 router.get("/links-you-shared", authentication, showLinksYouShared);
 
-router.get("/ff-link-acl", authentication, showCurrentACL);
+router.get("/files-link-acl", authentication, showCurrentACL);
 
 export { router as link_list_route };

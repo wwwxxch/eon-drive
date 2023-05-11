@@ -91,7 +91,7 @@ const emitLinksYouShared = async (io, userId) => {
 	const raw = await getLinksYouShared(userId);
 
 	const list = raw.reduce((acc, cur) => {
-		const existed = acc.find((item) => item.ff_id === cur.ff_id);
+		const existed = acc.find((item) => item.files_id === cur.files_id);
 		if (existed) {
 			if (cur.user_name && cur.user_email) {
 				existed.access.user.push({
@@ -101,8 +101,8 @@ const emitLinksYouShared = async (io, userId) => {
 			}
 		} else {
 			const newObject = {
-				ff_id: cur.ff_id,
-				ff_name: cur.ff_name,
+				files_id: cur.files_id,
+				files_name: cur.files_name,
 				link: cur.link,
 				access: {
 					is_public: cur.is_public,

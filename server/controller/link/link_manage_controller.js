@@ -164,10 +164,10 @@ const privateLink = async (req, res, next) => {
 
 const revokeLink = async (req, res, next) => {
 	console.log("revokeLink: ", req.body);
-	const { ff_id } = req.body;
+	const { files_id } = req.body;
 	const userId = req.session.user.id;
 
-	const shareStatus = await checkLinkByFilesId(ff_id, userId);
+	const shareStatus = await checkLinkByFilesId(files_id, userId);
 	// const shareStatus = null;
 	console.log("shareStatus: ", shareStatus);
 
@@ -179,7 +179,7 @@ const revokeLink = async (req, res, next) => {
 		return next(customError.badRequest("No link to be revoked"));
 	}
 
-	const revokeLinkInDB = await deleteLinkByFilesId(userId, ff_id, shareStatus.is_public);
+	const revokeLinkInDB = await deleteLinkByFilesId(userId, files_id, shareStatus.is_public);
 	console.log("revokeLinkInDB: ", revokeLinkInDB);
 	if (!revokeLinkInDB) {
 		return next(customError.internalServerError());
