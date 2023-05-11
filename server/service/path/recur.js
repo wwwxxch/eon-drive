@@ -4,11 +4,6 @@ import {
 	getCurrentSizeByFileId,
 } from "../../model/db_ff_r.js";
 import { restoreDeletedFile, restoreDeletedFolder } from "../../model/db_files_restore.js";
-// import {
-// 	markDeleteById,
-// 	permDeleteByFileId,
-// 	permDeleteByFolderId,
-// } from "../../model/db_ff_d.js";
 import {
 	markDeleteById,
 	permDeleteByFileId,
