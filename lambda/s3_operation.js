@@ -15,18 +15,13 @@ const fs = require("fs");
 
 const DEFAULT_S3_EXPIRES = parseInt(process.env.DEFAULT_S3_EXPIRES);
 const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE * 1024 * 1024);
+const ZIP_SIZE = parseInt(process.env.ZIP_SIZE * 1024 * 1024 * 1024);
 
 const tmpDir = "/tmp";
 // ==================================================================================
 
 // get the pre-signed URL for completing a multipart upload
-const getCompleteUrl = async (
-	client,
-	bucket,
-	key,
-	uploadId,
-	expiresIn = DEFAULT_S3_EXPIRES
-) => {
+const getCompleteUrl = async (client, bucket, key, uploadId, expiresIn = DEFAULT_S3_EXPIRES) => {
 	const command = new CompleteMultipartUploadCommand({
 		Bucket: bucket,
 		Key: key,
@@ -73,13 +68,7 @@ const largeUpload = async (client, bucket, key, localPath, fileSize) => {
 		}
 
 		// Complete Multipart Upload - Using presigned URL send the request manually
-		const completeUrl = await getCompleteUrl(
-			client,
-			bucket,
-			key,
-			uploadId,
-			3600
-		);
+		const completeUrl = await getCompleteUrl(client, bucket, key, uploadId, 3600);
 		const uploadResults = await Promise.all(uploadPromises);
 		const xmlBody = `
       <CompleteMultipartUpload>
@@ -142,16 +131,11 @@ const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
 				new Promise((resolve, reject) => {
 					getS3Object.Body.pipe(S3Objects[i])
 						.on("finish", () => {
-							console.log(
-								`get S3 object to local ${tmpDir}/${tmpLocalName} finished`
-							);
+							console.log(`get S3 object to local ${tmpDir}/${tmpLocalName} finished`);
 							resolve();
 						})
 						.on("error", (err) => {
-							reject(
-								`get S3 object to local ${tmpDir}/${tmpLocalName} error: ${err}`
-							);
-							// reject(err);
+							reject(`get S3 object to local ${tmpDir}/${tmpLocalName} error: ${err}`);
 						});
 				})
 			);
@@ -185,29 +169,34 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 			} else {
 				pathInZip = fileArray[i].slice(parentPathModified.length + 1);
 			}
-			const promise = new Promise((resolve, reject) => {
-				const stream = fs.createReadStream(
-					`${tmpDir}/${fileArray[i].split("/").join("_")}`
-				);
-				stream.on("error", (err) => {
-					reject(`Error reading file ${fileArray[i]}: ${err}`);
-				});
-				stream.on("close", () => {
-					console.log(`File ${pathInZip} appended to archive`);
-					resolve();
-				});
-				archive.append(stream, { name: pathInZip });
-			});
-			appendPromises.push(promise);
+			// const promise = new Promise((resolve, reject) => {
+			appendPromises.push(
+				new Promise((resolve, reject) => {
+					const stream = fs.createReadStream(`${tmpDir}/${fileArray[i].split("/").join("_")}`);
+
+					stream.on("close", () => {
+						console.log(`File ${pathInZip} appended to archive`);
+						resolve();
+					});
+
+					stream.on("error", (err) => {
+						reject(`Error reading file ${fileArray[i]}: ${err}`);
+					});
+
+					archive.append(stream, { name: pathInZip });
+				})
+			);
+			// appendPromises.push(promise);
 		}
 		// 3. finish zip
 		const zipPromise = new Promise((resolve, reject) => {
-			output.on("error", (err) => {
-				reject(`Error creating zip file: ${err}`);
-			});
 			output.on("finish", () => {
 				console.log("Archive finished");
 				resolve();
+			});
+
+			output.on("error", (err) => {
+				reject(`Creating zip file error: ${err}`);
 			});
 		});
 		archive.finalize();
@@ -227,7 +216,7 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 
 	const fileSize = fs.statSync(localZip).size;
 	console.log("fileSize: ", fileSize, " bytes");
-	if (fileSize > 4 * 1024 * 1024 * 1024) {
+	if (fileSize > ZIP_SIZE) {
 		throw new Error("file size exceeds 4 GB");
 	}
 
@@ -244,13 +233,7 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 			console.log("putZip: ", putZip);
 		} else {
 			console.log("zipToS3 - multipart upload");
-			const largeUploadRes = await largeUpload(
-				client,
-				bucket,
-				key,
-				localZip,
-				fileSize
-			);
+			const largeUploadRes = await largeUpload(client, bucket, key, localZip, fileSize);
 			console.log("largeUploadRes: ", largeUploadRes);
 			if (largeUploadRes !== 200) {
 				throw new Error("largeUpload failed");

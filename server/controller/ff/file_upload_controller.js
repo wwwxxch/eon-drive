@@ -1,6 +1,4 @@
 import { v4 as uuidv4 } from "uuid";
-import { DateTime } from "luxon";
-
 import { generateCurrentTime } from "../../util/util.js";
 import { customError } from "../../error/custom_error.js";
 
@@ -12,13 +10,14 @@ import {
 	checkPendingFileStatus,
 } from "../../model/db_ff_r.js";
 
-import { createFolder, createFile } from "../../model/db_ff_c.js";
 import {
+	createFolder,
+	createFile,
 	changeFolderDeleteStatus,
 	updateDeletedFile,
 	updateExistedFile,
-	commitMetadata,
-} from "../../model/db_ff_u.js";
+} from "../../model/db_files_upload.js";
+import { commitMetadata } from "../../model/db_files_commit.js";
 
 import { updateSpaceUsedByUser } from "../../model/db_plan.js";
 
@@ -34,7 +33,7 @@ import {
 	cleanUploadDeletedPending,
 	cleanUploadExistedPending,
 	cleanUploadNewPending,
-} from "../../model/db_ff_d.js";
+} from "../../model/db_files_operation_failed.js";
 // ======================================================================
 const checkUsed = async (req, res, next) => {
 	console.log("checkUsed: ", req.body);
@@ -75,8 +74,7 @@ const uploadChangeDB = async (req, res, next) => {
 	const folders = fileWholePath.split("/");
 	folders.pop();
 	console.log("folders: ", folders);
-	const now = DateTime.utc();
-	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
+	const nowTime = generateCurrentTime();
 
 	// get parentId
 	let parentId = 0;
@@ -201,15 +199,6 @@ const uploadCleanPending = async (req, res, next) => {
 		return next(customError.internalServerError("Cannot clean upload failed records"));
 	}
 
-	// update usage of an user
-	// const now = DateTime.utc();
-	// const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
-	// const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
-	// if (currentUsed === -1) {
-	// 	return next(customError.internalServerError());
-	// }
-	// req.session.user.used = currentUsed;
-
 	return res.json({ msg: "ok" });
 };
 
@@ -222,17 +211,10 @@ const uploadCommitDB = async (req, res, next) => {
 
 	const commit = await commitMetadata("done", token, userId, nowTime);
 	if (!commit) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) commitMetadata Error"));
 	}
-	// console.log("commit: ", commit);
-	// console.log("commit.row_ff.affectedRows: ", commit.row_ff.affectedRows);
-	// console.log("commit.row_ff.info: ", commit.row_ff.info);
-	// console.log("commit.row_file_ver.affectedRows: ", commit.row_file_ver.affectedRows);
-	// console.log("commit.row_file_ver.info: ", commit.row_file_ver.info);
-	// if (commit.row_ff.affectedRows < 1 || commit.row_file_ver.affectedRows < 1) {
-	// 	return next(customError.badRequest("Token is wrong"));
-	// }
 
+	// update usage of the user
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
 		return next(customError.internalServerError());

@@ -2,7 +2,7 @@ import { customError } from "../../error/custom_error.js";
 import {
 	getLinksSharedWithYou,
 	getLinksYouShared,
-  getFFShareStatus
+	getFFShareStatus,
 } from "../../model/db_share.js";
 // ====================================================================================
 const showLinksSharedWith = async (req, res) => {
@@ -53,8 +53,8 @@ const showLinksYouShared = async (req, res) => {
 	return res.json({ data: list });
 };
 
-const showCurrentACL = async(req, res, next) => {
-  const { fileId } = req.query;
+const showCurrentACL = async (req, res, next) => {
+	const { fileId } = req.query;
 	const userId = req.session.user.id;
 
 	const raw = await getFFShareStatus(userId, fileId);
@@ -62,7 +62,7 @@ const showCurrentACL = async(req, res, next) => {
 
 	if (raw.length < 1) {
 		// return res.status(400).json({ msg: "error" });
-    return next(customError.badRequest("No such key"));
+		return next(customError.badRequest("This file/folder may not exist."));
 	}
 
 	const share_link = raw[0].share_token
@@ -76,7 +76,7 @@ const showCurrentACL = async(req, res, next) => {
 			? []
 			: raw.map((item) => {
 					return { name: item.name, email: item.email };
-        });
+			  });
 
 	return res.json({
 		share_link,

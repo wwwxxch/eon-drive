@@ -88,41 +88,41 @@ const checkSharePermission = async (req, res, next) => {
 
 const returnFileInfo = async (req, res) => {
 	const target = req.target;
-	
-  const detail = await getFileDetail(target.id);
+
+	const detail = await getFileDetail(target.id);
 	console.log("detail: ", detail);
 
 	const { name, size, updated_at, owner } = detail;
-  
-  console.log("req.headers[\"x-forwarded-for\"]: ", req.headers["x-forwarded-for"]);
-  // console.log("req.ip: ", req.ip);
 
-  const ip = req.headers["x-forwarded-for"];
-  const geo = geoip.default.lookup(ip);
-  let clientTimeZone;
-  if (!geo) {
-    clientTimeZone = "Asia/Taipei";
-  } else {
-    clientTimeZone = geo.timezone;
-  }
+	console.log(`req.headers["x-forwarded-for"]: `, req.headers["x-forwarded-for"]);
+	// console.log("req.ip: ", req.ip);
 
-  if (!req.session.user) {
-    return res.render("visitor/view_file", {
-      name,
-      size,
-      updated_at,
-      owner,
-      DateTime,
-      clientTimeZone
-    });
-  }
+	const ip = req.headers["x-forwarded-for"];
+	const geo = geoip.default.lookup(ip);
+	let clientTimeZone;
+	if (!geo) {
+		clientTimeZone = "Asia/Taipei";
+	} else {
+		clientTimeZone = geo.timezone;
+	}
+
+	if (!req.session.user) {
+		return res.render("visitor/view_file", {
+			name,
+			size,
+			updated_at,
+			owner,
+			DateTime,
+			clientTimeZone,
+		});
+	}
 	return res.render("member/view_file", {
 		name,
 		size,
 		updated_at,
 		owner,
 		DateTime,
-    clientTimeZone
+		clientTimeZone,
 	});
 };
 
@@ -131,10 +131,10 @@ const returnFolderInfo = async (req, res) => {
 	const target = req.target;
 	console.log("target: ", target);
 	const { id, name } = req.target;
-  
-  if (!req.session.user) {
-    return res.render("visitor/view_folder", { id, name, shareToken });
-  }
+
+	if (!req.session.user) {
+		return res.render("visitor/view_folder", { id, name, shareToken });
+	}
 	return res.render("member/view_folder", { id, name, shareToken });
 };
 
@@ -173,13 +173,13 @@ const viewDLcheckTarget = async (req, res, next) => {
 	const { shareToken } = req.body;
 	const target = await getTargetByLink(shareToken);
 	if (!target) {
-		return next(customError.badRequest("No such key"));
+		return next(customError.badRequest("This file/folder may not exist."));
 	}
 
 	if (req.path === "/view-fo-dl") {
 		const { desired } = req.body;
 		if (target.name !== desired.split("/")[0]) {
-			return next(customError.badRequest("No such key"));
+			return next(customError.badRequest("This file/folder may not exist."));
 		}
 	}
 
@@ -231,7 +231,7 @@ const viewDLfile = async (req, res, next) => {
 	// const fileId = -1;
 	console.log("fileId: ", fileId);
 	if (fileId === -1) {
-		return next(customError.badRequest("No such key"));
+		return next(customError.badRequest("This file/folder may not exist."));
 	}
 	const version = await getCurrentVersionByFileId(fileId);
 	console.log("version: ", version);
@@ -271,17 +271,11 @@ const viewDLfolder = async (req, res, next) => {
 		return next(customError.internalServerError());
 	}
 
-	const modifiedPath = `${parentParentPath}${desired.replace(
-		/\/$/,
-		""
-	)}`.replace(/^Home\//, "");
+	const modifiedPath = `${parentParentPath}${desired.replace(/\/$/, "")}`.replace(/^Home\//, "");
 	console.log("modifiedPath: ", modifiedPath);
 	const children = await getAllChildren(target.user_id, modifiedPath);
-	if (
-		children.childsNoVer.length === 0 ||
-		children.childsWithVer.length === 0
-	) {
-		return next(customError.badRequest("No such key"));
+	if (children.childsNoVer.length === 0 || children.childsWithVer.length === 0) {
+		return next(customError.badRequest("This file/folder may not exist."));
 	}
 
 	req.finalListNoVer = children.childsNoVer;
@@ -293,8 +287,7 @@ const viewDLfolder = async (req, res, next) => {
 
 const viewDLcallLambda = async (req, res, next) => {
 	// console.log("viewDLcallLambda: ", req.body);
-	const { target, finalListNoVer, finalListWithVer, parentName, parentPath } =
-		req;
+	const { target, finalListNoVer, finalListWithVer, parentName, parentPath } = req;
 	const userId = target.user_id;
 
 	const toLambda = await callLambdaZip(
@@ -305,16 +298,16 @@ const viewDLcallLambda = async (req, res, next) => {
 		parentName
 	);
 	if (!toLambda) {
-    return next(customError.internalServerError());
-  } else if (toLambda.status === 500 && toLambda.error === "file size exceeds 4 GB") {
-    return next(customError.badRequest("file size exceeds 4 GB"));
-  } else if (toLambda.status === 500) {
-    return next(customError.internalServerError());
-  } else if (toLambda.downloadUrl) {
-    console.log("toLambda: downloadUrl is not blank");
-  } else if (!toLambda.downloadUrl) {
-    console.log("toLambda: downloadUrl is null");
-  }
+		return next(customError.internalServerError());
+	} else if (toLambda.status === 500 && toLambda.error === "file size exceeds 4 GB") {
+		return next(customError.badRequest("file size exceeds 4 GB"));
+	} else if (toLambda.status === 500) {
+		return next(customError.internalServerError());
+	} else if (toLambda.downloadUrl) {
+		console.log("toLambda: downloadUrl is not blank");
+	} else if (!toLambda.downloadUrl) {
+		console.log("toLambda: downloadUrl is null");
+	}
 
 	return res.json({ downloadUrl: toLambda.downloadUrl });
 };

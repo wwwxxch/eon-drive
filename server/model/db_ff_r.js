@@ -29,7 +29,7 @@ const getNoDelFileId = async (user_id, parent_id, file_name) => {
 		`
     SELECT id FROM ff 
     WHERE user_id = ? AND parent_id = ? AND name = ? 
-      AND type = "file" AND is_delete = 0 AND ff_upd_status = "done"
+      AND type = "file" AND is_delete = 0 AND ff_upd_status IN ("done", "pre_restore")
   `,
 		[user_id, parent_id, file_name]
 	);
@@ -47,7 +47,6 @@ const getIsDelFileId = async (user_id, parent_id, file_name) => {
 	return row;
 };
 
-// TODO: check - filter ff_upd_status = "done" ?
 const getOneLevelChildByParentId = async (user_id, parent_id, is_delete) => {
 	const q_string = `
     SELECT 
@@ -95,7 +94,8 @@ const getCurrentVersionByFileId = async (file_id) => {
 const getSizeByFileIdAndVersion = async (file_id, ver) => {
 	const [row] = await pool.query(
 		`
-    SELECT size FROM file_ver WHERE ff_id = ? AND ver = ?
+    SELECT size FROM file_ver 
+    WHERE ff_id = ? AND ver = ? AND ver_upd_status = "done"
   `,
 		[file_id, ver]
 	);

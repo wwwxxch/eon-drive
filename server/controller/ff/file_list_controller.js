@@ -49,9 +49,8 @@ const showTrash = async (req, res, next) => {
 
 	const userId = req.session.user.id;
 	const deleted = await getDeletedList(userId);
-	// console.log("deleted: ", deleted);
 	if (!deleted) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) getDeletedList Error"));
 	}
 
 	const { all, folders } = deleted;

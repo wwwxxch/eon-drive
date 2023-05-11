@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { DateTime } from "luxon";
-
+import { generateCurrentTime } from "../../util/util.js";
 import { customError } from "../../error/custom_error.js";
 
 import dotenv from "dotenv";
@@ -10,25 +9,18 @@ const { S3_MAIN_BUCKET_NAME } = process.env;
 import { s3clientGeneral } from "../../service/s3/s3_client.js";
 import { copyS3Obj } from "../../service/s3/s3_copy.js";
 
-import {
-	restoreFileToPrev,
-	restoreDeletedFile,
-	commitMetadata,
-} from "../../model/db_ff_u.js";
+import { restoreFileToPrev, restoreDeletedFile } from "../../model/db_files_restore.js";
+import { commitMetadata } from "../../model/db_files_commit.js";
+
 import { updateSpaceUsedByUser } from "../../model/db_plan.js";
 import {
 	findFileIdByPath,
 	findDeletedFileIdByPath,
-  findTargetFolderId,
+	findTargetFolderId,
 } from "../../service/path/iter.js";
 import { restoreRecur } from "../../service/path/recur.js";
 
-import {
-	emitNewList,
-	emitHistoryList,
-	emitTrashList,
-	emitUsage,
-} from "../../service/sync/list.js";
+import { emitNewList, emitHistoryList, emitTrashList, emitUsage } from "../../service/sync/list.js";
 import { getCurrentSizeByFileId, getSizeByFileIdAndVersion } from "../../model/db_ff_r.js";
 // ===================================================================================
 const restoreHistory = async (req, res, next) => {
@@ -40,44 +32,37 @@ const restoreHistory = async (req, res, next) => {
 
 	// find the fileId by path
 	const fileId = await findFileIdByPath(userId, decodeFileWholePath);
-  // const fileId = -1;
+	// const fileId = -1;
 	console.log("fileId: ", fileId);
 	if (fileId === -1) {
-		return next(customError.badRequest("No such key"));
+		return next(customError.badRequest("This file may not exist."));
 	}
 
 	// check capacity
-  const targetSize = await getSizeByFileIdAndVersion(fileId, version);
-  if (targetSize < 0) {
-    return next(customError.badRequest("Cannot find record by this file id and version"));
-  }
-  const currentSize = await getCurrentSizeByFileId(fileId);
-  if (currentSize < 0) {
-    return next(customError.internalServerError());
-  }
-  console.log("targetSize: ", targetSize);
-  console.log("currentSize: ", currentSize);
+	const targetSize = await getSizeByFileIdAndVersion(fileId, version);
+	if (targetSize < 0) {
+		return next(customError.badRequest("Cannot find record by this file id and version"));
+	}
+	const currentSize = await getCurrentSizeByFileId(fileId);
+	if (currentSize < 0) {
+		return next(customError.internalServerError("(fn) getCurrentSizeByFileId Error"));
+	}
+	console.log("targetSize: ", targetSize);
+	console.log("currentSize: ", currentSize);
 
-  const allocated = Number(req.session.user.allocated);
+	const allocated = Number(req.session.user.allocated);
 	const used = Number(req.session.user.used);
-  if (used - currentSize + targetSize > allocated) {
+	if (used - currentSize + targetSize > allocated) {
 		return next(customError.badRequest("You don't have enough space."));
 	}
 
-  // update DB
+	// update DB
 	const token = uuidv4();
-	const now = DateTime.utc();
-	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
-	const restore = await restoreFileToPrev(
-		token,
-		fileId,
-		version,
-		nowTime,
-		userId
-	);
+	const nowTime = generateCurrentTime();
+	const restore = await restoreFileToPrev(token, fileId, version, nowTime, userId);
 	console.log("restore: ", restore); // new version
 	if (!restore) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) restoreFileToPrev Error"));
 	}
 
 	// update S3 - copy this version file as new version file (S3)
@@ -87,22 +72,22 @@ const restoreHistory = async (req, res, next) => {
 		`user_${userId}/${fileWholePath}.v${version}`,
 		`user_${userId}/${decodeFileWholePath}.v${restore.new_ver}`
 	);
-  // const newRecordInS3 = null;
+	// const newRecordInS3 = null;
 	console.log("newRecordInS3: ", newRecordInS3);
 	if (!newRecordInS3) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) copyS3Obj Error"));
 	}
 
 	// commit metadata
-	const commit = await commitMetadata("done", token, userId);
+	const commit = await commitMetadata("done", token, userId, nowTime);
 	if (!commit) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) commitMetadata Error"));
 	}
 
 	// update usage of an user
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) updateSpaceUsedByUser Error"));
 	}
 	req.session.user.used = currentUsed;
 
@@ -122,22 +107,22 @@ const restoreDeleted = async (req, res, next) => {
 
 	// if it's folder -> find the children under deleted folder
 	// if it's file -> find the deleted file by path
-	const token = uuidv4();
-	const now = DateTime.utc();
-	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
+
 	for (let i = 0; i < restoreList.length; i++) {
+		const token = uuidv4();
+		const nowTime = generateCurrentTime();
+
 		let key = restoreList[i];
 		let encodeKey = encodeURIComponent(restoreList[i]);
 
 		if (key.endsWith("/")) {
+			console.log("restore folder - key: ", key);
 			// get parentId
 			const folders = key.slice(0, key.length - 1).split("/");
-			// const parentId = await iterForParentId(userId, folders);
-      // TODO: ??
-      const parentId = await findTargetFolderId(userId, folders);
+			const parentId = await findTargetFolderId(userId, folders);
 			console.log("parentId: ", parentId);
 			if (parentId === -1) {
-				return next(customError.badRequest("No such key"));
+				return next(customError.badRequest("This file/folder may not exist."));
 			}
 
 			// update DB & S3
@@ -147,44 +132,40 @@ const restoreDeleted = async (req, res, next) => {
 				nowTime,
 				token,
 				userId,
-        req.session
+				req.session
 			);
 			console.log("restoreRecurRes: ", restoreRecurRes);
 			if (!restoreRecurRes) {
 				return next(customError.internalServerError());
 			}
 		} else {
+			console.log("restore file - key: ", key);
 			// get fileId
 			const fileId = await findDeletedFileIdByPath(userId, key);
-      // const fileId = -1;
+			// const fileId = -1;
 			console.log("fileId: ", fileId);
 			if (fileId === -1) {
-				return next(customError.badRequest("No such key"));
+				return next(customError.badRequest("This file/folder may not exist."));
 			}
 
-      // check capacity
-      const currentSize = await getCurrentSizeByFileId(fileId);
-      if (currentSize < 0) {
-        return next(customError.internalServerError());
-      }
-      console.log("currentSize: ", currentSize);
-      
-      const allocated = Number(req.session.user.allocated);
-      const used = Number(req.session.user.used);
-      if (used + currentSize > allocated) {
-        return next(customError.badRequest("You don't have enough space."));
-      }
+			// check capacity
+			const currentSize = await getCurrentSizeByFileId(fileId);
+			if (currentSize < 0) {
+				return next(customError.internalServerError());
+			}
+			console.log("currentSize: ", currentSize);
+
+			const allocated = Number(req.session.user.allocated);
+			const used = Number(req.session.user.used);
+			if (used + currentSize > allocated) {
+				return next(customError.badRequest("You don't have enough space."));
+			}
 
 			// update DB
-			const restoreDeleted = await restoreDeletedFile(
-				token,
-				fileId,
-				nowTime,
-				userId
-			);
+			const restoreDeleted = await restoreDeletedFile(token, fileId, nowTime, userId);
 			console.log("restoreDeleted: ", restoreDeleted); // cur version & new version
 			if (!restoreDeleted) {
-				return next(customError.internalServerError());
+				return next(customError.internalServerError("(fn) restoreDeletedFile Error"));
 			}
 
 			// update S3
@@ -196,26 +177,25 @@ const restoreDeleted = async (req, res, next) => {
 			);
 			console.log("newRecordInS3: ", newRecordInS3);
 			if (!newRecordInS3) {
-				return next(customError.internalServerError());
+				return next(customError.internalServerError("(fn) copyS3Obj Error"));
 			}
+		}
+		const commit = await commitMetadata("done", token, userId, nowTime);
+		if (!commit) {
+			return next(customError.internalServerError("(fn) commitMetadata Error"));
 		}
 	}
 
-	const commit = await commitMetadata("done", token, userId);
-	if (!commit) {
-		return next(customError.internalServerError());
-	}
-
+	const nowTime = generateCurrentTime();
 	// update usage of an user
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
-		return next(customError.internalServerError());
+		return next(customError.internalServerError("(fn) updateSpaceUsedByUser Error"));
 	}
 	req.session.user.used = currentUsed;
 
 	// emit new list
 	const io = req.app.get("socketio");
-  // TODO: main list can also be updated?
 	emitTrashList(io, userId);
 	emitUsage(io, userId, req.session.user);
 

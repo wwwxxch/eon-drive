@@ -2,14 +2,10 @@ import dotenv from "dotenv";
 dotenv.config();
 const { S3_MAIN_BUCKET_NAME, S3_DOWNLOAD_BUCKET_NAME } = process.env;
 
-import {
-	s3clientGeneral,
-	s3clientDownload,
-} from "../../service/s3/s3_client.js";
+import { s3clientGeneral } from "../../service/s3/s3_client.js";
 
 import { getDownloadUrl } from "../../service/s3/s3_download.js";
 import { copyS3Obj } from "../../service/s3/s3_copy.js";
-import { getObjSave, zipFiles, zipToS3 } from "../../service/s3/s3_download.js";
 
 import { callLambdaZip } from "../../service/lambda/lambda_invoke.js";
 
@@ -17,53 +13,57 @@ import { getCurrentVersionByFileId } from "../../model/db_ff_r.js";
 import { findFileIdByPath } from "../../service/path/iter.js";
 import { getAllChildren } from "../../service/path/recur.js";
 
-import { deleteLocal } from "../../util/util.js";
 import { customError } from "../../error/custom_error.js";
+
+// local download
+import { s3clientDownload } from "../../service/s3/s3_client.js";
+import { getObjSave, zipFiles, zipToS3 } from "../../service/s3/s3_download.js";
+import { deleteLocal } from "../../util/util.js";
 // ====================================================================
 const dlSingleFile = async (req, res, next) => {
 	console.log("dlSingleFile: ", req.body);
 	const { downloadList } = req.body;
-  if (downloadList.length > 1 || downloadList[0].endsWith("/")) {
-    return next();
-  }
-	
-  const userId = req.session.user.id;
-  const key = decodeURIComponent(downloadList[0].replace(/^\//, "").trim());
+	if (downloadList.length > 1 || downloadList[0].endsWith("/")) {
+		return next();
+	}
 
-  // 1. get current version -> giving path to obtain file id
-  const fileId = await findFileIdByPath(userId, key);
-  if (fileId === -1) {
-    return next(customError.badRequest("No such key"));
-  }
+	const userId = req.session.user.id;
+	const key = decodeURIComponent(downloadList[0].replace(/^\//, "").trim());
 
-  const version = await getCurrentVersionByFileId(fileId);
-  console.log("version: ", version);
-  if (version === -1) {
-    return next(customError.internalServerError());
-  }
+	// 1. get current version -> giving path to obtain file id
+	const fileId = await findFileIdByPath(userId, key);
+	if (fileId === -1) {
+		return next(customError.badRequest("This file/folder may not exist."));
+	}
 
-  // 2. copy ${key}.v<version> to ${key}
-  const copyS3ObjRes = await copyS3Obj(
-    s3clientGeneral,
-    S3_MAIN_BUCKET_NAME,
-    `user_${userId}/${encodeURIComponent(key)}.v${version}`,
-    `user_${userId}/${key}`
-  );
-  if (!copyS3ObjRes) {
-    return next(customError.internalServerError());
-  }
+	const version = await getCurrentVersionByFileId(fileId);
+	console.log("version: ", version);
+	if (version === -1) {
+		return next(customError.internalServerError("(fn) getCurrentVersionByFileId Error"));
+	}
 
-  // 3. get presigned URL for that file
-  const downloadUrl = await getDownloadUrl(
-    s3clientGeneral,
-    S3_MAIN_BUCKET_NAME,
-    `user_${userId}/${key}`
-  );
-  if (!downloadUrl) {
-    return next(customError.internalServerError());
-  }
+	// 2. copy ${key}.v<version> to ${key}
+	const copyS3ObjRes = await copyS3Obj(
+		s3clientGeneral,
+		S3_MAIN_BUCKET_NAME,
+		`user_${userId}/${encodeURIComponent(key)}.v${version}`,
+		`user_${userId}/${key}`
+	);
+	if (!copyS3ObjRes) {
+		return next(customError.internalServerError("(fn) copyS3Obj Error"));
+	}
 
-  return res.json({ downloadUrl: downloadUrl });
+	// 3. get presigned URL for that file
+	const downloadUrl = await getDownloadUrl(
+		s3clientGeneral,
+		S3_MAIN_BUCKET_NAME,
+		`user_${userId}/${key}`
+	);
+	if (!downloadUrl) {
+		return next(customError.internalServerError("(fn) getDownloadUrl Error"));
+	}
+
+	return res.json({ downloadUrl: downloadUrl });
 };
 
 const dlMultiFileProcess = async (req, res, next) => {
@@ -75,7 +75,7 @@ const dlMultiFileProcess = async (req, res, next) => {
 	const m_downloadList = downloadList.map((item) => {
 		return item.replace(/^\//, "").trim();
 	});
-  console.log("downloadList: ", downloadList);
+	console.log("downloadList: ", downloadList);
 	console.log("m_downloadList: ", m_downloadList);
 
 	// *** decide zip file name by path ***
@@ -84,8 +84,7 @@ const dlMultiFileProcess = async (req, res, next) => {
 	// 如果想要下載的檔案在第二層或更深層的目錄底下，並且不只一個檔案或資料夾要下載，壓縮檔名會是該層目錄名稱
 	let parentName = "EONDrive";
 	if (m_downloadList.length === 1 && m_downloadList[0].endsWith("/")) {
-		parentName =
-			m_downloadList[0].split("/")[m_downloadList[0].split("/").length - 2];
+		parentName = m_downloadList[0].split("/")[m_downloadList[0].split("/").length - 2];
 	} else if (parentPath != "/") {
 		parentName = parentPath.split("/").pop();
 	}
@@ -101,29 +100,26 @@ const dlMultiFileProcess = async (req, res, next) => {
 	let finalListNoVer = [];
 	let finalListWithVer = [];
 	for (let i = 0; i < folders.length; i++) {
-    console.log("input for getAllChildren: " ,folders[i].slice(0, folders[i].length - 1));
-		const allChildren = await getAllChildren(
-			userId,
-			folders[i].slice(0, folders[i].length - 1)
-		);
-    // if (allChildren.childsNoVer.length === 0 ||
-    //     allChildren.childsWithVer.length === 0) {
-    //       return next(customError.badRequest("No such key"));
-    //     }
+		console.log("input for getAllChildren: ", folders[i].slice(0, folders[i].length - 1));
+		const allChildren = await getAllChildren(userId, folders[i].slice(0, folders[i].length - 1));
+		// if (allChildren.childsNoVer.length === 0 ||
+		//     allChildren.childsWithVer.length === 0) {
+		//       return next(customError.badRequest("No such key"));
+		//     }
 		finalListNoVer = [...finalListNoVer, ...allChildren.childsNoVer];
 		finalListWithVer = [...finalListWithVer, ...allChildren.childsWithVer];
 	}
 	for (let i = 0; i < files.length; i++) {
 		const fileId = await findFileIdByPath(userId, files[i]);
 		if (fileId === -1) {
-      return next(customError.badRequest("No such key"));
-    }
-    const version = await getCurrentVersionByFileId(fileId);
+			return next(customError.badRequest("This file/folder may not exist."));
+		}
+		const version = await getCurrentVersionByFileId(fileId);
 		console.log("version: ", version);
-    if (version === -1) {
-      return next(customError.internalServerError());
-    }
-    finalListNoVer.push(files[i]);
+		if (version === -1) {
+			return next(customError.internalServerError("(fn) getCurrentVersionByFileId Error"));
+		}
+		finalListNoVer.push(files[i]);
 		finalListWithVer.push(`${files[i]}.v${version}`);
 	}
 
@@ -147,18 +143,18 @@ const dlCallLambda = async (req, res, next) => {
 		parentPath,
 		parentName
 	);
-  
-  if (!toLambda) {
-    return next(customError.internalServerError());
-  } else if (toLambda.status === 500 && toLambda.error === "file size exceeds 4 GB") {
-    return next(customError.badRequest("file size exceeds 4 GB"));
-  } else if (toLambda.status === 500) {
-    return next(customError.internalServerError());
-  } else if (toLambda.downloadUrl) {
-    console.log("toLambda: downloadUrl is not blank");
-  } else if (!toLambda.downloadUrl) {
-    console.log("toLambda: downloadUrl is null");
-  }
+
+	if (!toLambda) {
+		return next(customError.internalServerError());
+	} else if (toLambda.status === 500 && toLambda.error === "file size exceeds 4 GB") {
+		return next(customError.badRequest("file size exceeds 4 GB"));
+	} else if (toLambda.status === 500) {
+		return next(customError.internalServerError("(fn) callLambdaZip Error"));
+	} else if (toLambda.downloadUrl) {
+		console.log("toLambda: downloadUrl is not blank");
+	} else if (!toLambda.downloadUrl) {
+		console.log("toLambda: downloadUrl is null");
+	}
 
 	return res.json({ downloadUrl: toLambda.downloadUrl });
 };
@@ -171,8 +167,8 @@ const dlLocalArchive = async (req, res) => {
 	const userId = req.session.user.id;
 
 	const s3finalList = finalListWithVer.map((item) => `user_${userId}/${item}`);
-	
-  // save objects
+
+	// save objects
 	const saveToLocal = await getObjSave(
 		s3clientGeneral,
 		S3_MAIN_BUCKET_NAME,
@@ -180,18 +176,13 @@ const dlLocalArchive = async (req, res) => {
 		finalListNoVer
 	);
 	console.log("saveToLocal: ", saveToLocal);
-  
-  // create zip
+
+	// create zip
 	const createZip = await zipFiles(finalListNoVer, parentPath, parentName);
 	console.log("createZip: ", createZip);
-	
-  // upload zip to S3 and get the presigned URL
-  const getZipUrl = await zipToS3(
-		userId,
-		s3clientDownload,
-		S3_DOWNLOAD_BUCKET_NAME,
-		parentName
-	);
+
+	// upload zip to S3 and get the presigned URL
+	const getZipUrl = await zipToS3(userId, s3clientDownload, S3_DOWNLOAD_BUCKET_NAME, parentName);
 	console.log("getZipUrl: ", getZipUrl);
 
 	// delete files
@@ -203,9 +194,4 @@ const dlLocalArchive = async (req, res) => {
 	return res.json({ downloadUrl: getZipUrl });
 };
 
-export {
-	dlSingleFile,
-	dlMultiFileProcess,
-	dlCallLambda,
-	dlLocalArchive,
-};
+export { dlSingleFile, dlMultiFileProcess, dlCallLambda, dlLocalArchive };

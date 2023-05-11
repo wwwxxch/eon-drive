@@ -9,10 +9,6 @@ import { getLinksSharedNoti, getLinksYouShared } from "../../model/db_share.js";
 const emitNewList = async (io, userId, parentPath) => {
 	console.log("emitNewList");
 	const refresh = await getFileListByPath(userId, parentPath);
-	// console.log("refresh.data.length: ", refresh.data.length);
-	// if (refresh.data.length === 0) {
-	// 	return;
-	// }
 
 	io.to(`user_${userId}`).emit("listupd", {
 		parentPath: parentPath,
@@ -21,7 +17,7 @@ const emitNewList = async (io, userId, parentPath) => {
 };
 
 const emitHistoryList = async (io, userId, fileId) => {
-  console.log("emitHistoryList");
+	console.log("emitHistoryList");
 	const versions = await getVersionsByFileId(userId, fileId);
 	// console.log("versions", versions);
 	if (versions.length === 0) {
@@ -38,12 +34,11 @@ const emitHistoryList = async (io, userId, fileId) => {
 };
 
 const emitTrashList = async (io, userId) => {
-  console.log("emitTrashList");
+	console.log("emitTrashList");
 	const deleted = await getDeletedList(userId);
 	if (!deleted) {
 		return;
 	}
-	// console.log("deleted: ", deleted);
 
 	const { all, folders } = deleted;
 	const folderIdList = folders.map((item) => item.id);
@@ -76,15 +71,13 @@ const emitUsage = async (io, userId, userInSession) => {
 };
 
 const emitShareNoti = async (io, userId) => {
-  console.log("emitShareNoti");
+	console.log("emitShareNoti");
 	const unreadNoti = await getLinksSharedNoti(userId, 0);
 	// console.log(unreadNoti);
 	// console.log(5 - unreadNoti.length);
 
 	const readNoti =
-		unreadNoti.length < 5
-			? await getLinksSharedNoti(userId, 1, 5 - unreadNoti.length)
-			: [];
+		unreadNoti.length < 5 ? await getLinksSharedNoti(userId, 1, 5 - unreadNoti.length) : [];
 
 	const notiToFE = [...unreadNoti, ...readNoti];
 
@@ -95,7 +88,7 @@ const emitShareNoti = async (io, userId) => {
 };
 
 const emitLinksYouShared = async (io, userId) => {
-  console.log("emitLinksYouShared");
+	console.log("emitLinksYouShared");
 	const raw = await getLinksYouShared(userId);
 
 	const list = raw.reduce((acc, cur) => {
