@@ -9,7 +9,7 @@ import { notiCard, isValidEmail, copyToClipboard } from "../../../util/util.js";
 
 // get link - To public or To private
 $("input[name='access']").change(function () {
-	if ($(this).attr("id") == "access-user") {
+	if ($(this).attr("id") === "access-user") {
 		$("#recipient").prop("disabled", false);
     $("#add-email-btn").prop("disabled", false);
 	} else {

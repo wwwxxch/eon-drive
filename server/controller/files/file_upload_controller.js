@@ -8,7 +8,7 @@ import {
 	getFolderId,
 	getFileId,
 	checkPendingFileStatus,
-} from "../../model/db_ff_r.js";
+} from "../../model/db_files_read.js";
 
 import {
 	createFolder,
@@ -36,7 +36,7 @@ import {
 } from "../../model/db_files_operation_failed.js";
 // ======================================================================
 const checkUsed = async (req, res, next) => {
-	console.log("checkUsed: ", req.body);
+	console.log("/upload-start - checkUsed - req.body: ", req.body);
 
 	const { fileWholePath } = req.body;
 	const fileSize = Number(req.body.fileSize);
@@ -183,16 +183,16 @@ const uploadCleanPending = async (req, res, next) => {
 		return next(customError.internalServerError("(fn) checkPendingFileStatus Error"));
 	}
 
-	const { ff_id, file_ver_id, current_ver, operation } = fileStatus;
+	const { files_id, file_ver_id, current_ver, operation } = fileStatus;
 
 	const nowTime = generateCurrentTime();
 	let clean;
 	if (current_ver === 1) {
 		clean = await cleanUploadNewPending(token);
 	} else if (operation === "added") {
-		clean = await cleanUploadDeletedPending(token, ff_id, file_ver_id, current_ver);
+		clean = await cleanUploadDeletedPending(token, files_id, file_ver_id, current_ver);
 	} else if (operation === "updated") {
-		clean = await cleanUploadExistedPending(token, ff_id, file_ver_id, nowTime, current_ver);
+		clean = await cleanUploadExistedPending(token, files_id, file_ver_id, nowTime, current_ver);
 	}
 
 	if (!clean) {

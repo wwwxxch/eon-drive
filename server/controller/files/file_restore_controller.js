@@ -21,7 +21,7 @@ import {
 import { restoreRecur } from "../../service/path/recur.js";
 
 import { emitNewList, emitHistoryList, emitTrashList, emitUsage } from "../../service/sync/list.js";
-import { getCurrentSizeByFileId, getSizeByFileIdAndVersion } from "../../model/db_ff_r.js";
+import { getCurrentSizeByFileId, getSizeByFileIdAndVersion } from "../../model/db_files_read.js";
 // ===================================================================================
 const restoreHistory = async (req, res, next) => {
 	console.log("restoreHistory ", req.body);
@@ -84,7 +84,7 @@ const restoreHistory = async (req, res, next) => {
 		return next(customError.internalServerError("(fn) commitMetadata Error"));
 	}
 
-	// update usage of an user
+	// update usage of a user
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
 		return next(customError.internalServerError("(fn) updateSpaceUsedByUser Error"));
@@ -187,7 +187,7 @@ const restoreDeleted = async (req, res, next) => {
 	}
 
 	const nowTime = generateCurrentTime();
-	// update usage of an user
+	// update usage of a user
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
 		return next(customError.internalServerError("(fn) updateSpaceUsedByUser Error"));

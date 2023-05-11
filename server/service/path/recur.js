@@ -2,7 +2,7 @@ import {
 	getOneLevelChildByParentId,
 	getCurrentVersionByFileId,
 	getCurrentSizeByFileId,
-} from "../../model/db_ff_r.js";
+} from "../../model/db_files_read.js";
 import { restoreDeletedFile, restoreDeletedFolder } from "../../model/db_files_restore.js";
 import {
 	markDeleteById,
@@ -15,8 +15,8 @@ import dotenv from "dotenv";
 dotenv.config();
 const { S3_MAIN_BUCKET_NAME } = process.env;
 
-import { s3clientGeneral } from "../../service/s3/s3_client.js";
-import { copyS3Obj } from "../../service/s3/s3_copy.js";
+import { s3clientGeneral } from "../s3/s3_client.js";
+import { copyS3Obj } from "../s3/s3_copy.js";
 // ========================================================================================
 const deleteRecur = async (parentId, userId, time) => {
 	try {
@@ -101,7 +101,6 @@ const folderRecur = async (userId, parentId, arrNoVer, arrWithVer, currentPath) 
 // input path should be "test1/folderintest1/level2", not starting with "/" nor ending with "/"
 const getAllChildren = async (userId, path) => {
 	const folders = path.split("/");
-	// const parentId = await iterForParentId(userId, folders);
 	const parentId = await findTargetFolderId(userId, folders);
 	if (parentId === -1) {
 		return { childsNoVer: [], childsWithVer: [] };
@@ -130,7 +129,7 @@ const restoreRecur = async (parentId, currentPath, time, token, userId, session)
 					const allocated = Number(session.user.allocated);
 					const used = Number(session.user.used);
 					if (used + currentSize > allocated) {
-						throw new Error("Youd don't have enough space.");
+						throw new Error("You don't have enough space.");
 					}
 
 					// update DB for file restore

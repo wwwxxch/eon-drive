@@ -122,6 +122,7 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 				reject(`Creating zip file error: ${err}`);
 			});
 		});
+		// TODO: await archive.finalize(); ??
 		archive.finalize();
 		await Promise.all([...appendPromises, zipPromise]);
 		console.log("zipFiles: done");

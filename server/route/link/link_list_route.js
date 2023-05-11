@@ -3,13 +3,12 @@ const router = express.Router();
 
 import { wrapAsync } from "../../util/util.js";
 
-import { authentication } from "../../controller/user/user_auth_controller.js";
-
 import {
 	showLinksSharedWith,
 	showLinksYouShared,
   showCurrentACL,
 } from "../../controller/link/link_list_controller.js";
+import {authentication} from "../../middleware/auth_check.js";
 
 // --------------------------------------------------------------------------------
 router.get("/links-shared-with", authentication, showLinksSharedWith);

@@ -2,7 +2,7 @@ import { customError } from "../../error/custom_error.js";
 import {
 	getLinksSharedWithYou,
 	getLinksYouShared,
-	getFFShareStatus,
+	getFilesShareStatus,
 } from "../../model/db_share.js";
 // ====================================================================================
 const showLinksSharedWith = async (req, res) => {
@@ -57,7 +57,7 @@ const showCurrentACL = async (req, res, next) => {
 	const { fileId } = req.query;
 	const userId = req.session.user.id;
 
-	const raw = await getFFShareStatus(userId, fileId);
+	const raw = await getFilesShareStatus(userId, fileId);
 	console.log(raw);
 
 	if (raw.length < 1) {

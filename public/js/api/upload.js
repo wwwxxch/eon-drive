@@ -154,7 +154,7 @@ const uploadFile = async (currentDir, file, modalObj) => {
 	}
 	console.log("parentPath: ", parentPath);
 
-	let wholePath = "";
+	let wholePath;
 	if (fileUsed.webkitRelativePath) {
 		wholePath = ((parentPath === "" ? "" : parentPath + "/") + fileUsed.webkitRelativePath).trim();
 	} else {

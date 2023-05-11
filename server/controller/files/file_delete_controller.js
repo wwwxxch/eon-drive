@@ -67,7 +67,7 @@ const deleteDB = async (req, res, next) => {
 		}
 	}
 
-	// update usage of an user
+	// update usage of a user
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
 		return next(customError.internalServerError("(fn) updateSpaceUsedByUser Error"));

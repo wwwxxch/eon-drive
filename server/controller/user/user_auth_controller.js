@@ -1,31 +1,24 @@
-import { DateTime } from "luxon";
+import { generateCurrentTime, preventXSS } from "../../util/util.js";
 
 import dotenv from "dotenv";
-dotenv.config();
-const { S3_MAIN_BUCKET_NAME, S3_DOWNLOAD_BUCKET_NAME } = process.env;
-
 import { customError } from "../../error/custom_error.js";
 
-import {
-	chkmail,
-	createUser,
-	chkpair,
-	getUser,
-	getProfile,
-} from "../../model/db_user.js";
+import { chkmail, chkpair, createUser, getProfile, getUser } from "../../model/db_user.js";
 
 import { s3clientGeneral } from "../../service/s3/s3_client.js";
 
 import { createS3Folder } from "../../service/s3/s3_create.js";
 
-import { preventXSS } from "../../util/util.js";
+dotenv.config();
+const { S3_MAIN_BUCKET_NAME, S3_DOWNLOAD_BUCKET_NAME } = process.env;
+
 // ====================================================================
 const signUp = async (req, res, next) => {
 	console.log("signUp");
 
-	const { name , email, password } = req.body;
+	const { name, email, password } = req.body;
 
-  const modifiedName = preventXSS(name);
+	const modifiedName = preventXSS(name);
 
 	// check if the email has been registered
 	const getmail = await chkmail(email);
@@ -35,8 +28,7 @@ const signUp = async (req, res, next) => {
 	}
 
 	// create user in DB
-	const now = DateTime.utc();
-	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
+	const nowTime = generateCurrentTime();
 
 	const createUserRes = await createUser(email, password, modifiedName, nowTime);
 
@@ -66,7 +58,7 @@ const signUp = async (req, res, next) => {
 
 	if (!createMain || !createDownload) {
 		// return res.status(500).json({ msg: "Something Wrong" });
-    return next(customError.internalServerError());
+		return next(customError.internalServerError());
 	}
 
 	return res.json({ data: { user } });
@@ -80,7 +72,7 @@ const signIn = async (req, res, next) => {
 	const getpair = await chkpair(email, password);
 	if (!getpair) {
 		// return res.status(401).json({ error: "Your email and password do not match." });
-    return next(customError.unauthorized("Your email and password do not match"));
+		return next(customError.unauthorized("Your email and password do not match"));
 	}
 
 	// save user info to session
@@ -101,7 +93,6 @@ const signIn = async (req, res, next) => {
 const logOut = (req, res) => {
 	console.log("logOut");
 	req.session.destroy();
-	// return res.json({ msg: "logout" });
 	return res.redirect("/");
 };
 
@@ -114,33 +105,4 @@ const showProfile = async (req, res) => {
 	return res.json({ email, name, plan, allocated, used, created_at });
 };
 
-const authentication = (req, res, next) => {
-	if (!req.session.user) {
-		return res.status(401).json({ error: "Unauthorized" });
-	}
-	next();
-};
-
-const loginRedirect = (req, res, next) => {
-	if (req.session.user) {
-		return res.redirect("/home");
-	}
-	next();
-};
-
-const pageAuth = (req, res, next) => {
-	if (!req.session.user) {
-		return res.redirect("/");
-	}
-	next();
-};
-
-export {
-	signUp,
-	signIn,
-	logOut,
-	showProfile,
-	authentication,
-	pageAuth,
-	loginRedirect,
-};
+export { signUp, signIn, logOut, showProfile };

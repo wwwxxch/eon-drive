@@ -1,14 +1,11 @@
-import { DateTime } from "luxon";
+import { generateCurrentTime } from "../../util/util.js";
 import { v4 as uuidv4 } from "uuid";
 
 const { S3_MAIN_BUCKET_NAME } = process.env;
 import { s3clientGeneral } from "../../service/s3/s3_client.js";
 import { createS3Folder } from "../../service/s3/s3_create.js";
 
-import { getFolderId } from "../../model/db_ff_r.js";
-// import { createFolder } from "../../model/db_ff_c.js";
-// import { changeFolderDeleteStatus, commitMetadata } from "../../model/db_ff_u.js";
-
+import { getFolderId } from "../../model/db_files_read.js";
 import { createFolder, changeFolderDeleteStatus } from "../../model/db_files_upload.js";
 import { commitMetadata } from "../../model/db_files_commit.js";
 
@@ -20,8 +17,7 @@ const createFolderS3AndDB = async (req, res, next) => {
 	console.log("createFolderS3AndDB: ", req.body);
 	const userId = req.session.user.id;
 	const { parentPath, folderName } = req.body;
-	const now = DateTime.utc();
-	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
+	const nowTime = generateCurrentTime();
 
 	// DB - insert new record
 	let token;
@@ -36,7 +32,7 @@ const createFolderS3AndDB = async (req, res, next) => {
 
 	// check if there's same folder under the directory
 	const chkDir = await getFolderId(userId, parentId, folderName);
-	if (chkDir.length > 0 && chkDir[0].is_delete === 0 && chkDir[0].ff_upd_status === "done") {
+	if (chkDir.length > 0 && chkDir[0].is_delete === 0 && chkDir[0].files_upd_status === "done") {
 		// if yes & is_delete === 0
 		return next(customError.badRequest("Folder is already existed"));
 	} else if (chkDir.length > 0 && chkDir[0].is_delete === 1) {

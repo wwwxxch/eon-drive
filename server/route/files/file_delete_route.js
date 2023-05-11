@@ -1,9 +1,9 @@
 import express from "express";
 const router = express.Router();
 import { wrapAsync } from "../../util/util.js";
-import { authentication } from "../../controller/user/user_auth_controller.js";
 import { deleteValid, permDeleteValid, ValidCB } from "../../middleware/input_validator.js";
-import { deleteDB, permDelete } from "../../controller/ff/file_delete_controller.js";
+import { deleteDB, permDelete } from "../../controller/files/file_delete_controller.js";
+import {authentication} from "../../middleware/auth_check.js";
 // ------------------------------------------------------------------------------------
 router.delete("/delete", authentication, deleteValid, ValidCB, deleteDB);
 

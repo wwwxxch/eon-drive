@@ -1,5 +1,4 @@
 import { downloadShareFi } from "../../api/view.js";
-import { delay } from "../../util/util.js";
 
 // download file
 $(".fi-dl-btn").on("click", async function () {
@@ -12,14 +11,14 @@ $(".fi-dl-btn").on("click", async function () {
 	const downloadSpinner = $("#waiting-spinner");
 	const downloadComplete = $("#waiting-complete");
 	const downloadError = $("#waiting-error");
-  const uploadClose = $("#waiting-close");
+	const uploadClose = $("#waiting-close");
 
 	downloadModal.modal("show");
 	downloadStatus.text("Downloading...");
 	downloadSpinner.addClass("spinner-border");
 	downloadComplete.hide();
 	downloadError.html();
-  uploadClose.hide();
+	uploadClose.hide();
 
 	const downloadFileRes = await downloadShareFi(shareToken);
 	console.log("downloadFileRes: ", downloadFileRes);
@@ -30,11 +29,11 @@ $(".fi-dl-btn").on("click", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-    downloadComplete.show();
-    downloadStatus.text("Complete!");
-    uploadClose.show();
+		downloadComplete.show();
+		downloadStatus.text("Complete!");
+		uploadClose.show();
 
-    setTimeout(() => downloadModal.modal("hide"), 500);
+		setTimeout(() => downloadModal.modal("hide"), 500);
 		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
 		// await delay(100);
 		// downloadModal.modal("hide");
@@ -48,16 +47,13 @@ $(".fi-dl-btn").on("click", async function () {
 		if (typeof downloadFileRes.data.error === "string") {
 			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
 		} else {
-			errorHTML = downloadFileRes.data.error
-				.map((err) => `<span>${err}</span>`)
-				.join("");
+			errorHTML = downloadFileRes.data.error.map((err) => `<span>${err}</span>`).join("");
 		}
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	} else {
-		const errorHTML =
-			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+		const errorHTML = "<span>Opps! Something went wrong. Please try later or contact us.</span>";
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);

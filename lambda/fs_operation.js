@@ -6,7 +6,7 @@ const deleteLocal = async (localPath) => {
     await fs.promises.unlink(localPath);
     return (localPath + " has been deleted");
   } catch (err) {
-    return (localPath + " is not exsited");
+    return (localPath + " is not existed");
   }
 };
 

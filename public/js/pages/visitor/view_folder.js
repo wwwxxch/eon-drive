@@ -1,5 +1,5 @@
 import { getShareFoList, downloadShareFo } from "../../api/view.js";
-import { formatTime, delay } from "../../util/util.js";
+import { formatTime } from "../../util/util.js";
 
 function showShareFoList(obj) {
 	if (obj.data.length === 0) {
@@ -180,7 +180,7 @@ $(".fo-dl-btn").on("click", async function () {
 	downloadSpinner.addClass("spinner-border");
 	downloadComplete.hide();
 	downloadError.html();
-  uploadClose.hide();
+	uploadClose.hide();
 
 	const downloadFileRes = await downloadShareFo(shareToken, pathTexts + "/");
 	$(window).on("beforeunload", function () {
@@ -189,11 +189,11 @@ $(".fo-dl-btn").on("click", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-    downloadComplete.show();
-    downloadStatus.text("Complete!");
-    uploadClose.show();
+		downloadComplete.show();
+		downloadStatus.text("Complete!");
+		uploadClose.show();
 
-    setTimeout(() => downloadModal.modal("hide"), 500);
+		setTimeout(() => downloadModal.modal("hide"), 500);
 		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
 
 		// await delay(100);
@@ -208,17 +208,14 @@ $(".fo-dl-btn").on("click", async function () {
 		if (typeof downloadFileRes.data.error === "string") {
 			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
 		} else {
-			errorHTML = downloadFileRes.data.error
-				.map((err) => `<span>${err}</span>`)
-				.join("");
+			errorHTML = downloadFileRes.data.error.map((err) => `<span>${err}</span>`).join("");
 		}
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	} else {
-		const errorHTML =
-			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
-    downloadSpinner.removeClass("spinner-border");
+		const errorHTML = "<span>Opps! Something went wrong. Please try later or contact us.</span>";
+		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	}
@@ -238,8 +235,8 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 		.join("/");
 	console.log(pathTexts);
 	const $tr = $(this).closest("tr");
-	const target = $tr.find(".ff").text().trim();
-	const targetClass = $tr.find(".ff").attr("class").split(" ");
+	const target = $tr.find(".files").text().trim();
+	const targetClass = $tr.find(".files").attr("class").split(" ");
 
 	let desired;
 	if (targetClass.includes("file")) {
@@ -253,7 +250,7 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 	downloadSpinner.addClass("spinner-border");
 	downloadComplete.hide();
 	downloadError.html();
-  uploadClose.hide();
+	uploadClose.hide();
 
 	const downloadFileRes = await downloadShareFo(shareToken, desired);
 	$(window).on("beforeunload", function () {
@@ -262,11 +259,11 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-    downloadComplete.show();
-    downloadStatus.text("Complete!");
-    uploadClose.show();
+		downloadComplete.show();
+		downloadStatus.text("Complete!");
+		uploadClose.show();
 
-    setTimeout(() => downloadModal.modal("hide"), 500);
+		setTimeout(() => downloadModal.modal("hide"), 500);
 		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
 
 		// await delay(100);
@@ -276,22 +273,18 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 
 		$(window).off("beforeunload");
 		return;
-
 	} else if (downloadFileRes.status !== 200 && downloadFileRes.status !== 500) {
 		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {
 			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
 		} else {
-			errorHTML = downloadFileRes.data.error
-				.map((err) => `<span>${err}</span>`)
-				.join("");
+			errorHTML = downloadFileRes.data.error.map((err) => `<span>${err}</span>`).join("");
 		}
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	} else {
-		const errorHTML =
-			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+		const errorHTML = "<span>Opps! Something went wrong. Please try later or contact us.</span>";
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);

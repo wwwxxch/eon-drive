@@ -15,13 +15,13 @@ import { customError } from "../../error/custom_error.js";
 
 import { getMultipleUserId, getPossibleUser } from "../../model/db_user.js";
 import {
-	addUserToAcessList,
+	addUserToAccessList,
 	changeLinkToPrivate,
 	changeLinkToPublic,
-	checkLinkByFFId,
+	checkLinkByFilesId,
 	createPrivateLink,
 	createPublicLink,
-	deleteLinkByFFId,
+	deleteLinkByFilesId,
 } from "../../model/db_share.js";
 
 import { shareTokenGenerator } from "../../service/share/token_gen.js";
@@ -33,7 +33,7 @@ const createLinkCheck = async (req, res, next) => {
 	console.log("createLinkCheck: ", req.body); // access & path
 	const { targetId } = req.body;
 	const userId = req.session.user.id;
-	const shareStatus = await checkLinkByFFId(targetId, userId);
+	const shareStatus = await checkLinkByFilesId(targetId, userId);
 	console.log("shareStatus: ", shareStatus);
 	if (!shareStatus) {
 		return next(customError.badRequest("This file/folder may not exist."));
@@ -55,7 +55,7 @@ const publicLink = async (req, res, next) => {
 	let token;
 	if (!shareStatus.share_token) {
 		// no link ->
-		// update ff table with is_public = 1 & share_token
+		// update files table with is_public = 1 & share_token
 		token = shareTokenGenerator();
 		const createLinkRes = await createPublicLink(targetId, token);
 		console.log("createLinkRes: ", createLinkRes);
@@ -70,7 +70,7 @@ const publicLink = async (req, res, next) => {
 		token = shareStatus.share_token;
 	} else if (shareStatus.is_public === 0) {
 		// private link ->
-		// delete records in share_link_perm & let ff.is_public = 1
+		// delete records in share_link_perm & let files.is_public = 1
 		// return existed link
 		const changeLinkRes = await changeLinkToPublic(targetId);
 		console.log("changeLinkRes: ", changeLinkRes);
@@ -117,7 +117,7 @@ const privateLink = async (req, res, next) => {
 	if (!shareStatus.share_token) {
 		// no link ->
 		// link to user table find other users' id &
-		// update ff table with share_token &
+		// update files table with share_token &
 		// update share_link_perm table
 		token = shareTokenGenerator();
 		const createLinkRes = await createPrivateLink(targetId, token, nowTime, userList);
@@ -129,7 +129,7 @@ const privateLink = async (req, res, next) => {
 	} else if (shareStatus.is_public === 1) {
 		// public link -> return existed link
 		// link to user table find other users' id &
-		// update ff table with is_public = 0 &
+		// update files table with is_public = 0 &
 		// update share_link_perm table
 		// return existed link
 		const changeLinkRes = await changeLinkToPrivate(targetId, nowTime, userList);
@@ -146,7 +146,7 @@ const privateLink = async (req, res, next) => {
 		// check if this user is in share_link_perm table &
 		// update share_link_perm table
 
-		const grantAccess = await addUserToAcessList(targetId, nowTime, userList);
+		const grantAccess = await addUserToAccessList(targetId, nowTime, userList);
 		console.log("grantAccess: ", grantAccess);
 		token = shareStatus.share_token;
 	}
@@ -167,7 +167,7 @@ const revokeLink = async (req, res, next) => {
 	const { ff_id } = req.body;
 	const userId = req.session.user.id;
 
-	const shareStatus = await checkLinkByFFId(ff_id, userId);
+	const shareStatus = await checkLinkByFilesId(ff_id, userId);
 	// const shareStatus = null;
 	console.log("shareStatus: ", shareStatus);
 
@@ -179,7 +179,7 @@ const revokeLink = async (req, res, next) => {
 		return next(customError.badRequest("No link to be revoked"));
 	}
 
-	const revokeLinkInDB = await deleteLinkByFFId(userId, ff_id, shareStatus.is_public);
+	const revokeLinkInDB = await deleteLinkByFilesId(userId, ff_id, shareStatus.is_public);
 	console.log("revokeLinkInDB: ", revokeLinkInDB);
 	if (!revokeLinkInDB) {
 		return next(customError.internalServerError());

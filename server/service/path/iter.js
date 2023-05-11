@@ -1,34 +1,11 @@
 import {
-	getFolderId,
 	getNoDelFileId,
 	getIsDelFileId,
 	getOneLevelChildByParentId,
-	getParentInfoByFFId,
+	getParentInfoByFilesId,
 	getFoldersInfoByPath,
-} from "../../model/db_ff_r.js";
+} from "../../model/db_files_read.js";
 // ==========================================================================
-// input: folders = folders array, e.g. ["folder1", "folder2"]
-const iterForParentId = async (userId, folders) => {
-	console.log("iterForParentId: folders: ", folders);
-	let parentId = 0;
-	if (folders.length !== 1 || folders[0] !== "") {
-		for (let i = 0; i < folders.length; i++) {
-			const chkDir = await getFolderId(userId, parentId, folders[i]);
-			console.log("chkDir: ", chkDir);
-			if (chkDir.length === 1) {
-				parentId = chkDir[0].id;
-			} else if (folders[i] === "") {
-				continue;
-			} else {
-				console.error("iterForParentId - error");
-				console.error("parentId: ", parentId, " folders[i]: ", folders[i]);
-				return -1;
-			}
-		}
-	}
-	return parentId;
-};
-
 // input: path = whole path of that file
 const findFileIdByPath = async (userId, path) => {
 	const parents = path.split("/");
@@ -80,20 +57,20 @@ const getFileListByPath = async (userId, path) => {
 	return { data: list };
 };
 
-const findParentPathByFFId = async (ffId) => {
+const findParentPathByFilesId = async (filesId) => {
 	try {
 		let arr = [];
-		let obj = await getParentInfoByFFId(ffId);
+		let obj = await getParentInfoByFilesId(filesId);
 		if (!obj) {
-			throw new Error("getParentInfoByFFId error");
+			throw new Error("getParentInfoByFilesId error");
 		}
 		// console.log("obj.parent_id: ", obj.parent_id);
 		// console.log("obj.parent_name: ", obj.parent_name);
 		arr.push(obj.parent_name);
 		while (obj.parent_id !== 0) {
-			obj = await getParentInfoByFFId(obj.parent_id);
+			obj = await getParentInfoByFilesId(obj.parent_id);
 			if (!obj) {
-				throw new Error("getParentInfoByFFId error");
+				throw new Error("getParentInfoByFilesId error");
 			}
 			// console.log("obj.parent_id: ", obj.parent_id);
 			// console.log("obj.parent_name: ", obj.parent_name);
@@ -107,10 +84,10 @@ const findParentPathByFFId = async (ffId) => {
 		} else {
 			parentPath = "Home/" + arr.reverse().join("/") + "/";
 		}
-		// console.log("findParentPathByFFId - return value:", parentPath);
+		// console.log("findParentPathByFilesId - return value:", parentPath);
 		return parentPath;
 	} catch (e) {
-		console.error("findParentPathByFFId: ", e);
+		console.error("findParentPathByFilesId: ", e);
 		return null;
 	}
 };
@@ -123,10 +100,7 @@ const findTargetFolderId = async (userId, folders /*, delete_status*/) => {
 			return parentId;
 		}
 
-		const foldersPool = await getFoldersInfoByPath(
-			folders,
-			userId /*, delete_status*/
-		);
+		const foldersPool = await getFoldersInfoByPath(folders, userId /*, delete_status*/);
 		console.log("findTargetFolderId: foldersPool: ", foldersPool);
 		if (foldersPool.length === 0) {
 			return -1;
@@ -137,10 +111,7 @@ const findTargetFolderId = async (userId, folders /*, delete_status*/) => {
 		for (let i = 0; i < folders.length; i++) {
 			let found = false;
 			for (let j = 0; j < foldersPool.length; j++) {
-				if (
-					folders[i] === foldersPool[j].name &&
-					parentId === foldersPool[j].parent_id
-				) {
+				if (folders[i] === foldersPool[j].name && parentId === foldersPool[j].parent_id) {
 					parentId = foldersPool[j].id;
 					found = true;
 					break;
@@ -158,10 +129,9 @@ const findTargetFolderId = async (userId, folders /*, delete_status*/) => {
 };
 
 export {
-	iterForParentId,
 	findFileIdByPath,
 	findDeletedFileIdByPath,
 	getFileListByPath,
-	findParentPathByFFId,
+	findParentPathByFilesId,
 	findTargetFolderId,
 };

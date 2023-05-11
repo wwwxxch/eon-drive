@@ -7,11 +7,11 @@ import {
 	getFileDetail,
 	getOneLevelChildByParentId,
 	getCurrentVersionByFileId,
-} from "../../model/db_ff_r.js";
+} from "../../model/db_files_read.js";
 
 import {
 	getFileListByPath,
-	findParentPathByFFId,
+	findParentPathByFilesId,
 	findFileIdByPath,
 } from "../../service/path/iter.js";
 import { getAllChildren } from "../../service/path/recur.js";
@@ -149,7 +149,7 @@ const viewFolderList = async (req, res, next) => {
 	if (!subFolder) {
 		list = await getOneLevelChildByParentId(target.user_id, target.id, 0);
 	} else {
-		const parentParentPath = await findParentPathByFFId(target.id);
+		const parentParentPath = await findParentPathByFilesId(target.id);
 		console.log(parentParentPath);
 		if (!parentParentPath) {
 			return next(customError.internalServerError());
@@ -208,7 +208,7 @@ const viewDLcheckPermission = async (req, res, next) => {
 const viewDLfile = async (req, res, next) => {
 	console.log("viewDLFile: ", req.body);
 	const { target } = req;
-	const parentParentPath = await findParentPathByFFId(target.id);
+	const parentParentPath = await findParentPathByFilesId(target.id);
 	if (!parentParentPath) {
 		return next(customError.internalServerError());
 	}
@@ -265,7 +265,7 @@ const viewDLfolder = async (req, res, next) => {
 	const { desired } = req.body;
 	const { target } = req;
 
-	const parentParentPath = await findParentPathByFFId(target.id);
+	const parentParentPath = await findParentPathByFilesId(target.id);
 	// const parentParentPath = null;
 	if (!parentParentPath) {
 		return next(customError.internalServerError());

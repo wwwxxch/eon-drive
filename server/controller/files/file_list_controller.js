@@ -1,10 +1,10 @@
-import { getFileListByPath, findParentPathByFFId } from "../../service/path/iter.js";
+import { getFileListByPath, findParentPathByFilesId } from "../../service/path/iter.js";
 
 import {
 	getDeletedList,
 	getVersionsByFileId,
 	getDeleteRecordsByFileId,
-} from "../../model/db_ff_r.js";
+} from "../../model/db_files_read.js";
 import { customError } from "../../error/custom_error.js";
 
 // ==============================================================================
@@ -62,8 +62,8 @@ const showTrash = async (req, res, next) => {
 	// console.log("trashList: ", trashList);
 
 	for (let i = 0; i < trashList.length; i++) {
-		const parentPath = await findParentPathByFFId(trashList[i].id);
-		trashList[i].parentPath = parentPath;
+		// const parentPath = await findParentPathByFilesId(trashList[i].id);
+		trashList[i].parentPath = await findParentPathByFilesId(trashList[i].id);
 	}
 
 	return res.json({ data: trashList });

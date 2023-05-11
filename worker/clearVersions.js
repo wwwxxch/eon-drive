@@ -5,7 +5,7 @@ import {
 	getExpiredDeletedRec,
 } from "../server/model/db_expiration.js";
 import { deleteExpiredVersions, deleteExpiredDeletedRec } from "../server/model/db_files_delete.js";
-import { findParentPathByFFId } from "../server/service/path/iter.js";
+import { findParentPathByFilesId } from "../server/service/path/iter.js";
 
 import dotenv from "dotenv";
 import path from "path";
@@ -49,7 +49,7 @@ const clearVersions = async () => {
 
 			// delete these versions in S3
 			// get the whole path by ff_id
-			const parentPath = await findParentPathByFFId(element.ff_id);
+			const parentPath = await findParentPathByFilesId(element.ff_id);
 			const fullPath = parentPath.replace(/^Home\//, "") + element.name;
 			console.log("fullPath: ", fullPath);
 
@@ -74,7 +74,7 @@ const clearVersions = async () => {
 		console.log("expiredDeletedRec: ", expiredDeletedRec);
 
 		if (expiredDeletedRec.length === 0) {
-			console.log("no deleted records < expireation DT");
+			console.log("no deleted records < expiration DT");
 			return;
 		}
 

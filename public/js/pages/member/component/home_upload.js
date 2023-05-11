@@ -1,5 +1,5 @@
 import { uploadFile } from "../../../api/upload.js";
-import { delay, traverseDirectory, notiCard } from "../../../util/util.js";
+import { traverseDirectory, notiCard } from "../../../util/util.js";
 
 const blankNoti = notiCard("Cannot upload empty file or folder", 265);
 const fileNameLengthNoti = notiCard(

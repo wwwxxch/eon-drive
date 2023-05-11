@@ -3,8 +3,8 @@ const router = express.Router();
 
 import { wrapAsync } from "../../util/util.js";
 
-import { authentication } from "../../controller/user/user_auth_controller.js";
 import { notiList, readNoti } from "../../controller/notification/notification_controller.js";
+import {authentication} from "../../middleware/auth_check.js";
 // --------------------------------------------------------------------------------
 router.get("/notification", authentication, notiList);
 

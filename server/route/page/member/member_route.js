@@ -2,8 +2,8 @@ import express from "express";
 
 const router = express.Router();
 
-import { pageAuth } from "../../../../server/controller/user/user_auth_controller.js";
 import { historyFileCheck } from "../../../middleware/page_validator.js";
+import {pageAuth} from "../../../middleware/auth_check.js";
 // =====================================================================================
 router.get(/^\/home(\/.*)?$/, pageAuth, (req, res) => {
 	return res.render("member/home");

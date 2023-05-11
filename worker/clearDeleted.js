@@ -1,7 +1,7 @@
 import { DateTime, Duration } from "luxon";
 import { getExpiredDeleted } from "../server/model/db_expiration.js";
-import { getDeletedFFInfoById } from "../server/model/db_ff_r.js";
-import { findParentPathByFFId } from "../server/service/path/iter.js";
+import { getDeletedFilesInfoById } from "../server/model/db_files_read.js";
+import { findParentPathByFilesId } from "../server/service/path/iter.js";
 import { permDeleteByFileId, permDeleteByFolderId } from "../server/model/db_files_delete.js";
 
 import dotenv from "dotenv";
@@ -41,7 +41,7 @@ const clearDeleted = async () => {
 			// remove file first
 			// remove folder (no need to recursively find children under folder)
 
-			const info = await getDeletedFFInfoById(element);
+			const info = await getDeletedFilesInfoById(element);
 			// info.id info.name, info.type, info.user_id
 
 			if (info.type === "folder") expireFolders.push(info);
@@ -51,7 +51,7 @@ const clearDeleted = async () => {
 		// file
 		for (const element of expiredFiles) {
 			console.log("file: element: ", element);
-			const parentPath = await findParentPathByFFId(element.id);
+			const parentPath = await findParentPathByFilesId(element.id);
 			const fullPath = parentPath.replace(/^Home\//, "") + element.name;
 			// remove file from DB
 			const deleteDB = await permDeleteByFileId(element.id, element.user_id);
@@ -68,7 +68,7 @@ const clearDeleted = async () => {
 		// folder
 		for (const element of expireFolders) {
 			console.log("folder: element: ", element);
-			const parentPath = await findParentPathByFFId(element.id);
+			const parentPath = await findParentPathByFilesId(element.id);
 			const fullPath = parentPath.replace(/^Home\//, "") + element.name;
 			// remove folder from DB
 			const deleteDB = await permDeleteByFolderId(element.id, element.user_id);

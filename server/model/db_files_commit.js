@@ -9,8 +9,8 @@ const commitMetadata = async (upd_status, token, user_id, time, commitFolder = 0
 		// 1. find the file_id and version of current version
 		const [select] = await conn.query(
 			`
-      SELECT a.ff_id, a.ver 
-      FROM file_ver AS a INNER JOIN ff AS b ON a.ff_id = b.id 
+      SELECT a.files_id, a.ver 
+      FROM file_ver AS a INNER JOIN files AS b ON a.files_id = b.id 
       WHERE a.is_current = 1 AND a.ver_upd_status = "done" 
         AND b.upd_token = ? AND b.user_id = ?
     `,
@@ -21,9 +21,9 @@ const commitMetadata = async (upd_status, token, user_id, time, commitFolder = 0
 			// 2. update file_ver to set is_current = 0 for previous version
 			const [row_file_ver_to0] = await conn.query(
 				`
-        UPDATE file_ver SET is_current = 0 WHERE ff_id = ? AND ver = ?
+        UPDATE file_ver SET is_current = 0 WHERE files_id = ? AND ver = ?
       `,
-				[select[0].ff_id, select[0].ver]
+				[select[0].files_id, select[0].ver]
 			);
 
 			console.log("row_file_ver_to0: ", row_file_ver_to0);
@@ -32,18 +32,18 @@ const commitMetadata = async (upd_status, token, user_id, time, commitFolder = 0
 			}
 		}
 
-		// 3. update ff table
-		const [row_ff] = await conn.query(
+		// 3. update files table
+		const [row_files] = await conn.query(
 			`
-      UPDATE ff 
-      SET ff_upd_status = ?, upd_token = NULL, updated_at = ? 
+      UPDATE files 
+      SET files_upd_status = ?, upd_token = NULL, updated_at = ? 
       WHERE upd_token = ? AND user_id = ?
     `,
 			[upd_status, time, token, user_id]
 		);
 
-		if (row_ff.affectedRows < 1) {
-			throw new Error("commitMetadata: row_ff.affectedRows < 1");
+		if (row_files.affectedRows < 1) {
+			throw new Error("commitMetadata: row_files.affectedRows < 1");
 		}
 
 		// 4. update file_ver to show the current version
@@ -63,12 +63,10 @@ const commitMetadata = async (upd_status, token, user_id, time, commitFolder = 0
 
 		await conn.commit();
 		console.log("COMMIT");
-		// return { row_ff, row_file_ver_to0, row_file_ver_to1 };
 		return true;
 	} catch (e) {
 		await conn.query("ROLLBACK");
 		console.log("ROLLBACK - error: ", e);
-		// return null;
 		return false;
 	} finally {
 		await conn.release();

@@ -2,12 +2,12 @@ import express from "express";
 const router = express.Router();
 
 import { wrapAsync } from "../../util/util.js";
-import { authentication } from "../../controller/user/user_auth_controller.js";
 import {
 	showList,
 	showHistory,
 	showTrash,
-} from "../../controller/ff/file_list_controller.js";
+} from "../../controller/files/file_list_controller.js";
+import {authentication} from "../../middleware/auth_check.js";
 
 // ------------------------------------------------------------------------------------
 router.post("/show-list", authentication, showList);

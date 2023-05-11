@@ -25,8 +25,8 @@ const chkpair = async (mail, pwd) => {
 	);
 	if (row.length > 0) {
 		// argon2.verify(<hashed value>, <plain text>)
-		const validate = await argon2.verify(row[0].password, pwd);
-		return validate; // possible value: true, false
+		// const validate = await argon2.verify(row[0].password, pwd);
+		return await argon2.verify(row[0].password, pwd);
 	}
 	return false;
 };
@@ -54,49 +54,47 @@ const createUser = async (mail, pwd, name, time) => {
 };
 
 const getMultipleUserId = async (col, vals, exclude) => {
-  try {
-    const vals_trim = vals.map((item) => item.trim());
-    const [row] = await pool.query(
-      `
+	try {
+		const vals_trim = vals.map((item) => item.trim());
+		const [row] = await pool.query(
+			`
       SELECT id FROM user WHERE ${col} IN (?) AND ${col} != ?`,
-      [vals_trim, exclude]
-    );
-    console.log("row: ", row.map((item) => item.id));
-    return row.map((item) => item.id);
-  } catch (e) {
-    console.error("getMultipleUserId: ", e);
-    return null;
-  }
+			[vals_trim, exclude]
+		);
+		console.log(
+			"row: ",
+			row.map((item) => item.id)
+		);
+		return row.map((item) => item.id);
+	} catch (e) {
+		console.error("getMultipleUserId: ", e);
+		return null;
+	}
 };
 
 const getPossibleUser = async (str, self_email) => {
-	const strPlusWlidcard = str + "%";
+	const strPlusWildcard = str + "%";
 	const [row] = await pool.query(
 		`
     SELECT email FROM user WHERE email LIKE ? AND email != ?
   `,
-		[strPlusWlidcard, self_email]
+		[strPlusWildcard, self_email]
 	);
 
 	return row.map((item) => item.email);
 };
 
 const getProfile = async (user_id) => {
-	const [row] = await pool.query(`
+	const [row] = await pool.query(
+		`
     SELECT 
       email, name, 
       plan, allocated, used, 
       DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS created_at
-    FROM user WHERE id = ?`, user_id);
+    FROM user WHERE id = ?`,
+		user_id
+	);
 	return row[0];
 };
 
-export {
-	chkmail,
-	chkpair,
-	getUser,
-	createUser,
-	getMultipleUserId,
-	getPossibleUser,
-  getProfile
-};
+export { chkmail, chkpair, getUser, createUser, getMultipleUserId, getPossibleUser, getProfile };

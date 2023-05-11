@@ -7,9 +7,9 @@ import {
   signUp,
   signIn,
   logOut,
-  showProfile,
-  authentication
+  showProfile
 } from "../../controller/user/user_auth_controller.js";
+import {authentication} from "../../middleware/auth_check.js";
 
 // ======================================
 

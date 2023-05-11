@@ -6,28 +6,28 @@ const markDeleteById = async (time, id, user_id) => {
 		console.log("START TRANSACTION - markDeleteById");
 		await conn.query("START TRANSACTION");
 
-		const [ff] = await conn.query(
+		const [files] = await conn.query(
 			`
-      UPDATE ff 
+      UPDATE files 
       SET is_delete = 1, share_token = null, is_public = 0, updated_at = ? 
       WHERE id = ? AND user_id = ?
     `,
 			[time, id, user_id]
 		);
-		if (ff.affectedRows !== 1) {
-			throw new Error("ff.affectedRows !== 1");
+		if (files.affectedRows !== 1) {
+			throw new Error("files.affectedRows !== 1");
 		}
 
 		const [share_link_perm] = await conn.query(
 			`
-      DELETE FROM share_link_perm WHERE ff_id = ?
+      DELETE FROM share_link_perm WHERE files_id = ?
     `,
 			id
 		);
 
 		const [delete_rec] = await conn.query(
 			`
-      INSERT INTO ff_delete (ff_id, deleted_at) VALUES (?, ?)
+      INSERT INTO ff_delete (files_id, deleted_at) VALUES (?, ?)
     `,
 			[id, time]
 		);
@@ -54,7 +54,7 @@ const permDeleteByFileId = async (file_id, user_id) => {
 		// confirm the delete request is from the owner
 		const [checkOwner] = await conn.query(
 			`
-      SELECT id FROM ff WHERE id = ? AND user_id = ? AND type = "file"
+      SELECT id FROM files WHERE id = ? AND user_id = ? AND type = "file"
     `,
 			[file_id, user_id]
 		);
@@ -63,9 +63,9 @@ const permDeleteByFileId = async (file_id, user_id) => {
 			throw new Error("checkOwner.length !== 1");
 		}
 
-		const [delete_ff] = await conn.query(
+		const [delete_files] = await conn.query(
 			`
-      DELETE FROM ff WHERE id = ?
+      DELETE FROM files WHERE id = ?
     `,
 			file_id
 		);
@@ -92,7 +92,7 @@ const permDeleteByFolderId = async (folder_id, user_id) => {
 		// confirm the delete request is from the owner
 		const [checkOwner] = await conn.query(
 			`
-      SELECT id FROM ff WHERE id = ? AND user_id = ? AND type = "folder"
+      SELECT id FROM files WHERE id = ? AND user_id = ? AND type = "folder"
     `,
 			[folder_id, user_id]
 		);
@@ -101,9 +101,9 @@ const permDeleteByFolderId = async (folder_id, user_id) => {
 			throw new Error("checkOwner.length !== 1");
 		}
 
-		const [delete_ff] = await conn.query(
+		const [delete_files] = await conn.query(
 			`
-      DELETE FROM ff WHERE id = ?
+      DELETE FROM files WHERE id = ?
     `,
 			folder_id
 		);
@@ -136,13 +136,13 @@ const deleteExpiredVersions = async (file_ver_id_arr) => {
 	}
 };
 
-const deleteExpiredDeletedRec = async (ff_delete_id_arr) => {
+const deleteExpiredDeletedRec = async (files_delete_id_arr) => {
 	try {
 		const [row] = await pool.query(
 			`
-      DELETE FROM ff_delete WHERE id IN (?)
+      DELETE FROM files_delete WHERE id IN (?)
     `,
-			[ff_delete_id_arr]
+			[files_delete_id_arr]
 		);
 		return true;
 	} catch (e) {

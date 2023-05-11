@@ -2,13 +2,13 @@ import express from "express";
 const router = express.Router();
 
 import { wrapAsync } from "../../util/util.js";
-import { authentication } from "../../controller/user/user_auth_controller.js";
 import {
 	restoreHistoryValid,
 	restoreDeleteValid,
 	ValidCB,
 } from "../../middleware/input_validator.js";
-import { restoreHistory, restoreDeleted } from "../../controller/ff/file_restore_controller.js";
+import { restoreHistory, restoreDeleted } from "../../controller/files/file_restore_controller.js";
+import {authentication} from "../../middleware/auth_check.js";
 // ===============================================================================
 
 router.post("/restore-history", authentication, restoreHistoryValid, ValidCB, restoreHistory);

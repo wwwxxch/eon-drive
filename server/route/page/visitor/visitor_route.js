@@ -2,7 +2,8 @@ import express from "express";
 
 const router = express.Router();
 
-import { loginRedirect } from "../../../../server/controller/user/user_auth_controller.js";
+
+import {loginRedirect} from "../../../middleware/auth_check.js";
 
 // =====================================================================================
 

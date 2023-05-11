@@ -1,9 +1,9 @@
-import { getFileListByPath, findParentPathByFFId } from "../path/iter.js";
+import { getFileListByPath, findParentPathByFilesId } from "../path/iter.js";
 import {
 	getDeletedList,
 	getVersionsByFileId,
 	getDeleteRecordsByFileId,
-} from "../../model/db_ff_r.js";
+} from "../../model/db_files_read.js";
 import { getLinksSharedNoti, getLinksYouShared } from "../../model/db_share.js";
 // =============================================================================
 const emitNewList = async (io, userId, parentPath) => {
@@ -49,8 +49,8 @@ const emitTrashList = async (io, userId) => {
 	// console.log("trashList: ", trashList);
 
 	for (let i = 0; i < trashList.length; i++) {
-		const parentPath = await findParentPathByFFId(trashList[i].id);
-		trashList[i].parentPath = parentPath;
+		// const parentPath = await findParentPathByFilesId(trashList[i].id);
+		trashList[i].parentPath = await findParentPathByFilesId(trashList[i].id);
 	}
 
 	io.to(`user_${userId}`).emit("trashupd", {
@@ -67,7 +67,6 @@ const emitUsage = async (io, userId, userInSession) => {
 		allocated,
 		used,
 	});
-	return;
 };
 
 const emitShareNoti = async (io, userId) => {

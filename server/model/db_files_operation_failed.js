@@ -6,7 +6,7 @@ const cleanUploadNewPending = async (token) => {
 
 		const [row] = await pool.query(
 			`
-      DELETE FROM ff WHERE upd_token = ?
+      DELETE FROM files WHERE upd_token = ?
     `,
 			token
 		);
@@ -29,7 +29,7 @@ const cleanUploadNewPending = async (token) => {
 	}
 };
 
-const cleanUploadDeletedPending = async (token, ff_id, file_ver_id, current_ver) => {
+const cleanUploadDeletedPending = async (token, files_id, file_ver_id) => {
 	const conn = await pool.getConnection();
 	try {
 		console.log("START TRANSACTION - cleanUploadDeletedPending");
@@ -42,23 +42,17 @@ const cleanUploadDeletedPending = async (token, ff_id, file_ver_id, current_ver)
 			[file_ver_id, token]
 		);
 
-		// const [update_file_ver] = await conn.query(
-		// 	`
-		//   UPDATE file_ver SET is_current = 1 WHERE ff_id = ? AND ver = ?
-		// `,
-		// 	[ff_id, current_ver - 1]
-		// );
-
 		const [previous_time] = await conn.query(
 			`
-      SELECT MAX(deleted_at) AS deleted_at FROM ff_delete WHERE ff_id = ?
+      SELECT MAX(deleted_at) AS deleted_at FROM files_delete WHERE files_id = ?
     `,
-			ff_id
+			files_id
 		);
 
-		const [update_ff] = await conn.query(
+		const [update_files] = await conn.query(
 			`
-      UPDATE ff SET upd_token = null, ff_upd_status = "done", updated_at = ?, is_delete = 1 
+      UPDATE files 
+      SET upd_token = null, files_upd_status = "done", updated_at = ?, is_delete = 1 
       WHERE upd_token = ?
     `,
 			[previous_time[0].deleted_at, token]
@@ -77,7 +71,7 @@ const cleanUploadDeletedPending = async (token, ff_id, file_ver_id, current_ver)
 	}
 };
 
-const cleanUploadExistedPending = async (token, ff_id, file_ver_id, time, current_ver) => {
+const cleanUploadExistedPending = async (token, files_id, file_ver_id, time) => {
 	const conn = await pool.getConnection();
 	try {
 		console.log("START TRANSACTION - cleanUploadExistedPending");
@@ -93,34 +87,27 @@ const cleanUploadExistedPending = async (token, ff_id, file_ver_id, time, curren
 		const [previous_time] = await conn.query(
 			`
       SELECT updated_at FROM file_ver 
-      WHERE ff_id = ? AND is_current = 1 AND ver_upd_status = "done"
+      WHERE files_id = ? AND is_current = 1 AND ver_upd_status = "done"
     `,
-			ff_id
+			files_id
 		);
 
 		if (previous_time.length === 0) {
-			const [delete_ff] = await pool.query(
+			const [delete_files] = await pool.query(
 				`
-        DELETE FROM ff WHERE upd_token = ?
+        DELETE FROM files WHERE upd_token = ?
       `,
 				token
 			);
 		} else {
-			const [update_ff] = await conn.query(
+			const [update_files] = await conn.query(
 				`
-        UPDATE ff SET upd_token = null, ff_upd_status = "done", updated_at = ? 
+        UPDATE files SET upd_token = null, files_upd_status = "done", updated_at = ? 
         WHERE upd_token = ?
       `,
 				[previous_time[0].updated_at, token]
 			);
 		}
-
-		// await conn.query(
-		// 	`
-		//   UPDATE file_ver SET is_current = 1 WHERE ff_id = ? AND ver = ?
-		// `,
-		// 	[ff_id, current_ver - 1]
-		// );
 
 		await conn.commit();
 		console.log("COMMIT");

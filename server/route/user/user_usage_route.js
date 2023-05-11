@@ -3,13 +3,13 @@ const router = express.Router();
 
 import { DateTime } from "luxon";
 
-import { authentication } from "../../controller/user/user_auth_controller.js";
 import {
 	checkUsedByUser,
 	updateSpaceUsedByUser,
 	updateUsedByUser,
 } from "../../model/db_plan.js";
 import { customError } from "../../error/custom_error.js";
+import {authentication} from "../../middleware/auth_check.js";
 // ======================================
 
 router.get("/usage", authentication, async (req, res, next) => {

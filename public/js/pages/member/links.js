@@ -104,7 +104,7 @@ showYouSharedList(list);
 $(".you-shared-row").on("click", ".revoke-btn", async function () {
 	const ff_id = $(this).closest("tr").data("id");
 	console.log(ff_id);
-	const ff_name = $(this).closest("tr").find(".ff").text();
+	const ff_name = $(this).closest("tr").find(".files").text();
 	console.log(ff_name);
 	$("#revoke-confirm-q").html(
 		`Are you sure you want to revoke the link for <b>${ff_name}</b>?`

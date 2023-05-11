@@ -9,7 +9,7 @@ import { copyS3Obj } from "../../service/s3/s3_copy.js";
 
 import { callLambdaZip } from "../../service/lambda/lambda_invoke.js";
 
-import { getCurrentVersionByFileId } from "../../model/db_ff_r.js";
+import { getCurrentVersionByFileId } from "../../model/db_files_read.js";
 import { findFileIdByPath } from "../../service/path/iter.js";
 import { getAllChildren } from "../../service/path/recur.js";
 
@@ -85,7 +85,7 @@ const dlMultiFileProcess = async (req, res, next) => {
 	let parentName = "EONDrive";
 	if (m_downloadList.length === 1 && m_downloadList[0].endsWith("/")) {
 		parentName = m_downloadList[0].split("/")[m_downloadList[0].split("/").length - 2];
-	} else if (parentPath != "/") {
+	} else if (parentPath !== "/") {
 		parentName = parentPath.split("/").pop();
 	}
 	console.log("parentName: ", parentName);
@@ -123,7 +123,7 @@ const dlMultiFileProcess = async (req, res, next) => {
 		finalListWithVer.push(`${files[i]}.v${version}`);
 	}
 
-	console.log("finalListNover: ", finalListNoVer);
+	console.log("finalListNoVer: ", finalListNoVer);
 	console.log("finalListWithVer: ", finalListWithVer);
 
 	req.body.finalListNoVer = finalListNoVer;

@@ -4,7 +4,7 @@ import { pool } from "./connection.js";
 const getFolderId = async (user_id, parent_id, folder_name) => {
 	const [row] = await pool.query(
 		`
-    SELECT id, is_delete, ff_upd_status FROM ff 
+    SELECT id, is_delete, files_upd_status FROM files 
     WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "folder"
   `,
 		[user_id, parent_id, folder_name]
@@ -15,7 +15,7 @@ const getFolderId = async (user_id, parent_id, folder_name) => {
 const getFileId = async (user_id, parent_id, file_name) => {
 	const [row] = await pool.query(
 		`
-    SELECT id, is_delete, ff_upd_status FROM ff 
+    SELECT id, is_delete, files_upd_status FROM files 
     WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "file"
   `,
 		[user_id, parent_id, file_name]
@@ -23,13 +23,13 @@ const getFileId = async (user_id, parent_id, file_name) => {
 	return row;
 };
 
-// TODO: getNoDelFileId & getIsDelFileId -> ff_upd_status = ?
+// TODO: getNoDelFileId & getIsDelFileId -> files_upd_status = ?
 const getNoDelFileId = async (user_id, parent_id, file_name) => {
 	const [row] = await pool.query(
 		`
-    SELECT id FROM ff 
+    SELECT id FROM files 
     WHERE user_id = ? AND parent_id = ? AND name = ? 
-      AND type = "file" AND is_delete = 0 AND ff_upd_status IN ("done", "pre_restore")
+      AND type = "file" AND is_delete = 0 AND files_upd_status IN ("done", "pre_restore")
   `,
 		[user_id, parent_id, file_name]
 	);
@@ -39,7 +39,7 @@ const getNoDelFileId = async (user_id, parent_id, file_name) => {
 const getIsDelFileId = async (user_id, parent_id, file_name) => {
 	const [row] = await pool.query(
 		`
-    SELECT id FROM ff 
+    SELECT id FROM files 
     WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "file" AND is_delete = 1
   `,
 		[user_id, parent_id, file_name]
@@ -48,6 +48,7 @@ const getIsDelFileId = async (user_id, parent_id, file_name) => {
 };
 
 const getOneLevelChildByParentId = async (user_id, parent_id, is_delete) => {
+	// TODO: + NOT IN (..."del_restore") ?
 	const q_string = `
     SELECT 
       id, name, type,
@@ -56,9 +57,9 @@ const getOneLevelChildByParentId = async (user_id, parent_id, is_delete) => {
         WHEN share_token IS NULL THEN 0
         ELSE 1
         END AS is_shared
-    FROM ff 
+    FROM files 
     WHERE user_id =? AND parent_id = ? AND is_delete = ? 
-      AND ff_upd_status NOT IN ("new_upload", "del_upload") 
+      AND files_upd_status NOT IN ("new_upload", "del_upload") 
   `;
 	const [row] = await pool.query(q_string, [user_id, parent_id, is_delete]);
 	return row;
@@ -68,7 +69,7 @@ const getCurrentSizeByFileId = async (file_id) => {
 	const [row] = await pool.query(
 		`
     SELECT size FROM file_ver 
-    WHERE ff_id = ? AND is_current = 1 AND ver_upd_status = "done"
+    WHERE files_id = ? AND is_current = 1 AND ver_upd_status = "done"
   `,
 		file_id
 	);
@@ -81,7 +82,8 @@ const getCurrentSizeByFileId = async (file_id) => {
 const getCurrentVersionByFileId = async (file_id) => {
 	const [row] = await pool.query(
 		`
-    SELECT ver FROM file_ver WHERE ff_id = ? AND is_current = 1 AND ver_upd_status = "done"
+    SELECT ver FROM file_ver 
+    WHERE files_id = ? AND is_current = 1 AND ver_upd_status = "done"
   `,
 		file_id
 	);
@@ -95,7 +97,7 @@ const getSizeByFileIdAndVersion = async (file_id, ver) => {
 	const [row] = await pool.query(
 		`
     SELECT size FROM file_ver 
-    WHERE ff_id = ? AND ver = ? AND ver_upd_status = "done"
+    WHERE files_id = ? AND ver = ? AND ver_upd_status = "done"
   `,
 		[file_id, ver]
 	);
@@ -112,9 +114,9 @@ const getVersionsByFileId = async (user_id, file_id) => {
       a.ver, a.size, a.is_current, 
       DATE_FORMAT(a.updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS operation_time, 
       a.operation
-    FROM file_ver AS a INNER JOIN ff AS b 
-    ON a.ff_id = b.id 
-    WHERE b.user_id = ? AND a.ff_id = ? AND a.ver_upd_status = "done"
+    FROM file_ver AS a INNER JOIN files AS b 
+    ON a.files_id = b.id 
+    WHERE b.user_id = ? AND a.files_id = ? AND a.ver_upd_status = "done"
     ORDER BY is_current DESC, operation_time DESC 
   `,
 		[user_id, file_id]
@@ -129,9 +131,9 @@ const getDeleteRecordsByFileId = async (user_id, file_id) => {
     SELECT 
       DATE_FORMAT(a.deleted_at, '%Y-%m-%dT%H:%i:%s.000Z') AS operation_time,
       "deleted" AS operation 
-    FROM ff_delete AS a INNER JOIN ff AS b 
-    ON a.ff_id = b.id 
-    WHERE b.user_id = ? AND a.ff_id = ?
+    FROM files_delete AS a INNER JOIN files AS b 
+    ON a.files_id = b.id 
+    WHERE b.user_id = ? AND a.files_id = ?
   `,
 		[user_id, file_id]
 	);
@@ -139,13 +141,13 @@ const getDeleteRecordsByFileId = async (user_id, file_id) => {
 	return row;
 };
 
-const getParentInfoByFFId = async (ff_id) => {
+const getParentInfoByFilesId = async (files_id) => {
 	const q_string = `
     SELECT a.parent_id, b.name AS parent_name
-    FROM ff AS a LEFT JOIN ff AS b ON a.parent_id = b.id
+    FROM files AS a LEFT JOIN files AS b ON a.parent_id = b.id
     WHERE a.id = ?
   `;
-	const [parent] = await pool.query(q_string, ff_id);
+	const [parent] = await pool.query(q_string, files_id);
 	if (parent.length !== 1) {
 		return null;
 	}
@@ -163,7 +165,7 @@ const getDeletedList = async (user_id) => {
       SELECT 
         id, name, type, parent_id,
         DATE_FORMAT(updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS deleted_at
-      FROM ff WHERE is_delete = 1 AND user_id = ?
+      FROM files WHERE is_delete = 1 AND user_id = ?
     `,
 			user_id
 		);
@@ -171,7 +173,7 @@ const getDeletedList = async (user_id) => {
 		const [folders] = await conn.query(
 			`
       SELECT id 
-      FROM ff WHERE is_delete = 1 AND user_id = ? AND type = "folder" 
+      FROM files WHERE is_delete = 1 AND user_id = ? AND type = "folder" 
     `,
 			user_id
 		);
@@ -189,7 +191,7 @@ const getDeletedList = async (user_id) => {
 	}
 };
 
-const getFileDetail = async (ff_id) => {
+const getFileDetail = async (files_id) => {
 	const [row] = await pool.query(
 		`
     SELECT 
@@ -198,12 +200,12 @@ const getFileDetail = async (ff_id) => {
       DATE_FORMAT(a.created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS created_at,
       DATE_FORMAT(a.updated_at, '%Y-%m-%dT%H:%i:%s.000Z') AS updated_at, 
       c.name as owner
-    FROM ff AS a 
-    INNER JOIN file_ver AS b ON a.id = b.ff_id
+    FROM files AS a 
+    INNER JOIN file_ver AS b ON a.id = b.files_id
     INNER JOIN user AS c on a.user_id = c.id
     WHERE a.id = ? AND a.is_delete = 0 AND b.is_current = 1
   `,
-		ff_id
+		files_id
 	);
 	if (row.length !== 1) {
 		return null;
@@ -211,12 +213,12 @@ const getFileDetail = async (ff_id) => {
 	return row[0];
 };
 
-const getDeletedFFInfoById = async (ff_id) => {
+const getDeletedFilesInfoById = async (files_id) => {
 	const [row] = await pool.query(
 		`
-    SELECT id, name, type, user_id FROM ff WHERE id = ? AND is_delete = 1
+    SELECT id, name, type, user_id FROM files WHERE id = ? AND is_delete = 1
   `,
-		ff_id
+		files_id
 	);
 	if (row.length !== 1) {
 		return null;
@@ -229,12 +231,12 @@ const checkPendingFileStatus = async (user_id, token) => {
 		const [row] = await pool.query(
 			`
       SELECT 
-        a.id AS ff_id,
+        a.id AS files_id,
         b.id AS file_ver_id,
         b.ver AS current_ver,
         b.operation
-      FROM ff AS a INNER JOIN file_ver AS b ON a.id = b.ff_id
-      WHERE a.user_id = ? AND a.upd_token = ? AND a.ff_upd_status != "done" 
+      FROM files AS a INNER JOIN file_ver AS b ON a.id = b.files_id
+      WHERE a.user_id = ? AND a.upd_token = ? AND a.files_upd_status != "done" 
         AND b.is_current = 1 AND b.upd_token = ?
     `,
 			[user_id, token, token]
@@ -251,16 +253,17 @@ const checkPendingFileStatus = async (user_id, token) => {
 	}
 };
 
-const getFoldersInfoByPath = async (folders, user_id /*, delete_status*/) => {
+const getFoldersInfoByPath = async (folders, user_id) => {
 	// sprint 5
 	try {
 		const [row] = await pool.query(
 			`
-      SELECT id, parent_id, name FROM ff 
+      SELECT id, parent_id, name 
+      FROM files 
       WHERE name IN (?) AND user_id = ? 
-        AND ff_upd_status = "done" AND type = "folder"
+        AND files_upd_status = "done" AND type = "folder"
     `,
-			[folders, user_id /*, delete_status*/]
+			[folders, user_id]
 		);
 
 		return row;
@@ -281,10 +284,10 @@ export {
 	getSizeByFileIdAndVersion,
 	getVersionsByFileId,
 	getDeleteRecordsByFileId,
-	getParentInfoByFFId,
+	getParentInfoByFilesId,
 	getDeletedList,
 	getFileDetail,
-	getDeletedFFInfoById,
+	getDeletedFilesInfoById,
 	checkPendingFileStatus,
 	getFoldersInfoByPath,
 };
