@@ -24,9 +24,9 @@ const singleUpload = async (url, file) => {
 			url: url,
 			method: "put",
 			data: file,
-      headers: {
-        "Content-Type": "application/octet-stream"
-      }
+			headers: {
+				"Content-Type": "application/octet-stream",
+			},
 		});
 		console.log("putFile: ", putFile);
 		return { status: putFile.status };
@@ -137,15 +137,15 @@ const uploadFile = async (currentDir, file, modalObj) => {
 
 	// 0. request payload
 	let fileUsed = {};
-  let fileItself;
+	let fileItself;
 	if (file.modified) {
 		fileUsed.name = file.file.name;
 		fileUsed.size = file.file.size;
 		fileUsed.webkitRelativePath = file.webkitRelativePath;
-    fileItself = file.file;
+		fileItself = file.file;
 	} else {
 		fileUsed = file;
-    fileItself = file;
+		fileItself = file;
 	}
 
 	let parentPath = "";
@@ -156,13 +156,9 @@ const uploadFile = async (currentDir, file, modalObj) => {
 
 	let wholePath = "";
 	if (fileUsed.webkitRelativePath) {
-		wholePath = (
-			(parentPath === "" ? "" : parentPath + "/") + fileUsed.webkitRelativePath
-		).trim();
+		wholePath = ((parentPath === "" ? "" : parentPath + "/") + fileUsed.webkitRelativePath).trim();
 	} else {
-		wholePath = (
-			(parentPath === "" ? "" : parentPath + "/") + fileUsed.name
-		).trim();
+		wholePath = ((parentPath === "" ? "" : parentPath + "/") + fileUsed.name).trim();
 	}
 	console.log("wholePath: ", wholePath);
 
@@ -173,12 +169,7 @@ const uploadFile = async (currentDir, file, modalObj) => {
 
 	try {
 		// 1. fetch /upload-start
-		const startUploadRes = await startUpload(
-			fileUsed.name,
-			wholePath,
-			fileUsed.size,
-			splitCount
-		);
+		const startUploadRes = await startUpload(fileUsed.name, wholePath, fileUsed.size, splitCount);
 		console.log("startUploadRes.status: ", startUploadRes.status);
 		if (startUploadRes.status !== 200 && startUploadRes.status !== 500) {
 			let errorHTML;
@@ -200,8 +191,7 @@ const uploadFile = async (currentDir, file, modalObj) => {
 			const uploadFailed = await uploadFailedNoti(token);
 			return false;
 		} else if (startUploadRes.status === 500) {
-			let errorHTML =
-				"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+			let errorHTML = "<span>Opps! Something went wrong. Please try later or contact us.</span>";
 			modalObj.uploadSpinner.removeClass("spinner-border");
 			modalObj.uploadStatus.text("");
 			modalObj.uploadError.html(errorHTML);
@@ -227,11 +217,13 @@ const uploadFile = async (currentDir, file, modalObj) => {
 			toS3Res = multiUploadRes.status;
 		}
 
+		// test
+		// toS3Res = 500;
+
 		if (toS3Res !== 200) {
 			console.error("toS3Res: ", toS3Res);
 
-			let errorHTML =
-				"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+			let errorHTML = "<span>Opps! Something went wrong. Please try later or contact us.</span>";
 			modalObj.uploadSpinner.removeClass("spinner-border");
 			modalObj.uploadStatus.text("");
 			modalObj.uploadError.html(errorHTML);
@@ -255,8 +247,7 @@ const uploadFile = async (currentDir, file, modalObj) => {
 			const uploadFailed = await uploadFailedNoti(token);
 			return false;
 		} else if (commitUploadRes.status === 500) {
-      let errorHTML =
-				"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+			let errorHTML = "<span>Opps! Something went wrong. Please try later or contact us.</span>";
 			modalObj.uploadSpinner.removeClass("spinner-border");
 			modalObj.uploadStatus.text("");
 			modalObj.uploadError.html(errorHTML);

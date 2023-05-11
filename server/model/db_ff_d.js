@@ -14,9 +14,9 @@ const markDeleteById = async (time, id, user_id) => {
     `,
 			[time, id, user_id]
 		);
-    if (ff.affectedRows !== 1) {
-      throw new Error ("ff.affectedRows !== 1");
-    }
+		if (ff.affectedRows !== 1) {
+			throw new Error("ff.affectedRows !== 1");
+		}
 
 		const [share_link_perm] = await conn.query(
 			`
@@ -38,8 +38,7 @@ const markDeleteById = async (time, id, user_id) => {
 	} catch (e) {
 		await conn.query("ROLLBACK");
 		console.error("ROLLBACK - error: ", e);
-    return false;
-
+		return false;
 	} finally {
 		await conn.release();
 		console.log("RELEASE CONNECTION");
@@ -52,14 +51,17 @@ const permDeleteByFileId = async (file_id, user_id) => {
 		console.log("START TRANSACTION - permDeleteByFileId");
 		await conn.query("START TRANSACTION");
 
-    // confirm the delete request is from the owner
-    const [checkOwner] = await conn.query(`
+		// confirm the delete request is from the owner
+		const [checkOwner] = await conn.query(
+			`
       SELECT id FROM ff WHERE id = ? AND user_id = ? AND type = "file"
-    `, [file_id, user_id]);
+    `,
+			[file_id, user_id]
+		);
 
-    if (checkOwner.length !== 1) {
-      throw new Error("checkOwner.length !== 1");
-    }
+		if (checkOwner.length !== 1) {
+			throw new Error("checkOwner.length !== 1");
+		}
 
 		// share_link_perm, file_ver, ff_delete, ff
 		const [delete_link] = await conn.query(
@@ -97,7 +99,6 @@ const permDeleteByFileId = async (file_id, user_id) => {
 		await conn.query("ROLLBACK");
 		console.error("ROLLBACK - error: ", e);
 		return false;
-
 	} finally {
 		await conn.release();
 		console.log("RELEASE CONNECTION");
@@ -110,14 +111,17 @@ const permDeleteByFolderId = async (folder_id, user_id) => {
 		console.log("START TRANSACTION - permDeleteByFolderId");
 		await conn.query("START TRANSACTION");
 
-    // confirm the delete request is from the owner
-    const [checkOwner] = await conn.query(`
+		// confirm the delete request is from the owner
+		const [checkOwner] = await conn.query(
+			`
       SELECT id FROM ff WHERE id = ? AND user_id = ? AND type = "folder"
-    `, [folder_id, user_id]);
+    `,
+			[folder_id, user_id]
+		);
 
-    if (checkOwner.length !== 1) {
-      throw new Error("checkOwner.length !== 1");
-    }
+		if (checkOwner.length !== 1) {
+			throw new Error("checkOwner.length !== 1");
+		}
 
 		// share_link_perm, ff_delete, ff
 		const [delete_link] = await conn.query(
@@ -148,7 +152,6 @@ const permDeleteByFolderId = async (folder_id, user_id) => {
 		await conn.query("ROLLBACK");
 		console.error("ROLLBACK - error: ", e);
 		return false;
-
 	} finally {
 		await conn.release();
 		console.log("RELEASE CONNECTION");
@@ -156,87 +159,134 @@ const permDeleteByFolderId = async (folder_id, user_id) => {
 };
 
 const cleanUploadNewPending = async (token) => {
-  try {
-    const [row] = await pool.query(`
+	try {
+		console.log("cleanUploadNewPending");
+
+		const [row] = await pool.query(
+			`
       DELETE FROM ff WHERE upd_token = ?
-    `, token);
-    return true;
-  } catch (e) {
-    console.log("cleanPending - error: ", e);
-    return false;
-  }
+    `,
+			token
+		);
+		console.log("cleanUploadNewPending - row: ", row);
+		// what will be returned when query = delete?
+		/*
+      cleanUploadNewPending - row:  ResultSetHeader {
+        fieldCount: 0,
+        affectedRows: 1,
+        insertId: 0,
+        info: '',
+        serverStatus: 34,
+        warningStatus: 0
+      }
+    */
+		return true;
+	} catch (e) {
+		console.log("cleanPending - error: ", e);
+		return false;
+	}
 };
 
 const cleanUploadDeletedPending = async (token, ff_id, file_ver_id, current_ver) => {
-  const conn = await pool.getConnection();
-  try {
+	const conn = await pool.getConnection();
+	try {
 		console.log("START TRANSACTION - cleanUploadDeletedPending");
 		await conn.query("START TRANSACTION");
 
-    await conn.query(`
-      DELETE FROM file_ver WHERE id = ?
-    `, file_ver_id);
-		
-    await conn.query(`
-      UPDATE file_ver SET is_current = 1 WHERE ff_id = ? AND ver = ?
-    `, [ff_id, current_ver - 1]);
+		const [delete_file_ver] = await conn.query(
+			`
+      DELETE FROM file_ver WHERE id = ? AND upd_token = ?
+    `,
+			[file_ver_id, token]
+		);
 
-    const [previous_time] = await conn.query(`
+		// const [update_file_ver] = await conn.query(
+		// 	`
+		//   UPDATE file_ver SET is_current = 1 WHERE ff_id = ? AND ver = ?
+		// `,
+		// 	[ff_id, current_ver - 1]
+		// );
+
+		const [previous_time] = await conn.query(
+			`
       SELECT MAX(deleted_at) AS deleted_at FROM ff_delete WHERE ff_id = ?
-    `, ff_id);
+    `,
+			ff_id
+		);
 
-    await conn.query(`
+		const [update_ff] = await conn.query(
+			`
       UPDATE ff SET upd_token = null, ff_upd_status = "done", updated_at = ?, is_delete = 1 
       WHERE upd_token = ?
-    `, [previous_time[0].deleted_at, token]);
+    `,
+			[previous_time[0].deleted_at, token]
+		);
 
 		await conn.commit();
 		console.log("COMMIT");
 		return true;
-
 	} catch (e) {
 		await conn.query("ROLLBACK");
 		console.error("ROLLBACK - error: ", e);
 		return false;
-
 	} finally {
 		await conn.release();
 		console.log("RELEASE CONNECTION");
 	}
 };
 
-const cleanUploadExistedPending = async (token, ff_id, file_ver_id, current_ver) => {
-  const conn = await pool.getConnection();
-  try {
+const cleanUploadExistedPending = async (token, ff_id, file_ver_id, time, current_ver) => {
+	const conn = await pool.getConnection();
+	try {
 		console.log("START TRANSACTION - cleanUploadExistedPending");
 		await conn.query("START TRANSACTION");
 
-    await conn.query(`
-      DELETE FROM file_ver WHERE id = ?
-    `, file_ver_id);
-		
-    const [previous_time] = await conn.query(`
-      SELECT updated_at FROM file_ver WHERE ff_id = ? AND ver = ?
-    `, [ff_id, current_ver - 1]);
+		const [delete_file_ver] = await conn.query(
+			`
+      DELETE FROM file_ver WHERE id = ? AND upd_token = ?
+    `,
+			[file_ver_id, token]
+		);
 
-    await conn.query(`
-      UPDATE file_ver SET is_current = 1 WHERE ff_id = ? AND ver = ?
-    `, [ff_id, current_ver - 1]);
+		const [previous_time] = await conn.query(
+			`
+      SELECT updated_at FROM file_ver 
+      WHERE ff_id = ? AND is_current = 1 AND ver_upd_status = "done"
+    `,
+			ff_id
+		);
 
-    await conn.query(`
-      UPDATE ff SET upd_token = null, ff_upd_status = "done", updated_at = ? 
-      WHERE upd_token = ?
-    `, [previous_time[0].updated_at, token]);
+		if (previous_time.length === 0) {
+			const [delete_ff] = await pool.query(
+				`
+        DELETE FROM ff WHERE upd_token = ?
+      `,
+				token
+			);
+		} else {
+			const [update_ff] = await conn.query(
+				`
+        UPDATE ff SET upd_token = null, ff_upd_status = "done", updated_at = ? 
+        WHERE upd_token = ?
+      `,
+				[previous_time[0].updated_at, token]
+			);
+		}
+
+		// await conn.query(
+		// 	`
+		//   UPDATE file_ver SET is_current = 1 WHERE ff_id = ? AND ver = ?
+		// `,
+		// 	[ff_id, current_ver - 1]
+		// );
 
 		await conn.commit();
 		console.log("COMMIT");
 		return true;
-
 	} catch (e) {
 		await conn.query("ROLLBACK");
 		console.error("ROLLBACK - error: ", e);
 		return false;
-
 	} finally {
 		await conn.release();
 		console.log("RELEASE CONNECTION");
@@ -277,9 +327,9 @@ export {
 	markDeleteById,
 	permDeleteByFileId,
 	permDeleteByFolderId,
-  cleanUploadNewPending,
-  cleanUploadDeletedPending,
-  cleanUploadExistedPending,
+	cleanUploadNewPending,
+	cleanUploadDeletedPending,
+	cleanUploadExistedPending,
 	deleteExpiredVersions,
 	deleteExpiredDeletedRec,
 };

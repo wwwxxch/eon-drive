@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { DateTime } from "luxon";
 
+import { generateCurrentTime } from "../../util/util.js";
 import { customError } from "../../error/custom_error.js";
 
 import { findFileIdByPath } from "../../service/path/iter.js";
@@ -110,33 +111,32 @@ const uploadChangeDB = async (req, res, next) => {
 	let version;
 
 	if (chkFile.length > 1) {
-		return next(customError.internalServerError());
+		// 0. something wrong with getFileId function
+		return next(customError.internalServerError("(fn) getFileId Error"));
 	} else if (chkFile.length === 0) {
-		// create new file record
+		// 1. create new file record
 		chgDBres = await createFile(parentId, fileName, fileSize, userId, token, nowTime);
 		console.log("newFile: ", chgDBres);
+		if (!chgDBres) {
+			return next(customError.internalServerError("(fn) createFile Error"));
+		}
 	} else if (chkFile[0].is_delete === 1) {
-		// if file has been deleted, change delete status & update tables
+		// 2. if file has been deleted, change delete status & update tables
 		chgDBres = await updateDeletedFile(0, token, chkFile[0].id, fileSize, nowTime);
 		console.log("updDelFile: ", chgDBres);
+		if (!chgDBres) {
+			return next(customError.internalServerError("(fn) updateDeletedFile Error"));
+		}
 	} else {
-		// add new version for update
+		// 3. add new version for update
 		chgDBres = await updateExistedFile(token, chkFile[0].id, fileSize, nowTime);
 		console.log("updExsFile: ", chgDBres);
+		if (!chgDBres) {
+			return next(customError.internalServerError("(fn) updateExistedFile Error"));
+		}
 	}
 
-	if (!chgDBres) {
-		return next(customError.internalServerError());
-	}
 	version = chgDBres.new_ver;
-	// TODO: 20230509 1034 - db schema v4 - pending to review (above updates)
-
-	// update usage of an user
-	// const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
-	// if (currentUsed === -1) {
-	// 	return next(customError.internalServerError());
-	// }
-	// req.session.user.used = currentUsed;
 
 	req.token = token;
 	req.version = version;
@@ -155,7 +155,7 @@ const getS3Url = async (req, res, next) => {
 		const singleUrl = await getSingleSignedUrl(s3clientGeneral, S3_MAIN_BUCKET_NAME, key);
 
 		if (!singleUrl) {
-			return next(customError.internalServerError());
+			return next(customError.internalServerError("(fn) getSingleSignedUrl Error"));
 		}
 		return res.json({ token, singleUrl });
 	} else if (splitCount > 1) {
@@ -167,7 +167,7 @@ const getS3Url = async (req, res, next) => {
 		);
 
 		if (!multipleUrls) {
-			return next(customError.internalServerError());
+			return next(customError.internalServerError("(fn) getMultiSignedUrl Error"));
 		}
 		const { partUrls, completeUrl } = multipleUrls;
 		return res.json({ token, partUrls, completeUrl });
@@ -175,25 +175,26 @@ const getS3Url = async (req, res, next) => {
 };
 
 const uploadCleanPending = async (req, res, next) => {
-	console.log("upload-failed", req.body);
+	console.log("upload-failed - req.body: ", req.body);
 	const { token } = req.body;
 	const userId = req.session.user.id;
 
 	const fileStatus = await checkPendingFileStatus(userId, token);
+	console.log("fileStatus: ", fileStatus);
 	if (!fileStatus) {
-		return next(customError.internalServerError("Check pending file status error"));
+		return next(customError.internalServerError("(fn) checkPendingFileStatus Error"));
 	}
 
-	console.log("fileStatus: ", fileStatus);
 	const { ff_id, file_ver_id, current_ver, operation } = fileStatus;
 
+	const nowTime = generateCurrentTime();
 	let clean;
 	if (current_ver === 1) {
 		clean = await cleanUploadNewPending(token);
 	} else if (operation === "added") {
 		clean = await cleanUploadDeletedPending(token, ff_id, file_ver_id, current_ver);
 	} else if (operation === "updated") {
-		clean = await cleanUploadExistedPending(token, ff_id, file_ver_id, current_ver);
+		clean = await cleanUploadExistedPending(token, ff_id, file_ver_id, nowTime, current_ver);
 	}
 
 	if (!clean) {
@@ -201,13 +202,13 @@ const uploadCleanPending = async (req, res, next) => {
 	}
 
 	// update usage of an user
-	const now = DateTime.utc();
-	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
-	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
-	if (currentUsed === -1) {
-		return next(customError.internalServerError());
-	}
-	req.session.user.used = currentUsed;
+	// const now = DateTime.utc();
+	// const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
+	// const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
+	// if (currentUsed === -1) {
+	// 	return next(customError.internalServerError());
+	// }
+	// req.session.user.used = currentUsed;
 
 	return res.json({ msg: "ok" });
 };
@@ -217,19 +218,21 @@ const uploadCommitDB = async (req, res, next) => {
 	const { token, parentPath } = req.body;
 	const userId = req.session.user.id;
 
-	const commit = await commitMetadata("done", token, userId);
+	const nowTime = generateCurrentTime();
+
+	const commit = await commitMetadata("done", token, userId, nowTime);
 	if (!commit) {
 		return next(customError.internalServerError());
 	}
 	// console.log("commit: ", commit);
-	console.log("commit.affectedRows: ", commit.affectedRows);
-	console.log("commit.info: ", commit.info);
-	if (commit.affectedRows < 1) {
-		return next(customError.badRequest("Token is wrong"));
-	}
+	// console.log("commit.row_ff.affectedRows: ", commit.row_ff.affectedRows);
+	// console.log("commit.row_ff.info: ", commit.row_ff.info);
+	// console.log("commit.row_file_ver.affectedRows: ", commit.row_file_ver.affectedRows);
+	// console.log("commit.row_file_ver.info: ", commit.row_file_ver.info);
+	// if (commit.row_ff.affectedRows < 1 || commit.row_file_ver.affectedRows < 1) {
+	// 	return next(customError.badRequest("Token is wrong"));
+	// }
 
-	const now = DateTime.utc();
-	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
 		return next(customError.internalServerError());

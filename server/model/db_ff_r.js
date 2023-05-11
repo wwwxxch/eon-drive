@@ -1,5 +1,6 @@
 import { pool } from "./connection.js";
 // ==========================================
+// not adding upd_status = "done" in below query - need to check the status of folder
 const getFolderId = async (user_id, parent_id, folder_name) => {
 	const [row] = await pool.query(
 		`
@@ -14,7 +15,7 @@ const getFolderId = async (user_id, parent_id, folder_name) => {
 const getFileId = async (user_id, parent_id, file_name) => {
 	const [row] = await pool.query(
 		`
-    SELECT id, is_delete FROM ff 
+    SELECT id, is_delete, ff_upd_status FROM ff 
     WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "file"
   `,
 		[user_id, parent_id, file_name]
@@ -22,11 +23,13 @@ const getFileId = async (user_id, parent_id, file_name) => {
 	return row;
 };
 
+// TODO: getNoDelFileId & getIsDelFileId -> ff_upd_status = ?
 const getNoDelFileId = async (user_id, parent_id, file_name) => {
 	const [row] = await pool.query(
 		`
     SELECT id FROM ff 
-    WHERE user_id = ? AND parent_id = ? AND name = ? AND type = "file" AND is_delete = 0
+    WHERE user_id = ? AND parent_id = ? AND name = ? 
+      AND type = "file" AND is_delete = 0 AND ff_upd_status = "done"
   `,
 		[user_id, parent_id, file_name]
 	);
@@ -44,6 +47,7 @@ const getIsDelFileId = async (user_id, parent_id, file_name) => {
 	return row;
 };
 
+// TODO: check - filter ff_upd_status = "done" ?
 const getOneLevelChildByParentId = async (user_id, parent_id, is_delete) => {
 	const q_string = `
     SELECT 
@@ -54,7 +58,8 @@ const getOneLevelChildByParentId = async (user_id, parent_id, is_delete) => {
         ELSE 1
         END AS is_shared
     FROM ff 
-    WHERE user_id =? AND parent_id = ? AND is_delete = ? AND ff_upd_status = "done" 
+    WHERE user_id =? AND parent_id = ? AND is_delete = ? 
+      AND ff_upd_status NOT IN ("new_upload", "del_upload") 
   `;
 	const [row] = await pool.query(q_string, [user_id, parent_id, is_delete]);
 	return row;
@@ -63,7 +68,8 @@ const getOneLevelChildByParentId = async (user_id, parent_id, is_delete) => {
 const getCurrentSizeByFileId = async (file_id) => {
 	const [row] = await pool.query(
 		`
-    SELECT size FROM file_ver WHERE ff_id = ? AND is_current = 1
+    SELECT size FROM file_ver 
+    WHERE ff_id = ? AND is_current = 1 AND ver_upd_status = "done"
   `,
 		file_id
 	);
@@ -76,7 +82,7 @@ const getCurrentSizeByFileId = async (file_id) => {
 const getCurrentVersionByFileId = async (file_id) => {
 	const [row] = await pool.query(
 		`
-    SELECT ver FROM file_ver WHERE ff_id = ? AND is_current = 1
+    SELECT ver FROM file_ver WHERE ff_id = ? AND is_current = 1 AND ver_upd_status = "done"
   `,
 		file_id
 	);
@@ -228,11 +234,13 @@ const checkPendingFileStatus = async (user_id, token) => {
         b.ver AS current_ver,
         b.operation
       FROM ff AS a INNER JOIN file_ver AS b ON a.id = b.ff_id
-      WHERE a.user_id = ? AND a.upd_token = ? 
-        AND a.ff_upd_status != "done" AND b.is_current = 1
+      WHERE a.user_id = ? AND a.upd_token = ? AND a.ff_upd_status != "done" 
+        AND b.is_current = 1 AND b.upd_token = ?
     `,
-			[user_id, token]
+			[user_id, token, token]
 		);
+		console.log("checkPendingFileStatus: row: ", row);
+
 		if (row.length !== 1) {
 			throw new Error("checkPendingFileStatus: row.length !== 1");
 		}
@@ -249,7 +257,8 @@ const getFoldersInfoByPath = async (folders, user_id /*, delete_status*/) => {
 		const [row] = await pool.query(
 			`
       SELECT id, parent_id, name FROM ff 
-      WHERE name IN (?) AND ff_upd_status = "done" AND type = "folder" AND user_id = ?
+      WHERE name IN (?) AND user_id = ? 
+        AND ff_upd_status = "done" AND type = "folder"
     `,
 			[folders, user_id /*, delete_status*/]
 		);
