@@ -3,11 +3,14 @@ const router = express.Router();
 
 import { wrapAsync } from "../../util/util.js";
 
-import { notiList, readNoti } from "../../controller/notification/notification_controller.js";
+import {
+	noticeList,
+	makeNoticeRead,
+} from "../../controller/notification/notification_controller.js";
 import { authentication } from "../../middleware/auth_check.js";
 // --------------------------------------------------------------------------------
-router.get("/notification", authentication, notiList);
+router.get("/notification", authentication, noticeList);
 
-router.patch("/notification/:shareId", authentication, readNoti);
+router.patch("/notification/:shareId", authentication, makeNoticeRead);
 
 export { router as notification_route };

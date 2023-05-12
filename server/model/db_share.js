@@ -300,7 +300,7 @@ const getFilesShareStatus = async (user_id, files_id) => {
 	return row;
 };
 
-const getLinksSharedNoti = async (has_access, is_read, offset = 5) => {
+const getLinksSharedNotice = async (has_access, is_read, offset = 5) => {
 	try {
 		const q_string = `
       SELECT
@@ -332,12 +332,12 @@ const getLinksSharedNoti = async (has_access, is_read, offset = 5) => {
 		}
 		return row;
 	} catch (e) {
-		console.error("getLinksSharedNoti: ", e);
+		console.error("getLinksSharedNotice: ", e);
 		return [];
 	}
 };
 
-const changeNotiRead = async (has_access, share_id) => {
+const changeNoticeReadStatus = async (has_access, share_id) => {
 	try {
 		const [row] = await pool.query(
 			`
@@ -349,7 +349,7 @@ const changeNotiRead = async (has_access, share_id) => {
 
 		return row;
 	} catch (e) {
-		console.error("changeNotiRead: ", e);
+		console.error("changeNoticeReadStatus: ", e);
 		return null;
 	}
 };
@@ -367,6 +367,6 @@ export {
 	getLinksYouShared,
 	deleteLinkByFilesId,
 	getFilesShareStatus,
-	getLinksSharedNoti,
-	changeNotiRead,
+	getLinksSharedNotice,
+	changeNoticeReadStatus,
 };

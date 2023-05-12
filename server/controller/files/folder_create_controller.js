@@ -11,7 +11,7 @@ import { commitMetadata } from "../../model/db_files_commit.js";
 
 import { findTargetFolderId } from "../../service/path/iter.js";
 import { emitNewList } from "../../service/sync/list.js";
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 // ===========================================================================
 const createFolderS3AndDB = async (req, res, next) => {
 	console.log("createFolderS3AndDB: ", req.body);
@@ -27,21 +27,21 @@ const createFolderS3AndDB = async (req, res, next) => {
 	// const parentId = -1;
 	console.log("findTargetFolderId: parentId: ", parentId);
 	if (parentId === -1) {
-		return next(customError.badRequest("This file/folder may not exist."));
+		return next(CustomError.badRequest("This file/folder may not exist."));
 	}
 
 	// check if there's same folder under the directory
 	const chkDir = await getFolderId(userId, parentId, folderName);
 	if (chkDir.length > 0 && chkDir[0].is_delete === 0 && chkDir[0].files_upd_status === "done") {
 		// if yes & is_delete === 0
-		return next(customError.badRequest("Folder is already existed"));
+		return next(CustomError.badRequest("Folder is already existed"));
 	} else if (chkDir.length > 0 && chkDir[0].is_delete === 1) {
 		// if yes & is_delete === 1 -> change folder delete status
 		const chgDelStatus = await changeFolderDeleteStatus(0, chkDir[0].id, nowTime);
 		console.log("chgDelStatus.affectedRows: ", chgDelStatus.affectedRows);
 
 		if (!chgDelStatus || chgDelStatus.affectedRows !== 1) {
-			return next(customError.internalServerError("(fn) changeFolderDeleteStatus Error"));
+			return next(CustomError.internalServerError("(fn) changeFolderDeleteStatus Error"));
 		}
 	} else {
 		// if no -> createNewDir
@@ -49,7 +49,7 @@ const createFolderS3AndDB = async (req, res, next) => {
 		const newDirId = await createFolder(parentId, folderName, userId, token, nowTime);
 		console.log("newDirId: ", newDirId);
 		if (newDirId === -1) {
-			return next(customError.internalServerError("(fn) createFolder Error"));
+			return next(CustomError.internalServerError("(fn) createFolder Error"));
 		}
 	}
 
@@ -63,13 +63,13 @@ const createFolderS3AndDB = async (req, res, next) => {
 	const createS3Res = await createS3Folder(s3clientGeneral, S3_MAIN_BUCKET_NAME, key);
 	console.log("createS3Res: ", createS3Res);
 	if (!createS3Res) {
-		return next(customError.internalServerError("(fn) createS3Folder Error"));
+		return next(CustomError.internalServerError("(fn) createS3Folder Error"));
 	}
 
 	// DB - commit
 	const commit = await commitMetadata("done", token, userId, nowTime, 1);
 	if (!commit) {
-		return next(customError.internalServerError("(fn) commitMetadata Error"));
+		return next(CustomError.internalServerError("(fn) commitMetadata Error"));
 	}
 
 	// emit new list

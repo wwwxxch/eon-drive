@@ -12,7 +12,7 @@ import { socketConn } from "./server/util/socket.js";
 
 import { pub, sub } from "./server/util/cache.js";
 
-import { customError } from "./server/error/custom_error.js";
+import { CustomError } from "./server/error/custom_error.js";
 
 dotenv.config();
 const port = process.env.PORT;
@@ -23,9 +23,7 @@ const server = http.createServer(app);
 // ------------------------------------------------------------------------------
 // session
 const PROTOCOL =
-	process.env.NODE_ENV === "dev"
-		? process.env.LOCAL_PROTOCOL
-		: process.env.PROD_PROTOCOL;
+	process.env.NODE_ENV === "dev" ? process.env.LOCAL_PROTOCOL : process.env.PROD_PROTOCOL;
 
 if (process.env.NODE_ENV === "prod") {
 	app.set("trust proxy", 1);
@@ -61,6 +59,7 @@ app.set("view engine", "ejs");
 // Page
 import { page_member } from "./server/route/page//member/member_route.js";
 import { page_visitor } from "./server/route/page/visitor/visitor_route.js";
+
 app.use(page_member, page_visitor);
 
 // --------------------------------------------------------------------------------
@@ -94,28 +93,12 @@ app.use(
 );
 
 // ---------------------------------------------------
-// Simple check
+// check route for load balancer
 app.get("/check", (req, res) => {
-  if (Date.now() % 10 === 0) {
-    console.log("/check");
-  }
+	if (Date.now() % 10 === 0) {
+		console.log("/check");
+	}
 	return res.send("ok");
-});
-
-app.get("/test", (req, res) => {
-	res.send(`
-  <p>req.protocol: ${req.protocol}</p>
-  <p>req.headers.host: ${req.headers.host}</p>
-  <p>req.hostname: ${req.hostname}</p>
-  <p>req.socket.remoteAddress: ${req.socket.remoteAddress}</p>
-  <p>req.headers["x-forwarded-for"]: ${req.headers["x-forwarded-for"]}</p>
-  <p>req.headers["x-real-ip"]: ${req.headers["x-real-ip"]}</p>
-  <p>req.ip: ${req.ip}</p>
-  <p>req.ips: ${req.ips}</p>
-  <p>req.path: ${req.path}</p>
-  <p>req.originalUrl: ${req.originalUrl}</p>
-  <p>req.url: ${req.url}</p>
-`);
 });
 
 // ---------------------------------------------------
@@ -130,11 +113,13 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-	if (err instanceof customError) {
+	// custom error
+	if (err instanceof CustomError) {
 		console.error("err.message: ", err.message);
 		return res.status(err.status).json({ error: err.message });
 	}
-	// console.error("error handler: ", err);
+	// other error
+	console.error("global error handler: ", err);
 	return res.status(err.status || 500).render("error/error", {
 		status: err.status || 500,
 		message: err.message || "Internal Server Error",

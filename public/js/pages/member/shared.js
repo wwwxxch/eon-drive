@@ -1,25 +1,25 @@
 import { askSharedWithList } from "../../api/share.js";
 // ===================================================
 function showSharedWithList(obj) {
-  // if (obj.data.length === 0) {
+	// if (obj.data.length === 0) {
 
-  // }
-  obj.data.forEach(item => {
-    const cellFF = `
+	// }
+	obj.data.forEach((item) => {
+		const cellFiles = `
       <td>
-        <div class="ff">
-          ${item.ff_name}
+        <div class="files">
+          ${item.files_name}
         </div>
       </td>
     `;
-    const cellOwner = `
+		const cellOwner = `
       <td>
         <div class="owner">
           ${item.owner}
         </div>
       </td>
     `;
-    const cellLink = `
+		const cellLink = `
       <td>
         <div class="link">
           <a class="link-atag" href="/${item.link}" target="_blank">
@@ -28,14 +28,12 @@ function showSharedWithList(obj) {
         </div>
       </td>
     `;
-    const tr = $("<tr>").addClass("shared-with-row");
-    tr.append(cellFF, cellOwner, cellLink);
-    $("#shared-with-list-tbody").append(tr);
-  });
-
+		const tr = $("<tr>").addClass("shared-with-row");
+		tr.append(cellFiles, cellOwner, cellLink);
+		$("#shared-with-list-tbody").append(tr);
+	});
 }
 
 const list = await askSharedWithList();
 console.log(list);
 showSharedWithList(list);
-

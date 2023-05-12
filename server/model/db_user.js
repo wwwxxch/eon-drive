@@ -72,18 +72,6 @@ const getMultipleUserId = async (col, vals, exclude) => {
 	}
 };
 
-const getPossibleUser = async (str, self_email) => {
-	const strPlusWildcard = str + "%";
-	const [row] = await pool.query(
-		`
-    SELECT email FROM user WHERE email LIKE ? AND email != ?
-  `,
-		[strPlusWildcard, self_email]
-	);
-
-	return row.map((item) => item.email);
-};
-
 const getProfile = async (user_id) => {
 	const [row] = await pool.query(
 		`
@@ -97,4 +85,4 @@ const getProfile = async (user_id) => {
 	return row[0];
 };
 
-export { chkmail, chkpair, getUser, createUser, getMultipleUserId, getPossibleUser, getProfile };
+export { chkmail, chkpair, getUser, createUser, getMultipleUserId, getProfile };

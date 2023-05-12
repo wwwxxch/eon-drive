@@ -14,14 +14,13 @@ $("#logout-btn").on("click", async function (e) {
 // profile button
 $("#profile-btn").on("click", async function (e) {
 	e.preventDefault();
-	// window.location.href = "/profile";
+	// TODO: error handling
 	const profile = await askProfile();
-	console.log("profile: ", profile);
 
 	$(".user-name").text(profile.name);
 	$(".user-email").text(profile.email);
 
-  const accountCreateDate = formatTime(profile.created_at, "yyyy-MM-dd");
+	const accountCreateDate = formatTime(profile.created_at, "yyyy-MM-dd");
 	$(".user-created").text(accountCreateDate);
 
 	const planText = profile.plan === 1 ? "Free" : "";
@@ -47,18 +46,15 @@ function notiList(input) {
 	}
 
 	if (input.data.length > 0) {
-		// $("#no-noti").hide();
 		$("#noti-ul").empty();
 		input.data.sort((a, b) => {
-			return (
-				new Date(b.time_shared).getTime() - new Date(a.time_shared).getTime()
-			);
+			return new Date(b.time_shared).getTime() - new Date(a.time_shared).getTime();
 		});
 
 		let feeds = input.data
 			.map((item) => {
 				// console.log("time_shared: ", item.time_shared);
-        const dt = formatTime(item.time_shared);
+				const dt = formatTime(item.time_shared);
 				const isReadClass = item.is_read === 0 ? "new-noti" : "";
 				return `
           <div class="dropdown-item noti-item ${isReadClass}" data-shared-id="${item.share_id}" data-read=${item.is_read} >
@@ -66,9 +62,9 @@ function notiList(input) {
               <div class="noti-text">
                 <span class="noti-owner">${item.owner}</span>
                 <span>shared</span>
-                <span class="noti-ff">
+                <span class="noti-files">
                   <a class="share-link" href="/${item.link}" target="_blank">
-                    ${item.ff_name}
+                    ${item.files_name}
                   </a>
                 </span>
                 <span>with you.</span>
@@ -100,13 +96,14 @@ $("#noti-ul").on("mouseenter", ".noti-item.new-noti", async function () {
 	}
 });
 
-// const socket = io();
-socket.on("sharenoti", (data) => {
-	console.log("sharenoti: ", data);
+// =============================================================================
+// socket io
+
+socket.on("shareNotice", (data) => {
+	console.log("shareNotice: ", data);
 	$("#noti-ul").empty();
 	notiList(data);
 });
-
 
 // const place = window.location.pathname.split("/")[1];
 // console.log("place: ", place);

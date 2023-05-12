@@ -2,17 +2,13 @@ import { uploadFile } from "../../../api/upload.js";
 import { traverseDirectory, notiCard } from "../../../util/util.js";
 
 const blankNoti = notiCard("Cannot upload empty file or folder", 265);
-const fileNameLengthNoti = notiCard(
-	"File name should be 1 - 255 characters long",
-	343
-);
+const fileNameLengthNoti = notiCard("File name should be 1 - 255 characters long", 343);
 const fileNameRegexNoti = notiCard(
 	"File name is invalid.<br>Only below characters are allowed: &nbsp <b>_-.@$</b>",
 	313
 );
 
-// const ffRegex = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ ]+$/;
-const ffRegex = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ \[\]\(\)\+]+$/;
+const filesRegex = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ \[\]\(\)\+]+$/;
 
 // Drag & Drop
 $(function () {
@@ -81,8 +77,8 @@ $(function () {
 		const uploadComplete = $("#waiting-complete");
 		const uploadError = $("#waiting-error");
 
-    const uploadClose = $("#waiting-close");
-    uploadClose.hide();
+		const uploadClose = $("#waiting-close");
+		uploadClose.hide();
 
 		const modalObj = {
 			uploadModal,
@@ -93,7 +89,7 @@ $(function () {
 		};
 
 		// 4. start upload
-    
+
 		for (let element of arr) {
 			let fileUsed = {};
 			if (element.modified) {
@@ -107,7 +103,7 @@ $(function () {
 				blankNoti.show();
 				break;
 			}
-			if (!fileUsed.name.match(ffRegex)) {
+			if (!fileUsed.name.match(filesRegex)) {
 				fileNameRegexNoti.show();
 				break;
 			}
@@ -115,29 +111,25 @@ $(function () {
 				fileNameLengthNoti.show();
 				break;
 			}
-      $(window).on("beforeunload", function () {
-        return "Uploading will be interrupted";
-      });
+			$(window).on("beforeunload", function () {
+				return "Uploading will be interrupted";
+			});
 			const uploadFileRes = await uploadFile(currentPath, element, modalObj);
 			console.log("uploadFileRes: ", uploadFileRes);
-      if (uploadFileRes === false) {
-        $(window).off("beforeunload");
-        return;
-      }
+			if (uploadFileRes === false) {
+				$(window).off("beforeunload");
+				return;
+			}
 		}
-    // After all files are uploaded, showing the complete message
-    console.log("check");
-    modalObj.uploadSpinner.removeClass("spinner-border");
+		// After all files are uploaded, showing the complete message
+		console.log("check");
+		modalObj.uploadSpinner.removeClass("spinner-border");
 		modalObj.uploadComplete.show();
 		setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
 		setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
-    // await delay(100);
-    // modalObj.uploadStatus.text("Complete!");
-    // await delay(1500);
-    // modalObj.uploadModal.modal("hide");
-    
-    $(window).off("beforeunload");
-    return;
+
+		$(window).off("beforeunload");
+		return;
 	});
 });
 
@@ -182,8 +174,8 @@ async function submitForm(form, input) {
 		const uploadComplete = $("#waiting-complete");
 		const uploadError = $("#waiting-error");
 
-    const uploadClose = $("#waiting-close");
-    uploadClose.hide();
+		const uploadClose = $("#waiting-close");
+		uploadClose.hide();
 
 		const modalObj = {
 			uploadModal,
@@ -203,7 +195,7 @@ async function submitForm(form, input) {
 				blankNoti.show();
 				break;
 			}
-			if (!file.name.match(ffRegex)) {
+			if (!file.name.match(filesRegex)) {
 				fileNameRegexNoti.show();
 				break;
 			}
@@ -211,37 +203,34 @@ async function submitForm(form, input) {
 				fileNameLengthNoti.show();
 				break;
 			}
-      $(window).on("beforeunload", function () {
-        return "Uploading will be interrupted";
-      });
+			$(window).on("beforeunload", function () {
+				return "Uploading will be interrupted";
+			});
 			const uploadFileRes = await uploadFile(currentPath, file, modalObj);
 			console.log("uploadFileRes: ", uploadFileRes);
-      if (uploadFileRes === false) {
-        $(window).off("beforeunload");
-        return;
-      }
+			if (uploadFileRes === false) {
+				$(window).off("beforeunload");
+				return;
+			}
 		}
 
 		// After all files are uploaded, showing the complete message
-    console.log("upload complete");
-    modalObj.uploadSpinner.removeClass("spinner-border");
+		console.log("upload complete");
+		modalObj.uploadSpinner.removeClass("spinner-border");
 		modalObj.uploadComplete.show();
 		setTimeout(() => modalObj.uploadStatus.text("Complete!"), 100);
 		setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
-    // await delay(100);
-    // modalObj.uploadStatus.text("Complete!");
-    // await delay(1500);
-    // modalObj.uploadModal.modal("hide");
-    
-    $(window).off("beforeunload");
-    return;
+
+		$(window).off("beforeunload");
+		return;
 	});
 }
+showInputTag($("#drag-drop-box"), $fileInput);
 
 showInputTag($fileUploadBtn, $fileInput);
-showInputTag($("#drag-drop-box"), $fileInput);
 triggerSubmit($fileInput, $fileForm);
 submitForm($fileForm, $fileInput);
+
 showInputTag($folderUploadBtn, $folderInput);
 triggerSubmit($folderInput, $folderForm);
 submitForm($folderForm, $folderInput);

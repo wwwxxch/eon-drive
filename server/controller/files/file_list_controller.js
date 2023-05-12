@@ -5,7 +5,7 @@ import {
 	getVersionsByFileId,
 	getDeleteRecordsByFileId,
 } from "../../model/db_files_read.js";
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 
 // ==============================================================================
 const showList = async (req, res, next) => {
@@ -22,7 +22,7 @@ const showList = async (req, res, next) => {
 
 	const getFileListRes = await getFileListByPath(userId, decodePath);
 	if (!getFileListRes.data) {
-		return next(customError.badRequest("Invalid path"));
+		return next(CustomError.badRequest("Invalid path"));
 	}
 
 	return res.json({ data: getFileListRes.data });
@@ -50,7 +50,7 @@ const showTrash = async (req, res, next) => {
 	const userId = req.session.user.id;
 	const deleted = await getDeletedList(userId);
 	if (!deleted) {
-		return next(customError.internalServerError("(fn) getDeletedList Error"));
+		return next(CustomError.internalServerError("(fn) getDeletedList Error"));
 	}
 
 	const { all, folders } = deleted;

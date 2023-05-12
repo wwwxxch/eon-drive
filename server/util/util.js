@@ -30,8 +30,6 @@ const preventXSS = (input) => {
 };
 
 const generateCurrentTime = () => {
-	// const now = DateTime.utc();
-	// const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
 	return DateTime.utc().toFormat("yyyy-MM-dd HH:mm:ss");
 };
 

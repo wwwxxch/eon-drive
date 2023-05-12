@@ -28,9 +28,9 @@ const createLink = async (targetId, accessType, userList = []) => {
 	}
 };
 
-const revokeLink = async (files_id) => {
+const revokeLink = async (filesId) => {
 	try {
-		const revokeLinkRes = await axios.post("/revoke-link", { files_id });
+		const revokeLinkRes = await axios.post("/revoke-link", { filesId });
 		console.log("revokeLinkRes: ", revokeLinkRes);
 		return { status: revokeLinkRes.status };
 	} catch (e) {
@@ -41,7 +41,7 @@ const revokeLink = async (files_id) => {
 
 const askSharedWithList = async () => {
 	try {
-		const askSharedWithListRes = await axios.get("/links-shared-with");
+		const askSharedWithListRes = await axios.get("/links-shared-with-you");
 		console.log("askSharedWithListRes: ", askSharedWithListRes);
 		return askSharedWithListRes.data;
 	} catch (e) {
@@ -72,22 +72,4 @@ const checkShareStatus = async (filesId) => {
 	}
 };
 
-const showCandidatesByInput = async (input) => {
-	try {
-		const showCandidatesRes = await axios.get(`/select-user?q=${input}`);
-		console.log("showCandidatesRes: ", showCandidatesRes);
-		return showCandidatesRes;
-	} catch (e) {
-		console.error("showCandidatesByInput: ", e);
-		return { status: e.response.status, data: e.response.data };
-	}
-};
-
-export {
-	createLink,
-	revokeLink,
-	askSharedWithList,
-	askYouSharedList,
-	checkShareStatus,
-	showCandidatesByInput,
-};
+export { createLink, revokeLink, askSharedWithList, askYouSharedList, checkShareStatus };

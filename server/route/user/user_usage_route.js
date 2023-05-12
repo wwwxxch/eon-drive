@@ -8,7 +8,7 @@ import {
 	updateSpaceUsedByUser,
 	updateUsedByUser,
 } from "../../model/db_plan.js";
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 import {authentication} from "../../middleware/auth_check.js";
 // ======================================
 

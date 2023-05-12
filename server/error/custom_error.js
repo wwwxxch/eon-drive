@@ -1,4 +1,4 @@
-class customError extends Error {
+class CustomError extends Error {
   constructor(message, status) {
     super(message);
     this.name = this.constructor.name;
@@ -6,20 +6,20 @@ class customError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
   static badRequest(message) {
-    return new customError(message || "Bad Request", 400);
+    return new CustomError(message || "Bad Request", 400);
   }
   static unauthorized(message) {
-    return new customError(message || "Unauthorized", 401);
+    return new CustomError(message || "Unauthorized", 401);
   }
   static forbidden(message) {
-    return new customError(message || "Forbidden", 403);
+    return new CustomError(message || "Forbidden", 403);
   }
   static notFound(message) {
-    return new customError(message || "Not found", 404);
+    return new CustomError(message || "Not found", 404);
   }
   static internalServerError(message) {
-    return new customError(message || "Something wrong", 500);
+    return new CustomError(message || "Something wrong", 500);
   }
 }
 
-export { customError };
+export { CustomError };

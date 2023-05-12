@@ -1,11 +1,11 @@
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 import {
 	getLinksSharedWithYou,
 	getLinksYouShared,
 	getFilesShareStatus,
 } from "../../model/db_share.js";
 // ====================================================================================
-const showLinksSharedWith = async (req, res) => {
+const showLinksSharedWithYou = async (req, res) => {
 	const userId = req.session.user.id;
 	const list = await getLinksSharedWithYou(userId);
 
@@ -61,7 +61,7 @@ const showCurrentACL = async (req, res, next) => {
 	console.log(raw);
 
 	if (raw.length < 1) {
-		return next(customError.badRequest("This file/folder may not exist."));
+		return next(CustomError.badRequest("This file/folder may not exist."));
 	}
 
 	const share_link = raw[0].share_token
@@ -84,4 +84,4 @@ const showCurrentACL = async (req, res, next) => {
 	});
 };
 
-export { showLinksSharedWith, showLinksYouShared, showCurrentACL };
+export { showLinksSharedWithYou, showLinksYouShared, showCurrentACL };

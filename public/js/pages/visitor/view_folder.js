@@ -11,7 +11,7 @@ function showShareFoList(obj) {
 	obj.data.forEach((item) => {
 		const cellName = `
       <td style="width: 29vw">
-        <div class="${item.type} ff" data-id="${item.id}">
+        <div class="${item.type} files" data-id="${item.id}">
           ${item.name}
         </div>
       </td>
@@ -44,7 +44,7 @@ function showShareFoList(obj) {
         </td>
       `;
 		}
-		const tr = $("<tr>").addClass("ff-row");
+		const tr = $("<tr>").addClass("files-row");
 		tr.append(cellName, cellTime);
 		$("#fo-list-tbody").append(tr);
 	});

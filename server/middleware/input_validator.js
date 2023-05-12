@@ -3,7 +3,9 @@ import { body, validationResult } from "express-validator";
 import dotenv from "dotenv";
 dotenv.config();
 const SHARE_TOKEN_LENGTH = process.env.SHARE_TOKEN_LENGTH;
-// ============================================================
+// =========================================================================================
+const pwdRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
+
 const signupValid = [
 	body("name").trim().isLength({ min: 1 }).withMessage("Name is required"),
 
@@ -13,10 +15,11 @@ const signupValid = [
 		.isLength({ min: 8, max: 16 })
 		.withMessage("Password should be 8-16 characters long")
 		.custom((value) => {
-			const pwdregex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
-			if (!value.match(pwdregex)) {
+			if (!value.match(pwdRegex)) {
 				throw new Error(
-					"Password should have at least one digit, one lowercase letter or one uppercase letter, one of these characters: !@#$%^&*()_+"
+					"Password should have at least one digit, " +
+						"one lowercase letter or one uppercase letter, " +
+						"one of these characters: !@#$%^&*()_+"
 				);
 			}
 			return true;
@@ -28,17 +31,14 @@ const signinValid = [
 
 	// TODO: use this validation rule when production
 	// body("password").custom((value) => {
-	// 	const pwdregex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
-	// 	if (!value.match(pwdregex)) {
+	// 	if (!value.match(pwdRegex)) {
 	// 		throw new Error("Password is not valid");
 	// 	}
 	// 	return true;
 	// })
 ];
 
-// ////////////////////////////////////////////////////////////////////////////
-// const regexForFilesName = /^[a-zA-Z0-9_\-.@%$ ]+$/;
-// const regexForFilesName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ ]+$/;
+// =========================================================================================
 const regexForFilesName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ \[\]\(\)\+]+$/;
 
 const uploadValid = [
@@ -105,11 +105,6 @@ const downloadValid = [
 ];
 
 const deleteValid = [
-	// body("parentPath")
-	// 	.trim()
-	// 	.notEmpty()
-	// 	.withMessage("parentPath cannot be empty"),
-
 	body("delList").custom((arr) => {
 		if (!arr || arr.length === 0) {
 			throw new Error("Delete list cannot be empty");
@@ -149,8 +144,6 @@ const restoreDeleteValid = [
 
 const createLinkValid = [
 	body("access").custom((obj) => {
-		console.log(typeof obj);
-		console.log(obj);
 		if (!obj.type || !obj.user) {
 			throw new Error("Format incorrect");
 		}
@@ -160,10 +153,9 @@ const createLinkValid = [
 		return true;
 	}),
 	body("targetId").isInt().withMessage("id should be integer"),
-	// body("path").trim().notEmpty().withMessage("Path cannot be empty"),
 ];
 
-const revokeLinkValid = [body("files_id").isInt().withMessage("id should be integer")];
+const revokeLinkValid = [body("filesId").isInt().withMessage("id should be integer")];
 
 const viewFolderListValid = [
 	body("shareToken")

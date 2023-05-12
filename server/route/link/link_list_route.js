@@ -4,14 +4,14 @@ const router = express.Router();
 import { wrapAsync } from "../../util/util.js";
 
 import {
-	showLinksSharedWith,
+	showLinksSharedWithYou,
 	showLinksYouShared,
 	showCurrentACL,
 } from "../../controller/link/link_list_controller.js";
 
 import { authentication } from "../../middleware/auth_check.js";
 // --------------------------------------------------------------------------------
-router.get("/links-shared-with", authentication, showLinksSharedWith);
+router.get("/links-shared-with-you", authentication, showLinksSharedWithYou);
 
 router.get("/links-you-shared", authentication, showLinksYouShared);
 

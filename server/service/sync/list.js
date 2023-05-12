@@ -4,13 +4,13 @@ import {
 	getVersionsByFileId,
 	getDeleteRecordsByFileId,
 } from "../../model/db_files_read.js";
-import { getLinksSharedNoti, getLinksYouShared } from "../../model/db_share.js";
+import { getLinksSharedNotice, getLinksYouShared } from "../../model/db_share.js";
 // =============================================================================
 const emitNewList = async (io, userId, parentPath) => {
 	console.log("emitNewList");
 	const refresh = await getFileListByPath(userId, parentPath);
 
-	io.to(`user_${userId}`).emit("listupd", {
+	io.to(`user_${userId}`).emit("listUpdate", {
 		parentPath: parentPath,
 		list: refresh,
 	});
@@ -26,7 +26,7 @@ const emitHistoryList = async (io, userId, fileId) => {
 	const deleteRecords = await getDeleteRecordsByFileId(userId, fileId);
 	// console.log("deleteRecords: ", deleteRecords);
 
-	io.to(`user_${userId}`).emit("historyupd", {
+	io.to(`user_${userId}`).emit("historyUpdate", {
 		fileId,
 		versions,
 		deleteRecords,
@@ -53,7 +53,7 @@ const emitTrashList = async (io, userId) => {
 		trashList[i].parentPath = await findParentPathByFilesId(trashList[i].id);
 	}
 
-	io.to(`user_${userId}`).emit("trashupd", {
+	io.to(`user_${userId}`).emit("trashUpdate", {
 		list: trashList,
 	});
 };
@@ -63,26 +63,26 @@ const emitUsage = async (io, userId, userInSession) => {
 
 	const allocated = userInSession.allocated;
 	const used = userInSession.used;
-	io.to(`user_${userId}`).emit("usageupd", {
+	io.to(`user_${userId}`).emit("usageUpdate", {
 		allocated,
 		used,
 	});
 };
 
-const emitShareNoti = async (io, userId) => {
-	console.log("emitShareNoti");
-	const unreadNoti = await getLinksSharedNoti(userId, 0);
-	// console.log(unreadNoti);
-	// console.log(5 - unreadNoti.length);
+const emitShareNotice = async (io, userId) => {
+	console.log("emitShareNotice");
+	const unreadNotice = await getLinksSharedNotice(userId, 0);
+	// console.log(unreadNotice);
+	// console.log(5 - unreadNotice.length);
 
-	const readNoti =
-		unreadNoti.length < 5 ? await getLinksSharedNoti(userId, 1, 5 - unreadNoti.length) : [];
+	const readNotice =
+		unreadNotice.length < 5 ? await getLinksSharedNotice(userId, 1, 5 - unreadNotice.length) : [];
 
-	const notiToFE = [...unreadNoti, ...readNoti];
+	const notiToFE = [...unreadNotice, ...readNotice];
 
-	io.to(`user_${userId}`).emit("sharenoti", {
+	io.to(`user_${userId}`).emit("shareNotice", {
 		data: notiToFE,
-		unreadNum: unreadNoti.length,
+		unreadNum: unreadNotice.length,
 	});
 };
 
@@ -120,7 +120,7 @@ const emitLinksYouShared = async (io, userId) => {
 		return acc;
 	}, []);
 
-	io.to(`user_${userId}`).emit("linksYouSharedUpd", {
+	io.to(`user_${userId}`).emit("linksYouSharedUpdate", {
 		data: list,
 	});
 };
@@ -130,6 +130,6 @@ export {
 	emitHistoryList,
 	emitTrashList,
 	emitUsage,
-	emitShareNoti,
+	emitShareNotice,
 	emitLinksYouShared,
 };

@@ -13,7 +13,7 @@ import { getCurrentVersionByFileId } from "../../model/db_files_read.js";
 import { findFileIdByPath } from "../../service/path/iter.js";
 import { getAllChildren } from "../../service/path/recur.js";
 
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 
 // local download
 import { s3clientDownload } from "../../service/s3/s3_client.js";
@@ -33,13 +33,13 @@ const dlSingleFile = async (req, res, next) => {
 	// 1. get current version -> giving path to obtain file id
 	const fileId = await findFileIdByPath(userId, key);
 	if (fileId === -1) {
-		return next(customError.badRequest("This file/folder may not exist."));
+		return next(CustomError.badRequest("This file/folder may not exist."));
 	}
 
 	const version = await getCurrentVersionByFileId(fileId);
 	console.log("version: ", version);
 	if (version === -1) {
-		return next(customError.internalServerError("(fn) getCurrentVersionByFileId Error"));
+		return next(CustomError.internalServerError("(fn) getCurrentVersionByFileId Error"));
 	}
 
 	// 2. copy ${key}.v<version> to ${key}
@@ -50,7 +50,7 @@ const dlSingleFile = async (req, res, next) => {
 		`user_${userId}/${key}`
 	);
 	if (!copyS3ObjRes) {
-		return next(customError.internalServerError("(fn) copyS3Obj Error"));
+		return next(CustomError.internalServerError("(fn) copyS3Obj Error"));
 	}
 
 	// 3. get presigned URL for that file
@@ -60,7 +60,7 @@ const dlSingleFile = async (req, res, next) => {
 		`user_${userId}/${key}`
 	);
 	if (!downloadUrl) {
-		return next(customError.internalServerError("(fn) getDownloadUrl Error"));
+		return next(CustomError.internalServerError("(fn) getDownloadUrl Error"));
 	}
 
 	return res.json({ downloadUrl: downloadUrl });
@@ -104,7 +104,7 @@ const dlMultiFileProcess = async (req, res, next) => {
 		const allChildren = await getAllChildren(userId, folders[i].slice(0, folders[i].length - 1));
 		// if (allChildren.childsNoVer.length === 0 ||
 		//     allChildren.childsWithVer.length === 0) {
-		//       return next(customError.badRequest("No such key"));
+		//       return next(CustomError.badRequest("No such key"));
 		//     }
 		finalListNoVer = [...finalListNoVer, ...allChildren.childsNoVer];
 		finalListWithVer = [...finalListWithVer, ...allChildren.childsWithVer];
@@ -112,12 +112,12 @@ const dlMultiFileProcess = async (req, res, next) => {
 	for (let i = 0; i < files.length; i++) {
 		const fileId = await findFileIdByPath(userId, files[i]);
 		if (fileId === -1) {
-			return next(customError.badRequest("This file/folder may not exist."));
+			return next(CustomError.badRequest("This file/folder may not exist."));
 		}
 		const version = await getCurrentVersionByFileId(fileId);
 		console.log("version: ", version);
 		if (version === -1) {
-			return next(customError.internalServerError("(fn) getCurrentVersionByFileId Error"));
+			return next(CustomError.internalServerError("(fn) getCurrentVersionByFileId Error"));
 		}
 		finalListNoVer.push(files[i]);
 		finalListWithVer.push(`${files[i]}.v${version}`);
@@ -145,11 +145,11 @@ const dlCallLambda = async (req, res, next) => {
 	);
 
 	if (!toLambda) {
-		return next(customError.internalServerError());
+		return next(CustomError.internalServerError());
 	} else if (toLambda.status === 500 && toLambda.error === "file size exceeds 4 GB") {
-		return next(customError.badRequest("file size exceeds 4 GB"));
+		return next(CustomError.badRequest("file size exceeds 4 GB"));
 	} else if (toLambda.status === 500) {
-		return next(customError.internalServerError("(fn) callLambdaZip Error"));
+		return next(CustomError.internalServerError("(fn) callLambdaZip Error"));
 	} else if (toLambda.downloadUrl) {
 		console.log("toLambda: downloadUrl is not blank");
 	} else if (!toLambda.downloadUrl) {

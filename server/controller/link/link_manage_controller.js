@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { generateCurrentTime } from "../../util/util.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -11,9 +11,9 @@ if (NODE_ENV === "dev") {
 	HOST = PROD_HOST;
 }
 
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 
-import { getMultipleUserId, getPossibleUser } from "../../model/db_user.js";
+import { getMultipleUserId } from "../../model/db_user.js";
 import {
 	addUserToAccessList,
 	changeLinkToPrivate,
@@ -26,7 +26,7 @@ import {
 
 import { shareTokenGenerator } from "../../service/share/token_gen.js";
 
-import { emitShareNoti, emitLinksYouShared } from "../../service/sync/list.js";
+import { emitShareNotice, emitLinksYouShared } from "../../service/sync/list.js";
 
 // ============================================================
 const createLinkCheck = async (req, res, next) => {
@@ -36,7 +36,7 @@ const createLinkCheck = async (req, res, next) => {
 	const shareStatus = await checkLinkByFilesId(targetId, userId);
 	console.log("shareStatus: ", shareStatus);
 	if (!shareStatus) {
-		return next(customError.badRequest("This file/folder may not exist."));
+		return next(CustomError.badRequest("This file/folder may not exist."));
 	}
 
 	req.shareStatus = shareStatus;
@@ -61,9 +61,9 @@ const publicLink = async (req, res, next) => {
 		console.log("createLinkRes: ", createLinkRes);
 
 		if (!createLinkRes) {
-			return next(customError.internalServerError());
+			return next(CustomError.internalServerError());
 		} else if (createLinkRes.affectedRows !== 1) {
-			return next(customError.badRequest());
+			return next(CustomError.badRequest());
 		}
 	} else if (shareStatus.is_public === 1) {
 		// public link -> return existed link
@@ -76,7 +76,7 @@ const publicLink = async (req, res, next) => {
 		console.log("changeLinkRes: ", changeLinkRes);
 
 		if (!changeLinkRes) {
-			return next(customError.internalServerError());
+			return next(CustomError.internalServerError());
 		}
 		token = shareStatus.share_token;
 	}
@@ -92,7 +92,7 @@ const privateLink = async (req, res, next) => {
 	const uniqueEmails = [...uniqueSet];
 	const userEmail = req.session.user.email;
 	if (uniqueEmails.length === 0 || uniqueSet.has(userEmail)) {
-		return next(customError.badRequest("Please enter at least one email."));
+		return next(CustomError.badRequest("Please enter at least one email."));
 	}
 
 	console.log("uniqueEmails: ", uniqueEmails);
@@ -100,11 +100,11 @@ const privateLink = async (req, res, next) => {
 	const userList = await getMultipleUserId("email", uniqueEmails, userEmail);
 	console.log("userList: ", userList);
 	if (!userList) {
-		return next(customError.internalServerError());
+		return next(CustomError.internalServerError());
 	}
 
 	if (userList.length === 0 || userList.length !== uniqueEmails.length) {
-		return next(customError.badRequest("Some users do not exist. Please check again."));
+		return next(CustomError.badRequest("Some users do not exist. Please check again."));
 	}
 
 	const { targetId } = req.body;
@@ -112,8 +112,7 @@ const privateLink = async (req, res, next) => {
 	const type = shareStatus.type;
 
 	let token;
-	const now = DateTime.utc();
-	const nowTime = now.toFormat("yyyy-MM-dd HH:mm:ss");
+	const nowTime = generateCurrentTime();
 	if (!shareStatus.share_token) {
 		// no link ->
 		// link to user table find other users' id &
@@ -124,7 +123,7 @@ const privateLink = async (req, res, next) => {
 		console.log("createLinkRes: ", createLinkRes);
 
 		if (!createLinkRes) {
-			return next(customError.internalServerError());
+			return next(CustomError.internalServerError());
 		}
 	} else if (shareStatus.is_public === 1) {
 		// public link -> return existed link
@@ -136,7 +135,7 @@ const privateLink = async (req, res, next) => {
 		console.log("changeLinkRes: ", changeLinkRes);
 
 		if (!changeLinkRes) {
-			return next(customError.internalServerError());
+			return next(CustomError.internalServerError());
 		}
 
 		token = shareStatus.share_token;
@@ -156,7 +155,7 @@ const privateLink = async (req, res, next) => {
 	// emit notification
 	const io = req.app.get("socketio");
 	for (let i = 0; i < userList.length; i++) {
-		emitShareNoti(io, userList[i]);
+		emitShareNotice(io, userList[i]);
 	}
 
 	return res.json({ share_link });
@@ -164,25 +163,25 @@ const privateLink = async (req, res, next) => {
 
 const revokeLink = async (req, res, next) => {
 	console.log("revokeLink: ", req.body);
-	const { files_id } = req.body;
+	const { filesId } = req.body;
 	const userId = req.session.user.id;
 
-	const shareStatus = await checkLinkByFilesId(files_id, userId);
+	const shareStatus = await checkLinkByFilesId(filesId, userId);
 	// const shareStatus = null;
 	console.log("shareStatus: ", shareStatus);
 
 	if (!shareStatus) {
-		return next(customError.badRequest("This file/folder may not exist."));
+		return next(CustomError.badRequest("This file/folder may not exist."));
 	}
 
 	if (!shareStatus.share_token) {
-		return next(customError.badRequest("No link to be revoked"));
+		return next(CustomError.badRequest("No link to be revoked"));
 	}
 
-	const revokeLinkInDB = await deleteLinkByFilesId(userId, files_id, shareStatus.is_public);
+	const revokeLinkInDB = await deleteLinkByFilesId(userId, filesId, shareStatus.is_public);
 	console.log("revokeLinkInDB: ", revokeLinkInDB);
 	if (!revokeLinkInDB) {
-		return next(customError.internalServerError());
+		return next(CustomError.internalServerError());
 	}
 
 	// emit new link list
@@ -191,14 +190,4 @@ const revokeLink = async (req, res, next) => {
 	return res.json({ msg: "ok" });
 };
 
-const userSearch = async (req, res, next) => {
-	const { q } = req.query;
-	if (!q) {
-		return next(customError.badRequest("Query string is missing"));
-	}
-	const userEmail = req.session.user.email;
-	const possibleEmail = await getPossibleUser(q, userEmail);
-	return res.json({ list: possibleEmail });
-};
-
-export { createLinkCheck, publicLink, privateLink, revokeLink, userSearch };
+export { createLinkCheck, publicLink, privateLink, revokeLink };

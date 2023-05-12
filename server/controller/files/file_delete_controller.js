@@ -1,4 +1,4 @@
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 import { generateCurrentTime } from "../../util/util.js";
 
 import { markDeleteById, permDeleteByFileId } from "../../model/db_files_delete.js";
@@ -41,13 +41,13 @@ const deleteDB = async (req, res, next) => {
 			// const parentId = -1;
 			console.log("parentId: ", parentId);
 			if (parentId === -1) {
-				return next(customError.badRequest("This file/folder may not exist."));
+				return next(CustomError.badRequest("This file/folder may not exist."));
 			}
 			const deleteRecurRes = await deleteRecur(parentId, userId, nowTime);
 			// const deleteRecurRes = null;
 			console.log("deleteRecurRes: ", deleteRecurRes);
 			if (!deleteRecurRes) {
-				return next(customError.internalServerError("(fn) deleteRecur Error"));
+				return next(CustomError.internalServerError("(fn) deleteRecur Error"));
 			}
 		} else {
 			console.log("delete file");
@@ -57,12 +57,12 @@ const deleteDB = async (req, res, next) => {
 			// const fileId = -1;
 			console.log("fileId: ", fileId);
 			if (fileId === -1) {
-				return next(customError.badRequest("This file/folder may not exist."));
+				return next(CustomError.badRequest("This file/folder may not exist."));
 			}
 			const deleteRes = await markDeleteById(nowTime, fileId, userId);
 			console.log("deleteRes: ", deleteRes);
 			if (!deleteRes) {
-				return next(customError.internalServerError("(fn) markDeleteById Error"));
+				return next(CustomError.internalServerError("(fn) markDeleteById Error"));
 			}
 		}
 	}
@@ -70,7 +70,7 @@ const deleteDB = async (req, res, next) => {
 	// update usage of a user
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
-		return next(customError.internalServerError("(fn) updateSpaceUsedByUser Error"));
+		return next(CustomError.internalServerError("(fn) updateSpaceUsedByUser Error"));
 	}
 	req.session.user.used = currentUsed;
 
@@ -105,7 +105,7 @@ const permDelete = async (req, res, next) => {
 			const parentId = await findTargetFolderId(userId, folders);
 			console.log("parentId: ", parentId);
 			if (parentId === -1) {
-				return next(customError.badRequest("This file/folder may not exist."));
+				return next(CustomError.badRequest("This file/folder may not exist."));
 			}
 
 			// update DB
@@ -113,7 +113,7 @@ const permDelete = async (req, res, next) => {
 			// const deleteDB = null;
 			console.log("deleteDB: ", deleteDB);
 			if (!deleteDB) {
-				return next(customError.internalServerError("(fn) permDeleteRecur Error"));
+				return next(CustomError.internalServerError("(fn) permDeleteRecur Error"));
 			}
 
 			// update S3
@@ -131,14 +131,14 @@ const permDelete = async (req, res, next) => {
 			// const fileId = -1;
 			console.log("fileId: ", fileId);
 			if (fileId === -1) {
-				return next(customError.badRequest("This file/folder may not exist."));
+				return next(CustomError.badRequest("This file/folder may not exist."));
 			}
 
 			// update DB
 			const deleteDB = await permDeleteByFileId(fileId, userId);
 			console.log("deleteDB: ", deleteDB);
 			if (!deleteDB) {
-				return next(customError.internalServerError("(fn) permDeleteByFileId Error"));
+				return next(CustomError.internalServerError("(fn) permDeleteByFileId Error"));
 			}
 
 			// update S3

@@ -1,7 +1,7 @@
 import { generateCurrentTime, preventXSS } from "../../util/util.js";
 
 import dotenv from "dotenv";
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 
 import { chkmail, chkpair, createUser, getProfile, getUser } from "../../model/db_user.js";
 
@@ -24,7 +24,7 @@ const signUp = async (req, res, next) => {
 	const getmail = await chkmail(email);
 	if (getmail) {
 		// return res.status(400).json({ error: "Your email has been registered." });
-		return next(customError.badRequest("Your email has been registered"));
+		return next(CustomError.badRequest("Your email has been registered"));
 	}
 
 	// create user in DB
@@ -58,7 +58,7 @@ const signUp = async (req, res, next) => {
 
 	if (!createMain || !createDownload) {
 		// return res.status(500).json({ msg: "Something Wrong" });
-		return next(customError.internalServerError());
+		return next(CustomError.internalServerError());
 	}
 
 	return res.json({ data: { user } });
@@ -72,7 +72,7 @@ const signIn = async (req, res, next) => {
 	const getpair = await chkpair(email, password);
 	if (!getpair) {
 		// return res.status(401).json({ error: "Your email and password do not match." });
-		return next(customError.unauthorized("Your email and password do not match"));
+		return next(CustomError.unauthorized("Your email and password do not match"));
 	}
 
 	// save user info to session

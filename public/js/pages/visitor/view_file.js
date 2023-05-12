@@ -35,10 +35,6 @@ $(".fi-dl-btn").on("click", async function () {
 
 		setTimeout(() => downloadModal.modal("hide"), 500);
 		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
-		// await delay(100);
-		// downloadModal.modal("hide");
-		// await delay(100);
-		// window.open(downloadFileRes.downloadUrl, "_blank");
 
 		$(window).off("beforeunload");
 		return;

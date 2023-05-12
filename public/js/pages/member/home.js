@@ -2,14 +2,6 @@ import { getFileList } from "../../api/list.js";
 import { formatTime } from "../../util/util.js";
 import { socket } from "../../util/socket.js";
 
-const threedotsSVG = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" class="bi bi-three-dots links-operation-svg"
-  viewBox="0 0 16 16">
-    <path
-      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
-  </svg>
-`;
-
 const personplusSVG = `
   <svg xmlns="http://www.w3.org/2000/svg" height="18" fill="currentColor" class="bi bi-person-plus"
   viewBox="0 0 16 16">
@@ -39,18 +31,6 @@ const folderSVG = `
   </svg>
 `;
 
-// const fileSVG = `
-//   <svg
-//     xmlns="http://www.w3.org/2000/svg"
-//     height="16"
-//     fill="currentColor"
-//     class="bi bi-file-earmark-text type-icon"
-//     viewBox="0 0 16 16">
-//     <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z" />
-//     <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
-//   </svg>
-// `;
-
 const fileSVG = `
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +51,7 @@ const percent = (usedNum / allocatedNum) * 100;
 $(".usage-progress").css("width", percent + "%");
 $(".usage-progress").attr("aria-valuenow", percent);
 if (percent <= 50) {
-  $(".progress-bar").css("background-color", "#519cf6");
+	$(".progress-bar").css("background-color", "#519cf6");
 } else if (percent > 50 && percent < 90) {
 	$(".progress-bar").css("background-color", "#d69f65");
 } else if (percent >= 90) {
@@ -104,8 +84,7 @@ function showList(obj) {
 			{
 				data: "name",
 				render: function (data, type, row, meta) {
-					const tickboxValue =
-						row.type === "folder" ? row.name + "/" : row.name;
+					const tickboxValue = row.type === "folder" ? row.name + "/" : row.name;
 					// console.log("tickboxValue: ", tickboxValue);
 					const tickbox = `<input type="checkbox" name="list-checkbox" class="list-checkbox" value="${tickboxValue}">`;
 					return tickbox;
@@ -114,23 +93,23 @@ function showList(obj) {
 			{
 				data: "name",
 				render: function (data, type, row, meta) {
-          let icon;
-          let ffSpan;
+					let icon;
+					let filesSpan;
 					if (row.type === "folder") {
-            icon = folderSVG;
-						ffSpan = `<span class="${row.type} ff_name" data-id="${row.id}">${data}</span>`;
+						icon = folderSVG;
+						filesSpan = `<span class="${row.type} files-name" data-id="${row.id}">${data}</span>`;
 					} else {
-            icon = fileSVG;
+						icon = fileSVG;
 						const uri = path === "" ? data : `${path}/${data}`;
-						ffSpan = `<a class="file-link" href="/history/${uri}">
-                      <span class="${row.type} ff_name" data-id="${row.id}">${data}</span>
+						filesSpan = `<a class="file-link" href="/history/${uri}">
+                      <span class="${row.type} files-name" data-id="${row.id}">${data}</span>
                       </a>
                     `;
 					}
-          return `
-            <div class="d-flex align-items-center ff_name-div">
+					return `
+            <div class="d-flex align-items-center files-name-div">
               <div>${icon}</div>
-              <div class="text-break">${ffSpan}</div>
+              <div class="text-break">${filesSpan}</div>
             </div>
           `;
 				},
@@ -140,7 +119,7 @@ function showList(obj) {
 				render: function (data, type, row, meta) {
 					const time = row.type === "folder" ? "-" : formatTime(data);
 					const disabledAttr = row.is_shared === 1 ? "" : "disabled";
-          const div = `
+					const div = `
             <div class="d-flex justify-content-between">
               <div class="d-flex align-items-center">
                 <div>${time}</div>
@@ -157,27 +136,6 @@ function showList(obj) {
               </div>
             </div>
           `;
-					// const div = `
-          //   <div class="d-flex justify-content-between">
-          //     <div class="d-flex align-items-center">
-          //       <div>${time}</div>
-          //     </div>
-          //     <div class="dropdown">
-          //       <button class="btn btn-link links-operation"  type="button" id="linksOperationMenu"
-          //         data-bs-toggle="dropdown" data-mdb-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          //         ${threedotsSVG}
-          //       </button>
-          //       <div class="dropdown-menu" aria-labelledby="linksOperationMenu">
-          //         <button type="button" class="dropdown-item links-item get-link"
-          //           data-bs-toggle="modal" data-bs-target="#getLinkModal">
-          //           Get Link</button>
-          //         <button type="button" class="dropdown-item links-item revoke-link"
-          //           data-bs-toggle="modal" data-bs-target="#revokeLinkModal" ${disabledAttr}>
-          //           Revoke Link</button>
-          //       </div>
-          //     </div>
-          //   </div>
-          // `;
 					return div;
 				},
 			},
@@ -232,11 +190,9 @@ if (path !== "") {
 }
 // ==========================================================================
 // socket.io
-// const socket = io();
 
-socket.on("listupd", (data) => {
-	console.log("socket.on listupd: ", data);
-	// console.log("In socket.on(\"listupd\")");
+socket.on("listUpdate", (data) => {
+	console.log("socket.on listUpdate: ", data);
 
 	const pathTexts = $(".path-text")
 		.map(function () {
@@ -260,23 +216,23 @@ socket.on("listupd", (data) => {
 	}
 });
 
-socket.on("usageupd", (data) => {
-  console.log("socket.on usageupd: ", data);
+socket.on("usageUpdate", (data) => {
+	console.log("socket.on usageUpdate: ", data);
 	const usedNum = parseInt(data.used);
 	const allocatedNum = parseInt(data.allocated);
 	const percent = (usedNum / allocatedNum) * 100;
-  console.log("percent: ", percent);
+	console.log("percent: ", percent);
 
 	$(".usage-progress").css("width", percent + "%");
 	$(".usage-progress").attr("aria-valuenow", percent);
 
-  if (percent <= 50) {
-    $(".progress-bar").css("background-color", "#519cf6");
-  } else if (percent > 50 && percent < 90) {
-    $(".progress-bar").css("background-color", "#d69f65");
-  } else if (percent >= 90) {
-    $(".progress-bar").css("background-color", "#c22f2f");
-  }
+	if (percent <= 50) {
+		$(".progress-bar").css("background-color", "#519cf6");
+	} else if (percent > 50 && percent < 90) {
+		$(".progress-bar").css("background-color", "#d69f65");
+	} else if (percent >= 90) {
+		$(".progress-bar").css("background-color", "#c22f2f");
+	}
 
 	const numerator = Math.round((usedNum / (1024 * 1024)) * 100) / 100;
 	const denominator = allocatedNum / (1024 * 1024);
@@ -293,17 +249,13 @@ $("#list-table").on("click", ".folder", async function () {
 		})
 		.get()
 		.join("/");
-	const uri =
-		pathTexts === "Home"
-			? dirName
-			: `${pathTexts.replace(/^Home\//, "")}/${dirName}`;
+	const uri = pathTexts === "Home" ? dirName : `${pathTexts.replace(/^Home\//, "")}/${dirName}`;
 
 	console.log("dirName: ", dirName);
 	console.log("pathTexts: ", pathTexts);
 	console.log("uri: ", uri);
 	history.pushState({}, "", `/home/${uri}`);
-  // history.replaceState({}, "", `/home/${uri}`);
-
+	// history.replaceState({}, "", `/home/${uri}`);
 
 	// clear file list and get file list under current folder
 	const newPath = `${pathTexts}/${dirName}`;

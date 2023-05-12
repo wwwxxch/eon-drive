@@ -1,6 +1,6 @@
 import * as geoip from "geoip-lite";
 import { DateTime } from "luxon";
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 
 import { getTargetByLink, getAccessList } from "../../model/db_share.js";
 import {
@@ -143,7 +143,7 @@ const viewFolderList = async (req, res, next) => {
 	// find the list by token
 	const target = await getTargetByLink(shareToken);
 	if (!target) {
-		return next(customError.notFound("The page you requested is not existed."));
+		return next(CustomError.notFound("The page you requested is not existed."));
 	}
 	let list;
 	if (!subFolder) {
@@ -152,7 +152,7 @@ const viewFolderList = async (req, res, next) => {
 		const parentParentPath = await findParentPathByFilesId(target.id);
 		console.log(parentParentPath);
 		if (!parentParentPath) {
-			return next(customError.internalServerError("(fn) findParentPathByFilesId Error"));
+			return next(CustomError.internalServerError("(fn) findParentPathByFilesId Error"));
 		}
 		const subWholePath = parentParentPath + target.name + "/" + subFolder;
 		console.log(subWholePath);
@@ -173,13 +173,13 @@ const viewDLcheckTarget = async (req, res, next) => {
 	const { shareToken } = req.body;
 	const target = await getTargetByLink(shareToken);
 	if (!target) {
-		return next(customError.badRequest("This file/folder may not exist."));
+		return next(CustomError.badRequest("This file/folder may not exist."));
 	}
 
 	if (req.path === "/view-fo-dl") {
 		const { desired } = req.body;
 		if (target.name !== desired.split("/")[0]) {
-			return next(customError.badRequest("This file/folder may not exist."));
+			return next(CustomError.badRequest("This file/folder may not exist."));
 		}
 	}
 
@@ -194,12 +194,12 @@ const viewDLcheckPermission = async (req, res, next) => {
 	}
 
 	if (!req.session.user) {
-		return next(customError.forbidden());
+		return next(CustomError.forbidden());
 	}
 	const userList = await getAccessList(target.id);
 	const userId = req.session.user.id;
 	if (!userList.includes(userId) && userId !== target.user_id) {
-		return next(customError.forbidden());
+		return next(CustomError.forbidden());
 	}
 
 	next();
@@ -210,7 +210,7 @@ const viewDLfile = async (req, res, next) => {
 	const { target } = req;
 	const parentParentPath = await findParentPathByFilesId(target.id);
 	if (!parentParentPath) {
-		return next(customError.internalServerError("(fn) findParentPathByFilesId Error"));
+		return next(CustomError.internalServerError("(fn) findParentPathByFilesId Error"));
 	}
 	let key;
 	if (req.path === "/view-fi-dl") {
@@ -231,12 +231,12 @@ const viewDLfile = async (req, res, next) => {
 	// const fileId = -1;
 	console.log("fileId: ", fileId);
 	if (fileId === -1) {
-		return next(customError.badRequest("This file/folder may not exist."));
+		return next(CustomError.badRequest("This file/folder may not exist."));
 	}
 	const version = await getCurrentVersionByFileId(fileId);
 	console.log("version: ", version);
 	if (version === -1) {
-		return next(customError.internalServerError("(fn) getCurrentVersionByFileId Error"));
+		return next(CustomError.internalServerError("(fn) getCurrentVersionByFileId Error"));
 	}
 	// 2. copy ${key}.v<version> to ${key}
 	const copyS3ObjRes = await copyS3Obj(
@@ -246,7 +246,7 @@ const viewDLfile = async (req, res, next) => {
 		`user_${userId}/${key}`
 	);
 	if (!copyS3ObjRes) {
-		return next(customError.internalServerError("(fn) copyS3Obj Error"));
+		return next(CustomError.internalServerError("(fn) copyS3Obj Error"));
 	}
 	// 3. get presigned URL for that file
 	const downloadUrl = await getDownloadUrl(
@@ -255,7 +255,7 @@ const viewDLfile = async (req, res, next) => {
 		`user_${userId}/${key}`
 	);
 	if (!downloadUrl) {
-		return next(customError.internalServerError("(fn) getDownloadUrl Error"));
+		return next(CustomError.internalServerError("(fn) getDownloadUrl Error"));
 	}
 
 	return res.json({ downloadUrl });
@@ -268,14 +268,14 @@ const viewDLfolder = async (req, res, next) => {
 	const parentParentPath = await findParentPathByFilesId(target.id);
 	// const parentParentPath = null;
 	if (!parentParentPath) {
-		return next(customError.internalServerError());
+		return next(CustomError.internalServerError());
 	}
 
 	const modifiedPath = `${parentParentPath}${desired.replace(/\/$/, "")}`.replace(/^Home\//, "");
 	console.log("modifiedPath: ", modifiedPath);
 	const children = await getAllChildren(target.user_id, modifiedPath);
 	if (children.childsNoVer.length === 0 || children.childsWithVer.length === 0) {
-		return next(customError.badRequest("This file/folder may not exist."));
+		return next(CustomError.badRequest("This file/folder may not exist."));
 	}
 
 	req.finalListNoVer = children.childsNoVer;
@@ -298,11 +298,11 @@ const viewDLcallLambda = async (req, res, next) => {
 		parentName
 	);
 	if (!toLambda) {
-		return next(customError.internalServerError("(fn) callLambdaZip Error"));
+		return next(CustomError.internalServerError("(fn) callLambdaZip Error"));
 	} else if (toLambda.status === 500 && toLambda.error === "file size exceeds 4 GB") {
-		return next(customError.badRequest("file size exceeds 4 GB"));
+		return next(CustomError.badRequest("file size exceeds 4 GB"));
 	} else if (toLambda.status === 500) {
-		return next(customError.internalServerError("callLambdaZip returns 500 status"));
+		return next(CustomError.internalServerError("callLambdaZip returns 500 status"));
 	} else if (toLambda.downloadUrl) {
 		console.log("toLambda: downloadUrl is not blank");
 	} else if (!toLambda.downloadUrl) {

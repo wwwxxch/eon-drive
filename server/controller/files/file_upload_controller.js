@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { generateCurrentTime } from "../../util/util.js";
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 
 import { findFileIdByPath } from "../../service/path/iter.js";
 import {
@@ -50,17 +50,17 @@ const checkUsed = async (req, res, next) => {
 
 	if (fileId === -1) {
 		if (fileSize + used > allocated) {
-			return next(customError.badRequest("You don't have enough space."));
+			return next(CustomError.badRequest("You don't have enough space."));
 		}
 		return next();
 	}
 
 	const currentSize = await getCurrentSizeByFileId(fileId);
 	if (currentSize < 0) {
-		return next(customError.internalServerError("(fn) getCurrentSizeByFileId Error"));
+		return next(CustomError.internalServerError("(fn) getCurrentSizeByFileId Error"));
 	}
 	if (used - currentSize + fileSize > allocated) {
-		return next(customError.badRequest("You don't have enough space."));
+		return next(CustomError.badRequest("You don't have enough space."));
 	}
 
 	next();
@@ -86,14 +86,14 @@ const uploadChangeDB = async (req, res, next) => {
 				// if no such dir, create new dir
 				const newDir = await createFolder(parentId, folders[i], userId, token, nowTime);
 				if (newDir === -1) {
-					return next(customError.internalServerError("(fn) createFolder Error"));
+					return next(CustomError.internalServerError("(fn) createFolder Error"));
 				}
 				parentId = newDir;
 			} else if (chkDir[0].is_delete === 1) {
 				// if dir has been deleted, change delete status
 				const chgFolderStatus = await changeFolderDeleteStatus(0, chkDir[0].id, token, nowTime);
 				if (!chgFolderStatus) {
-					return next(customError.internalServerError("(fn) changeFolderDeleteStatus Error"));
+					return next(CustomError.internalServerError("(fn) changeFolderDeleteStatus Error"));
 				}
 				parentId = chkDir[0].id;
 			} else {
@@ -110,27 +110,27 @@ const uploadChangeDB = async (req, res, next) => {
 
 	if (chkFile.length > 1) {
 		// 0. something wrong with getFileId function
-		return next(customError.internalServerError("(fn) getFileId Error"));
+		return next(CustomError.internalServerError("(fn) getFileId Error"));
 	} else if (chkFile.length === 0) {
 		// 1. create new file record
 		chgDBres = await createFile(parentId, fileName, fileSize, userId, token, nowTime);
 		console.log("newFile: ", chgDBres);
 		if (!chgDBres) {
-			return next(customError.internalServerError("(fn) createFile Error"));
+			return next(CustomError.internalServerError("(fn) createFile Error"));
 		}
 	} else if (chkFile[0].is_delete === 1) {
 		// 2. if file has been deleted, change delete status & update tables
 		chgDBres = await updateDeletedFile(0, token, chkFile[0].id, fileSize, nowTime);
 		console.log("updDelFile: ", chgDBres);
 		if (!chgDBres) {
-			return next(customError.internalServerError("(fn) updateDeletedFile Error"));
+			return next(CustomError.internalServerError("(fn) updateDeletedFile Error"));
 		}
 	} else {
 		// 3. add new version for update
 		chgDBres = await updateExistedFile(token, chkFile[0].id, fileSize, nowTime);
 		console.log("updExsFile: ", chgDBres);
 		if (!chgDBres) {
-			return next(customError.internalServerError("(fn) updateExistedFile Error"));
+			return next(CustomError.internalServerError("(fn) updateExistedFile Error"));
 		}
 	}
 
@@ -153,7 +153,7 @@ const getS3Url = async (req, res, next) => {
 		const singleUrl = await getSingleSignedUrl(s3clientGeneral, S3_MAIN_BUCKET_NAME, key);
 
 		if (!singleUrl) {
-			return next(customError.internalServerError("(fn) getSingleSignedUrl Error"));
+			return next(CustomError.internalServerError("(fn) getSingleSignedUrl Error"));
 		}
 		return res.json({ token, singleUrl });
 	} else if (splitCount > 1) {
@@ -165,7 +165,7 @@ const getS3Url = async (req, res, next) => {
 		);
 
 		if (!multipleUrls) {
-			return next(customError.internalServerError("(fn) getMultiSignedUrl Error"));
+			return next(CustomError.internalServerError("(fn) getMultiSignedUrl Error"));
 		}
 		const { partUrls, completeUrl } = multipleUrls;
 		return res.json({ token, partUrls, completeUrl });
@@ -180,7 +180,7 @@ const uploadCleanPending = async (req, res, next) => {
 	const fileStatus = await checkPendingFileStatus(userId, token);
 	console.log("fileStatus: ", fileStatus);
 	if (!fileStatus) {
-		return next(customError.internalServerError("(fn) checkPendingFileStatus Error"));
+		return next(CustomError.internalServerError("(fn) checkPendingFileStatus Error"));
 	}
 
 	const { files_id, file_ver_id, current_ver, operation } = fileStatus;
@@ -196,7 +196,7 @@ const uploadCleanPending = async (req, res, next) => {
 	}
 
 	if (!clean) {
-		return next(customError.internalServerError("Cannot clean upload failed records"));
+		return next(CustomError.internalServerError("Cannot clean upload failed records"));
 	}
 
 	return res.json({ msg: "ok" });
@@ -211,13 +211,13 @@ const uploadCommitDB = async (req, res, next) => {
 
 	const commit = await commitMetadata("done", token, userId, nowTime);
 	if (!commit) {
-		return next(customError.internalServerError("(fn) commitMetadata Error"));
+		return next(CustomError.internalServerError("(fn) commitMetadata Error"));
 	}
 
 	// update usage of the user
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
-		return next(customError.internalServerError());
+		return next(CustomError.internalServerError());
 	}
 	req.session.user.used = currentUsed;
 

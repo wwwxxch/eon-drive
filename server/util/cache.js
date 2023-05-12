@@ -1,15 +1,7 @@
 import Redis from "ioredis";
-
 import dotenv from "dotenv";
 dotenv.config();
-const {
-	CACHE_HOST,
-	CACHE_PORT,
-	CACHE_USER,
-	CACHE_PASSWORD,
-	CACHE_DB,
-	NODE_ENV,
-} = process.env;
+const { CACHE_HOST, CACHE_PORT, CACHE_USER, CACHE_PASSWORD, CACHE_DB, NODE_ENV } = process.env;
 
 console.log("NODE_ENV: ", NODE_ENV);
 
@@ -28,40 +20,8 @@ let redisConfig = {
 	},
 };
 if (NODE_ENV === "prod") {
-  redisConfig.tls = {};
+	redisConfig.tls = {};
 }
-// if (NODE_ENV === "dev") {
-// 	redisConfig = {
-// 		host: CACHE_HOST,
-// 		port: parseInt(CACHE_PORT),
-// 		username: CACHE_USER,
-// 		password: CACHE_PASSWORD,
-// 		db: parseInt(CACHE_DB),
-// 		retryStrategy(times) {
-// 			console.log(`***Retrying redis connection: attempt ${times}***`);
-// 			console.log(`***redis.status: ${redis.status}***`);
-// 			if (times < 4) return 1000 * 1;
-// 			else if (times > 10) return 1000 * 2 ** times;
-// 			return 1000 * 5;
-// 		},
-// 	};
-// } else if (NODE_ENV === "prod") {
-// 	redisConfig = {
-// 		host: CACHE_HOST,
-// 		port: parseInt(CACHE_PORT),
-// 		username: CACHE_USER,
-// 		password: CACHE_PASSWORD,
-// 		db: parseInt(CACHE_DB),
-// 		tls: {},
-// 		retryStrategy(times) {
-// 			console.log(`***Retrying redis connection: attempt ${times}***`);
-// 			console.log(`***redis.status: ${redis.status}***`);
-// 			if (times < 4) return 1000 * 1;
-// 			else if (times > 10) return 1000 * 2 ** times;
-// 			return 1000 * 5;
-// 		},
-// 	};
-// }
 
 const redis = new Redis(redisConfig);
 
@@ -83,11 +43,18 @@ redis.on("error", (err) => {
 const pub = redis.duplicate();
 const sub = redis.duplicate();
 
-pub.on("connect", () => { console.log("pub connect"); });
-sub.on("connect", () => { console.log("sub connect"); });
+pub.on("connect", () => {
+	console.log("pub connect");
+});
+sub.on("connect", () => {
+	console.log("sub connect");
+});
 
-pub.on("error", (err) => { console.error(`pub error: ${err}`); });
-sub.on("error", (err) => { console.error(`sub error: ${err}`); });
-
+pub.on("error", (err) => {
+	console.error(`pub connect error: ${err}`);
+});
+sub.on("error", (err) => {
+	console.error(`sub connect error: ${err}`);
+});
 
 export { redis, pub, sub };

@@ -9,9 +9,7 @@ import { socket } from "../../util/socket.js";
 function showHistoryList(obj) {
 	const allRecords = [...obj.versions, ...obj.deleteRecords];
 
-	allRecords.sort(
-		(a, b) => new Date(b.operation_time) - new Date(a.operation_time)
-	);
+	allRecords.sort((a, b) => new Date(b.operation_time) - new Date(a.operation_time));
 
 	let recDiv;
 	for (const rec of allRecords) {
@@ -22,9 +20,7 @@ function showHistoryList(obj) {
         <div style="width: 100%;" 
             class="rec deleted-rec d-flex justify-content-between align-items-center py-3">
           <div class="operation-time col-3 ms-3">${time}</div>
-          <div class="action col-3">${capitalizeFirstLetter(
-						rec.operation
-					)}</div>
+          <div class="action col-3">${capitalizeFirstLetter(rec.operation)}</div>
           <div class="col-4 d-flex justify-content-between align-items-center">
             <div class="size"></div>
             <div class="restore"></div>
@@ -40,9 +36,7 @@ function showHistoryList(obj) {
 			} else if (rec.size < 1024 * 1024 * 1024) {
 				showSize = `${Math.round((rec.size / (1024 * 1024)) * 100) / 100} MB`;
 			} else if (rec.size < 1024 * 1024 * 1024 * 1024) {
-				showSize = `${
-					Math.round((rec.size / (1024 * 1024 * 1024)) * 100) / 100
-				} GB`;
+				showSize = `${Math.round((rec.size / (1024 * 1024 * 1024)) * 100) / 100} GB`;
 			}
 
 			if (rec.is_current === 1) {
@@ -50,9 +44,7 @@ function showHistoryList(obj) {
         <div style="width: 100%;" 
             class="rec current-rec d-flex justify-content-between align-items-center py-3">
             <div class="operation-time col-3 ms-3">${time}</div>
-            <div class="action col-3">${capitalizeFirstLetter(
-							rec.operation
-						)}</div>
+            <div class="action col-3">${capitalizeFirstLetter(rec.operation)}</div>
             <div class="col-4 d-flex justify-content-between align-items-center">
               <div class="size">${showSize}</div>
               <div class="current">
@@ -74,9 +66,7 @@ function showHistoryList(obj) {
           <div style="width: 100%;" 
               class="rec previous-rec d-flex justify-content-between align-items-center py-3">
             <div class="operation-time col-3 ms-3">${time}</div>
-            <div class="action col-3">${capitalizeFirstLetter(
-							rec.operation
-						)}</div>
+            <div class="action col-3">${capitalizeFirstLetter(rec.operation)}</div>
             <div class="col-4 d-flex justify-content-between align-items-center">
               <div class="size">${showSize}</div>
               <div class="restore">${restoreDiv}</div>
@@ -102,9 +92,8 @@ console.log("fileWholePath: ", fileWholePath);
 console.log("rawParentPath: ", rawParentPath);
 // ===================================================================
 // socket.io
-// const socket = io();
-socket.on("historyupd", (data) => {
-	console.log("socket.on historyupd: ", data);
+socket.on("historyUpdate", (data) => {
+	console.log("socket.on historyUpdate: ", data);
 	const fileId = $(".file-name").data("id");
 	// console.log("fileId: ", fileId);
 	if (data.fileId === fileId) {
@@ -180,9 +169,7 @@ $(".rec").on("click", ".restore-btn", function () {
 				if (typeof askRestore.data.error === "string") {
 					errorHTML = `<span>${askRestore.data.error}</span>`;
 				} else {
-					errorHTML = askRestore.data.error
-						.map((err) => `<span>${err}</span>`)
-						.join("");
+					errorHTML = askRestore.data.error.map((err) => `<span>${err}</span>`).join("");
 				}
 				$("#errorModal").modal("show");
 				$("#error-msg").html(errorHTML);
@@ -205,14 +192,14 @@ $("#history-download").on("click", async function () {
 	const downloadSpinner = $("#waiting-spinner");
 	const downloadComplete = $("#waiting-complete");
 	const downloadError = $("#waiting-error");
-  const uploadClose = $("#waiting-close");
+	const uploadClose = $("#waiting-close");
 
 	downloadModal.modal("show");
 	downloadStatus.text("Downloading...");
 	downloadSpinner.addClass("spinner-border");
 	downloadComplete.hide();
 	downloadError.html();
-  uploadClose.hide();
+	uploadClose.hide();
 
 	const downloadFileRes = await singleDownloadFile(parentPath, [fileWholePath]);
 	console.log("downloadFileRes: ", downloadFileRes);
@@ -223,28 +210,21 @@ $("#history-download").on("click", async function () {
 
 	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
-    downloadComplete.show();
-    downloadStatus.text("Complete!");
-    uploadClose.show();
-    
-    setTimeout(() => downloadModal.modal("hide"), 500);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
+		downloadComplete.show();
+		downloadStatus.text("Complete!");
+		uploadClose.show();
 
-    // await delay(100);
-    // downloadModal.modal("hide");
-		// await delay(100);
-		// window.open(downloadFileRes.downloadUrl, "_blank");
+		setTimeout(() => downloadModal.modal("hide"), 500);
+		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
 
 		$(window).off("beforeunload");
 		return;
 	} else if (downloadFileRes.status !== 200 && downloadFileRes.status !== 500) {
-    let errorHTML;
+		let errorHTML;
 		if (typeof downloadFileRes.data.error === "string") {
 			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
 		} else {
-			errorHTML = downloadFileRes.data.error
-				.map((err) => `<span>${err}</span>`)
-				.join("");
+			errorHTML = downloadFileRes.data.error.map((err) => `<span>${err}</span>`).join("");
 		}
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
@@ -252,9 +232,7 @@ $("#history-download").on("click", async function () {
 	} else {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
-		downloadError.html(
-			"<span>Opps! Something went wrong. Please try later or contact us.</span>"
-		);
+		downloadError.html("<span>Opps! Something went wrong. Please try later or contact us.</span>");
 	}
 
 	setTimeout(() => downloadModal.modal("hide"), 2000);

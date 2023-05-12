@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { generateCurrentTime } from "../../util/util.js";
-import { customError } from "../../error/custom_error.js";
+import { CustomError } from "../../error/custom_error.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -35,17 +35,17 @@ const restoreHistory = async (req, res, next) => {
 	// const fileId = -1;
 	console.log("fileId: ", fileId);
 	if (fileId === -1) {
-		return next(customError.badRequest("This file may not exist."));
+		return next(CustomError.badRequest("This file may not exist."));
 	}
 
 	// check capacity
 	const targetSize = await getSizeByFileIdAndVersion(fileId, version);
 	if (targetSize < 0) {
-		return next(customError.badRequest("Cannot find record by this file id and version"));
+		return next(CustomError.badRequest("Cannot find record by this file id and version"));
 	}
 	const currentSize = await getCurrentSizeByFileId(fileId);
 	if (currentSize < 0) {
-		return next(customError.internalServerError("(fn) getCurrentSizeByFileId Error"));
+		return next(CustomError.internalServerError("(fn) getCurrentSizeByFileId Error"));
 	}
 	console.log("targetSize: ", targetSize);
 	console.log("currentSize: ", currentSize);
@@ -53,7 +53,7 @@ const restoreHistory = async (req, res, next) => {
 	const allocated = Number(req.session.user.allocated);
 	const used = Number(req.session.user.used);
 	if (used - currentSize + targetSize > allocated) {
-		return next(customError.badRequest("You don't have enough space."));
+		return next(CustomError.badRequest("You don't have enough space."));
 	}
 
 	// update DB
@@ -62,7 +62,7 @@ const restoreHistory = async (req, res, next) => {
 	const restore = await restoreFileToPrev(token, fileId, version, nowTime, userId);
 	console.log("restore: ", restore); // new version
 	if (!restore) {
-		return next(customError.internalServerError("(fn) restoreFileToPrev Error"));
+		return next(CustomError.internalServerError("(fn) restoreFileToPrev Error"));
 	}
 
 	// update S3 - copy this version file as new version file (S3)
@@ -75,19 +75,19 @@ const restoreHistory = async (req, res, next) => {
 	// const newRecordInS3 = null;
 	console.log("newRecordInS3: ", newRecordInS3);
 	if (!newRecordInS3) {
-		return next(customError.internalServerError("(fn) copyS3Obj Error"));
+		return next(CustomError.internalServerError("(fn) copyS3Obj Error"));
 	}
 
 	// commit metadata
 	const commit = await commitMetadata("done", token, userId, nowTime);
 	if (!commit) {
-		return next(customError.internalServerError("(fn) commitMetadata Error"));
+		return next(CustomError.internalServerError("(fn) commitMetadata Error"));
 	}
 
 	// update usage of a user
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
-		return next(customError.internalServerError("(fn) updateSpaceUsedByUser Error"));
+		return next(CustomError.internalServerError("(fn) updateSpaceUsedByUser Error"));
 	}
 	req.session.user.used = currentUsed;
 
@@ -122,7 +122,7 @@ const restoreDeleted = async (req, res, next) => {
 			const parentId = await findTargetFolderId(userId, folders);
 			console.log("parentId: ", parentId);
 			if (parentId === -1) {
-				return next(customError.badRequest("This file/folder may not exist."));
+				return next(CustomError.badRequest("This file/folder may not exist."));
 			}
 
 			// update DB & S3
@@ -136,7 +136,7 @@ const restoreDeleted = async (req, res, next) => {
 			);
 			console.log("restoreRecurRes: ", restoreRecurRes);
 			if (!restoreRecurRes) {
-				return next(customError.internalServerError());
+				return next(CustomError.internalServerError());
 			}
 		} else {
 			console.log("restore file - key: ", key);
@@ -145,27 +145,27 @@ const restoreDeleted = async (req, res, next) => {
 			// const fileId = -1;
 			console.log("fileId: ", fileId);
 			if (fileId === -1) {
-				return next(customError.badRequest("This file/folder may not exist."));
+				return next(CustomError.badRequest("This file/folder may not exist."));
 			}
 
 			// check capacity
 			const currentSize = await getCurrentSizeByFileId(fileId);
 			if (currentSize < 0) {
-				return next(customError.internalServerError());
+				return next(CustomError.internalServerError());
 			}
 			console.log("currentSize: ", currentSize);
 
 			const allocated = Number(req.session.user.allocated);
 			const used = Number(req.session.user.used);
 			if (used + currentSize > allocated) {
-				return next(customError.badRequest("You don't have enough space."));
+				return next(CustomError.badRequest("You don't have enough space."));
 			}
 
 			// update DB
 			const restoreDeleted = await restoreDeletedFile(token, fileId, nowTime, userId);
 			console.log("restoreDeleted: ", restoreDeleted); // cur version & new version
 			if (!restoreDeleted) {
-				return next(customError.internalServerError("(fn) restoreDeletedFile Error"));
+				return next(CustomError.internalServerError("(fn) restoreDeletedFile Error"));
 			}
 
 			// update S3
@@ -177,12 +177,12 @@ const restoreDeleted = async (req, res, next) => {
 			);
 			console.log("newRecordInS3: ", newRecordInS3);
 			if (!newRecordInS3) {
-				return next(customError.internalServerError("(fn) copyS3Obj Error"));
+				return next(CustomError.internalServerError("(fn) copyS3Obj Error"));
 			}
 		}
 		const commit = await commitMetadata("done", token, userId, nowTime);
 		if (!commit) {
-			return next(customError.internalServerError("(fn) commitMetadata Error"));
+			return next(CustomError.internalServerError("(fn) commitMetadata Error"));
 		}
 	}
 
@@ -190,7 +190,7 @@ const restoreDeleted = async (req, res, next) => {
 	// update usage of a user
 	const currentUsed = await updateSpaceUsedByUser(userId, nowTime);
 	if (currentUsed === -1) {
-		return next(customError.internalServerError("(fn) updateSpaceUsedByUser Error"));
+		return next(CustomError.internalServerError("(fn) updateSpaceUsedByUser Error"));
 	}
 	req.session.user.used = currentUsed;
 
