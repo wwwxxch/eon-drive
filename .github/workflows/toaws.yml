@@ -7,9 +7,8 @@ on:
     branches:
       - 'feature_*'
       - 'fix_*'
-      - 'demo_*'
-      - 'testing_*'
       - 'develop'
+      - 'main'
 
 jobs:
   build:
