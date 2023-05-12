@@ -77,7 +77,7 @@ import { link_list_route } from "./server/route/link/link_list_route.js";
 import { view_route } from "./server/route/view/view_route.js";
 import { notification_route } from "./server/route/notification/notification_route.js";
 
-app.use(
+app.use("/api/" + process.env.API_VERSION, [
 	user_auth_route,
 	user_usage_route,
 	file_upload_route,
@@ -89,8 +89,8 @@ app.use(
 	link_manage_route,
 	link_list_route,
 	view_route,
-	notification_route
-);
+	notification_route,
+]);
 
 // ---------------------------------------------------
 // check route for load balancer

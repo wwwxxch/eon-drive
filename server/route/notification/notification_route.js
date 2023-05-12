@@ -9,7 +9,7 @@ import {
 } from "../../controller/notification/notification_controller.js";
 import { authentication } from "../../middleware/auth_check.js";
 // --------------------------------------------------------------------------------
-router.get("/notification", authentication, noticeList);
+router.get("/notifications", authentication, noticeList);
 
 router.patch("/notification/:shareId", authentication, makeNoticeRead);
 

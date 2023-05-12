@@ -8,13 +8,17 @@ import {
 import { CustomError } from "../../error/custom_error.js";
 
 // ==============================================================================
-const showList = async (req, res, next) => {
-	console.log("showList: ", req.body);
 
-	// note: no slash after the folder
-	// req.body = { "path": "test2/test2inside/folder_20230405" }
-	// req.body = { "path": "" }
-	const { path } = req.body;
+// showList
+// v1 note: no slash after the folder
+// req.body = { "path": "test2/test2inside/folder_20230405" }
+// req.body = { "path": "" }
+const showList = async (req, res, next) => {
+	// console.log("showList: ", req.body);
+	console.log("showList: ", req.query);
+
+	// const { path } = req.body;
+	const { path } = req.query;
 	const userId = req.session.user.id;
 
 	const decodePath = decodeURI(path);
@@ -29,9 +33,12 @@ const showList = async (req, res, next) => {
 };
 
 const showHistory = async (req, res) => {
-	console.log("showHistory: ", req.body);
+	// console.log("showHistory: ", req.body);
 
-	const { fileId } = req.body;
+	// const { fileId } = req.body;
+
+	console.log("showHistory: ", req.query);
+	const { fileId } = req.query;
 	const userId = req.session.user.id;
 
 	const versions = await getVersionsByFileId(userId, fileId);

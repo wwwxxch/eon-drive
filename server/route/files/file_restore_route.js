@@ -8,11 +8,11 @@ import {
 	ValidCB,
 } from "../../middleware/input_validator.js";
 import { restoreHistory, restoreDeleted } from "../../controller/files/file_restore_controller.js";
-import {authentication} from "../../middleware/auth_check.js";
-// ===============================================================================
+import { authentication } from "../../middleware/auth_check.js";
+// ===================================================================================================
 
-router.post("/restore-history", authentication, restoreHistoryValid, ValidCB, restoreHistory);
+router.post("/files/restore-history", authentication, restoreHistoryValid, ValidCB, restoreHistory);
 
-router.post("/restore-deleted", authentication, restoreDeleteValid, ValidCB, restoreDeleted);
+router.post("/files/restore-deleted", authentication, restoreDeleteValid, ValidCB, restoreDeleted);
 
 export { router as file_restore_route };

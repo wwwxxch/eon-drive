@@ -12,8 +12,8 @@ router.post("/signup", signupValid, ValidCB, signUp);
 
 router.post("/signin", signinValid, ValidCB, signIn);
 
-router.get("/logout", /*authentication,*/ logOut);
+router.get("/logout", logOut);
 
-router.get("/show-profile", authentication, showProfile);
+router.get("/profile", authentication, showProfile);
 
 export { router as user_auth_route };

@@ -3,7 +3,8 @@ import { pool } from "./connection.js";
 const updateSpaceUsedByUser = async (user_id, time) => {
 	const q_calculateSum = `
     SELECT SUM(b.size) AS total_size 
-    FROM files AS a INNER JOIN file_ver AS b ON a.id = b.files_id
+    FROM files AS a INNER JOIN file_ver AS b 
+    ON a.id = b.files_id
     WHERE a.files_upd_status = "done" AND a.is_delete = 0 
       AND b.is_current = 1 AND b.ver_upd_status = "done" 
       AND a.user_id = ?
@@ -45,7 +46,8 @@ const updateSpaceUsedByUser = async (user_id, time) => {
 const checkUsedByUser = async (user_id) => {
 	const q_calculateSum = `
     SELECT SUM(b.size) AS total_size 
-    FROM files AS a INNER JOIN file_ver AS b ON a.id = b.files_id
+    FROM files AS a INNER JOIN file_ver AS b 
+    ON a.id = b.files_id
     WHERE a.files_upd_status = "done" AND a.is_delete = 0 
       AND b.is_current = 1 AND b.ver_upd_status = "done" 
       AND a.user_id = ?

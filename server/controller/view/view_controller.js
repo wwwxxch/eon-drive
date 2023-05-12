@@ -58,7 +58,6 @@ const checkShareTarget = async (req, res, next) => {
 
 const checkSharePermission = async (req, res, next) => {
 	const target = req.target;
-	// console.log(req.session.user);
 
 	// check permission
 	if (target.is_public === 1) {
@@ -74,8 +73,8 @@ const checkSharePermission = async (req, res, next) => {
 
 	const userList = await getAccessList(target.id);
 	const userId = req.session.user.id;
-	console.log("userList: ", userList);
-	console.log("userId: ", userId);
+	// console.log("userList: ", userList);
+	// console.log("userId: ", userId);
 	if (!userList.includes(userId) && userId !== target.user_id) {
 		return res.status(403).render("error/error", {
 			status: 403,
@@ -90,7 +89,7 @@ const returnFileInfo = async (req, res) => {
 	const target = req.target;
 
 	const detail = await getFileDetail(target.id);
-	console.log("detail: ", detail);
+	// console.log("detail: ", detail);
 
 	const { name, size, updated_at, owner } = detail;
 
@@ -128,8 +127,7 @@ const returnFileInfo = async (req, res) => {
 
 const returnFolderInfo = async (req, res) => {
 	const shareToken = req.params.shareToken;
-	const target = req.target;
-	console.log("target: ", target);
+	// console.log("req.target: ", req.target);
 	const { id, name } = req.target;
 
 	if (!req.session.user) {

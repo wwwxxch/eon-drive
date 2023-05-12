@@ -1,6 +1,7 @@
 import { getFileList } from "../../api/list.js";
 import { formatTime } from "../../util/util.js";
 import { socket } from "../../util/socket.js";
+import { API_VERSION } from "../../constant/constant.js";
 
 const personplusSVG = `
   <svg xmlns="http://www.w3.org/2000/svg" height="18" fill="currentColor" class="bi bi-person-plus"
@@ -43,7 +44,7 @@ const fileSVG = `
 `;
 
 //show usage
-const usageRes = await axios.get("/usage");
+const usageRes = await axios.get(`/api/${API_VERSION}/usage`);
 console.log(usageRes);
 const usedNum = parseInt(usageRes.data.used);
 const allocatedNum = parseInt(usageRes.data.allocated);

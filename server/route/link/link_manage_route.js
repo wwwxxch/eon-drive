@@ -14,9 +14,8 @@ import {
 
 import { authentication } from "../../middleware/auth_check.js";
 // --------------------------------------------------------------------------------
-// TODO: change to post /link & delete /link ???
 router.post(
-	"/create-link",
+	"/link",
 	authentication,
 	createLinkValid,
 	ValidCB,
@@ -25,6 +24,6 @@ router.post(
 	privateLink
 );
 
-router.post("/revoke-link", authentication, revokeLinkValid, ValidCB, revokeLink);
+router.delete("/link", authentication, revokeLinkValid, ValidCB, revokeLink);
 
 export { router as link_manage_route };

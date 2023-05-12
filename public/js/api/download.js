@@ -1,4 +1,4 @@
-const api_destination = "/download";
+import { API_VERSION } from "../constant/constant.js";
 
 const downloadFile = async (path, fileArray) => {
 	// request body
@@ -16,7 +16,7 @@ const downloadFile = async (path, fileArray) => {
 	console.log("fileToDownload: ", downloadList);
 
 	try {
-		const downloadRes = await axios.post(api_destination, {
+		const downloadRes = await axios.post(`/api/${API_VERSION}/download`, {
 			parentPath,
 			downloadList,
 		});
@@ -31,10 +31,10 @@ const downloadFile = async (path, fileArray) => {
 const singleDownloadFile = async (parentPath, downloadList) => {
 	// request body
 	console.log("parentPath: ", parentPath);
-  console.log("downloadList: ", downloadList);
+	console.log("downloadList: ", downloadList);
 
 	try {
-		const downloadRes = await axios.post(api_destination, {
+		const downloadRes = await axios.post(`/api/${API_VERSION}/download`, {
 			parentPath,
 			downloadList,
 		});

@@ -2,12 +2,13 @@ import { askNoti, changeUnreadStatus } from "../../api/notification.js";
 import { askProfile } from "../../api/list.js";
 import { formatTime } from "../../util/util.js";
 import { socket } from "../../util/socket.js";
+import { API_VERSION } from "../../constant/constant.js";
 // =============================================================================
 
 // logout button
 $("#logout-btn").on("click", async function (e) {
 	e.preventDefault();
-	const logoutReq = await axios.get("/logout");
+	const logoutReq = await axios.get(`/api/${API_VERSION}/logout`);
 	window.location.href = "/";
 });
 

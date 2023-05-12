@@ -1,11 +1,11 @@
-import { CHUNK_SIZE } from "../constant/constant.js";
+import { CHUNK_SIZE, API_VERSION } from "../constant/constant.js";
 import { splitFileIntoChunks } from "../util/util.js";
 
 // 1. startUpload
 const startUpload = async (fileName, fileWholePath, fileSize, fileSplit) => {
 	try {
 		const start = await axios({
-			url: "/upload-start",
+			url: `/api/${API_VERSION}/upload-start`,
 			method: "post",
 			data: { fileName, fileWholePath, fileSize, fileSplit },
 		});
@@ -96,7 +96,7 @@ const multiUpload = async (partUrls, completeUrl, chunkArray) => {
 const uploadFailedNoti = async (token) => {
 	try {
 		const failedNoti = await axios({
-			url: "/upload-failed",
+			url: `/api/${API_VERSION}/upload-failed`,
 			method: "post",
 			data: { token },
 		});
@@ -112,7 +112,7 @@ const uploadFailedNoti = async (token) => {
 const commitUpload = async (token, parentPath) => {
 	try {
 		const commit = await axios({
-			url: "/upload-commit",
+			url: `/api/${API_VERSION}/upload-commit`,
 			method: "post",
 			data: {
 				token: token,

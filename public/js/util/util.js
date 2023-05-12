@@ -15,7 +15,7 @@ async function splitFileIntoChunks(file, fileSize, chunk_size) {
 
 // ==========================================================================
 function formatTime(timestamp, format = "yyyy-MM-dd HH:mm:ss") {
-  // console.log("timestamp: ", timestamp);
+	// console.log("timestamp: ", timestamp);
 	const userTimezoneOffset = new Date().getTimezoneOffset();
 	const timeZone = luxon.DateTime.local().minus({
 		minutes: userTimezoneOffset,
@@ -25,7 +25,7 @@ function formatTime(timestamp, format = "yyyy-MM-dd HH:mm:ss") {
 
 // ==========================================================================
 function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve(), ms));
+	return new Promise((resolve) => setTimeout(resolve(), ms));
 }
 
 // ==========================================================================
@@ -51,10 +51,7 @@ async function traverseDirectory(directoryEntry) {
 			const file = await new Promise((resolve) => entry.file(resolve));
 			// console.log("entry.fullPath: ", entry.fullPath);
 
-			const modified = new ModifiedFile(
-				file,
-				entry.fullPath.replace(/^\//, "")
-			);
+			const modified = new ModifiedFile(file, entry.fullPath.replace(/^\//, ""));
 			console.log("newFile: ", modified);
 			fileList.push(modified);
 		}
@@ -100,12 +97,12 @@ function copyToClipboard(text) {
 	// document.body.removeChild(input);
 }
 
+// ==========================================================================
 function capitalizeFirstLetter(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 // ==========================================================================
-// function to validate email addresses
 function isValidEmail(email) {
 	const re = /\S+@\S+\.\S+/;
 	return re.test(email);
@@ -114,7 +111,7 @@ function isValidEmail(email) {
 export {
 	splitFileIntoChunks,
 	formatTime,
-  delay,
+	delay,
 	traverseDirectory,
 	notiCard,
 	copyToClipboard,

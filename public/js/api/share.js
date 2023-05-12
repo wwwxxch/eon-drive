@@ -1,3 +1,5 @@
+import { API_VERSION } from "../constant/constant.js";
+
 const createLink = async (targetId, accessType, userList = []) => {
 	// request body
 	let access;
@@ -13,7 +15,7 @@ const createLink = async (targetId, accessType, userList = []) => {
 		};
 	}
 	try {
-		const createLinkRes = await axios.post("/create-link", {
+		const createLinkRes = await axios.post(`/api/${API_VERSION}/link`, {
 			access,
 			targetId,
 		});
@@ -30,7 +32,7 @@ const createLink = async (targetId, accessType, userList = []) => {
 
 const revokeLink = async (filesId) => {
 	try {
-		const revokeLinkRes = await axios.post("/revoke-link", { filesId });
+		const revokeLinkRes = await axios.delete(`/api/${API_VERSION}/link`, { data: { filesId } });
 		console.log("revokeLinkRes: ", revokeLinkRes);
 		return { status: revokeLinkRes.status };
 	} catch (e) {
@@ -41,7 +43,7 @@ const revokeLink = async (filesId) => {
 
 const askSharedWithList = async () => {
 	try {
-		const askSharedWithListRes = await axios.get("/links-shared-with-you");
+		const askSharedWithListRes = await axios.get(`/api/${API_VERSION}/links-shared-with-you`);
 		console.log("askSharedWithListRes: ", askSharedWithListRes);
 		return askSharedWithListRes.data;
 	} catch (e) {
@@ -52,7 +54,7 @@ const askSharedWithList = async () => {
 
 const askYouSharedList = async () => {
 	try {
-		const askYouSharedListRes = await axios.get("/links-you-shared");
+		const askYouSharedListRes = await axios.get(`/api/${API_VERSION}/links-you-shared`);
 		console.log("askYouSharedListRes: ", askYouSharedListRes);
 		return askYouSharedListRes.data;
 	} catch (e) {
@@ -63,7 +65,9 @@ const askYouSharedList = async () => {
 
 const checkShareStatus = async (filesId) => {
 	try {
-		const checkShareStatusRes = await axios.get(`/files-link-acl?filesId=${filesId}`);
+		const checkShareStatusRes = await axios.get(
+			`/api/${API_VERSION}/files-link-acl?filesId=${filesId}`
+		);
 		console.log("checkShareStatusRes: ", checkShareStatusRes);
 		return checkShareStatusRes;
 	} catch (e) {
