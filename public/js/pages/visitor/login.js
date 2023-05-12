@@ -1,4 +1,4 @@
-import { API_VERSION } from "../../constant/constant";
+import { API_VERSION } from "../../constant/constant.js";
 
 const loginReq = async () => {
 	$("#login-err-msg").empty();
