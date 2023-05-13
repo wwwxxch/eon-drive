@@ -31,12 +31,22 @@ const sendConfirmationMail = async (email, name, token) => {
       <a href="${HOST}">${HOST}</a>
     `);
 	try {
+		const checkQuota = await mailerSend.others.getApiQuota();
+		console.log("checkQuota.body.remaining: ", checkQuota.body.remaining);
+		if (checkQuota.body.remaining < 1) {
+			// throw new Error(
+			// 	"sendConfrimationMail: checkQuota.body.remaining: ",
+			// 	checkQuota.body.remaining
+			// );
+			return { status: 503 };
+		}
+
 		const send = await mailerSend.email.send(emailParams);
 		// console.log("send: ", send);
-		return true;
+		return { status: 200 };
 	} catch (e) {
 		console.error("sendConfirmationMail error: ", e);
-		return false;
+		return { status: 500 };
 	}
 };
 

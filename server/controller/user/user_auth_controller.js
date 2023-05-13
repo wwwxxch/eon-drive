@@ -80,8 +80,10 @@ const signUp = async (req, res, next) => {
 
 	// send the mail to user
 	const sendMailRes = await sendConfirmationMail(email, modifiedName, confirmToken);
-	if (!sendMailRes) {
+	if (sendMailRes.status === 500) {
 		return next(CustomError.internalServerError());
+	} else if (sendMailRes.status === 503) {
+		return next(CustomError.serviceUnavailable());
 	}
 
 	return res.json({ msg: "ok" });
@@ -204,8 +206,10 @@ const reSendConfirmationMailFromLink = async (req, res, next) => {
 		confirmDetails.name,
 		newConfirmToken
 	);
-	if (!sendMailRes) {
+	if (sendMailRes.status === 500) {
 		return next(CustomError.internalServerError());
+	} else if (sendMailRes.status === 503) {
+		return next(CustomError.serviceUnavailable());
 	}
 
 	return res.json({ msg: "ok" });
