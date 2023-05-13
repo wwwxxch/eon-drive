@@ -1,11 +1,10 @@
 import { body, validationResult } from "express-validator";
+import { pwdRegex, regexForFilesName } from "../util/constant.js";
 
 import dotenv from "dotenv";
 dotenv.config();
-const SHARE_TOKEN_LENGTH = process.env.SHARE_TOKEN_LENGTH;
+const { SHARE_TOKEN_LENGTH } = process.env;
 // =========================================================================================
-const pwdRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
-
 const signupValid = [
 	body("name").trim().isLength({ min: 1 }).withMessage("Name is required"),
 
@@ -29,17 +28,13 @@ const signupValid = [
 const signinValid = [
 	body("email").trim().isEmail().withMessage("Email is not valid.").normalizeEmail(),
 
-	// TODO: use this validation rule when production
-	// body("password").custom((value) => {
-	// 	if (!value.match(pwdRegex)) {
-	// 		throw new Error("Password is not valid");
-	// 	}
-	// 	return true;
-	// })
+	body("password").custom((value) => {
+		if (!value.match(pwdRegex)) {
+			throw new Error("Password is not valid");
+		}
+		return true;
+	}),
 ];
-
-// =========================================================================================
-const regexForFilesName = /^[\u4e00-\u9fa5a-zA-Z0-9_\-.@$ \[\]\(\)\+]+$/;
 
 const uploadValid = [
 	body("fileName")

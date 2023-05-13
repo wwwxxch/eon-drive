@@ -1,4 +1,5 @@
 import { API_VERSION } from "../../constant/constant.js";
+import { resendVerifyMailByMail } from "../../api/resend_mail.js";
 
 const loginReq = async () => {
 	$("#login-err-msg").empty();
@@ -7,9 +8,45 @@ const loginReq = async () => {
 
 	try {
 		const loginRes = await axios.post(`/api/${API_VERSION}/signin`, { email, password });
-		if (loginRes.status === 200) {
-			// console.log("login success");
+		if (loginRes.data.msg === "ok") {
 			window.location.href = "/home";
+		} else if (loginRes.data.msg === "non-verified") {
+			const confirmedDT = new Date(loginRes.data.lastConfirmedTime);
+			const currentDT = new Date(new Date().toUTCString());
+			const diffTime = Math.ceil((currentDT - confirmedDT) / (60 * 1000));
+			$("#login-div").hide();
+			$("#not-verify-div").show();
+			console.log("diffTime: ", diffTime, " min");
+			if (diffTime < 60) {
+				$("#resend-verify-mail").text(
+					`Verification mail can be sent after ${60 - diffTime} min`
+				);
+				$("#resend-verify-mail").attr("disabled", true);
+			} else {
+				$("#resend-verify-mail").text("Resend verification mail");
+
+				// resend verify mail button
+				$("#resend-verify-mail").on("click", async function () {
+					const resendVerifyMailRes = await resendVerifyMailByMail(email, password);
+					console.log(resendVerifyMailRes);
+
+					if (resendVerifyMailRes.data.msg === "ok") {
+						window.location.href = "/register/verify-mail-sent";
+					} else if (
+						resendVerifyMailRes.status !== 200 &&
+						resendVerifyMailRes.status !== 500
+					) {
+						const errorHTML = `<span>${resendVerifyMailRes.data.error}</span>`;
+						$("#verify-error-modal").modal("show");
+						$("#verify-error-msg").html(errorHTML);
+					} else {
+						const errorHTML =
+							"<span>Opps! Something went wrong. Please try later or contact us.</span>";
+						$("#verify-error-modal").modal("show");
+						$("#verify-error-msg").html(errorHTML);
+					}
+				});
+			}
 		}
 	} catch (err) {
 		// console.error("loginReq: ", err);

@@ -92,14 +92,37 @@
           padding-bottom: 13vh;
         }
 
+        #resend-verify-mail {
+          background-color: #f8f5ef;
+          font-size: 1vw;
+        }
+
+        #resend-verify-mail:hover {
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        #resend-verify-mail:disabled {
+          border: none;
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        
         div {
           /* border: 1px dashed; */
+        }
+
+        #not-verify-div {
+          margin-top: 10vh;
         }
 
         @media screen and (min-height: 800px) {
           .content-block {
             padding-top: 13vh;
             padding-bottom: 13vh;
+          }
+
+          #not-verify-div {
+            margin-top: 13vh;
           }
         }
       </style>
@@ -135,7 +158,7 @@
         </div>
       </div>
 
-      <div class="container mt-4">
+      <div class="container mt-4" id="login-div">
         <div class="row justify-content-center">
           <div class="col-md-6 col-lg-5">
             <div class="d-flex justify-content-center align-items-end mx-4 my-3">
@@ -180,6 +203,29 @@
             </div>
           </div>
         </div>
+      </div>
+      <div class="container" id="not-verify-div" style="display: none;">
+
+        <div class="row justify-content-center">
+          <div class="d-flex flex-column align-items-center">
+            <h4><b>Account not verified</b></h4>
+            <h5>A verification email has been sent to your email address when you registered.</h5>
+            <h5>The verification link will expire after 1 hour.</h5>
+            <h5>Please check your email and verify the account.</h5>
+            <button class="btn my-3" id="resend-verify-mail">Resend Verification Link</button>
+          </div>
+        </div>
+        <!-- error modal  -->
+        <div class="modal fade" id="verify-error-modal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog w-25">
+            <div class="modal-content">
+              <div class="modal-body d-flex justify-content-center">
+                <div id="verify-error-msg"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
     <!-- footer  -->

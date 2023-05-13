@@ -7,10 +7,13 @@ const registerReq = async () => {
 	const password = $("#password").val();
 
 	try {
-		const loginRes = await axios.post(`/api/${API_VERSION}/signup`, { name, email, password });
+		const loginRes = await axios.post(`/api/${API_VERSION}/signup`, {
+			name,
+			email,
+			password,
+		});
 		if (loginRes.status === 200) {
-			// console.log("signup success");
-			window.location.href = "/home";
+			window.location.href = "/register/verify-mail-sent";
 		}
 	} catch (err) {
 		// console.error("registerReq: ", err);
@@ -37,7 +40,8 @@ $(".continue-btn").on("click", function (e) {
 		$("#login-failed-modal").modal("show");
 		return;
 	}
-	const pattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
+	const pattern =
+		/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
 	if ($("#password").val() === "") {
 		$("#login-err-msg").text("Please enter your password");
 		$("#login-failed-modal").modal("show");
