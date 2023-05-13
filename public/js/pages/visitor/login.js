@@ -1,4 +1,4 @@
-import { API_VERSION } from "../../constant/constant.js";
+import { API_VERSION, CONFIRM_MAIL_EXPIRE_HOUR } from "../../constant/constant.js";
 import { resendVerifyMailByMail } from "../../api/resend_mail.js";
 
 const loginReq = async () => {
@@ -17,9 +17,11 @@ const loginReq = async () => {
 			$("#login-div").hide();
 			$("#not-verify-div").show();
 			console.log("diffTime: ", diffTime, " min");
-			if (diffTime < 60) {
+			if (diffTime < CONFIRM_MAIL_EXPIRE_HOUR * 60) {
 				$("#resend-verify-mail").text(
-					`Verification mail can be sent after ${60 - diffTime} min`
+					`Verification mail can be sent after ${
+						CONFIRM_MAIL_EXPIRE_HOUR * 60 - diffTime
+					} min`
 				);
 				$("#resend-verify-mail").attr("disabled", true);
 			} else {
