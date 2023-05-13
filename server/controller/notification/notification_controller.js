@@ -1,12 +1,19 @@
 import { CustomError } from "../../error/custom_error.js";
+import { readNotificationNumber } from "../../constant/constant.js";
 import { getLinksSharedNotice, changeNoticeReadStatus } from "../../model/db_share.js";
 // =================================================================================
-// TODO: error handling
 const noticeList = async (req, res, next) => {
 	const userId = req.session.user.id;
 	const unreadNotice = await getLinksSharedNotice(userId, 0);
+
 	const readNotice =
-		unreadNotice.length < 5 ? await getLinksSharedNotice(userId, 1, 5 - unreadNotice.length) : [];
+		unreadNotice.length < readNotificationNumber
+			? await getLinksSharedNotice(
+					userId,
+					1,
+					readNotificationNumber - unreadNotice.length
+			  )
+			: [];
 
 	const noticeToFE = [...unreadNotice, ...readNotice];
 	return res.json({ data: noticeToFE, unreadNum: unreadNotice.length });

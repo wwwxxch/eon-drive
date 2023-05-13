@@ -1,5 +1,5 @@
-import { body, validationResult } from "express-validator";
-import { pwdRegex, regexForFilesName } from "../util/constant.js";
+import { query, body, validationResult } from "express-validator";
+import { pwdRegex, regexForFilesName } from "../constant/constant.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -153,7 +153,7 @@ const createLinkValid = [
 const revokeLinkValid = [body("filesId").isInt().withMessage("id should be integer")];
 
 const viewFolderListValid = [
-	body("shareToken")
+	query("shareToken")
 		.matches(`[0-9a-zA-Z]{${SHARE_TOKEN_LENGTH}}`)
 		.withMessage("Share token is not valid"),
 ];

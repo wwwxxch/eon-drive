@@ -2,7 +2,10 @@ import { API_VERSION } from "../constant/constant.js";
 
 const getShareFoList = async (shareToken, subFolder = null) => {
 	try {
-		const getList = await axios.post(`/api/${API_VERSION}/view-fo-list`, { shareToken, subFolder });
+		// const getList = await axios.post(`/api/${API_VERSION}/view-fo-list`, { shareToken, subFolder });
+		const getList = await axios.get(
+			`/api/${API_VERSION}/view-fo-list?shareToken=${shareToken}&subFolder=${subFolder}`
+		);
 
 		return getList.data;
 	} catch (e) {
@@ -13,7 +16,10 @@ const getShareFoList = async (shareToken, subFolder = null) => {
 
 const downloadShareFo = async (shareToken, desired) => {
 	try {
-		const downloadRes = await axios.post(`/api/${API_VERSION}/view-fo-dl`, { shareToken, desired });
+		const downloadRes = await axios.post(`/api/${API_VERSION}/view-fo-dl`, {
+			shareToken,
+			desired,
+		});
 		console.log("downloadRes: ", downloadRes);
 		return { status: downloadRes.status, downloadUrl: downloadRes.data.downloadUrl };
 	} catch (e) {
@@ -24,7 +30,9 @@ const downloadShareFo = async (shareToken, desired) => {
 
 const downloadShareFi = async (shareToken) => {
 	try {
-		const downloadRes = await axios.post(`/api/${API_VERSION}/view-fi-dl`, { shareToken });
+		const downloadRes = await axios.post(`/api/${API_VERSION}/view-fi-dl`, {
+			shareToken,
+		});
 		console.log("downloadRes: ", downloadRes);
 		return { status: downloadRes.status, downloadUrl: downloadRes.data.downloadUrl };
 	} catch (e) {

@@ -113,16 +113,24 @@ const getMultipleUserId = async (col, vals, exclude) => {
 };
 
 const getProfile = async (user_id) => {
-	const [row] = await pool.query(
-		`
-    SELECT 
-      email, name, 
-      plan, allocated, used, 
-      DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS created_at
-    FROM user WHERE id = ?`,
-		user_id
-	);
-	return row[0];
+	try {
+		const [row] = await pool.query(
+			`
+      SELECT 
+        email, name, 
+        plan, allocated, used, 
+        DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS created_at
+      FROM user WHERE id = ?`,
+			user_id
+		);
+		if (row.length !== 1) {
+			throw new Error("getProfile: row.length !== 1");
+		}
+		return row[0];
+	} catch (e) {
+		console.error("getProfile: ", e);
+		return null;
+	}
 };
 
 const getConfirmDetails = async (confirm_token) => {

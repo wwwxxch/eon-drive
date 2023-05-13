@@ -80,7 +80,6 @@ const deleteDB = async (req, res, next) => {
 	emitTrashList(io, userId);
 	emitUsage(io, userId, req.session.user);
 
-	// TODO: return 204 code ?
 	return res.json({ msg: "ok" });
 };
 
@@ -154,6 +153,7 @@ const permDelete = async (req, res, next) => {
 	// emit trash list
 	const io = req.app.get("socketio");
 	emitTrashList(io, userId);
+
 	return res.json({ msg: "ok" });
 };
 

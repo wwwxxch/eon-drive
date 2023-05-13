@@ -265,8 +265,12 @@ const logOut = (req, res) => {
 	return res.redirect("/");
 };
 
-const showProfile = async (req, res) => {
+const showProfile = async (req, res, next) => {
 	const profile = await getProfile(req.session.user.id);
+	// const profile = null;
+	if (!profile) {
+		return next(CustomError.internalServerError());
+	}
 	const { email, name, plan, allocated, used, created_at } = profile;
 
 	return res.json({ email, name, plan, allocated, used, created_at });

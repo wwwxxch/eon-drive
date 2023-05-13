@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import { uuidv4Regex } from "../../../util/constant.js";
+import { uuidv4Regex } from "../../../constant/constant.js";
 
 import { loginRedirect } from "../../../middleware/auth_check.js";
 

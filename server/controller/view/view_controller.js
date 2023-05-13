@@ -137,7 +137,11 @@ const returnFolderInfo = async (req, res) => {
 };
 
 const viewFolderList = async (req, res, next) => {
-	const { shareToken, subFolder } = req.body;
+	console.log("viewFolderList: req.query: ", req.query);
+
+	// const { shareToken, subFolder } = req.body;
+	const { shareToken, subFolder } = req.query;
+
 	// find the list by token
 	const target = await getTargetByLink(shareToken);
 	if (!target) {
@@ -269,7 +273,10 @@ const viewDLfolder = async (req, res, next) => {
 		return next(CustomError.internalServerError());
 	}
 
-	const modifiedPath = `${parentParentPath}${desired.replace(/\/$/, "")}`.replace(/^Home\//, "");
+	const modifiedPath = `${parentParentPath}${desired.replace(/\/$/, "")}`.replace(
+		/^Home\//,
+		""
+	);
 	console.log("modifiedPath: ", modifiedPath);
 	const children = await getAllChildren(target.user_id, modifiedPath);
 	if (children.childsNoVer.length === 0 || children.childsWithVer.length === 0) {

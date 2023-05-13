@@ -72,13 +72,7 @@ const getPartUrl = async (
 };
 
 // get partUrls & completeUrl for multipart upload
-const getMultiSignedUrl = async (
-	client,
-	bucket,
-	key,
-	count,
-	expiresIn = 900
-) => {
+const getMultiSignedUrl = async (client, bucket, key, count, expiresIn = 900) => {
 	// Create Multipart Upload & Get uploadId
 	const command = new CreateMultipartUploadCommand({
 		Bucket: bucket,
@@ -96,13 +90,7 @@ const getMultiSignedUrl = async (
 		);
 
 		// Get completeUrl
-		const completeUrl = await getCompleteUrl(
-			client,
-			bucket,
-			key,
-			uploadId,
-			expiresIn
-		);
+		const completeUrl = await getCompleteUrl(client, bucket, key, uploadId, expiresIn);
 
 		return { partUrls: partUrls, completeUrl: completeUrl };
 	} catch (e) {
@@ -111,22 +99,24 @@ const getMultiSignedUrl = async (
 	}
 };
 
-// TODO: update for download feature (as lambda)
 // upload large file (zip)
 const largeUpload = async (client, bucket, key, localPath, fileSize) => {
-  try {
-    // Create Multipart Upload & Get uploadId
-    const cmdCreateMultipartUpload = new CreateMultipartUploadCommand({
-      Bucket: bucket,
-      Key: key,
-    });
-    const multipartUpload = await client.send(cmdCreateMultipartUpload);
-    console.log("largeUpload: multipartUpload: ", multipartUpload);
-    // Upload Parts
-    const uploadId = multipartUpload.UploadId;
+	console.log("check: largeUpload: ", bucket, key, localPath, fileSize);
+	try {
+		// Create Multipart Upload & Get uploadId
+		const cmdCreateMultipartUpload = new CreateMultipartUploadCommand({
+			Bucket: bucket,
+			Key: key,
+		});
 
+		const multipartUpload = await client.send(cmdCreateMultipartUpload);
+		console.log("largeUpload: multipartUpload: ", multipartUpload);
+
+		// Upload Parts
+		const uploadId = multipartUpload.UploadId;
 		const uploadPromises = [];
 		const partCount = Math.ceil(fileSize / parseInt(CHUNK_SIZE));
+
 		for (let i = 0; i < partCount; i++) {
 			const start = i * parseInt(CHUNK_SIZE);
 			const end = Math.min(start + parseInt(CHUNK_SIZE), fileSize);
@@ -147,13 +137,7 @@ const largeUpload = async (client, bucket, key, localPath, fileSize) => {
 		}
 
 		// Complete Multipart Upload - Using presigned URL send the request manually
-		const completeUrl = await getCompleteUrl(
-			client,
-			bucket,
-			key,
-			uploadId,
-			3600
-		);
+		const completeUrl = await getCompleteUrl(client, bucket, key, uploadId, 3600);
 		const uploadResults = await Promise.all(uploadPromises);
 		const xmlBody = `
       <CompleteMultipartUpload>
@@ -174,7 +158,7 @@ const largeUpload = async (client, bucket, key, localPath, fileSize) => {
 			headers: { "Content-Type": "application/xml" },
 			body: xmlBody,
 		});
-		// console.log(completeMulripart);
+		console.log("completeMultipart: ", completeMultipart);
 		return completeMultipart.status;
 	} catch (e) {
 		console.error("largeUpload: ", e);
@@ -189,14 +173,8 @@ const largeUpload = async (client, bucket, key, localPath, fileSize) => {
 		// 	const abort = await client.send(abortCommand);
 		// 	console.log("abort: ", abort);
 		// }
-    return e["$metadata"].httpStatusCode;
+		return e["$metadata"].httpStatusCode;
 	}
 };
 
-export {
-	getSingleSignedUrl,
-	getCompleteUrl,
-	getPartUrl,
-	getMultiSignedUrl,
-	largeUpload,
-};
+export { getSingleSignedUrl, getCompleteUrl, getPartUrl, getMultiSignedUrl, largeUpload };

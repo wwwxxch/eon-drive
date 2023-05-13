@@ -3,10 +3,6 @@
     font-family: 'Lato', sans-serif !important;
   }
 
-  div, p {
-    /* border: 1px dashed; */
-  }
-
   header {
     padding-top: 2vh;
   }
@@ -159,11 +155,11 @@
 <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header" id="profile-modal-header">
         <h5 class="modal-title user-name" id="profileModalLabel"></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" id="profile-modal-body">
         <div class="row mb-3">
           <div class="col-4">
             <p class="fw-bold mb-0">Email:</p>

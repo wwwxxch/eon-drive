@@ -15,8 +15,16 @@ $("#logout-btn").on("click", async function (e) {
 // profile button
 $("#profile-btn").on("click", async function (e) {
 	e.preventDefault();
-	// TODO: error handling
+
 	const profile = await askProfile();
+	if (!profile) {
+		$("#profile-modal-header").hide();
+		$("#profile-modal-body").empty();
+		$("#profile-modal-body").append(`
+      <span>Opps! Something went wrong. Please try later or contact us.</span>
+    `);
+		return;
+	}
 
 	$(".user-name").text(profile.name);
 	$(".user-email").text(profile.email);

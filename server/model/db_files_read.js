@@ -47,8 +47,8 @@ const getIsDelFileId = async (user_id, parent_id, file_name) => {
 	return row;
 };
 
+// TODO: getOneLevelChildByParentId -> files_upd_status + NOT IN (..."del_restore") ???
 const getOneLevelChildByParentId = async (user_id, parent_id, is_delete) => {
-	// TODO: + NOT IN (..."del_restore") ?
 	const q_string = `
     SELECT 
       id, name, type,

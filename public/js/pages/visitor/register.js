@@ -1,4 +1,5 @@
 import { API_VERSION } from "../../constant/constant.js";
+import { pwdRegex } from "../../constant/constant.js";
 
 const registerReq = async () => {
 	$("#login-err-msg").empty();
@@ -43,16 +44,14 @@ $(".continue-btn").on("click", async function (e) {
 		return;
 	}
 
-	// TODO: - constant
-	const pattern =
-		/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
 	if ($("#password").val() === "") {
 		$("#login-err-msg").text("Please enter your password");
 		$("#login-failed-modal").modal("show");
 		return;
-	} else if (!pattern.test($("#password").val())) {
+	} else if (!pwdRegex.test($("#password").val())) {
 		$("#login-err-msg").text(
-			"Password must contain 8-16 characters, at least one letter, one number and one one of below symbols (!@#$%^&*()_+) "
+			"Password must contain 8-16 characters, " +
+				"at least one letter, one number and one one of below symbols (!@#$%^&*()_+) "
 		);
 		$("#login-failed-modal").modal("show");
 		return;

@@ -3,7 +3,11 @@ const router = express.Router();
 
 import { wrapAsync } from "../../util/util.js";
 
-import { viewFolderListValid, viewDLValid, ValidCB } from "../../middleware/input_validator.js";
+import {
+	viewFolderListValid,
+	viewDLValid,
+	ValidCB,
+} from "../../middleware/input_validator.js";
 
 import {
 	viewFolderList,
@@ -15,8 +19,7 @@ import {
 } from "../../controller/view/view_controller.js";
 
 // ===================================================================================
-// TODO: - restful?
-router.post("/view-fo-list", viewFolderListValid, ValidCB, viewFolderList);
+router.get("/view-fo-list", viewFolderListValid, ValidCB, viewFolderList);
 
 router.post(
 	"/view-fi-dl",

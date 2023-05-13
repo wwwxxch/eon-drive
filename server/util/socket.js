@@ -25,10 +25,9 @@ const socketConn = (io) => {
         "transport close"
         "transport error"
       */
-      // TODO: errors may occur
+			// TODO: pending - not sure how to reconnect
 			if (reason === "ping timeout") {
 				// socket.socket.reconnect();
-        
 			}
 		});
 	});
