@@ -16,12 +16,14 @@ import {
 } from "../../controller/user/user_auth_controller.js";
 
 import { authentication } from "../../middleware/auth_check.js";
+import { rateLimiter } from "../../util/rate_limiter.js";
 // ======================================================================================
 
-router.post("/signup", signupValid, ValidCB, signUp);
+router.post("/signup", rateLimiter(1), signupValid, ValidCB, signUp);
 
 router.get(
 	`/resend-verify-mail/:confirmToken(${uuidv4Regex})`,
+	rateLimiter(1),
 	checkRegisterConfirmTokenJson,
 	reSendConfirmationMailFromLink
 );
@@ -30,6 +32,7 @@ router.post("/signin", signinValid, ValidCB, signIn);
 
 router.post(
 	"/resend-verify-mail/by-mail",
+	rateLimiter(1),
 	signinValid,
 	ValidCB,
 	reSendConfirmationMailFromLoginPage
