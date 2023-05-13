@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EON Drive</title>
+  <%- include('../visitor/partial/stylesheet') %>
+    <%- include('../visitor/partial/script') %>
+      <!-- css internal -->
+      <style>
+        .content-block {
+          width: 68vw;
+        }
+
+        div {
+          /* border: 1px dashed; */
+        }
+
+        /* .btn {
+          background-color: #f8f5ef;
+          font-size: 1.2vw;
+        }
+        .btn:hover {
+          background-color: #f8f5ef;
+          box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        } */
+      </style>
+</head>
+
+<body>
+  <div id="root">
+    <%- include('../visitor/partial/header') %>
+      <!-- Main Body  -->
+      <div class="container content-block d-flex flex-column align-items-center">
+        <h4><b>Verification email sent</b></h4>
+        <h5 class="mt-3">A verification email has been sent to your email address.</h5>
+        <h5>The verification link will expire after 1 hour.</h5>
+        <h5>Please check your email and verify the account.</h5>
+      </div>
+      <%- include('../visitor/partial/footer') %>
+  </div>
+</body>
+
+</html>
