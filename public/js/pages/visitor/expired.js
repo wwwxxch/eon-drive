@@ -14,7 +14,11 @@ $("#resend-verify-mail").on("click", async function () {
 		const errorHTML = "<span>Verification link can be resent after 1 hour.</span>";
 		$("#link-not-expired-modal").modal("show");
 		$("#link-not-expired-msg").html(errorHTML);
-	} else if (resendVerifyMailRes.status !== 200) {
+	} else if (resendVerifyMailRes.status !== 200 && resendVerifyMailRes.status !== 500) {
+		const errorHTML = `<span>${resendVerifyMailRes.data.error}</span>`;
+		$("#link-not-expired-modal").modal("show");
+		$("#link-not-expired-msg").html(errorHTML);
+	} else {
 		const errorHTML =
 			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
 		$("#link-not-expired-modal").modal("show");
