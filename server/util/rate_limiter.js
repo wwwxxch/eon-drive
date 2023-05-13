@@ -2,8 +2,8 @@ import { redis } from "./cache.js";
 
 const rateLimiter = (times) => {
 	return async (req, res, next) => {
-		console.log("rateLimiter: ip: ", req.headers["x-real-ip"]);
-		const ip = req.headers["x-real-ip"];
+		console.log("rateLimiter: ip: ", req.headers["x-forwarded-for"]);
+		const ip = req.headers["x-forwarded-for"];
 
 		if (!redis || redis.status !== "ready") {
 			return next();
