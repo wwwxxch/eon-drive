@@ -1,6 +1,20 @@
 import { revokeLink, checkShareStatus, createLink } from "../../../api/share.js";
 import { notiCard, isValidEmail, copyToClipboard } from "../../../util/util.js";
 
+// back to initial state
+function backToInitState() {
+	$("#recipient").val("");
+	$(".email-chips-container").empty();
+
+	$("input[id='access-anyone']").prop("checked", true);
+	$("input[id='access-user']").prop("checked", false);
+
+	$("label[for='access-user']").text("Eon Drive Users");
+
+	$("#recipient").prop("disabled", true);
+	$("#add-email-btn").prop("disabled", true);
+}
+
 // get link - To public or To private
 $("input[name='access']").change(function () {
 	if ($(this).attr("id") === "access-user") {
@@ -45,6 +59,7 @@ $("#list-table").on("click", ".get-link", async function () {
 	// show current access list
 	console.log(shareStatus);
 	$("#current-access-list").empty();
+
 	if (!shareStatus.share_link) {
 		$("#current-access-list").append(`
       <div>Only you</div>
@@ -86,11 +101,13 @@ $("#list-table").on("click", ".get-link", async function () {
 
 	// input user email
 	const selectedEmailsSet = new Set();
+	// click add mail button
 	$("#add-email-btn")
 		.off("click")
 		.on("click", function (e) {
 			e.preventDefault();
-			const email = $("#recipient").val().trim();
+			const emailInput = $("#recipient");
+			const email = emailInput.val().trim();
 			if (isValidEmail(email) && !selectedEmailsSet.has(email)) {
 				selectedEmailsSet.add(email);
 				const $emailChip = $(`
@@ -100,26 +117,25 @@ $("#list-table").on("click", ".get-link", async function () {
           </div>
         `);
 				$(".email-chips-container").append($emailChip);
-				$("#recipient").val("");
-				$("#recipient").blur();
+				emailInput.val("");
+				emailInput.blur();
 				$(this).blur();
 			} else if (selectedEmailsSet.has(email)) {
 				const emailDuplicated = notiCard("Email is duplicated", 160, "topCenter");
 				emailDuplicated.show();
-				$("#recipient").val("");
-				$("#recipient").blur();
+				emailInput.val("");
+				emailInput.blur();
 				$(this).blur();
-				return;
 			} else {
 				const emailInvalid = notiCard("Email is invalid", 130, "topCenter");
 				emailInvalid.show();
-
-				$("#recipient").val("");
-				$("#recipient").blur();
+				emailInput.val("");
+				emailInput.blur();
 				$(this).blur();
-				return;
 			}
 		});
+
+	// receipient input box enter
 	$("#recipient")
 		.off("keydown")
 		.on("keydown", async function (e) {
@@ -142,17 +158,16 @@ $("#list-table").on("click", ".get-link", async function () {
 					emailDuplicated.show();
 					$(this).val("");
 					$(this).blur();
-					return;
 				} else {
 					const emailInvalid = notiCard("Email is invalid", 130, "topCenter");
 					emailInvalid.show();
 					$(this).val("");
 					$(this).blur();
-					return;
 				}
 			}
 		});
 
+	// remove email chip by clicking x
 	$(".email-chips-container")
 		.off("click")
 		.on("click", ".email-remove", function () {
@@ -165,13 +180,7 @@ $("#list-table").on("click", ".get-link", async function () {
 	$("#create-link-cancel-btn")
 		.off("click")
 		.on("click", function () {
-			$("#recipient").val("");
-			$(".email-chips-container").empty();
-			$("input[id='access-anyone']").prop("checked", true);
-			$("input[id='access-user']").prop("checked", false);
-			$("label[for='access-user']").text("Users");
-			$("#recipient").prop("disabled", true);
-			$("#add-email-btn").prop("disabled", true);
+			backToInitState();
 		});
 
 	// create link
@@ -195,13 +204,7 @@ $("#list-table").on("click", ".get-link", async function () {
 				share_link = getLinkRes.share_link;
 			} else if (getLinkRes.status >= 400 && getLinkRes.status < 500) {
 				setTimeout(() => $("#getLinkModal").modal("hide"), 100);
-				$("#recipient").val("");
-				$(".email-chips-container").empty();
-				$("input[id='access-anyone']").prop("checked", true);
-				$("input[id='access-user']").prop("checked", false);
-				$("label[for='access-user']").text("Users");
-				$("#recipient").prop("disabled", true);
-				$("#add-email-btn").prop("disabled", true);
+				backToInitState();
 
 				let errorHTML;
 				if (typeof getLinkRes.data.error === "string") {
@@ -214,13 +217,7 @@ $("#list-table").on("click", ".get-link", async function () {
 				return;
 			} else if (getLinkRes.status === 500) {
 				setTimeout(() => $("#getLinkModal").modal("hide"), 100);
-				$("#recipient").val("");
-				$(".email-chips-container").empty();
-				$("input[id='access-anyone']").prop("checked", true);
-				$("input[id='access-user']").prop("checked", false);
-				$("label[for='access-user']").text("Users");
-				$("#recipient").prop("disabled", true);
-				$("#add-email-btn").prop("disabled", true);
+				backToInitState();
 
 				const errorHTML =
 					"<span>Opps! Something went wrong. Please try later or contact us.</span>";
@@ -241,13 +238,7 @@ $("#list-table").on("click", ".get-link", async function () {
 
 			revokeLinkBtn.prop("disabled", false);
 			$("#getLinkModal").modal("hide");
-			$("#recipient").val("");
-			$(".email-chips-container").empty();
-			$("input[id='access-anyone']").prop("checked", true);
-			$("input[id='access-user']").prop("checked", false);
-			$("label[for='access-user']").text("Users");
-			$("#recipient").prop("disabled", true);
-			$("#add-email-btn").prop("disabled", true);
+			backToInitState();
 		});
 });
 
@@ -259,7 +250,10 @@ $("#list-table").on("click", ".revoke-link", async function () {
 	console.log(filesId);
 	const filesName = $(this).closest("tr").find(".files-name").text();
 	console.log(filesName);
-	$("#revoke-confirm-q").html(`Are you sure you want to revoke the link for <b>${filesName}</b>?`);
+
+	$("#revoke-confirm-q").html(
+		`Are you sure you want to revoke the link for <b>${filesName}</b>?`
+	);
 
 	$("#revoke-link-btn")
 		.off("click")
@@ -279,7 +273,9 @@ $("#list-table").on("click", ".revoke-link", async function () {
 				if (typeof askRevokeLink.data.error === "string") {
 					errorHTML = `<span>${askRevokeLink.data.error}</span>`;
 				} else {
-					errorHTML = askRevokeLink.data.error.map((err) => `<span>${err}</span>`).join("");
+					errorHTML = askRevokeLink.data.error
+						.map((err) => `<span>${err}</span>`)
+						.join("");
 				}
 				$("#revoke-alert-msg").html(errorHTML);
 			} else {

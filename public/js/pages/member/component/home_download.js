@@ -40,22 +40,9 @@ $("#download-btn").click(async function () {
 		downloadComplete.show();
 		downloadStatus.text("Complete!");
 		uploadClose.show();
-		// v1
+
 		setTimeout(() => downloadModal.modal("hide"), 500);
 		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
-
-		// v2
-		// await delay(100);
-		// downloadModal.modal("hide");
-		// await delay(200);
-		// window.open(downloadFileRes.downloadUrl, "_blank");
-
-		// v3
-		// downloadModal.modal("hide");
-		// downloadModal.on("hidden.bs.modal", function () {
-		//   console.log("close modal");
-		//   window.open(downloadFileRes.downloadUrl, "_blank");
-		// });
 
 		$(window).off("beforeunload");
 		return;
@@ -72,10 +59,11 @@ $("#download-btn").click(async function () {
 	} else {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
-		downloadError.html("<span>Opps! Something went wrong. Please try later or contact us.</span>");
+		downloadError.html(
+			"<span>Opps! Something went wrong. Please try later or contact us.</span>"
+		);
 	}
 
 	setTimeout(() => downloadModal.modal("hide"), 2000);
 	$(window).off("beforeunload");
-	return;
 });

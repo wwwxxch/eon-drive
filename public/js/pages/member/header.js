@@ -90,7 +90,7 @@ $("#noti-ul").on("mouseenter", ".noti-item.new-noti", async function () {
 	if ($(this).hasClass("new-noti")) {
 		const shareId = $(this).data("shared-id");
 		console.log("shareId: ", shareId);
-		const res = await changeUnreadStatus(shareId);
+		await changeUnreadStatus(shareId);
 		$(".badge-notification").addClass("d-none");
 		$(this).attr("data-read", 1);
 		$(this).removeClass("new-noti");
@@ -99,23 +99,8 @@ $("#noti-ul").on("mouseenter", ".noti-item.new-noti", async function () {
 
 // =============================================================================
 // socket io
-
 socket.on("shareNotice", (data) => {
 	console.log("shareNotice: ", data);
 	$("#noti-ul").empty();
 	notiList(data);
 });
-
-// const place = window.location.pathname.split("/")[1];
-// console.log("place: ", place);
-
-// // left sidebar
-// if (place === "home") {
-//   $(".bi-folder").addClass("left-svg-active");
-// } else if (place === "shared") {
-//   $(".bi-people").addClass("left-svg-active");
-// } else if (place === "links") {
-//   $(".bi-link-45deg").addClass("left-svg-active");
-// } else if (place === "trash") {
-//   $(".bi-trash").addClass("left-svg-active");
-// }

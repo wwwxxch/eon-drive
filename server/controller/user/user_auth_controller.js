@@ -7,8 +7,8 @@ import { CustomError } from "../../error/custom_error.js";
 import {
 	changeConfirmStatus,
 	changeConfirmToken,
-	chkmail,
-	chkpair,
+	checkMail,
+	checkPair,
 	createUser,
 	getConfirmDetails,
 	getProfile,
@@ -29,7 +29,7 @@ const signIn = async (req, res, next) => {
 	const { email, password } = req.body;
 
 	// check if the email matches the password
-	const getpair = await chkpair(email, password);
+	const getpair = await checkPair(email, password);
 	if (!getpair) {
 		return next(CustomError.unauthorized("Your email and password do not match"));
 	}
@@ -42,14 +42,13 @@ const signIn = async (req, res, next) => {
 	// save user info to session
 	const getUserRes = await getUser("email", email);
 
-	const user = {
+	req.session.user = {
 		id: getUserRes.id,
 		name: getUserRes.name,
 		email: getUserRes.email,
 		allocated: getUserRes.allocated,
 		used: getUserRes.used,
 	};
-	req.session.user = user;
 
 	return res.json({ msg: "ok" });
 };
@@ -59,7 +58,7 @@ const signUp = async (req, res, next) => {
 	const modifiedName = preventXSS(name);
 
 	// check if the email has been registered
-	const getmail = await chkmail(email);
+	const getmail = await checkMail(email);
 	if (getmail) {
 		return next(CustomError.badRequest("Your email has been registered"));
 	}
@@ -220,7 +219,7 @@ const reSendConfirmationMailFromLoginPage = async (req, res, next) => {
 
 	// check if the email matches the password
 	// getpair: id, email, name, confirm_status, confirmed_at,
-	const getpair = await chkpair(email, password);
+	const getpair = await checkPair(email, password);
 	if (!getpair) {
 		return next(CustomError.unauthorized("Your email and password do not match"));
 	}

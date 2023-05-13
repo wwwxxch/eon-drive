@@ -44,23 +44,26 @@ const fileSVG = `
 `;
 
 //show usage
+function usageBar(usedNum, allocatedNum) {
+	const percent = (usedNum / allocatedNum) * 100;
+	$(".usage-progress").css("width", percent + "%");
+	$(".usage-progress").attr("aria-valuenow", percent);
+
+	if (percent <= 50) {
+		$(".progress-bar").css("background-color", "#519cf6");
+	} else if (percent > 50 && percent < 90) {
+		$(".progress-bar").css("background-color", "#d69f65");
+	} else if (percent >= 90) {
+		$(".progress-bar").css("background-color", "#c22f2f");
+	}
+	const numerator = Math.round((usedNum / (1024 * 1024)) * 100) / 100;
+	const denominator = allocatedNum / (1024 * 1024);
+	$("#progress-des").text(`${numerator} MB / ${denominator} MB`);
+}
 const usageRes = await axios.get(`/api/${API_VERSION}/usage`);
-console.log(usageRes);
 const usedNum = parseInt(usageRes.data.used);
 const allocatedNum = parseInt(usageRes.data.allocated);
-const percent = (usedNum / allocatedNum) * 100;
-$(".usage-progress").css("width", percent + "%");
-$(".usage-progress").attr("aria-valuenow", percent);
-if (percent <= 50) {
-	$(".progress-bar").css("background-color", "#519cf6");
-} else if (percent > 50 && percent < 90) {
-	$(".progress-bar").css("background-color", "#d69f65");
-} else if (percent >= 90) {
-	$(".progress-bar").css("background-color", "#c22f2f");
-}
-const numerator = Math.round((usedNum / (1024 * 1024)) * 100) / 100;
-const denominator = allocatedNum / (1024 * 1024);
-$("#progress-des").text(`${numerator} MB / ${denominator} MB`);
+usageBar(usedNum, allocatedNum);
 
 // =====================================================================================
 // showList function
@@ -221,23 +224,7 @@ socket.on("usageUpdate", (data) => {
 	console.log("socket.on usageUpdate: ", data);
 	const usedNum = parseInt(data.used);
 	const allocatedNum = parseInt(data.allocated);
-	const percent = (usedNum / allocatedNum) * 100;
-	console.log("percent: ", percent);
-
-	$(".usage-progress").css("width", percent + "%");
-	$(".usage-progress").attr("aria-valuenow", percent);
-
-	if (percent <= 50) {
-		$(".progress-bar").css("background-color", "#519cf6");
-	} else if (percent > 50 && percent < 90) {
-		$(".progress-bar").css("background-color", "#d69f65");
-	} else if (percent >= 90) {
-		$(".progress-bar").css("background-color", "#c22f2f");
-	}
-
-	const numerator = Math.round((usedNum / (1024 * 1024)) * 100) / 100;
-	const denominator = allocatedNum / (1024 * 1024);
-	$("#progress-des").text(`${numerator} MB / ${denominator} MB`);
+	usageBar(usedNum, allocatedNum);
 });
 // =================================================================================
 // click folder --> show lists under that folder
@@ -250,7 +237,8 @@ $("#list-table").on("click", ".folder", async function () {
 		})
 		.get()
 		.join("/");
-	const uri = pathTexts === "Home" ? dirName : `${pathTexts.replace(/^Home\//, "")}/${dirName}`;
+	const uri =
+		pathTexts === "Home" ? dirName : `${pathTexts.replace(/^Home\//, "")}/${dirName}`;
 
 	console.log("dirName: ", dirName);
 	console.log("pathTexts: ", pathTexts);

@@ -129,7 +129,7 @@ $(function () {
 		setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
 
 		$(window).off("beforeunload");
-		return;
+
 	});
 });
 
@@ -222,7 +222,7 @@ async function submitForm(form, input) {
 		setTimeout(() => modalObj.uploadModal.modal("hide"), 1500);
 
 		$(window).off("beforeunload");
-		return;
+
 	});
 }
 showInputTag($("#drag-drop-box"), $fileInput);

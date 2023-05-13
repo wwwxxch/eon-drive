@@ -15,7 +15,7 @@ const changeUnreadStatus = async (shareId) => {
 	try {
 		const change = await axios.patch(`/api/${API_VERSION}/notification/${shareId}`);
 		// console.log("change: ", change);
-		return change.data;
+		return true;
 	} catch (e) {
 		console.error("changeUnreadStatus: ", e);
 		return false;

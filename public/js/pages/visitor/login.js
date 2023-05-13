@@ -63,9 +63,7 @@ const loginReq = async () => {
 	}
 };
 
-$(".continue-btn").on("click", function (e) {
+$(".continue-btn").on("click", async function (e) {
 	e.preventDefault();
-	loginReq();
-	// $("#email").val("");
-	// $("#password").val("");
+	await loginReq();
 });

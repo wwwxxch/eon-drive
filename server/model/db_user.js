@@ -7,7 +7,7 @@ dotenv.config();
 // basic storage plan - X MB
 const basic = parseInt(process.env.BASIC);
 // ----------------------------------------------------------
-const chkmail = async (mail) => {
+const checkMail = async (mail) => {
 	const [row] = await pool.query(
 		`
     SELECT email FROM user WHERE email = ?`,
@@ -16,7 +16,7 @@ const chkmail = async (mail) => {
 	return row[0];
 };
 
-const chkpair = async (mail, pwd) => {
+const checkPair = async (mail, pwd) => {
 	const [row] = await pool.query(
 		`
       SELECT id, email, name, password, confirm_status, 
@@ -162,8 +162,8 @@ const changeConfirmStatus = async (time, id) => {
 };
 
 export {
-	chkmail,
-	chkpair,
+	checkMail,
+	checkPair,
 	getUser,
 	createUser,
 	changeConfirmToken,

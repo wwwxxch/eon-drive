@@ -14,7 +14,7 @@ let redisConfig = {
 	retryStrategy(times) {
 		console.log(`***Retrying redis connection: attempt ${times}***`);
 		console.log(`***redis.status: ${redis.status}***`);
-		if (times < 4) return 1000 * 1;
+		if (times < 4) return 1000 * 2 ** 0;
 		else if (times > 10) return 1000 * 2 ** times;
 		return 1000 * 5;
 	},

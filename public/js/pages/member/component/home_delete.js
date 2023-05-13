@@ -64,7 +64,6 @@ $("#delete-btn").on("click", async function () {
 
     if (deleteFileRes.status === 200) {
       setTimeout(() => deleteNoti.close(), 2000);
-      return;
     } else if (deleteFileRes.status >= 400 && deleteFileRes.status < 500) {
       deleteNoti.close();
       let errorHTML;
@@ -83,7 +82,6 @@ $("#delete-btn").on("click", async function () {
         "<span>Opps! Something went wrong. Please try later or contact us.</span>";
       $("#errorModal").modal("show");
       $("#error-msg").html(errorHTML);
-    }	
-    return;
+    }
   });	
 });

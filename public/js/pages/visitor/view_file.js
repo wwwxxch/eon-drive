@@ -57,5 +57,5 @@ $(".fi-dl-btn").on("click", async function () {
 
 	setTimeout(() => downloadModal.modal("hide"), 2000);
 	$(window).off("beforeunload");
-	return;
+
 });

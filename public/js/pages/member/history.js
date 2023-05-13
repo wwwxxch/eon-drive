@@ -1,7 +1,7 @@
 import { getFileHistory } from "../../api/list.js";
 import { restoreFile } from "../../api/restore.js";
 import { singleDownloadFile } from "../../api/download.js";
-import { formatTime, delay, capitalizeFirstLetter } from "../../util/util.js";
+import { formatTime, capitalizeFirstLetter } from "../../util/util.js";
 import { socket } from "../../util/socket.js";
 // ===================================================
 
@@ -237,5 +237,4 @@ $("#history-download").on("click", async function () {
 
 	setTimeout(() => downloadModal.modal("hide"), 2000);
 	$(window).off("beforeunload");
-	return;
 });

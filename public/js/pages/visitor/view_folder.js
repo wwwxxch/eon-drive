@@ -76,7 +76,7 @@ if (subPath) {
       <h3><span class="path-text">${target}</span></h3>
     </a>
   `);
-	pathArray.forEach((item, i) => {
+	pathArray.forEach((item) => {
 		$("#share-path").append(`
       <span class="slash"> / </span>
       <a href="/view/fo/${shareToken}/${item}">
@@ -145,7 +145,7 @@ $(window).on("popstate", async function () {
 		}, []);
 		// console.log(pathArray);
 
-		pathArray.forEach((item, i) => {
+		pathArray.forEach((item) => {
 			$("#share-path").append(`
         <span class="slash"> / </span>
         <a href="/view/fo/${shareToken}/${item}">
@@ -164,17 +164,7 @@ const downloadComplete = $("#waiting-complete");
 const downloadError = $("#waiting-error");
 const uploadClose = $("#waiting-close");
 
-// download folder
-$(".fo-dl-btn").on("click", async function () {
-	const pathTexts = $(".path-text")
-		.map(function () {
-			return $(this).text().trim();
-		})
-		.get()
-		.join("/");
-	console.log(shareToken);
-	console.log(pathTexts);
-
+async function downloadProcess(shareToken, desired) {
 	downloadModal.modal("show");
 	downloadStatus.text("Downloading...");
 	downloadSpinner.addClass("spinner-border");
@@ -182,39 +172,36 @@ $(".fo-dl-btn").on("click", async function () {
 	downloadError.html();
 	uploadClose.hide();
 
-	const downloadFileRes = await downloadShareFo(shareToken, pathTexts + "/");
+	const askDownloadRes = await downloadShareFo(shareToken, desired);
+
 	$(window).on("beforeunload", function () {
 		return "Downloading will be interrupted";
 	});
 
-	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
+	if (askDownloadRes.status === 200 && askDownloadRes.downloadUrl) {
 		downloadSpinner.removeClass("spinner-border");
 		downloadComplete.show();
 		downloadStatus.text("Complete!");
 		uploadClose.show();
 
 		setTimeout(() => downloadModal.modal("hide"), 500);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
-
-		// await delay(100);
-		// downloadModal.modal("hide");
-		// await delay(100);
-		// window.open(downloadFileRes.downloadUrl, "_blank");
+		setTimeout(() => window.open(askDownloadRes.downloadUrl, "_blank"), 200);
 
 		$(window).off("beforeunload");
 		return;
-	} else if (downloadFileRes.status !== 200 && downloadFileRes.status !== 500) {
+	} else if (askDownloadRes.status !== 200 && askDownloadRes.status !== 500) {
 		let errorHTML;
-		if (typeof downloadFileRes.data.error === "string") {
-			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
+		if (typeof askDownloadRes.data.error === "string") {
+			errorHTML = `<span>${askDownloadRes.data.error}</span>`;
 		} else {
-			errorHTML = downloadFileRes.data.error.map((err) => `<span>${err}</span>`).join("");
+			errorHTML = askDownloadRes.data.error.map((err) => `<span>${err}</span>`).join("");
 		}
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	} else {
-		const errorHTML = "<span>Opps! Something went wrong. Please try later or contact us.</span>";
+		const errorHTML =
+			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
@@ -222,10 +209,21 @@ $(".fo-dl-btn").on("click", async function () {
 
 	setTimeout(() => downloadModal.modal("hide"), 2000);
 	$(window).off("beforeunload");
-	return;
+}
+
+// download folder
+$(".fo-dl-btn").on("click", async function () {
+	const desired =
+		$(".path-text")
+			.map(function () {
+				return $(this).text().trim();
+			})
+			.get()
+			.join("/") + "/";
+	await downloadProcess(shareToken, desired);
 });
 
-// download individual file/folder
+// download child file/folder
 $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 	const pathTexts = $(".path-text")
 		.map(function () {
@@ -244,53 +242,5 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 	} else if (targetClass.includes("folder")) {
 		desired = pathTexts + "/" + target + "/";
 	}
-
-	downloadModal.modal("show");
-	downloadStatus.text("Downloading...");
-	downloadSpinner.addClass("spinner-border");
-	downloadComplete.hide();
-	downloadError.html();
-	uploadClose.hide();
-
-	const downloadFileRes = await downloadShareFo(shareToken, desired);
-	$(window).on("beforeunload", function () {
-		return "Downloading will be interrupted";
-	});
-
-	if (downloadFileRes.status === 200 && downloadFileRes.downloadUrl) {
-		downloadSpinner.removeClass("spinner-border");
-		downloadComplete.show();
-		downloadStatus.text("Complete!");
-		uploadClose.show();
-
-		setTimeout(() => downloadModal.modal("hide"), 500);
-		setTimeout(() => window.open(downloadFileRes.downloadUrl, "_blank"), 200);
-
-		// await delay(100);
-		// downloadModal.modal("hide");
-		// await delay(100);
-		// window.open(downloadFileRes.downloadUrl, "_blank");
-
-		$(window).off("beforeunload");
-		return;
-	} else if (downloadFileRes.status !== 200 && downloadFileRes.status !== 500) {
-		let errorHTML;
-		if (typeof downloadFileRes.data.error === "string") {
-			errorHTML = `<span>${downloadFileRes.data.error}</span>`;
-		} else {
-			errorHTML = downloadFileRes.data.error.map((err) => `<span>${err}</span>`).join("");
-		}
-		downloadSpinner.removeClass("spinner-border");
-		downloadStatus.text("");
-		downloadError.html(errorHTML);
-	} else {
-		const errorHTML = "<span>Opps! Something went wrong. Please try later or contact us.</span>";
-		downloadSpinner.removeClass("spinner-border");
-		downloadStatus.text("");
-		downloadError.html(errorHTML);
-	}
-
-	setTimeout(() => downloadModal.modal("hide"), 2000);
-	$(window).off("beforeunload");
-	return;
+	await downloadProcess(shareToken, desired);
 });

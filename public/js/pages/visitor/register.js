@@ -28,18 +28,22 @@ const registerReq = async () => {
 	}
 };
 
-$(".continue-btn").on("click", function (e) {
+$(".continue-btn").on("click", async function (e) {
 	e.preventDefault();
+
 	if ($("#username").val() === "") {
 		$("#login-err-msg").text("Please enter your name");
 		$("#login-failed-modal").modal("show");
 		return;
 	}
+
 	if ($("#email").val() === "") {
 		$("#login-err-msg").text("Please enter your email");
 		$("#login-failed-modal").modal("show");
 		return;
 	}
+
+	// TODO: - constant
 	const pattern =
 		/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
 	if ($("#password").val() === "") {
@@ -53,14 +57,12 @@ $(".continue-btn").on("click", function (e) {
 		$("#login-failed-modal").modal("show");
 		return;
 	}
+
 	if (!$("#agreeToTerms").is(":checked")) {
 		$("#login-err-msg").text("Please agree to the terms and conditions");
 		$("#login-failed-modal").modal("show");
 		return;
 	}
 
-	registerReq();
-	// $("#username").val("");
-	// $("#email").val("");
-	// $("#password").val("");
+	await registerReq();
 });
