@@ -1,7 +1,7 @@
 import { getFileList } from "../../api/list.js";
-import { formatTime } from "../../util/util.js";
-import { socket } from "../../util/socket.js";
-import { API_VERSION } from "../../constant/constant.js";
+import { formatTime } from "../../utils/utils.js";
+import { socket } from "../../utils/socket.js";
+import { API_VERSION } from "../../constants/constants.js";
 
 const personplusSVG = `
   <svg xmlns="http://www.w3.org/2000/svg" height="18" fill="currentColor" class="bi bi-person-plus"
@@ -150,7 +150,7 @@ function showList(obj) {
 }
 
 // =================================================================================
-// show file list on page load (new request)
+// show file list on pages load (new request)
 console.log("window.location.pathname: ", window.location.pathname);
 const path = window.location.pathname.split("/").slice(2).join("/");
 const list = await getFileList(path === "" ? "Home" : "Home/" + path);

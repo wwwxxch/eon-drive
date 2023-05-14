@@ -1,5 +1,5 @@
 import { getShareFoList, downloadShareFo } from "../../api/view.js";
-import { formatTime } from "../../util/util.js";
+import { formatTime } from "../../utils/utils.js";
 
 function showShareFoList(obj) {
 	if (obj.data.length === 0) {

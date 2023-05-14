@@ -1,8 +1,8 @@
 import { getFileHistory } from "../../api/list.js";
 import { restoreFile } from "../../api/restore.js";
 import { singleDownloadFile } from "../../api/download.js";
-import { formatTime, capitalizeFirstLetter } from "../../util/util.js";
-import { socket } from "../../util/socket.js";
+import { formatTime, capitalizeFirstLetter } from "../../utils/utils.js";
+import { socket } from "../../utils/socket.js";
 // ===================================================
 
 // show history list

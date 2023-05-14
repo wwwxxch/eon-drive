@@ -1,5 +1,5 @@
-import { API_VERSION } from "../../constant/constant.js";
-import { pwdRegex } from "../../constant/constant.js";
+import { API_VERSION } from "../../constants/constants.js";
+import { pwdRegex } from "../../constants/constants.js";
 
 const registerReq = async () => {
 	$("#login-err-msg").empty();

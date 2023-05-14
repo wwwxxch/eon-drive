@@ -1,4 +1,4 @@
-import { API_VERSION } from "../constant/constant.js";
+import { API_VERSION } from "../constants/constants.js";
 
 const downloadFile = async (path, fileArray) => {
 	// request body

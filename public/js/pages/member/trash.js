@@ -1,8 +1,8 @@
 import { getTrash } from "../../api/list.js";
 import { restoreDelete } from "../../api/restore.js";
-import { formatTime } from "../../util/util.js";
+import { formatTime } from "../../utils/utils.js";
 import { permDeleteFile } from "../../api/delete.js";
-import { socket } from "../../util/socket.js";
+import { socket } from "../../utils/socket.js";
 // ==========================================================================
 // show trash list
 let table;
@@ -70,7 +70,7 @@ socket.on("trashUpdate", (data) => {
 });
 
 // ==========================================================================
-// click other place on the page -> cancel checked
+// click other place on the pages -> cancel checked
 $(document).click(function (e) {
 	if (!$(e.target).is("input[name='trash-checkbox'], #select-all")) {
 		$("input[name='trash-checkbox']").prop("checked", false);

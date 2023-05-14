@@ -1,4 +1,4 @@
-import { API_VERSION, CONFIRM_MAIL_EXPIRE_HOUR } from "../../constant/constant.js";
+import { API_VERSION, CONFIRM_MAIL_EXPIRE_HOUR } from "../../constants/constants.js";
 import { resendVerifyMailByMail } from "../../api/resend_mail.js";
 
 const loginReq = async () => {

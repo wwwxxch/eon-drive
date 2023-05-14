@@ -1,8 +1,8 @@
 import { askNoti, changeUnreadStatus } from "../../api/notification.js";
 import { askProfile } from "../../api/list.js";
-import { formatTime } from "../../util/util.js";
-import { socket } from "../../util/socket.js";
-import { API_VERSION } from "../../constant/constant.js";
+import { formatTime } from "../../utils/utils.js";
+import { socket } from "../../utils/socket.js";
+import { API_VERSION } from "../../constants/constants.js";
 // =============================================================================
 
 // logout button

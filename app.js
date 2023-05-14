@@ -7,12 +7,12 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createAdapter } from "@socket.io/redis-adapter";
 
-import { sessionConfig } from "./server/util/session.js";
-import { socketConn } from "./server/util/socket.js";
+import { sessionConfig } from "./server/utils/session.js";
+import { socketConn } from "./server/utils/socket.js";
 
-import { pub, sub } from "./server/util/cache.js";
+import { pub, sub } from "./server/utils/cache.js";
 
-import { CustomError } from "./server/error/custom_error.js";
+import { CustomError } from "./server/utils/custom_error.js";
 
 dotenv.config();
 const port = process.env.PORT;
@@ -52,40 +52,46 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.set("views", path.join(__dirname, "/server/view"));
+app.set("views", path.join(__dirname, "/server/views"));
 app.set("view engine", "ejs");
 
 // --------------------------------------------------------------------------------
 // Page
-import { page_member } from "./server/route/page//member/member_route.js";
-import { page_visitor } from "./server/route/page/visitor/visitor_route.js";
+import { page_member } from "./server/routes/pages/member/member_route.js";
+import { page_visitor } from "./server/routes/pages/visitor/visitor_route.js";
 
 app.use(page_member, page_visitor);
 
 // --------------------------------------------------------------------------------
 // API
-import { user_auth_route } from "./server/route/user/user_auth_route.js";
-import { user_usage_route } from "./server/route/user/user_usage_route.js";
-import { file_upload_route } from "./server/route/files/file_upload_route.js";
-import { folder_create_route } from "./server/route/files/folder_create_route.js";
-import { file_list_route } from "./server/route/files/file_list_route.js";
-import { file_delete_route } from "./server/route/files/file_delete_route.js";
-import { file_download_route } from "./server/route/files/file_download_route.js";
-import { file_restore_route } from "./server/route/files/file_restore_route.js";
-import { link_manage_route } from "./server/route/link/link_manage_route.js";
-import { link_list_route } from "./server/route/link/link_list_route.js";
-import { view_route } from "./server/route/view/view_route.js";
-import { notification_route } from "./server/route/notification/notification_route.js";
+import { user_auth_route } from "./server/routes/user/user_auth_route.js";
+import { user_usage_route } from "./server/routes/user/user_usage_route.js";
+
+import { files_delete_route } from "./server/routes/files/files_delete_route.js";
+import { files_download_route } from "./server/routes/files/files_download_route.js";
+import { files_list_route } from "./server/routes/files/files_list_route.js";
+import { files_restore_route } from "./server/routes/files/files_restore_route.js";
+import { files_upload_route } from "./server/routes/files/files_upload_route.js";
+import { folder_create_route } from "./server/routes/files/folder_create_route.js";
+
+import { link_manage_route } from "./server/routes/link/link_manage_route.js";
+import { link_list_route } from "./server/routes/link/link_list_route.js";
+
+import { view_route } from "./server/routes/view/view_route.js";
+
+import { notification_route } from "./server/routes/notification/notification_route.js";
 
 app.use("/api/" + process.env.API_VERSION, [
 	user_auth_route,
 	user_usage_route,
-	file_upload_route,
+
+	files_delete_route,
+	files_download_route,
+	files_list_route,
+	files_restore_route,
+	files_upload_route,
 	folder_create_route,
-	file_list_route,
-	file_delete_route,
-	file_download_route,
-	file_restore_route,
+
 	link_manage_route,
 	link_list_route,
 	view_route,
@@ -108,14 +114,14 @@ app.use((req, res, next) => {
 	res.status(404);
 	res.render("error/error", {
 		status: 404,
-		message: "The page you requested is not existed.",
+		message: "The pages you requested is not existed.",
 	});
 });
 
 app.use((err, req, res, next) => {
 	// custom error
 	if (err instanceof CustomError) {
-		console.error("err.message: ", err.message);
+		console.error("CustomError: err.message: ", err.message);
 		return res.status(err.status).json({ error: err.message });
 	}
 	// other error

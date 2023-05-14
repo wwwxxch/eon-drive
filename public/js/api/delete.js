@@ -1,4 +1,4 @@
-import { API_VERSION } from "../constant/constant.js";
+import { API_VERSION } from "../constants/constants.js";
 
 const deleteFile = async (path, fileArray) => {
 	// 1. parentPath possible value: "" or "level1folder/level2folder"

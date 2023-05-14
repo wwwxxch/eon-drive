@@ -1,5 +1,5 @@
-import { CHUNK_SIZE, API_VERSION } from "../constant/constant.js";
-import { splitFileIntoChunks } from "../util/util.js";
+import { CHUNK_SIZE, API_VERSION } from "../constants/constants.js";
+import { splitFileIntoChunks } from "../utils/utils.js";
 
 // 1. startUpload
 const startUpload = async (fileName, fileWholePath, fileSize, fileSplit) => {
