@@ -158,12 +158,12 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 		// upload zip to S3
 		if (fileSize < CHUNK_SIZE) {
 			console.log("zipToS3 - single upload");
-			const putcommand = new PutObjectCommand({
+			const putCommand = new PutObjectCommand({
 				Body: fs.createReadStream(localZip),
 				Bucket: bucket,
 				Key: key,
 			});
-			const putZip = await client.send(putcommand);
+			const putZip = await client.send(putCommand);
 			console.log("putZip: ", putZip);
 		} else {
 			console.log("zipToS3 - multipart upload");
@@ -175,7 +175,7 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 		}
 
 		// add Tag
-		// const puttaggingcommand = new PutObjectTaggingCommand({
+		// const putTaggingCommand = new PutObjectTaggingCommand({
 		// 	Bucket: bucket,
 		// 	Key: key,
 		// 	Tagging: {
@@ -187,15 +187,15 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 		// 		],
 		// 	},
 		// });
-		// const putZipTag = await client.send(puttaggingcommand);
+		// const putZipTag = await client.send(putTaggingCommand);
 		// console.log("putZipTag: ", putZipTag);
 
 		// get URL to download
-		const getcommand = new GetObjectCommand({
+		const getCommand = new GetObjectCommand({
 			Bucket: bucket,
 			Key: key,
 		});
-		const url = await getSignedUrl(client, getcommand, 300);
+		const url = await getSignedUrl(client, getCommand, 300);
 		return { status: 200, url };
 	} catch (e) {
 		console.error("zipToS3: ", e);

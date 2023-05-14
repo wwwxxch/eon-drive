@@ -98,7 +98,7 @@ const folderRecur = async (userId, parentId, arrNoVer, arrWithVer, currentPath) 
 	}
 };
 
-// input path should be "test1/folderintest1/level2", not starting with "/" nor ending with "/"
+// input path should be "test1/folder1/level2", not starting with "/" nor ending with "/"
 const getAllChildren = async (userId, path) => {
 	const folders = path.split("/");
 	const parentId = await findTargetFolderId(userId, folders);

@@ -22,7 +22,7 @@ const showList = async (req, res, next) => {
 	const userId = req.session.user.id;
 
 	const decodePath = decodeURI(path);
-	console.log("doecodePath: ", decodePath);
+	console.log("decodePath: ", decodePath);
 
 	const getFileListRes = await getFileListByPath(userId, decodePath);
 	if (!getFileListRes.data) {

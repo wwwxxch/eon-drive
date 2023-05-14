@@ -135,7 +135,7 @@ $("#list-table").on("click", ".get-link", async function () {
 			}
 		});
 
-	// receipient input box enter
+	// recipient input box enter
 	$("#recipient")
 		.off("keydown")
 		.on("keydown", async function (e) {

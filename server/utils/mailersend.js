@@ -35,7 +35,7 @@ const sendConfirmationMail = async (email, name, token) => {
 		console.log("checkQuota.body.remaining: ", checkQuota.body.remaining);
 		if (checkQuota.body.remaining < 1) {
 			// throw new Error(
-			// 	"sendConfrimationMail: checkQuota.body.remaining: ",
+			// 	"sendConfirmationMail: checkQuota.body.remaining: ",
 			// 	checkQuota.body.remaining
 			// );
 			return { status: 503 };

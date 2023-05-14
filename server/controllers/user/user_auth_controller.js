@@ -29,14 +29,14 @@ const signIn = async (req, res, next) => {
 	const { email, password } = req.body;
 
 	// check if the email matches the password
-	const getpair = await checkPair(email, password);
-	if (!getpair) {
+	const getPair = await checkPair(email, password);
+	if (!getPair) {
 		return next(CustomError.unauthorized("Your email and password do not match"));
 	}
 
 	// check if the account has been verified
-	if (getpair.confirm_status === 0) {
-		return res.json({ msg: "non-verified", lastConfirmedTime: getpair.confirmed_at });
+	if (getPair.confirm_status === 0) {
+		return res.json({ msg: "non-verified", lastConfirmedTime: getPair.confirmed_at });
 	}
 
 	// save user info to session
@@ -58,8 +58,8 @@ const signUp = async (req, res, next) => {
 	const modifiedName = preventXSS(name);
 
 	// check if the email has been registered
-	const getmail = await checkMail(email);
-	if (getmail) {
+	const getMail = await checkMail(email);
+	if (getMail) {
 		return next(CustomError.badRequest("Your email has been registered"));
 	}
 
@@ -218,14 +218,14 @@ const reSendConfirmationMailFromLoginPage = async (req, res, next) => {
 	const { email, password } = req.body;
 
 	// check if the email matches the password
-	// getpair: id, email, name, confirm_status, confirmed_at,
-	const getpair = await checkPair(email, password);
-	if (!getpair) {
+	// getPair: id, email, name, confirm_status, confirmed_at,
+	const getPair = await checkPair(email, password);
+	if (!getPair) {
 		return next(CustomError.unauthorized("Your email and password do not match"));
 	}
 
 	// check confirmed_at
-	const confirmedDT = new Date(getpair.confirmed_at);
+	const confirmedDT = new Date(getPair.confirmed_at);
 	const currentDT = new Date(new Date().toUTCString());
 	if (
 		currentDT.getTime() - confirmedDT.getTime() <=
@@ -233,7 +233,7 @@ const reSendConfirmationMailFromLoginPage = async (req, res, next) => {
 	) {
 		return res.json({
 			msg: "not expired",
-			lastConfirmedTime: getpair.confirmed_at,
+			lastConfirmedTime: getPair.confirmed_at,
 		});
 	}
 
@@ -241,7 +241,7 @@ const reSendConfirmationMailFromLoginPage = async (req, res, next) => {
 	const nowTime = generateCurrentTime();
 	const newConfirmToken = uuidv4();
 
-	const changeTokenInDB = await changeConfirmToken(getpair.id, nowTime, newConfirmToken);
+	const changeTokenInDB = await changeConfirmToken(getPair.id, nowTime, newConfirmToken);
 	// const changeTokenInDB = false;
 	if (!changeTokenInDB) {
 		return next(CustomError.internalServerError());
@@ -249,8 +249,8 @@ const reSendConfirmationMailFromLoginPage = async (req, res, next) => {
 
 	// send the mail
 	const sendMailRes = await sendConfirmationMail(
-		getpair.email,
-		getpair.name,
+		getPair.email,
+		getPair.name,
 		newConfirmToken
 	);
 	if (!sendMailRes) {
