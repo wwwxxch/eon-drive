@@ -1,4 +1,4 @@
-const { getObjSave, zipFiles, zipToS3 } = require("./s3_operation.js");
+const { getObjSave, zipFiles, zipToS3 } = require("./s3_download.js");
 
 const { deleteLocal } = require("./fs_operation.js");
 
@@ -13,7 +13,8 @@ const s3clientDownload = new S3Client({
 
 const S3_MAIN_BUCKET_NAME = process.env.S3_MAIN_BUCKET_NAME;
 const S3_DOWNLOAD_BUCKET_NAME = process.env.S3_DOWNLOAD_BUCKET_NAME;
-
+const tmpDir = process.env.TMP_DIR;
+// =======================================================================================
 exports.handler = async (event) => {
 	try {
 		console.log("event: ", event);
@@ -23,9 +24,7 @@ exports.handler = async (event) => {
 		const parentName = event.parentName;
 		const userId = event.userId;
 
-		const s3finalList = finalListWithVer.map(
-			(item) => `user_${userId}/${item}`
-		);
+		const s3finalList = finalListWithVer.map((item) => `user_${userId}/${item}`);
 
 		// 1. save objects
 		const saveToLocal = await getObjSave(
@@ -61,7 +60,7 @@ exports.handler = async (event) => {
 		// 4. delete files
 		for (let i = 0; i < finalListNoVer.length; i++) {
 			const deletefile = await deleteLocal(
-				`/tmp/${finalListNoVer[i].split("/").join("_")}`
+				`${tmpDir}/${finalListNoVer[i].split("/").join("_")}`
 			);
 			console.log(deletefile);
 		}

@@ -1,4 +1,8 @@
-import { GetObjectCommand, PutObjectCommand, PutObjectTaggingCommand } from "@aws-sdk/client-s3";
+import {
+	GetObjectCommand,
+	PutObjectCommand,
+	PutObjectTaggingCommand,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import archiver from "archiver";
@@ -13,10 +17,16 @@ const ZIP_SIZE = parseInt(process.env.ZIP_SIZE * 1024 * 1024 * 1024);
 
 import { largeUpload } from "./s3_upload.js";
 
-const tmpDir = ".";
+// const tmpDir = ".";
+const tmpDir = process.env.TMP_DIR;
 // ==================================================================
 // get download url for one object
-const getDownloadUrl = async (client, bucket, fileName, expiresIn = DEFAULT_S3_EXPIRES) => {
+const getDownloadUrl = async (
+	client,
+	bucket,
+	fileName,
+	expiresIn = DEFAULT_S3_EXPIRES
+) => {
 	const command = new GetObjectCommand({
 		Bucket: bucket,
 		Key: fileName,
@@ -95,7 +105,9 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 			// const promise = new Promise((resolve, reject) => {
 			appendPromises.push(
 				new Promise((resolve, reject) => {
-					const stream = fs.createReadStream(`${tmpDir}/${fileArray[i].split("/").join("_")}`);
+					const stream = fs.createReadStream(
+						`${tmpDir}/${fileArray[i].split("/").join("_")}`
+					);
 
 					stream.on("close", () => {
 						console.log(`File ${pathInZip} appended to archive`);

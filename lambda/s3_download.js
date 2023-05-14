@@ -2,10 +2,6 @@ const {
 	GetObjectCommand,
 	PutObjectCommand,
 	PutObjectTaggingCommand,
-	CreateMultipartUploadCommand,
-	CompleteMultipartUploadCommand,
-	UploadPartCommand,
-	AbortMultipartUploadCommand,
 } = require("@aws-sdk/client-s3");
 
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
@@ -17,94 +13,29 @@ const DEFAULT_S3_EXPIRES = parseInt(process.env.DEFAULT_S3_EXPIRES);
 const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE * 1024 * 1024);
 const ZIP_SIZE = parseInt(process.env.ZIP_SIZE * 1024 * 1024 * 1024);
 
-const tmpDir = "/tmp";
-// ==================================================================================
+const { largeUpload } = require("./s3_upload.js");
 
-// get the pre-signed URL for completing a multipart upload
-const getCompleteUrl = async (client, bucket, key, uploadId, expiresIn = DEFAULT_S3_EXPIRES) => {
-	const command = new CompleteMultipartUploadCommand({
+const tmpDir = process.env.TMP_DIR;
+// ==================================================================
+
+// [NOT USED IN LAMBDA] get download url for one object
+const getDownloadUrl = async (
+	client,
+	bucket,
+	fileName,
+	expiresIn = DEFAULT_S3_EXPIRES
+) => {
+	const command = new GetObjectCommand({
 		Bucket: bucket,
-		Key: key,
-		UploadId: uploadId,
+		Key: fileName,
 	});
-	return await getSignedUrl(client, command, { expiresIn });
-};
-
-// upload large file (zip)
-const largeUpload = async (client, bucket, key, localPath, fileSize) => {
-	console.log("check: largeUpload: ", bucket, key, localPath, fileSize);
 	try {
-		// Create Multipart Upload & Get uploadId
-		const cmdCreateMultipartUpload = new CreateMultipartUploadCommand({
-			Bucket: bucket,
-			Key: key,
-		});
-
-		const multipartUpload = await client.send(cmdCreateMultipartUpload);
-		console.log("largeUpload: multipartUpload: ", multipartUpload);
-
-		// Upload Parts
-		const uploadId = multipartUpload.UploadId;
-		const uploadPromises = [];
-		const partCount = Math.ceil(fileSize / parseInt(CHUNK_SIZE));
-
-		for (let i = 0; i < partCount; i++) {
-			const start = i * parseInt(CHUNK_SIZE);
-			const end = Math.min(start + parseInt(CHUNK_SIZE), fileSize);
-			const cmdUploadPart = new UploadPartCommand({
-				Bucket: bucket,
-				Key: key,
-				UploadId: uploadId,
-				Body: fs.createReadStream(localPath, { start, end }),
-				ContentLength: end - start,
-				PartNumber: i + 1,
-			});
-			uploadPromises.push(
-				client.send(cmdUploadPart).then((data) => {
-					console.log("Part", i + 1, "uploaded");
-					return data;
-				})
-			);
-		}
-
-		// Complete Multipart Upload - Using presigned URL send the request manually
-		const completeUrl = await getCompleteUrl(client, bucket, key, uploadId, 3600);
-		const uploadResults = await Promise.all(uploadPromises);
-		const xmlBody = `
-      <CompleteMultipartUpload>
-        ${uploadResults
-					.map((item, i) => {
-						return `
-            <Part>
-              <PartNumber>${i + 1}</PartNumber>
-              <ETag>${item.ETag.replace(/"/g, "")}</ETag>
-            </Part>
-          `;
-					})
-					.join("")}
-      </CompleteMultipartUpload>
-    `;
-		const completeMultipart = await fetch(completeUrl, {
-			method: "POST",
-			headers: { "Content-Type": "application/xml" },
-			body: xmlBody,
-		});
-		console.log("completeMultipart: ", completeMultipart);
-		return completeMultipart.status;
+		const url = await getSignedUrl(client, command, { expiresIn });
+		// console.log("url: ", url);
+		return url;
 	} catch (e) {
-		console.error("largeUpload: ", e);
-
-		// Abort Multipart
-		// if (uploadId) {
-		// 	const abortCommand = new AbortMultipartUploadCommand({
-		// 		Bucket: bucket,
-		// 		Key: key,
-		// 		UploadId: uploadId,
-		// 	});
-		// 	const abort = await client.send(abortCommand);
-		// 	console.log("abort: ", abort);
-		// }
-		return e["$metadata"].httpStatusCode;
+		console.error("getDownloadUrl: ", e);
+		return null;
 	}
 };
 
@@ -172,7 +103,9 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 			// const promise = new Promise((resolve, reject) => {
 			appendPromises.push(
 				new Promise((resolve, reject) => {
-					const stream = fs.createReadStream(`${tmpDir}/${fileArray[i].split("/").join("_")}`);
+					const stream = fs.createReadStream(
+						`${tmpDir}/${fileArray[i].split("/").join("_")}`
+					);
 
 					stream.on("close", () => {
 						console.log(`File ${pathInZip} appended to archive`);
@@ -270,4 +203,9 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 	}
 };
 
-module.exports = { getObjSave, zipFiles, zipToS3 };
+module.exports = {
+	// getDownloadUrl,
+	getObjSave,
+	zipFiles,
+	zipToS3,
+};

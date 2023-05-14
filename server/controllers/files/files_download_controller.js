@@ -19,6 +19,7 @@ import { CustomError } from "../../utils/custom_error.js";
 import { s3clientDownload } from "../../services/s3/s3_client.js";
 import { getObjSave, zipFiles, zipToS3 } from "../../services/s3/s3_download.js";
 import { deleteLocal } from "../../utils/utils.js";
+const tmpDir = process.env.TMP_DIR;
 // ====================================================================
 const dlSingleFile = async (req, res, next) => {
 	console.log("dlSingleFile: ", req.body);
@@ -196,9 +197,9 @@ const dlLocalArchive = async (req, res) => {
 	console.log("getZipUrl: ", getZipUrl);
 
 	// delete files
-	deleteLocal(`./${parentName}.zip`);
+	deleteLocal(`${tmpDir}/${parentName}.zip`);
 	finalListNoVer.forEach((item) => {
-		deleteLocal(`./${item.split("/").join("_")}`);
+		deleteLocal(`${tmpDir}/${item.split("/").join("_")}`);
 	});
 
 	return res.json({ downloadUrl: getZipUrl });
