@@ -6,5 +6,7 @@ node_modules
 
 .idea
 
+coverage
+
 # for check
 .dev/
