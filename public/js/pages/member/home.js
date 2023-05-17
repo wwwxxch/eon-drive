@@ -328,6 +328,12 @@ $("#select-all").on("change", function () {
 	}
 });
 
+$("input[name='list-checkbox']").on("change", function () {
+	if (!this.checked) {
+		$("#select-all").prop("checked", false);
+	}
+});
+
 $(document).click(function (e) {
 	if (!$(e.target).is("input[name='list-checkbox'], #select-all")) {
 		$("input[name='list-checkbox']").prop("checked", false);
