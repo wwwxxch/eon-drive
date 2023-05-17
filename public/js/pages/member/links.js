@@ -96,12 +96,14 @@ console.log(list);
 showYouSharedList(list);
 
 // revoke link
-$(".you-shared-row").on("click", ".revoke-btn", async function () {
+$("#links-you-shared-table").on("click", ".revoke-btn", async function () {
 	const filesId = $(this).closest("tr").data("id");
 	console.log(filesId);
 	const files_name = $(this).closest("tr").find(".files").text();
 	console.log(files_name);
-	$("#revoke-confirm-q").html(`Are you sure you want to revoke the link for <b>${files_name}</b>?`);
+	$("#revoke-confirm-q").html(
+		`Are you sure you want to revoke the link for <b>${files_name}</b>?`
+	);
 
 	$("#revoke-link-btn")
 		.off("click")
@@ -118,7 +120,9 @@ $(".you-shared-row").on("click", ".revoke-btn", async function () {
 				if (typeof askRevokeLink.data.error === "string") {
 					errorHTML = `<span>${askRevokeLink.data.error}</span>`;
 				} else {
-					errorHTML = askRevokeLink.data.error.map((err) => `<span>${err}</span>`).join("");
+					errorHTML = askRevokeLink.data.error
+						.map((err) => `<span>${err}</span>`)
+						.join("");
 				}
 				$("#revoke-alert-msg").html(errorHTML);
 			} else {
