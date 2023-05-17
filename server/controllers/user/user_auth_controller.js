@@ -61,6 +61,8 @@ const signUp = async (req, res, next) => {
 	const getMail = await checkMail(email);
 	if (getMail) {
 		return next(CustomError.badRequest("Your email has been registered"));
+	} else if (getMail === null) {
+		return next(CustomError.internalServerError());
 	}
 
 	// create user in DB

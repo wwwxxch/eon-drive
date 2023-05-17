@@ -8,12 +8,17 @@ dotenv.config();
 const basic = parseInt(process.env.BASIC);
 // ----------------------------------------------------------
 const checkMail = async (mail) => {
-	const [row] = await pool.query(
-		`
-    SELECT email FROM user WHERE email = ?`,
-		mail
-	);
-	return row[0];
+	try {
+		const [row] = await pool.query(
+			`
+      SELECT email FROM user WHERE email = ?`,
+			mail
+		);
+		return row[0];
+	} catch (e) {
+		console.error("checkMail: error: ", e);
+		return null;
+	}
 };
 
 const checkPair = async (mail, pwd) => {
