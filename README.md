@@ -14,10 +14,10 @@ You can -
 https://www.eondrive.net
 
 **Test Account**
-```
-Email: test@gmail.com
-Password: 123oooOOO!
-```
+
+Email: `test@gmail.com`
+
+Password: `123oooOOO!`
 
 ## Features and Technologies
 
