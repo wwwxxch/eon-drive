@@ -7,7 +7,7 @@ on:
     branches:
       - 'feature_*'
       - 'fix_*'
-      - 'test'
+      - 'release_*'
       - 'develop'
       - 'main'
 
@@ -44,9 +44,16 @@ jobs:
             
             echo --- git pull origin ${{ needs.build.outputs.branch_name }} --- start
             
-            git switch develop
-            git branch ${{ needs.build.outputs.branch_name }}
-            git switch ${{ needs.build.outputs.branch_name }}
+            if git rev-parse --verify ${{ needs.build.outputs.branch_name }}; then
+              echo "Branch exists"
+              git switch ${{ needs.build.outputs.branch_name }}
+            else
+              echo "Branch does not exist"
+              git switch develop
+              git branch ${{ needs.build.outputs.branch_name }}
+              git switch ${{ needs.build.outputs.branch_name }}
+            fi
+            
             git pull origin ${{ needs.build.outputs.branch_name }}
 
             echo --- git pull origin  ${{ needs.build.outputs.branch_name }} --- done
