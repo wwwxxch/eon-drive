@@ -13,18 +13,11 @@ You can -
 
 https://www.eondrive.net
 
-<html>
-  <table>
-    <tr>
-      <td><b>Test Account</b></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Email<br>Password</td>
-      <td>test@gmail.com<br>123oooOOO!</td>
-    </tr>
-  </table>
-</html>
+**Test Account**
+```
+Email: test@gmail.com
+Password: 123oooOOO!
+```
 
 ## Features and Technologies
 
