@@ -10,15 +10,15 @@
 
 ### Database schema
 
-![eondrive mysql db schema](https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0.png)
+<a href="https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0.png" target="_blank">https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0.png</a>
 
-https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0.png
+![eondrive mysql db schema](https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0.png)
 
 ### Architecture
 
-![eondrive architecture](https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0.png)
+<a href="https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0.png" target="_blank">https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0.png</a>
 
-https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0.png
+![eondrive architecture](https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0.png)
 
 ## Contact
 LinkedIn: https://www.linkedin.com/in/chihhui-wang/
