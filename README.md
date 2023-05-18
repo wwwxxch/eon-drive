@@ -12,7 +12,7 @@
 
 ### Architecture
 
-![eondrive architecture](/eondrive_arch_release_1_0.png)
+![eondrive architecture](/img/eondrive_arch_release_1_0.png)
 
 ## Contact
 LinkedIn: https://www.linkedin.com/in/chihhui-wang/
