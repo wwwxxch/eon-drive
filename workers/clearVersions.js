@@ -41,7 +41,7 @@ const clearVersions = async () => {
 			// get expired versions by files_id
 			const expiredVersions = await getExpiredVersionsById(element.files_id, expiredDT);
 			// file_ver_id, ver
-			console.log(expiredVersions);
+			// console.log("expiredVersions: ", expiredVersions);
 
 			const fileVerIdList = expiredVersions.map((item) => item.file_ver_id);
 			const fileVersionList = expiredVersions.map((item) => item.ver);
@@ -54,7 +54,7 @@ const clearVersions = async () => {
 			// get the whole path by files_id
 			const parentPath = await findParentPathByFilesId(element.files_id);
 			const fullPath = parentPath.replace(/^Home\//, "") + element.name;
-			console.log("fullPath: ", fullPath);
+			// console.log("fullPath: ", fullPath);
 
 			for (const ver of fileVersionList) {
 				const deleteVerInS3 = await deleteObject(

@@ -53,7 +53,7 @@ const clearDeleted = async () => {
 
 		// file
 		for (const element of expiredFiles) {
-			console.log("file: element: ", element);
+			// console.log("file: element: ", element);
 			const parentPath = await findParentPathByFilesId(element.id);
 			const fullPath = parentPath.replace(/^Home\//, "") + element.name;
 			// remove file from DB
