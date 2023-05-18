@@ -195,7 +195,7 @@ const uploadCleanPending = async (req, res, next) => {
 	const nowTime = generateCurrentTime();
 	let clean;
 	if (current_ver === 1) {
-		clean = await cleanUploadNewPending(token);
+		clean = await cleanUploadNewPending(token, files_id);
 	} else if (operation === "added") {
 		clean = await cleanUploadDeletedPending(token, files_id, file_ver_id, current_ver);
 	} else if (operation === "updated") {

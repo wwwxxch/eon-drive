@@ -1,14 +1,14 @@
 import { pool } from "../utils/db_connection.js";
 // ================================================================================
-const cleanUploadNewPending = async (token) => {
+const cleanUploadNewPending = async (token, files_id) => {
 	try {
 		console.log("cleanUploadNewPending");
 
 		const [row] = await pool.query(
 			`
-      DELETE FROM files WHERE upd_token = ?
+      DELETE FROM files WHERE upd_token = ? AND files_id = ?
     `,
-			token
+			[token, files_id]
 		);
 		console.log("cleanUploadNewPending - row: ", row);
 		// what will be returned when query = delete?
