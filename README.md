@@ -10,9 +10,15 @@
 
 ### Database schema
 
+![eondrive mysql db schema](https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0.png)
+
+https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0.png
+
 ### Architecture
 
-![eondrive architecture](https://github.com/wwwxxch/eon-drive/blob/release_1.0/public/img/eondrive_arch_release_1_0.png)
+![eondrive architecture](https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0.png)
+
+https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0.png
 
 ## Contact
 LinkedIn: https://www.linkedin.com/in/chihhui-wang/
