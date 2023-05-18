@@ -123,4 +123,4 @@ Linkedin: https://www.linkedin.com/in/chihhui-wang
 Email: chihhui.x@gmail.com
 
 ## License
-EON Drive is licensed under the MIT
+EON Drive is licensed under the [MIT](https://github.com/wwwxxch/eon-drive/blob/main/LICENSE).
