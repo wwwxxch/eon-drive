@@ -20,8 +20,12 @@ You can -
 https://www.eondrive.net
 
 **Test Account** <br>
-Email: `test@gmail.com` <br>
-Password: `123oooOOO!`
+Email - `test@gmail.com` <br>
+Password - `123oooOOO!`
+
+![landing_page](https://wwwxxch-personal.s3.amazonaws.com/eondrive_demo_landing_release_1_0_0.png)
+
+![home_page](https://wwwxxch-personal.s3.amazonaws.com/eondrive_demo_home_release_1_0_0.png)
 
 ## Features and Technologies
 
@@ -40,15 +44,15 @@ Password: `123oooOOO!`
 
 ### Database schema
 
-<a href="https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0.png" target="_blank">https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0.png</a>
+<a href="https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0_0.png" target="_blank">https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0_0.png</a>
 
-![eondrive mysql db schema](https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0.png)
+![eondrive mysql db schema](https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0_0.png)
 
 ### System Architecture
 
-<a href="https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0.png" target="_blank">https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0.png</a>
+<a href="https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0_0.png" target="_blank">https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0_0.png</a>
 
-![eondrive architecture](https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0.png)
+![eondrive architecture](https://wwwxxch-personal.s3.amazonaws.com/eondrive_arch_release_1_0_0.png)
 
 ## Deployment
 
@@ -118,9 +122,9 @@ npm i
 
 
 ## Contact
-Linkedin: https://www.linkedin.com/in/chihhui-wang
+Linkedin - https://www.linkedin.com/in/chihhui-wang
 
-Email: chihhui.x@gmail.com
+Email - chihhui.x@gmail.com
 
 ## License
 EON Drive is licensed under the [MIT](https://github.com/wwwxxch/eon-drive/blob/main/LICENSE).
