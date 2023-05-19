@@ -1,5 +1,9 @@
 import { redis } from "./cache.js";
 
+import dotenv from "dotenv";
+dotenv.config();
+const RATE_LIMITER_TIME_WINDOW = parseInt(process.env.RATE_LIMITER_TIME_WINDOW);
+
 const rateLimiter = (times) => {
 	return async (req, res, next) => {
 		console.log("rateLimiter: ip: ", req.headers["x-forwarded-for"]);
@@ -11,8 +15,8 @@ const rateLimiter = (times) => {
 			const count = await redis.incr(`IP${ip}`);
 			console.log("rateLimiter: count: ", count);
 			if (count === 1) {
-				// 60 seconds
-				await redis.expire(`IP${ip}`, 60);
+				// seconds
+				await redis.expire(`IP${ip}`, RATE_LIMITER_TIME_WINDOW);
 				// const ttlStatus = await redis.ttl(`IP${ip}`);
 				// console.log("ttlStatus: ", ttlStatus);
 			}
