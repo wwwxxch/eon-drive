@@ -28,7 +28,7 @@ Account 2 <br>
 Email - `test@outlook.com` <br>
 Password - `123oooOOO!`
 
-*You can try the share files feature between these two accounts* 🙂
+*You can try the share files feature between these two accounts. 🙂
 
 ![landing_page](https://wwwxxch-personal.s3.amazonaws.com/eondrive_demo_landing_release_1_0_0.png)
 
@@ -51,7 +51,7 @@ Password - `123oooOOO!`
 
 ### Database schema
 
-**Adjacency List** is used here to manage hierarchical data in MySQL
+**Adjacency List** is used here to manage hierarchical data in MySQL.
 
 <a href="https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0_0.png" target="_blank">https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0_0.png</a>
 
