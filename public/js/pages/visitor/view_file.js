@@ -4,7 +4,7 @@ import { downloadShareFi } from "../../api/view.js";
 $(".fi-dl-btn").on("click", async function () {
 	const windowPathName = window.location.pathname;
 	const shareToken = windowPathName.split("/")[3];
-	console.log(shareToken);
+	// console.log(shareToken);
 
 	const downloadModal = $("#waitingModal");
 	const downloadStatus = $("#waiting-status");
@@ -21,7 +21,7 @@ $(".fi-dl-btn").on("click", async function () {
 	uploadClose.hide();
 
 	const downloadFileRes = await downloadShareFi(shareToken);
-	console.log("downloadFileRes: ", downloadFileRes);
+	// console.log("downloadFileRes: ", downloadFileRes);
 
 	$(window).on("beforeunload", function () {
 		return "Downloading will be interrupted";
@@ -49,7 +49,8 @@ $(".fi-dl-btn").on("click", async function () {
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
 	} else {
-		const errorHTML = "<span>Opps! Something went wrong. Please try later or contact us.</span>";
+		const errorHTML =
+			"<span>Opps! Something went wrong. Please try later or contact us.</span>";
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
 		downloadError.html(errorHTML);
@@ -57,5 +58,4 @@ $(".fi-dl-btn").on("click", async function () {
 
 	setTimeout(() => downloadModal.modal("hide"), 2000);
 	$(window).off("beforeunload");
-
 });

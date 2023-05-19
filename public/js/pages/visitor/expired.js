@@ -6,7 +6,7 @@ $("#resend-verify-mail").on("click", async function () {
 	// console.log(windowPathName);
 	// console.log(confirmToken);
 	const resendVerifyMailRes = await resendVerifyMailByToken(confirmToken);
-	console.log(resendVerifyMailRes);
+	// console.log(resendVerifyMailRes);
 
 	if (resendVerifyMailRes.data.msg === "ok") {
 		window.location.href = "/register/verify-mail-sent";

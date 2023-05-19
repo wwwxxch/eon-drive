@@ -5,6 +5,9 @@ import { socket } from "../../utils/socket.js";
 import { API_VERSION } from "../../constants/constants.js";
 // =============================================================================
 
+// close console.log
+console.log = () => {};
+
 // logout button
 $("#logout-btn").on("click", async function (e) {
 	e.preventDefault();

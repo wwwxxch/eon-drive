@@ -16,7 +16,7 @@ const loginReq = async () => {
 			const diffTime = Math.ceil((currentDT - confirmedDT) / (60 * 1000));
 			$("#login-div").hide();
 			$("#not-verify-div").show();
-			console.log("diffTime: ", diffTime, " min");
+			// console.log("diffTime: ", diffTime, " min");
 			if (diffTime < CONFIRM_MAIL_EXPIRE_HOUR * 60) {
 				$("#resend-verify-mail").text(
 					`Verification mail can be sent after ${
@@ -30,7 +30,7 @@ const loginReq = async () => {
 				// resend verify mail button
 				$("#resend-verify-mail").on("click", async function () {
 					const resendVerifyMailRes = await resendVerifyMailByMail(email, password);
-					console.log(resendVerifyMailRes);
+					// console.log(resendVerifyMailRes);
 
 					if (resendVerifyMailRes.data.msg === "ok") {
 						window.location.href = "/register/verify-mail-sent";

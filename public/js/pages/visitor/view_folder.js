@@ -53,12 +53,12 @@ function showShareFoList(obj) {
 // show list for new request
 const windowPathName = window.location.pathname;
 const shareToken = windowPathName.split("/")[3];
-console.log(shareToken);
+// console.log(shareToken);
 const subPath = windowPathName.split("/").slice(4).join("/");
-console.log("subPath: ", subPath);
+// console.log("subPath: ", subPath);
 
 const target = $("#share-path").data("target-name");
-console.log("target: ", target);
+// console.log("target: ", target);
 
 const res = await getShareFoList(shareToken, subPath);
 showShareFoList(res);
@@ -88,7 +88,7 @@ if (subPath) {
 
 // show list when clicking
 $("#fo-list-table").on("click", ".folder", async function () {
-	console.log("#list-table on click");
+	// console.log("#list-table on click");
 	const dirName = $(this).text().trim();
 	const pathTexts = $(".path-text")
 		.map(function () {
@@ -100,9 +100,9 @@ $("#fo-list-table").on("click", ".folder", async function () {
 		? `${pathTexts.split("/").slice(1).join("/")}/${dirName}`
 		: dirName;
 
-	console.log("dirName: ", dirName);
-	console.log("pathTexts: ", pathTexts);
-	console.log("uri: ", uri);
+	// console.log("dirName: ", dirName);
+	// console.log("pathTexts: ", pathTexts);
+	// console.log("uri: ", uri);
 
 	history.pushState({}, "", `/view/fo/${shareToken}/${uri}`);
 	const subRes = await getShareFoList(shareToken, uri);
@@ -120,12 +120,12 @@ $("#fo-list-table").on("click", ".folder", async function () {
 });
 
 $(window).on("popstate", async function () {
-	console.log("popstate");
+	// console.log("popstate");
 	const windowPathName = window.location.pathname;
 	const shareToken = windowPathName.split("/")[3];
-	console.log(shareToken);
+	// console.log(shareToken);
 	const subPath = windowPathName.split("/").slice(4).join("/");
-	console.log("subPath: ", subPath);
+	// console.log("subPath: ", subPath);
 
 	const res = await getShareFoList(shareToken, subPath);
 	$("#fo-list-tbody").empty();
@@ -231,7 +231,7 @@ $("#fo-list-table").on("click", ".individual-dl-btn", async function () {
 		})
 		.get()
 		.join("/");
-	console.log(pathTexts);
+	// console.log(pathTexts);
 	const $tr = $(this).closest("tr");
 	const target = $tr.find(".files").text().trim();
 	const targetClass = $tr.find(".files").attr("class").split(" ");
