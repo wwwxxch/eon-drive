@@ -74,6 +74,10 @@
           color: rgb(113, 113, 113);
         }
 
+        .pwd-special-chars {
+          color:rgb(100, 100, 100)
+        }
+
         .note {
           color: rgb(141, 141, 141);
         }
@@ -99,6 +103,7 @@
             padding-bottom: 13vh;
           }
         }
+
         @media screen and (max-width: 1500px) {
           .pwd-note {
             font-size: 1.1vw;
@@ -171,7 +176,7 @@
                     <input type="email" class="form-control" name="email" id="email" required placeholder="Enter Email"
                       pattern="^[\-\w\.]+@([\-\w]+\.)+[\-\w]{2,4}$" autocomplete="off">
                     <div class="pwd-note px-2 mt-1">
-                      A mail will be sent to your mailbox for verification.
+                      A mail will be sent to your mailbox for verification
                     </div>
                   </div>
 
@@ -181,7 +186,8 @@
                       placeholder="Enter Password"
                       pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$">
                     <div class="pwd-note px-2 mt-1">
-                      Use 8-16 characters with a mix of letters, numbers, and one of below symbols (!@#$%^&*()_+)
+                      Use 8-16 characters with a mix of letters, numbers, and one of below symbols -
+                        <span class="pwd-special-chars"><b>!@#$%^&*()_+</b></span>
                     </div>
                   </div>
 
@@ -213,4 +219,5 @@
   </div>
   <script type="module" src="/js/pages/visitor/register.js"></script>
 </body>
+
 </html>
