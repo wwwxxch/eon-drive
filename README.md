@@ -17,11 +17,18 @@ You can -
 
 ## Demo
 
-https://www.eondrive.net
+Website URL - https://www.eondrive.net
 
 **Test Account** <br>
+Account 1 <br>
 Email - `test@gmail.com` <br>
 Password - `123oooOOO!`
+
+Account 2 <br>
+Email - `test@outlook.com` <br>
+Password - `123oooOOO!`
+
+*You can try the share files feature between these two accounts* 🙂
 
 ![landing_page](https://wwwxxch-personal.s3.amazonaws.com/eondrive_demo_landing_release_1_0_0.png)
 
@@ -39,10 +46,12 @@ Password - `123oooOOO!`
     * Web Server - Hosted the Express server on AWS EC2 with Application Load Balancer to ensure scalability 
     * Socket.IO Server - Utilized Redis as an adapter for Socket.IO server scaling
 * **Email verification -** Used the third-party email delivery service for registration email verification
-* **Rate limiting -** Implemented with Redis to control the coming requests in sign-up routes
+* **Rate limiting -** Implemented with Redis to control the coming requests in sign-up routes by IP address
 *	**Authentication -** Implemented cookie-based authentication and session management with Redis
 
 ### Database schema
+
+**Adjacency List** is used here to manage hierarchical data in MySQL
 
 <a href="https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0_0.png" target="_blank">https://wwwxxch-personal.s3.amazonaws.com/eondrive_db_release_1_0_0.png</a>
 
@@ -120,6 +129,17 @@ npm i
     * General configuration - setup memory to be allocated (better to be 256 MB or more) and ephemeral storage
     * Environment variables - setup variables used in lambda function
 
+## Roadmap
+Here are planned features or optimization for future release -
+* **Rename** files / folders
+* **Move** files / folders
+* **Search** files / folders
+* Preview content of files
+* Show file size of deleted file & childrens in deleted folder
+* Show hierarchy folder structure for better user experience
+* Suggest related users from past interactions when a user is entering emails to share files
+* **Caching** for better performance
+* Implement another model to manage hierarchical data in MySQL
 
 ## Contact
 Linkedin - https://www.linkedin.com/in/chihhui-wang
