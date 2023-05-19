@@ -69,7 +69,7 @@ Password - `123oooOOO!`
 
 ```
 git clone https://github.com/wwwxxch/eon-drive.git
-cd eondrive
+cd eon-drive
 npm i
 ```
 
