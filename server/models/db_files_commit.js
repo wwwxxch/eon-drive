@@ -56,10 +56,10 @@ const commitMetadata = async (upd_status, token, user_id, time, commitFolder = 0
     `,
 			[upd_status, time, token]
 		);
-
-		if (commitFolder === 0 && row_file_ver_to1.affectedRows !== 1) {
-			throw new Error("commitMetadata: row_file_ver_to1.affectedRows !== 1");
-		}
+		console.log("row_file_ver_to1: ", row_file_ver_to1);
+		// if (commitFolder === 0 && row_file_ver_to1.affectedRows !== 1) {
+		// 	throw new Error("commitMetadata: row_file_ver_to1.affectedRows !== 1");
+		// }
 
 		await conn.commit();
 		console.log("COMMIT");
