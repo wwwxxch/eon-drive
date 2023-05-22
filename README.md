@@ -48,6 +48,7 @@ Password - `123oooOOO!`
 * **Email verification -** Used the third-party email delivery service for registration email verification
 * **Rate limiting -** Implemented with Redis to control the coming requests in sign-up routes by IP address
 *	**Authentication -** Implemented cookie-based authentication and session management with Redis
+* **Remove expired versions -** Scheduled a cron job to remove expired versions of files & expired deleted files in trash and output the logs to AWS CloudWatch for better monitoring
 
 ### Database schema
 
@@ -129,6 +130,10 @@ npm i
     * General configuration - setup memory to be allocated (better to be 256 MB or more) and ephemeral storage
     * Environment variables - setup variables used in lambda function
 
+## Release
+* 1.0.0
+  * Initial release
+
 ## Roadmap
 Here are planned features or optimization for future release -
 * **Rename** files / folders
@@ -140,6 +145,7 @@ Here are planned features or optimization for future release -
 * Suggest related users from past interactions when a user is entering emails to share files
 * **Caching** for better performance
 * Implement another model to manage hierarchical data in MySQL
+* Logrotate for crontab jobs
 
 ## Contact
 Linkedin - https://www.linkedin.com/in/chihhui-wang
