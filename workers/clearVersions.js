@@ -29,6 +29,7 @@ const clearVersions = async () => {
 		const now = DateTime.utc();
 		const duration = Duration.fromObject({ seconds: DUR });
 		const expiredDT = now.minus(duration).toFormat("yyyy-MM-dd HH:mm:ss");
+		console.log("currentDT: ", now.toFormat("yyyy-MM-dd HH:mm:ss"));
 		console.log("expiredDT: ", expiredDT);
 		// 1.
 		// find file with versions expired
