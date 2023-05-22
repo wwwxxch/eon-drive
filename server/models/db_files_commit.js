@@ -1,6 +1,6 @@
 import { pool } from "../utils/db_connection.js";
 // ================================================================================
-const commitMetadata = async (upd_status, token, user_id, time, commitFolder = 0) => {
+const commitMetadata = async (upd_status, token, user_id, time) => {
 	const conn = await pool.getConnection();
 	try {
 		console.log("START TRANSACTION - commitMetadata");
@@ -19,16 +19,18 @@ const commitMetadata = async (upd_status, token, user_id, time, commitFolder = 0
 
 		if (select.length > 0) {
 			// 2. update file_ver to set is_current = 0 for previous version
-			const [row_file_ver_to0] = await conn.query(
-				`
-        UPDATE file_ver SET is_current = 0 WHERE files_id = ? AND ver = ?
-      `,
-				[select[0].files_id, select[0].ver]
-			);
+			for (let i = 0; i < select.length; i++) {
+				const [row_file_ver_to0] = await conn.query(
+					`
+          UPDATE file_ver SET is_current = 0 WHERE files_id = ? AND ver = ?
+        `,
+					[select[i].files_id, select[i].ver]
+				);
 
-			console.log("row_file_ver_to0: ", row_file_ver_to0);
-			if (row_file_ver_to0.affectedRows !== 1) {
-				throw new Error("commitMetadata: row_file_ver_to0.affectedRows !== 1");
+				console.log("row_file_ver_to0: ", row_file_ver_to0);
+				if (row_file_ver_to0.affectedRows !== 1) {
+					throw new Error("commitMetadata: row_file_ver_to0.affectedRows !== 1");
+				}
 			}
 		}
 
@@ -57,9 +59,6 @@ const commitMetadata = async (upd_status, token, user_id, time, commitFolder = 0
 			[upd_status, time, token]
 		);
 		console.log("row_file_ver_to1: ", row_file_ver_to1);
-		// if (commitFolder === 0 && row_file_ver_to1.affectedRows !== 1) {
-		// 	throw new Error("commitMetadata: row_file_ver_to1.affectedRows !== 1");
-		// }
 
 		await conn.commit();
 		console.log("COMMIT");

@@ -68,11 +68,12 @@ const getOneLevelChildByParentId = async (user_id, parent_id, is_delete) => {
 const getCurrentSizeByFileId = async (file_id) => {
 	const [row] = await pool.query(
 		`
-    SELECT size FROM file_ver 
+    SELECT id, size FROM file_ver 
     WHERE files_id = ? AND is_current = 1 AND ver_upd_status = "done"
   `,
 		file_id
 	);
+	console.log("getCurrentSizeByFileId row: ", row);
 	if (row.length !== 1) {
 		return -1;
 	}

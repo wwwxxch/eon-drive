@@ -71,7 +71,7 @@ const createFolderS3AndDB = async (req, res, next) => {
 	}
 
 	// DB - commit
-	const commit = await commitMetadata("done", token, userId, nowTime, 1);
+	const commit = await commitMetadata("done", token, userId, nowTime);
 	if (!commit) {
 		return next(CustomError.internalServerError("(fn) commitMetadata Error"));
 	}
