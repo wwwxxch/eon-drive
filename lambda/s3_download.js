@@ -39,6 +39,8 @@ const getDownloadUrl = async (
 	}
 };
 
+// TODO: to be updated - create new folder
+
 // step 1. getObjSave - download files to local
 const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
 	try {
@@ -100,7 +102,6 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 			} else {
 				pathInZip = fileArray[i].slice(parentPathModified.length + 1);
 			}
-			// const promise = new Promise((resolve, reject) => {
 			appendPromises.push(
 				new Promise((resolve, reject) => {
 					const stream = fs.createReadStream(
@@ -119,7 +120,6 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 					archive.append(stream, { name: pathInZip });
 				})
 			);
-			// appendPromises.push(promise);
 		}
 		// 3. finish zip
 		const zipPromise = new Promise((resolve, reject) => {
