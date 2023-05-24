@@ -37,10 +37,10 @@ const deleteLocal = async (localPath) => {
 	try {
 		await fs.promises.access(localPath, fs.constants.F_OK);
 		await fs.promises.unlink(localPath);
-		console.log(localPath + " has been deleted");
+		return localPath + " has been deleted";
 	} catch (e) {
 		console.error("deleteLocal: error: ", e);
-		console.log(localPath + " is not existed");
+		return localPath + " is not existed";
 	}
 };
 
