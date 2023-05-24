@@ -19,7 +19,7 @@ const sessionConfig = {
 	saveUninitialized: false,
 	resave: true,
 	rolling: true,
-	cookie: { SameSite: "strict", maxAge: sessionHour * 60 * 60 * 1000 },
+	cookie: { sameSite: "strict", maxAge: sessionHour * 60 * 60 * 1000 },
 	proxy: isProxy,
 };
 
