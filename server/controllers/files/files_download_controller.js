@@ -17,7 +17,12 @@ import { CustomError } from "../../utils/custom_error.js";
 
 // local download
 import { s3clientDownload } from "../../services/s3/s3_client.js";
-import { getObjSave, zipFiles, zipToS3 } from "../../services/s3/s3_download.js";
+import {
+	createLocalFolder,
+	getObjSave,
+	zipFiles,
+	zipToS3,
+} from "../../services/s3/s3_download.js";
 import { deleteLocal } from "../../utils/utils.js";
 const tmpDir = process.env.TMP_DIR;
 // ====================================================================
@@ -166,7 +171,7 @@ const dlCallLambda = async (req, res, next) => {
 };
 
 // TODO: handling errors in my server ...
-const dlLocalArchive = async (req, res) => {
+const dlLocalArchive = async (req, res, next) => {
 	console.log("dlLocalArchive: ", req.body);
 	const { finalListNoVer, finalListWithVer, parentPath, parentName } = req.body;
 
@@ -174,18 +179,32 @@ const dlLocalArchive = async (req, res) => {
 
 	const s3finalList = finalListWithVer.map((item) => `user_${userId}/${item}`);
 
+	// create local folder
+	const createLocalFolderResult = await createLocalFolder(userId);
+	console.log("createLocalFolderResult: ", createLocalFolderResult);
+	if (!createLocalFolderResult) {
+		return next(CustomError.internalServerError("(fn) createLocalFolder Error"));
+	}
+
 	// save objects
 	const saveToLocal = await getObjSave(
 		s3clientGeneral,
 		S3_MAIN_BUCKET_NAME,
 		s3finalList,
-		finalListNoVer
+		finalListNoVer,
+		userId
 	);
 	console.log("saveToLocal: ", saveToLocal);
+	if (!saveToLocal) {
+		return next(CustomError.internalServerError("(fn) getObjSave Error"));
+	}
 
 	// create zip
-	const createZip = await zipFiles(finalListNoVer, parentPath, parentName);
+	const createZip = await zipFiles(finalListNoVer, parentPath, parentName, userId);
 	console.log("createZip: ", createZip);
+	if (!createZip) {
+		return next(CustomError.internalServerError("(fn) zipFiles Error"));
+	}
 
 	// upload zip to S3 and get the presigned URL
 	const getZipUrl = await zipToS3(
@@ -195,14 +214,21 @@ const dlLocalArchive = async (req, res) => {
 		parentName
 	);
 	console.log("getZipUrl: ", getZipUrl);
+	if (!getZipUrl) {
+		return next(CustomError.internalServerError("(fn) zipToS3 Error"));
+	}
 
 	// delete files
-	deleteLocal(`${tmpDir}/${parentName}.zip`);
-	finalListNoVer.forEach((item) => {
-		deleteLocal(`${tmpDir}/${item.split("/").join("_")}`);
-	});
+	for (let i = 0; i < finalListNoVer.length; i++) {
+		const deletefile = await deleteLocal(
+			`${tmpDir}/user_${userId}/${finalListNoVer[i].split("/").join("_")}`
+		);
+		console.log(deletefile);
+	}
+	const deleteZip = await deleteLocal(`${tmpDir}/user_${userId}/${parentName}.zip`);
+	console.log(deleteZip);
 
-	return res.json({ downloadUrl: getZipUrl });
+	return res.json({ downloadUrl: getZipUrl.url });
 };
 
 export { dlSingleFile, dlMultiFileProcess, dlCallLambda, dlLocalArchive };

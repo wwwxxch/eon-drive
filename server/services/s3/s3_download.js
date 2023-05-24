@@ -17,6 +17,13 @@ const ZIP_SIZE = parseInt(process.env.ZIP_SIZE * 1024 * 1024 * 1024);
 
 import { largeUpload } from "./s3_upload.js";
 
+import { mkdir, access } from "node:fs/promises";
+import { fileURLToPath } from "url";
+import path from "path";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootPath = path.join(__dirname, "../../../");
+
 // const tmpDir = ".";
 const tmpDir = process.env.TMP_DIR;
 // ==================================================================
@@ -41,8 +48,38 @@ const getDownloadUrl = async (
 	}
 };
 
+// step 0 create folders per user
+const createLocalFolder = async (user_id) => {
+	let userFolderPath;
+	if (process.env.NODE_ENV === "dev") {
+		userFolderPath = `${rootPath}/user_${user_id}`;
+	} else {
+		userFolderPath = `${tmpDir}/user_${user_id}`;
+	}
+	try {
+		// check if folder already exists
+		await access(userFolderPath, fs.constants.F_OK);
+		console.log(`Folder ${userFolderPath} already exists`);
+		return true;
+	} catch (e) {
+		if (e.code === "ENOENT") {
+			try {
+				const createDir = await mkdir(userFolderPath, { recursive: true });
+				console.log(`created user folder ${createDir}`);
+				return true;
+			} catch (e) {
+				console.error("createLocalFolder: ", e);
+				return false;
+			}
+		} else {
+			console.error("createLocalFolder: ", e);
+			return false;
+		}
+	}
+};
+
 // step 1. getObjSave - download files to local
-const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
+const getObjSave = async (client, bucket, s3fileArray, fileArray, userId) => {
 	try {
 		let tmpLocalName;
 		let S3Objects = [];
@@ -59,16 +96,20 @@ const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
 			tmpLocalName = fileArray[i].split("/").join("_");
 			console.log("tmpLocalName: ", tmpLocalName);
 
-			S3Objects[i] = fs.createWriteStream(`${tmpDir}/${tmpLocalName}`);
+			S3Objects[i] = fs.createWriteStream(`${tmpDir}/user_${userId}/${tmpLocalName}`);
 			writePromises.push(
 				new Promise((resolve, reject) => {
 					getS3Object.Body.pipe(S3Objects[i])
 						.on("finish", () => {
-							console.log(`get S3 object to local ${tmpDir}/${tmpLocalName} finished`);
+							console.log(
+								`get S3 object to local ${tmpDir}/user_${userId}/${tmpLocalName} finished`
+							);
 							resolve();
 						})
 						.on("error", (err) => {
-							reject(`get S3 object to local ${tmpDir}/${tmpLocalName} error: ${err}`);
+							reject(
+								`get S3 object to local ${tmpDir}/user_${userId}/${tmpLocalName} error: ${err}`
+							);
 						});
 				})
 			);
@@ -83,11 +124,11 @@ const getObjSave = async (client, bucket, s3fileArray, fileArray) => {
 };
 
 // step 2. zipFiles - archive local files
-const zipFiles = async (fileArray, parentPath, parentName) => {
+const zipFiles = async (fileArray, parentPath, parentName, userId) => {
 	try {
 		// 1. create zip file & write stream
 		const archive = archiver("zip", { zlib: { level: 9 } });
-		const output = fs.createWriteStream(`${tmpDir}/${parentName}.zip`);
+		const output = fs.createWriteStream(`${tmpDir}/user_${userId}/${parentName}.zip`);
 		archive.on("error", (err) => {
 			throw new Error(`archive error: ${err}`);
 		});
@@ -102,11 +143,10 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 			} else {
 				pathInZip = fileArray[i].slice(parentPathModified.length + 1);
 			}
-			// const promise = new Promise((resolve, reject) => {
 			appendPromises.push(
 				new Promise((resolve, reject) => {
 					const stream = fs.createReadStream(
-						`${tmpDir}/${fileArray[i].split("/").join("_")}`
+						`${tmpDir}/user_${userId}/${fileArray[i].split("/").join("_")}`
 					);
 
 					stream.on("close", () => {
@@ -121,7 +161,6 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 					archive.append(stream, { name: pathInZip });
 				})
 			);
-			// appendPromises.push(promise);
 		}
 		// 3. finish zip
 		const zipPromise = new Promise((resolve, reject) => {
@@ -147,7 +186,7 @@ const zipFiles = async (fileArray, parentPath, parentName) => {
 
 // step 3. zipToS3 - send zip file to S3
 const zipToS3 = async (userId, client, bucket, parentName) => {
-	const localZip = `${tmpDir}/${parentName}.zip`;
+	const localZip = `${tmpDir}/user_${userId}/${parentName}.zip`;
 	const key = `user_${userId}/${parentName}.zip`;
 
 	const fileSize = fs.statSync(localZip).size;
@@ -205,4 +244,4 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 	}
 };
 
-export { getDownloadUrl, getObjSave, zipFiles, zipToS3 };
+export { getDownloadUrl, createLocalFolder, getObjSave, zipFiles, zipToS3 };
