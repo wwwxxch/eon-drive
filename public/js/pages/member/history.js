@@ -114,8 +114,9 @@ $("#go-back-link").on("click", function (e) {
 
 // ===================================================================
 // restore button
-$(".rec").on("click", ".restore-btn", function () {
+$("#file-history").on("click", ".restore-btn", function () {
 	const version = $(this).data("version");
+	console.log("version: ", version);
 
 	const fileName = $(".file-name").text();
 	const versionTime = $(this).closest(".rec").find(".operation-time").text();
@@ -232,7 +233,9 @@ $("#history-download").on("click", async function () {
 	} else {
 		downloadSpinner.removeClass("spinner-border");
 		downloadStatus.text("");
-		downloadError.html("<span>Opps! Something went wrong. Please try later or contact us.</span>");
+		downloadError.html(
+			"<span>Opps! Something went wrong. Please try later or contact us.</span>"
+		);
 	}
 
 	setTimeout(() => downloadModal.modal("hide"), 2000);
