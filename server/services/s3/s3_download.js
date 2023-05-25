@@ -20,9 +20,6 @@ import { largeUpload } from "./s3_upload.js";
 import { mkdir, access } from "node:fs/promises";
 import { fileURLToPath } from "url";
 import path from "path";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const rootPath = path.join(__dirname, "../../../");
 
 // const tmpDir = ".";
 const tmpDir = process.env.TMP_DIR;
@@ -51,7 +48,10 @@ const getDownloadUrl = async (
 // step 0 create folders per user
 const createLocalFolder = async (user_id) => {
 	let userFolderPath;
-	if (process.env.NODE_ENV === "dev") {
+	if (process.env.NODE_ENV) {
+		const __filename = fileURLToPath(import.meta.url);
+		const __dirname = path.dirname(__filename);
+		const rootPath = path.join(__dirname, "../../../");
 		userFolderPath = `${rootPath}/user_${user_id}`;
 	} else {
 		userFolderPath = `${tmpDir}/user_${user_id}`;
@@ -68,11 +68,11 @@ const createLocalFolder = async (user_id) => {
 				console.log(`created user folder ${createDir}`);
 				return true;
 			} catch (e) {
-				console.error("createLocalFolder: ", e);
+				console.error("createLocalFolder - mkdir: ", e);
 				return false;
 			}
 		} else {
-			console.error("createLocalFolder: ", e);
+			console.error("createLocalFolder - access: ", e);
 			return false;
 		}
 	}
@@ -174,7 +174,7 @@ const zipFiles = async (fileArray, parentPath, parentName, userId) => {
 			});
 		});
 		// TODO: await archive.finalize(); ??
-		archive.finalize();
+		await archive.finalize();
 		await Promise.all([...appendPromises, zipPromise]);
 		console.log("zipFiles: done");
 		return true;

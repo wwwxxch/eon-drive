@@ -170,7 +170,6 @@ const dlCallLambda = async (req, res, next) => {
 	return res.json({ downloadUrl: toLambda.downloadUrl });
 };
 
-// TODO: handling errors in my server ...
 const dlLocalArchive = async (req, res, next) => {
 	console.log("dlLocalArchive: ", req.body);
 	const { finalListNoVer, finalListWithVer, parentPath, parentName } = req.body;
@@ -214,7 +213,7 @@ const dlLocalArchive = async (req, res, next) => {
 		parentName
 	);
 	console.log("getZipUrl: ", getZipUrl);
-	if (!getZipUrl) {
+	if (getZipUrl.status !== 200) {
 		return next(CustomError.internalServerError("(fn) zipToS3 Error"));
 	}
 

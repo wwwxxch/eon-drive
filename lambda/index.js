@@ -1,4 +1,4 @@
-const { getObjSave, zipFiles, zipToS3 } = require("./s3_download.js");
+const { createLocalFolder, getObjSave, zipFiles, zipToS3 } = require("./s3_download.js");
 
 const { deleteLocal } = require("./fs_operation.js");
 
@@ -26,12 +26,20 @@ exports.handler = async (event) => {
 
 		const s3finalList = finalListWithVer.map((item) => `user_${userId}/${item}`);
 
+		// 0. create local folder
+		const createLocalFolderResult = await createLocalFolder(userId);
+		console.log("createLocalFolderResult: ", createLocalFolderResult);
+		if (!createLocalFolderResult) {
+			throw new Error("createLocalFolder Error");
+		}
+
 		// 1. save objects
 		const saveToLocal = await getObjSave(
 			s3clientGeneral,
 			S3_MAIN_BUCKET_NAME,
 			s3finalList,
-			finalListNoVer
+			finalListNoVer,
+			userId
 		);
 		console.log("saveToLocal: ", saveToLocal);
 		if (!saveToLocal) {
@@ -39,7 +47,7 @@ exports.handler = async (event) => {
 		}
 
 		// 2. create zip
-		const createZip = await zipFiles(finalListNoVer, parentPath, parentName);
+		const createZip = await zipFiles(finalListNoVer, parentPath, parentName, userId);
 		console.log("createZip: ", createZip);
 		if (!createZip) {
 			throw new Error("zipFiles error");
@@ -54,17 +62,18 @@ exports.handler = async (event) => {
 		);
 		console.log("getZipUrl: ", getZipUrl);
 		if (getZipUrl.status !== 200) {
-			throw new Error(getZipUrl.error);
+			throw new Error("zipToS3 error: ", getZipUrl.error);
 		}
 
 		// 4. delete files
 		for (let i = 0; i < finalListNoVer.length; i++) {
 			const deletefile = await deleteLocal(
-				`${tmpDir}/${finalListNoVer[i].split("/").join("_")}`
+				`${tmpDir}/user_${userId}/${finalListNoVer[i].split("/").join("_")}`
 			);
 			console.log(deletefile);
 		}
-		const deleteZip = await deleteLocal(`/tmp/${parentName}.zip`);
+		// const deleteZip = await deleteLocal(`/tmp/${parentName}.zip`);
+		const deleteZip = await deleteLocal(`${tmpDir}/user_${userId}/${parentName}.zip`);
 		console.log(deleteZip);
 
 		return { status: 200, downloadUrl: getZipUrl.url };
