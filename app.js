@@ -101,7 +101,7 @@ app.use("/api/" + process.env.API_VERSION, [
 // ---------------------------------------------------
 // check route for load balancer
 app.get("/check", (req, res) => {
-	if (Date.now() % 10 === 0) {
+	if (Date.now() % 11 === 0) {
 		console.log("/check");
 	}
 	return res.send("ok");
