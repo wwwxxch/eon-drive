@@ -1,7 +1,7 @@
 # EON Drive
 <div>
    <img src="https://img.shields.io/badge/license-MIT-7c594e">
-   <img src="https://img.shields.io/badge/release-v1.0.4-76bd23">
+   <img src="https://img.shields.io/badge/release-v1.1.0-76bd23">
    <img src="https://img.shields.io/badge/powered%20by-wwwxxch-blue">
 </div>
 <br>
@@ -130,7 +130,17 @@ npm i
     * General configuration - setup memory to be allocated (better to be 256 MB or more) and ephemeral storage
     * Environment variables - setup variables used in lambda function
 
+### Monitoring
+* Install Prometheus Node Exporter (https://prometheus.io/docs/guides/node-exporter/)
+* Create promethues.yml and docker-compose.yml for Prometheus and Grafana servers
+* Run containers using docker compose
+
+* Usually the monitoring servers and the target server are different. Here the Node server and monitoring servers are running on the same EC2 instance due to cost considerations
+* Be cautious with the IP address and port setting
+
 ## Release
+* 1.1.0
+  * Adding Prometheus configuration and enabling monitoring through Grafana 
 * 1.0.0
   * Initial release
 
