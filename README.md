@@ -1,11 +1,11 @@
 # EON Drive
 <div>
    <img src="https://img.shields.io/badge/license-MIT-7c594e">
-   <img src="https://img.shields.io/badge/release-v1.1.0-76bd23">
+   <img src="https://img.shields.io/github/v/release/wwwxxch/eon-drive?display_name=tag">
    <img src="https://img.shields.io/badge/powered%20by-wwwxxch-blue">
 </div>
 <br>
-
+	
 A personal cloud storage service for users to manage their files in the cloud.
 
 You can -
