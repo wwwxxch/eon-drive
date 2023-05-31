@@ -1,7 +1,7 @@
 # EON Drive
 <div>
    <img src="https://img.shields.io/badge/license-MIT-7c594e">
-   <img src="https://img.shields.io/github/v/release/wwwxxch/eon-drive?display_name=tag">
+   <img src="https://img.shields.io/github/v/release/wwwxxch/eon-drive?color=76bd23">
    <img src="https://img.shields.io/badge/powered%20by-wwwxxch-blue">
 </div>
 <br>
