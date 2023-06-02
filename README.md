@@ -30,6 +30,8 @@ Password - `123oooOOO!`
 
 *You can try the share files feature between these two accounts. 🙂
 
+![demo_gif](https://wwwxxch-personal.s3.amazonaws.com/eondrive_demo_gif.gif)
+
 ![landing_page](https://wwwxxch-personal.s3.amazonaws.com/eondrive_demo_landing_release_1_0_0.png)
 
 ![home_page](https://wwwxxch-personal.s3.amazonaws.com/eondrive_demo_home_release_1_0_0.png)
