@@ -43,12 +43,13 @@ Password - `123oooOOO!`
 *	**Real-time update -** Displayed real-time updates with Socket.IO when new files are uploaded, files deleted, or file shared links created
 * **Storage limits -** Checked the storage limits by each user during file upload and restoration processes
 *	**Scaling -**
-    * Web Server - Hosted the Express server on AWS EC2 with Application Load Balancer to ensure scalability 
+    * Web Server - Hosted the Express server on AWS EC2 with Application Load Balancer to ensure scalability. PM2 logs are output to AWS CloudWatch for monitoring
     * Socket.IO Server - Utilized Redis as an adapter for Socket.IO server scaling
 * **Email verification -** Used the third-party email delivery service for registration email verification
 * **Rate limiting -** Implemented with Redis to control the coming requests in sign-up routes by IP address
 *	**Authentication -** Implemented cookie-based authentication and session management with Redis
-* **Remove expired versions -** Scheduled a cron job to remove expired versions of files & expired deleted files in trash and output the logs to AWS CloudWatch for better monitoring
+* **Remove expired versions -** Scheduled a cron job to remove expired versions of files & expired deleted files in trash and output the logs to AWS CloudWatch for monitoring
+* **Machine monitoring -** Utilized Prometheus to monitor the performance and health of the EC2 machine hosting the application
 
 ### Database schema
 
@@ -129,14 +130,6 @@ npm i
 4. In configuration tab
     * General configuration - setup memory to be allocated (better to be 256 MB or more) and ephemeral storage
     * Environment variables - setup variables used in lambda function
-
-### Monitoring
-* Install Prometheus Node Exporter (https://prometheus.io/docs/guides/node-exporter/)
-* Create promethues.yml and docker-compose.yml for Prometheus and Grafana servers
-* Run containers using docker compose
-
-* Usually the monitoring servers and the target server are different. Here the Node server and monitoring servers are running on the same EC2 instance due to cost considerations
-* Be cautious with the IP address and port setting
 
 ## Release
 * 1.1.0
