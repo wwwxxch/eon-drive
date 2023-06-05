@@ -42,7 +42,9 @@ exports.handler = async (event) => {
 			userId
 		);
 		console.log("saveToLocal: ", saveToLocal);
-		if (!saveToLocal) {
+		if (saveToLocal.status === 500 && saveToLocal.error === "Exceeds Download Limit") {
+			throw new Error(`${saveToLocal.error}`);
+		} else if (saveToLocal.status === 500) {
 			throw new Error("getObjSave error");
 		}
 
@@ -79,6 +81,6 @@ exports.handler = async (event) => {
 		return { status: 200, downloadUrl: getZipUrl.url };
 	} catch (e) {
 		console.error("lambda zipfiles: ", e);
-		return { status: 500, error: e };
+		return { status: 500, error: e.message };
 	}
 };

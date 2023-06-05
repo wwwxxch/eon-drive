@@ -11,7 +11,8 @@ const fs = require("fs");
 
 const DEFAULT_S3_EXPIRES = parseInt(process.env.DEFAULT_S3_EXPIRES);
 const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE * 1024 * 1024);
-const ZIP_SIZE = parseInt(process.env.ZIP_SIZE * 1024 * 1024 * 1024);
+const DOWNLOAD_SIZE = parseInt(process.env.DOWNLOAD_SIZE * 1024 * 1024);
+// const ZIP_SIZE = parseInt(process.env.ZIP_SIZE * 1024 * 1024 * 1024);
 
 const { largeUpload } = require("./s3_upload.js");
 const { mkdir, access } = require("node:fs/promises");
@@ -80,6 +81,7 @@ const getObjSave = async (client, bucket, s3fileArray, fileArray, userId) => {
 		let tmpLocalName;
 		let S3Objects = [];
 		let writePromises = [];
+		let currentSize = 0;
 		for (let i = 0; i < s3fileArray.length; i++) {
 			// download object from S3
 			const command = new GetObjectCommand({
@@ -87,6 +89,13 @@ const getObjSave = async (client, bucket, s3fileArray, fileArray, userId) => {
 				Key: s3fileArray[i],
 			});
 			const getS3Object = await client.send(command);
+
+			// check objects size
+			currentSize += getS3Object.ContentLength;
+			console.log("currentSize: ", currentSize);
+			if (currentSize > DOWNLOAD_SIZE) {
+				throw new Error(`Exceeds Download Limit`);
+			}
 
 			// save object to local
 			tmpLocalName = fileArray[i].split("/").join("_");
@@ -112,10 +121,12 @@ const getObjSave = async (client, bucket, s3fileArray, fileArray, userId) => {
 		}
 		await Promise.all(writePromises);
 		console.log("getObjSave: done");
-		return true;
+		// return true;
+		return { status: 200 };
 	} catch (e) {
 		console.error("getObjSave: ", e);
-		return false;
+		// return false;
+		return { status: 500, error: e.message };
 	}
 };
 
@@ -169,7 +180,7 @@ const zipFiles = async (fileArray, parentPath, parentName, userId) => {
 				reject(`Creating zip file error: ${err}`);
 			});
 		});
-		// TODO: await archive.finalize(); ??
+
 		await archive.finalize();
 		await Promise.all([...appendPromises, zipPromise]);
 		console.log("zipFiles: done");
@@ -185,11 +196,8 @@ const zipToS3 = async (userId, client, bucket, parentName) => {
 	const localZip = `${tmpDir}/user_${userId}/${parentName}.zip`;
 	const key = `user_${userId}/${parentName}.zip`;
 
-	const fileSize = fs.statSync(localZip).size;
+	const fileSize = (await fs.promises.stat(localZip)).size;
 	console.log("fileSize: ", fileSize, " bytes");
-	if (fileSize > ZIP_SIZE) {
-		throw new Error("file size exceeds 4 GB");
-	}
 
 	try {
 		// upload zip to S3

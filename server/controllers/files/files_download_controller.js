@@ -154,11 +154,11 @@ const dlCallLambda = async (req, res, next) => {
 		parentPath,
 		parentName
 	);
-
+	// console.log("toLambda: ", toLambda);
 	if (!toLambda) {
 		return next(CustomError.internalServerError());
-	} else if (toLambda.status === 500 && toLambda.error === "file size exceeds 4 GB") {
-		return next(CustomError.badRequest("file size exceeds 4 GB"));
+	} else if (toLambda.status === 500 && toLambda.error === "Exceeds Download Limit") {
+		return next(CustomError.badRequest("Exceeds Download Limit"));
 	} else if (toLambda.status === 500) {
 		return next(CustomError.internalServerError("(fn) callLambdaZip Error"));
 	} else if (toLambda.downloadUrl) {
@@ -194,7 +194,9 @@ const dlLocalArchive = async (req, res, next) => {
 		userId
 	);
 	console.log("saveToLocal: ", saveToLocal);
-	if (!saveToLocal) {
+	if (saveToLocal.status === 500 && saveToLocal.error === "Exceeds Download Limit") {
+		return next(CustomError.badRequest(`${saveToLocal.error}`));
+	} else if (saveToLocal.status === 500) {
 		return next(CustomError.internalServerError("(fn) getObjSave Error"));
 	}
 
@@ -213,7 +215,7 @@ const dlLocalArchive = async (req, res, next) => {
 		parentName
 	);
 	console.log("getZipUrl: ", getZipUrl);
-	if (getZipUrl.status !== 200) {
+	if (getZipUrl.status !== 200 || !getZipUrl.url) {
 		return next(CustomError.internalServerError("(fn) zipToS3 Error"));
 	}
 
