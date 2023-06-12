@@ -49,7 +49,7 @@ Password - `123oooOOO!`
     * Socket.IO Server - Utilized Redis as an adapter for Socket.IO server scaling
 * **Email verification -** Used the third-party email delivery service for registration email verification
 * **Rate limiting -** Implemented with Redis to control the coming requests in sign-up routes by IP address
-*	**Authentication -** Implemented cookie-based authentication and session management with Redis
+*	**Authentication -** Implemented session-based authentication
 * **Remove expired versions -** Scheduled a cron job to remove expired versions of files & expired deleted files in trash and output the logs to AWS CloudWatch for monitoring
 * **Machine monitoring -** Utilized Prometheus to monitor the performance and health of the EC2 machine hosting the application
 
